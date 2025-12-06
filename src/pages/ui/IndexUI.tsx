@@ -91,7 +91,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
               {/* Card 1: Todos los cuadros */}
               <CollectionNavigationCard 
                 title="Todos los cuadros"
-                image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/all-products.jpg"
+                image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764996809955-ayg66qfvgl.png"
                 link="/all-products"
               />
 

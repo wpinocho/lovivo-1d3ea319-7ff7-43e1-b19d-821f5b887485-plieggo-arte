@@ -37,7 +37,7 @@ const AllProducts = () => {
         {/* Left: Image */}
         <div className="relative bg-muted overflow-hidden">
           <img 
-            src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/all-products.jpg"
+            src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764996809955-ayg66qfvgl.png"
             alt="Todos los cuadros"
             className="w-full h-full object-cover"
           />
