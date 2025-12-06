@@ -36,10 +36,15 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
       {/* SECCIÓN 1: Hero Section - Mitad de pantalla */}
       <section className="relative h-[50vh] min-h-[500px] overflow-hidden">
         <div className="absolute inset-0">
-          <img 
-            src="/src/assets/hero-paper-folding.jpg"
-            alt="Manos doblando papel artístico"
+          <video 
+            src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/store-videos/1d3ea319-7ff7-43e1-b19d-821f5b887485/hero-paper-folding.mp4"
+            poster="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/hero-paper-folding-poster.jpg"
+            autoPlay
+            loop
+            muted
+            playsInline
             className="w-full h-full object-cover"
+            aria-label="Manos doblando papel artístico"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/30 to-background" />
         </div>
