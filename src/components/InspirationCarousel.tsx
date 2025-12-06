@@ -6,10 +6,11 @@ import { useEffect, useState } from 'react'
  */
 
 const inspirationImages = [
-  { src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764998029362-6npxv15ojyr.png', alt: 'Cuadro Plieggo en cocina minimalista' },
-  { src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764998029362-rn00qz5co7c.png', alt: 'Cuadro Plieggo en oficina con luz natural' },
-  { src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764998029363-on4t7a5v2nt.png', alt: 'Cuadro Plieggo en espacio de trabajo contemporáneo' },
-  { src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764998029363-e9ggjodtnlk.png', alt: 'Cuadro Plieggo en comedor familiar' },
+  { src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764999233427-b1o2gfd6to7.png', alt: 'Cuadro Plieggo verde en oficina minimalista con escritorio' },
+  { src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764999233428-dejsue97seg.png', alt: 'Cuadro Plieggo negro en comedor con ventanal luminoso' },
+  { src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764999233428-iwweem17c3a.png', alt: 'Cuadro Plieggo morado vertical en oficina con silla terracota' },
+  { src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764999233428-mc0ct3d913c.png', alt: 'Cuadro Plieggo burdeos en repisa de cocina' },
+  { src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764999233428-mm92cxfgzha.png', alt: 'Cuadro Plieggo grande en comedor familiar con perro' },
 ]
 
 export const InspirationCarousel = () => {
@@ -41,7 +42,7 @@ export const InspirationCarousel = () => {
               <img
                 src={image.src}
                 alt={image.alt}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
             </div>
           ))}
