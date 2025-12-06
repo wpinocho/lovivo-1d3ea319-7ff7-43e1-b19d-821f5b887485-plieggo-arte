@@ -52,16 +52,34 @@ export const EcommerceTemplate = ({
           <BrandLogoLeft />
 
           {/* Navigation - Desktop */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <ScrollLink 
-              to="/#products" 
-              className="font-body text-base text-muted-foreground hover:text-foreground transition-colors"
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link 
+              to="/all-products" 
+              className="font-body text-base text-muted-foreground hover:text-secondary transition-colors"
             >
-              Cuadros
-            </ScrollLink>
+              Todos los Cuadros
+            </Link>
+            <Link 
+              to="/top-sellers" 
+              className="font-body text-base text-muted-foreground hover:text-secondary transition-colors"
+            >
+              Top Sellers
+            </Link>
+            <Link 
+              to="/coleccion-acordeon" 
+              className="font-body text-base text-muted-foreground hover:text-secondary transition-colors"
+            >
+              Acordeón
+            </Link>
+            <Link 
+              to="/coleccion-espacio" 
+              className="font-body text-base text-muted-foreground hover:text-secondary transition-colors"
+            >
+              Espacio
+            </Link>
             <Link 
               to="/about" 
-              className="font-body text-base text-muted-foreground hover:text-foreground transition-colors"
+              className="font-body text-base text-muted-foreground hover:text-secondary transition-colors"
             >
               Sobre Nosotros
             </Link>
