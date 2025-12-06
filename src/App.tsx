@@ -21,6 +21,10 @@ import Checkout from "./pages/Checkout";
 import ThankYou from "./pages/ThankYou";
 import Cart from "./pages/Cart";
 import MyOrders from "./pages/MyOrders";
+import CollectionAcordeon from "./pages/CollectionAcordeon";
+import CollectionEspacio from "./pages/CollectionEspacio";
+import AllProducts from "./pages/AllProducts";
+import TopSellers from "./pages/TopSellers";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +63,10 @@ const App = () => (
                       <Route path="/about" element={<AboutPage />} />
                       <Route path="/blog" element={<Blog />} />
                       <Route path="/blog/:slug" element={<BlogPost />} />
+                      <Route path="/coleccion-acordeon" element={<CollectionAcordeon />} />
+                      <Route path="/coleccion-espacio" element={<CollectionEspacio />} />
+                      <Route path="/all-products" element={<AllProducts />} />
+                      <Route path="/top-sellers" element={<TopSellers />} />
                       {/* Aquí puedes agregar/modificar rutas */}
                       <Route path="*" element={<NotFound />} />
                     </Routes>

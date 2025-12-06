@@ -92,8 +92,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
               <CollectionNavigationCard 
                 title="Todos los cuadros"
                 image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/all-products.jpg"
-                link="/#products"
-                onClick={handleShowAllProducts}
+                link="/all-products"
               />
 
               {/* Card 2: Top Sellers */}
@@ -101,11 +100,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
                 <CollectionNavigationCard 
                   title="Top Sellers"
                   image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/top-sellers.jpg"
-                  link="/#products"
-                  onClick={() => {
-                    const topSellers = collections.find(c => c.handle === 'top-sellers');
-                    if (topSellers) handleViewCollectionProducts(topSellers.id);
-                  }}
+                  link="/top-sellers"
                 />
               )}
 
@@ -114,11 +109,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
                 <CollectionNavigationCard 
                   title="Colección Acordeón"
                   image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acordeon.jpg"
-                  link="/#products"
-                  onClick={() => {
-                    const acordeon = collections.find(c => c.handle === 'coleccion-acordeon');
-                    if (acordeon) handleViewCollectionProducts(acordeon.id);
-                  }}
+                  link="/coleccion-acordeon"
                 />
               )}
 
@@ -127,11 +118,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
                 <CollectionNavigationCard 
                   title="Colección Espacio"
                   image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/espacio.jpg"
-                  link="/#products"
-                  onClick={() => {
-                    const espacio = collections.find(c => c.handle === 'coleccion-espacio');
-                    if (espacio) handleViewCollectionProducts(espacio.id);
-                  }}
+                  link="/coleccion-espacio"
                 />
               )}
             </div>
