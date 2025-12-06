@@ -169,8 +169,25 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
         </div>
       </section>
 
-      {/* Newsletter Section */}
-      <NewsletterSection />
+      {/* Gift Ideas Section */}
+      <section className="py-24 bg-background">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="font-heading text-5xl md:text-6xl font-bold text-foreground mb-8 tracking-tight">
+            Explora ideas de regalo y accesorios de temporada
+          </h2>
+          
+          <div className="flex items-center justify-center gap-4 mb-12">
+            <div className="h-px w-32 bg-border"></div>
+            <Link 
+              to="/top-sellers"
+              className="font-body text-xl text-muted-foreground hover:text-secondary transition-colors"
+            >
+              Descubre regalos
+            </Link>
+            <div className="h-px w-32 bg-border"></div>
+          </div>
+        </div>
+      </section>
 
       <FloatingCart />
     </EcommerceTemplate>
