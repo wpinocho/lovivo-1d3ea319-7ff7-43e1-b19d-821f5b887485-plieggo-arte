@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { EcommerceTemplate } from '@/templates/EcommerceTemplate'
 import { ProductCard } from '@/components/ProductCard'
+import { InspirationCarousel } from '@/components/InspirationCarousel'
 import { supabase, type Product } from '@/lib/supabase'
 import { STORE_ID } from '@/lib/config'
 
@@ -107,6 +108,9 @@ const AllProducts = () => {
           </a>
         </div>
       </section>
+
+      {/* Inspiration Section */}
+      <InspirationCarousel />
     </EcommerceTemplate>
   )
 }

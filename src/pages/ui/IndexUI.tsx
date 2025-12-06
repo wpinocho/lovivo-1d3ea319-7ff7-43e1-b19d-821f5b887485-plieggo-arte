@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/ProductCard';
 import { CollectionNavigationCard } from '@/components/CollectionNavigationCard';
 import { FloatingCart } from '@/components/FloatingCart';
-import { NewsletterSection } from '@/components/NewsletterSection';
+import { InspirationCarousel } from '@/components/InspirationCarousel';
 import { EcommerceTemplate } from '@/templates/EcommerceTemplate';
 import { Link } from 'react-router-dom';
 import type { UseIndexLogicReturn } from '@/components/headless/HeadlessIndex';
@@ -188,6 +188,9 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
           </div>
         </div>
       </section>
+
+      {/* Inspiration Section */}
+      <InspirationCarousel />
 
       <FloatingCart />
     </EcommerceTemplate>
