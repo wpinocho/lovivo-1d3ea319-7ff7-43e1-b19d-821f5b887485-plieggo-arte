@@ -1,18 +1,17 @@
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
 import { ProductCard } from '@/components/ProductCard';
-import { CollectionCard } from '@/components/CollectionCard';
+import { CollectionNavigationCard } from '@/components/CollectionNavigationCard';
 import { FloatingCart } from '@/components/FloatingCart';
 import { NewsletterSection } from '@/components/NewsletterSection';
 import { EcommerceTemplate } from '@/templates/EcommerceTemplate';
+import { Link } from 'react-router-dom';
 import type { UseIndexLogicReturn } from '@/components/headless/HeadlessIndex';
 
 /**
- * EDITABLE UI - IndexUI
+ * EDITABLE UI - IndexUI (Plieggo)
  * 
- * Interfaz completamente editable para la página principal.
- * El agente IA puede modificar colores, textos, layout, etc.
+ * Página principal con diseño Moderno Mexicano
+ * Paleta: Crema Mantequilla, Azul Medianoche, Terracota, Vino Burdeos
  */
 
 interface IndexUIProps {
@@ -34,75 +33,142 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
     <EcommerceTemplate 
       showCart={true}
     >
-      {/* Hero Section */}
-      <section className="bg-background py-12 border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl font-bold text-foreground mb-4">
-            Discover Our Products
-          </h1>
-          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Find the best products at the best price. Guaranteed quality and fast shipping.
-          </p>
+      {/* SECCIÓN 1: Hero Section - Mitad de pantalla */}
+      <section className="relative h-[50vh] min-h-[500px] overflow-hidden">
+        <div className="absolute inset-0">
+          <img 
+            src="/src/assets/hero-paper-folding.jpg"
+            alt="Manos doblando papel artístico"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/30 to-background" />
+        </div>
+        
+        <div className="relative h-full flex items-end justify-center pb-16">
+          <div className="text-center">
+            <h1 className="font-heading text-6xl md:text-7xl font-bold text-foreground mb-4 tracking-tight">
+              Plieggo
+            </h1>
+            <p className="font-body text-xl text-muted-foreground max-w-md mx-auto">
+              Arte en papel hecho a mano
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* Collections Section */}
-      {!loadingCollections && collections.length > 0 && (
-        <section id="collections" className="py-12 bg-muted/30">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold text-foreground mb-8">
-              Our Collections
-            </h2>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {collections.map((collection) => (
-                <CollectionCard 
-                  key={collection.id} 
-                  collection={collection} 
-                  onViewProducts={handleViewCollectionProducts} 
-                />
-              ))}
-            </div>
+      {/* SECCIÓN 2: Statement de Marca - Con mucho padding */}
+      <section className="py-24 md:py-32">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-8 leading-tight tracking-tight">
+            Pliegues que transforman espacios
+          </h2>
+          <p className="font-body text-2xl text-muted-foreground mb-12 leading-relaxed">
+            Arte mexicano hecho a mano, accesible y con carácter arquitectónico.
+          </p>
+          
+          <Link to="/about">
+            <Button 
+              variant="outline" 
+              size="lg"
+              className="btn-hero-outline"
+            >
+              Conoce la historia
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* SECCIÓN 3: Navegación Visual / Carrusel de Colecciones */}
+      <section className="py-16 bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Card 1: Todos los cuadros */}
+            <CollectionNavigationCard 
+              title="Todos los cuadros"
+              image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/all-products.jpg"
+              link="/#products"
+              onClick={handleShowAllProducts}
+            />
+
+            {/* Card 2: Top Sellers */}
+            {!loadingCollections && collections.find(c => c.handle === 'top-sellers') && (
+              <CollectionNavigationCard 
+                title="Top Sellers"
+                image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/top-sellers.jpg"
+                link="/#products"
+                onClick={() => {
+                  const topSellers = collections.find(c => c.handle === 'top-sellers');
+                  if (topSellers) handleViewCollectionProducts(topSellers.id);
+                }}
+              />
+            )}
+
+            {/* Card 3: Colección Acordeón */}
+            {!loadingCollections && collections.find(c => c.handle === 'coleccion-acordeon') && (
+              <CollectionNavigationCard 
+                title="Colección Acordeón"
+                image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acordeon.jpg"
+                link="/#products"
+                onClick={() => {
+                  const acordeon = collections.find(c => c.handle === 'coleccion-acordeon');
+                  if (acordeon) handleViewCollectionProducts(acordeon.id);
+                }}
+              />
+            )}
+
+            {/* Card 4: Colección Espacio */}
+            {!loadingCollections && collections.find(c => c.handle === 'coleccion-espacio') && (
+              <CollectionNavigationCard 
+                title="Colección Espacio"
+                image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/espacio.jpg"
+                link="/#products"
+                onClick={() => {
+                  const espacio = collections.find(c => c.handle === 'coleccion-espacio');
+                  if (espacio) handleViewCollectionProducts(espacio.id);
+                }}
+              />
+            )}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* Products Section */}
-      <section id="products" className="py-12">
+      <section id="products" className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold text-foreground">
+          <div className="flex items-center justify-between mb-12">
+            <h2 className="font-heading text-4xl font-bold text-foreground tracking-tight">
               {selectedCollectionId 
-                ? `Products from ${collections.find(c => c.id === selectedCollectionId)?.name || 'Collection'}` 
-                : 'Featured Products'
+                ? collections.find(c => c.id === selectedCollectionId)?.name || 'Productos'
+                : 'Nuestros Cuadros'
               }
             </h2>
             {selectedCollectionId && (
               <Button 
                 variant="outline" 
                 onClick={handleShowAllProducts}
+                className="btn-hero-outline"
               >
-                See All Products
+                Ver todos
               </Button>
             )}
           </div>
           
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {[...Array(8)].map((_, i) => (
-                <div key={i} className="bg-muted rounded-lg h-80 animate-pulse"></div>
+                <div key={i} className="bg-muted rounded-sm h-96 animate-pulse"></div>
               ))}
             </div>
           ) : filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">
-                No products available.
+            <div className="text-center py-16">
+              <p className="font-body text-xl text-muted-foreground">
+                No hay productos disponibles.
               </p>
             </div>
           )}

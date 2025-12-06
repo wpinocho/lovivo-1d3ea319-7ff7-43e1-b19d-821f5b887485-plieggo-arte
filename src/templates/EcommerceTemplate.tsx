@@ -45,37 +45,27 @@ export const EcommerceTemplate = ({
   const { hasCollections, loading: loadingCollections } = useCollections()
 
   const header = (
-    <div className={`py-2 ${headerClassName}`}>
+    <div className={`py-4 bg-background/95 backdrop-blur ${headerClassName}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <BrandLogoLeft />
 
-          {/* Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <nav className="flex space-x-6">
-              {!loadingCollections && hasCollections && (
-                <ScrollLink 
-                  to="/#collections" 
-                  className="text-foreground/70 hover:text-foreground transition-colors"
-                >
-                  Collections
-                </ScrollLink>
-              )}
-              <ScrollLink 
-                to="/#products" 
-                className="text-foreground/70 hover:text-foreground transition-colors"
-              >
-                Products
-              </ScrollLink>
-              <Link 
-                to="/blog" 
-                className="text-foreground/70 hover:text-foreground transition-colors"
-              >
-                Blog
-              </Link>
-            </nav>
-          </div>
+          {/* Navigation - Desktop */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <ScrollLink 
+              to="/#products" 
+              className="font-body text-base text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Cuadros
+            </ScrollLink>
+            <Link 
+              to="/about" 
+              className="font-body text-base text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Sobre Nosotros
+            </Link>
+          </nav>
 
           {/* Profile & Cart */}
           <div className="flex items-center space-x-2">
@@ -86,12 +76,12 @@ export const EcommerceTemplate = ({
                 variant="ghost"
                 size="icon"
                 onClick={openCart}
-                className="relative"
+                className="relative hover:bg-primary/10"
                 aria-label="Ver carrito"
               >
                 <ShoppingCart className="h-5 w-5" />
                 {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                     {totalItems > 99 ? '99+' : totalItems}
                   </span>
                 )}
@@ -103,7 +93,7 @@ export const EcommerceTemplate = ({
         {/* Page Title */}
         {pageTitle && (
           <div className="mt-6">
-            <h1 className="text-3xl font-bold text-foreground">
+            <h1 className="font-heading text-3xl font-bold text-foreground">
               {pageTitle}
             </h1>
           </div>
@@ -113,45 +103,52 @@ export const EcommerceTemplate = ({
   )
 
   const footer = (
-    <div className={`bg-black text-white py-12 ${footerClassName}`}>
+    <div className={`bg-secondary text-secondary-foreground py-16 ${footerClassName}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Brand */}
           <div>
-            <BrandLogoLeft />
-            <p className="mt-4 text-white/70">
-              Your trusted online store
+            <div className="mb-4">
+              <span className="font-heading text-3xl font-bold text-secondary-foreground">
+                Plieggo
+              </span>
+            </div>
+            <p className="font-body text-lg text-secondary-foreground/70 max-w-md">
+              Arte en papel hecho a mano. Pliegues que transforman espacios con carácter arquitectónico.
             </p>
           </div>
 
-          {/* Links */}
-          <div>
-            <h3 className="font-semibold mb-4 text-white">Links</h3>
-            <div className="space-y-2">
-              <Link 
-                to="/" 
-                className="block text-white/70 hover:text-white transition-colors"
-              >
-                Home
-              </Link>
-              <Link 
-                to="/blog" 
-                className="block text-white/70 hover:text-white transition-colors"
-              >
-                Blog
-              </Link>
+          {/* Links & Social */}
+          <div className="flex flex-col md:flex-row gap-12">
+            <div className="flex-1">
+              <h3 className="font-heading font-semibold mb-4 text-secondary-foreground">Navegación</h3>
+              <div className="space-y-3">
+                <Link 
+                  to="/" 
+                  className="block font-body text-secondary-foreground/70 hover:text-secondary-foreground transition-colors"
+                >
+                  Inicio
+                </Link>
+                <Link 
+                  to="/about" 
+                  className="block font-body text-secondary-foreground/70 hover:text-secondary-foreground transition-colors"
+                >
+                  Sobre Nosotros
+                </Link>
+              </div>
             </div>
-          </div>
 
-          {/* Social Links */}
-          <div>
-            <h3 className="font-semibold mb-4 text-white">Follow Us</h3>
-            <SocialLinks />
+            <div className="flex-1">
+              <h3 className="font-heading font-semibold mb-4 text-secondary-foreground">Síguenos</h3>
+              <SocialLinks />
+            </div>
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-white/20 text-center text-white/70">
-          <p>&copy; 2025 Your Store. All rights reserved.</p>
+        <div className="mt-12 pt-8 border-t border-secondary-foreground/20 text-center">
+          <p className="font-body text-sm text-secondary-foreground/60">
+            &copy; {new Date().getFullYear()} Plieggo. Todos los derechos reservados.
+          </p>
         </div>
       </div>
     </div>

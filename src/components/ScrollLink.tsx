@@ -1,36 +1,35 @@
-import { Link, useLocation } from 'react-router-dom'
-import { MouseEvent } from 'react'
+import { Link } from 'react-router-dom'
 
 interface ScrollLinkProps {
   to: string
-  children: React.ReactNode
   className?: string
+  children: React.ReactNode
 }
 
-export const ScrollLink = ({ to, children, className }: ScrollLinkProps) => {
-  const location = useLocation()
-  
-  const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    // Extract base path and hash
+export const ScrollLink = ({ to, className, children }: ScrollLinkProps) => {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Check if we're linking to an anchor on the same page
     const [path, hash] = to.split('#')
-    const targetPath = path || '/'
     
-    // If we're already on the same page, manually scroll
-    if (location.pathname === targetPath && hash) {
+    if (hash && (path === '/' || path === '')) {
       e.preventDefault()
+      
+      // If we're not on the home page, navigate there first
+      if (window.location.pathname !== '/') {
+        window.location.href = to
+        return
+      }
+      
+      // Scroll to the element
       const element = document.getElementById(hash)
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth' })
-        // Update hash in URL without navigation
-        window.history.pushState(null, '', `#${hash}`)
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }
     }
-    // If coming from another page, React Router will navigate and
-    // the browser will automatically scroll to the hash
   }
-  
+
   return (
-    <Link to={to} onClick={handleClick} className={className}>
+    <Link to={to} className={className} onClick={handleClick}>
       {children}
     </Link>
   )

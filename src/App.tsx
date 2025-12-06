@@ -15,6 +15,7 @@ import Index from "./pages/Index";
 import Product from "./pages/Product";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import AboutPage from "./pages/AboutPage";
 import NotFound from "./pages/NotFound";
 import Checkout from "./pages/Checkout";
 import ThankYou from "./pages/ThankYou";
@@ -55,6 +56,7 @@ const App = () => (
                       <Route path="/thank-you" element={<ThankYou />} />
                       <Route path="/thank-you/:orderId" element={<ThankYou />} />
                       <Route path="/my-orders" element={<MyOrders />} />
+                      <Route path="/about" element={<AboutPage />} />
                       <Route path="/blog" element={<Blog />} />
                       <Route path="/blog/:slug" element={<BlogPost />} />
                       {/* Aquí puedes agregar/modificar rutas */}

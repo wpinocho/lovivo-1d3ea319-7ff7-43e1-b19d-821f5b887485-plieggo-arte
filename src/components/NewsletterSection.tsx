@@ -4,42 +4,39 @@ import { HeadlessNewsletter } from '@/components/headless/HeadlessNewsletter';
 import { Mail } from 'lucide-react';
 
 /**
- * EDITABLE UI COMPONENT - NewsletterSection
+ * EDITABLE UI COMPONENT - NewsletterSection (Plieggo)
  * 
- * Componente UI completamente editable para suscripción a newsletter.
- * El agente IA puede modificar colores, textos, layout, etc.
- * 
- * Consume lógica de HeadlessNewsletter (solo muestra email input).
+ * Componente UI para suscripción a newsletter con estilo Moderno Mexicano
  */
 
 export const NewsletterSection = () => {
   return (
     <HeadlessNewsletter>
       {(logic) => (
-        <section className="bg-muted/30 py-16 border-y">
+        <section className="bg-muted/30 py-20 border-y border-border">
           <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             {logic.success ? (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div className="flex justify-center">
-                  <div className="bg-primary/10 rounded-full p-3">
-                    <Mail className="h-8 w-8 text-primary" />
+                  <div className="bg-primary/10 rounded-full p-4">
+                    <Mail className="h-10 w-10 text-primary" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-foreground">
-                  Thanks for subscribing!
+                <h3 className="font-heading text-3xl font-bold text-foreground">
+                  ¡Gracias por suscribirte!
                 </h3>
-                <p className="text-muted-foreground">
-                  You'll receive our best offers and promotions soon.
+                <p className="font-body text-lg text-muted-foreground">
+                  Pronto recibirás nuestras mejores ofertas y novedades.
                 </p>
               </div>
             ) : (
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <h3 className="text-2xl font-bold text-foreground">
-                    Want promotional emails?
+              <div className="space-y-8">
+                <div className="space-y-3">
+                  <h3 className="font-heading text-3xl md:text-4xl font-bold text-foreground">
+                    ¿Quieres estar al día?
                   </h3>
-                  <p className="text-lg text-muted-foreground">
-                    Subscribe to our newsletter and get exclusive offers
+                  <p className="font-body text-xl text-muted-foreground">
+                    Suscríbete y recibe ofertas exclusivas y nuevas colecciones
                   </p>
                 </div>
                 
@@ -52,24 +49,24 @@ export const NewsletterSection = () => {
                 >
                   <Input 
                     type="email"
-                    placeholder="your@email.com"
+                    placeholder="tu@email.com"
                     value={logic.email}
                     onChange={(e) => logic.setEmail(e.target.value)}
                     disabled={logic.isSubmitting}
-                    className="flex-1"
+                    className="flex-1 font-body"
                     required
                   />
                   <Button 
                     type="submit"
                     disabled={logic.isSubmitting}
-                    className="sm:w-auto"
+                    className="btn-hero sm:w-auto"
                   >
-                    {logic.isSubmitting ? 'Subscribing...' : 'Subscribe'}
+                    {logic.isSubmitting ? 'Enviando...' : 'Suscribirse'}
                   </Button>
                 </form>
                 
                 {logic.error && (
-                  <p className="text-sm text-destructive">
+                  <p className="font-body text-sm text-destructive">
                     {logic.error}
                   </p>
                 )}

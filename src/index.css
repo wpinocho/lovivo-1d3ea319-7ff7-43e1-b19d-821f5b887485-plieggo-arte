@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,95 +8,97 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* 
+PLIEGGO DESIGN SYSTEM - Moderno Mexicano
+Paleta de colores exacta del cliente
 */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Crema Mantequilla #F2EFE4 - Fondo principal */
+    --background: 48 33% 92%;
+    /* Azul Medianoche #1B2A41 - Texto principal */
+    --foreground: 216 42% 18%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 48 33% 92%;
+    --card-foreground: 216 42% 18%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 48 33% 92%;
+    --popover-foreground: 216 42% 18%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Terracota Ladrillo #C16648 - Acentos principales */
+    --primary: 14 49% 52%;
+    --primary-foreground: 48 33% 92%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Vino Burdeos #5D2A38 - Acentos secundarios */
+    --secondary: 343 37% 26%;
+    --secondary-foreground: 48 33% 92%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Variaciones sutiles del crema para fondos secundarios */
+    --muted: 48 25% 88%;
+    --muted-foreground: 216 30% 35%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 14 49% 52%;
+    --accent-foreground: 48 33% 92%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 48 33% 92%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 216 20% 75%;
+    --input: 216 20% 75%;
+    --ring: 14 49% 52%;
 
-    --radius: 0.5rem;
+    --radius: 0.25rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar (para dashboard) */
+    --sidebar-background: 48 33% 92%;
+    --sidebar-foreground: 216 42% 18%;
+    --sidebar-primary: 14 49% 52%;
+    --sidebar-primary-foreground: 48 33% 92%;
+    --sidebar-accent: 48 25% 88%;
+    --sidebar-accent-foreground: 216 42% 18%;
+    --sidebar-border: 216 20% 75%;
+    --sidebar-ring: 14 49% 52%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Dark mode invertido manteniendo la paleta */
+    --background: 216 42% 18%;
+    --foreground: 48 33% 92%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 216 42% 22%;
+    --card-foreground: 48 33% 92%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 216 42% 22%;
+    --popover-foreground: 48 33% 92%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 14 49% 52%;
+    --primary-foreground: 216 42% 18%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 343 37% 35%;
+    --secondary-foreground: 48 33% 92%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 216 35% 25%;
+    --muted-foreground: 48 20% 70%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 14 49% 52%;
+    --accent-foreground: 216 42% 18%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 48 33% 92%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 216 25% 35%;
+    --input: 216 25% 35%;
+    --ring: 14 49% 52%;
+
+    --sidebar-background: 216 42% 18%;
+    --sidebar-foreground: 48 33% 92%;
+    --sidebar-primary: 14 49% 52%;
+    --sidebar-primary-foreground: 216 42% 18%;
+    --sidebar-accent: 216 35% 25%;
+    --sidebar-accent-foreground: 48 33% 92%;
+    --sidebar-border: 216 25% 35%;
+    --sidebar-ring: 14 49% 52%;
   }
 }
 
@@ -105,5 +109,31 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Crimson Pro', serif;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .font-body {
+    font-family: 'Crimson Pro', serif;
+  }
+}
+
+/* Variantes personalizadas para botones hero */
+@layer components {
+  .btn-hero {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 font-heading font-semibold tracking-wide;
+  }
+
+  .btn-hero-outline {
+    @apply border-2 border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground transition-all duration-300 font-heading font-semibold tracking-wide;
+  }
+
+  .collection-card {
+    @apply border-2 border-transparent transition-all duration-300 hover:border-secondary hover:shadow-lg;
   }
 }
