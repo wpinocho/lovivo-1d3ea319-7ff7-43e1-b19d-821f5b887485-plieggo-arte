@@ -3,7 +3,6 @@ import { PageTemplate } from './PageTemplate'
 import { BrandLogoLeft } from '@/components/BrandLogoLeft'
 import { SocialLinks } from '@/components/SocialLinks'
 import { FloatingCart } from '@/components/FloatingCart'
-import { ProfileMenu } from '@/components/ProfileMenu'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { ShoppingCart } from 'lucide-react'
@@ -85,10 +84,8 @@ export const EcommerceTemplate = ({
             </Link>
           </nav>
 
-          {/* Profile & Cart */}
+          {/* Cart */}
           <div className="flex items-center space-x-2">
-            <ProfileMenu />
-            
             {showCart && (
               <Button
                 variant="ghost"
