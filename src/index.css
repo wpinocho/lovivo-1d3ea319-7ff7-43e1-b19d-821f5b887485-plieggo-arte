@@ -143,7 +143,7 @@ Paleta de colores exacta del cliente
   }
 
   .carousel-track {
-    @apply flex gap-6 transition-transform duration-700 ease-out;
+    @apply flex gap-6 transition-transform duration-[1200ms] ease-out;
     width: max-content;
   }
 
