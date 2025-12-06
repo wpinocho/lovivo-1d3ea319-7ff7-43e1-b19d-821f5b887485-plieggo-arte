@@ -68,7 +68,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
       </section>
 
       {/* SECCIÓN 2: Statement de Marca - Con mucho padding */}
-      <section className="py-24 md:py-32">
+      <section style={{ letterSpacing: '0px', paddingBottom: '70px' }} className="py-24 md:py-32">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-8 leading-tight tracking-tight">
             Pliegues que transforman espacios
