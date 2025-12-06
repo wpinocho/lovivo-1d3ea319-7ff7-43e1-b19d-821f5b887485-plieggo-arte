@@ -136,4 +136,36 @@ Paleta de colores exacta del cliente
   .collection-card {
     @apply border-2 border-transparent transition-all duration-300 hover:border-secondary hover:shadow-lg;
   }
+
+  /* Carrusel de navegación (efecto naipes) */
+  .carousel-container {
+    @apply px-4 sm:px-6 lg:px-8 overflow-hidden;
+  }
+
+  .carousel-track {
+    @apply flex gap-6 transition-transform duration-700 ease-out;
+    width: max-content;
+  }
+
+  .carousel-track > * {
+    width: calc((100vw - 8rem - 3rem) / 3.5); /* 3.5 cards visible */
+    max-width: 400px;
+    min-width: 280px;
+  }
+
+  /* Efecto hover: desplaza el carrusel */
+  .carousel-container:hover .carousel-track {
+    transform: translateX(calc(-1 * (((100vw - 8rem - 3rem) / 3.5) + 1.5rem)));
+  }
+
+  @media (max-width: 768px) {
+    .carousel-track > * {
+      width: calc((100vw - 4rem - 1.5rem) / 2.5); /* 2.5 cards en mobile */
+      min-width: 200px;
+    }
+
+    .carousel-container:hover .carousel-track {
+      transform: translateX(calc(-1 * (((100vw - 4rem - 1.5rem) / 2.5) + 1rem)));
+    }
+  }
 }

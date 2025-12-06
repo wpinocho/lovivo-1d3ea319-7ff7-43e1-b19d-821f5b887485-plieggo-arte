@@ -84,55 +84,57 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
       </section>
 
       {/* SECCIÓN 3: Navegación Visual / Carrusel de Colecciones */}
-      <section className="py-16 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Card 1: Todos los cuadros */}
-            <CollectionNavigationCard 
-              title="Todos los cuadros"
-              image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/all-products.jpg"
-              link="/#products"
-              onClick={handleShowAllProducts}
-            />
-
-            {/* Card 2: Top Sellers */}
-            {!loadingCollections && collections.find(c => c.handle === 'top-sellers') && (
+      <section className="py-16 bg-muted/30 overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="carousel-container group">
+            <div className="carousel-track">
+              {/* Card 1: Todos los cuadros */}
               <CollectionNavigationCard 
-                title="Top Sellers"
-                image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/top-sellers.jpg"
+                title="Todos los cuadros"
+                image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/all-products.jpg"
                 link="/#products"
-                onClick={() => {
-                  const topSellers = collections.find(c => c.handle === 'top-sellers');
-                  if (topSellers) handleViewCollectionProducts(topSellers.id);
-                }}
+                onClick={handleShowAllProducts}
               />
-            )}
 
-            {/* Card 3: Colección Acordeón */}
-            {!loadingCollections && collections.find(c => c.handle === 'coleccion-acordeon') && (
-              <CollectionNavigationCard 
-                title="Colección Acordeón"
-                image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acordeon.jpg"
-                link="/#products"
-                onClick={() => {
-                  const acordeon = collections.find(c => c.handle === 'coleccion-acordeon');
-                  if (acordeon) handleViewCollectionProducts(acordeon.id);
-                }}
-              />
-            )}
+              {/* Card 2: Top Sellers */}
+              {!loadingCollections && collections.find(c => c.handle === 'top-sellers') && (
+                <CollectionNavigationCard 
+                  title="Top Sellers"
+                  image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/top-sellers.jpg"
+                  link="/#products"
+                  onClick={() => {
+                    const topSellers = collections.find(c => c.handle === 'top-sellers');
+                    if (topSellers) handleViewCollectionProducts(topSellers.id);
+                  }}
+                />
+              )}
 
-            {/* Card 4: Colección Espacio */}
-            {!loadingCollections && collections.find(c => c.handle === 'coleccion-espacio') && (
-              <CollectionNavigationCard 
-                title="Colección Espacio"
-                image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/espacio.jpg"
-                link="/#products"
-                onClick={() => {
-                  const espacio = collections.find(c => c.handle === 'coleccion-espacio');
-                  if (espacio) handleViewCollectionProducts(espacio.id);
-                }}
-              />
-            )}
+              {/* Card 3: Colección Acordeón */}
+              {!loadingCollections && collections.find(c => c.handle === 'coleccion-acordeon') && (
+                <CollectionNavigationCard 
+                  title="Colección Acordeón"
+                  image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acordeon.jpg"
+                  link="/#products"
+                  onClick={() => {
+                    const acordeon = collections.find(c => c.handle === 'coleccion-acordeon');
+                    if (acordeon) handleViewCollectionProducts(acordeon.id);
+                  }}
+                />
+              )}
+
+              {/* Card 4: Colección Espacio */}
+              {!loadingCollections && collections.find(c => c.handle === 'coleccion-espacio') && (
+                <CollectionNavigationCard 
+                  title="Colección Espacio"
+                  image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/espacio.jpg"
+                  link="/#products"
+                  onClick={() => {
+                    const espacio = collections.find(c => c.handle === 'coleccion-espacio');
+                    if (espacio) handleViewCollectionProducts(espacio.id);
+                  }}
+                />
+              )}
+            </div>
           </div>
         </div>
       </section>
