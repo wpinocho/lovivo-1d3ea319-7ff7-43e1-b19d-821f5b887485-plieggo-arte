@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/ProductCard';
 import { CollectionNavigationCard } from '@/components/CollectionNavigationCard';
@@ -28,6 +29,11 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
     handleViewCollectionProducts,
     handleShowAllProducts,
   } = logic;
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <EcommerceTemplate 

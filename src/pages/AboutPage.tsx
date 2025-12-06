@@ -1,6 +1,11 @@
+import { useEffect } from 'react'
 import { EcommerceTemplate } from '@/templates/EcommerceTemplate'
 
 const AboutPage = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
   return (
     <EcommerceTemplate showCart={true}>
       <div className="max-w-4xl mx-auto px-4 py-16">
