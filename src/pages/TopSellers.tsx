@@ -58,8 +58,8 @@ const TopSellers = () => {
         {/* Left: Image */}
         <div className="relative bg-muted overflow-hidden">
           <img 
-            src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/top-sellers.jpg"
-            alt="Top Sellers"
+            src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764998881511-f31r6hvzml7.png"
+            alt="Más Vendidos"
             className="w-full h-full object-cover"
           />
         </div>
@@ -68,7 +68,7 @@ const TopSellers = () => {
         <div className="bg-primary flex items-center justify-center px-8 py-16 lg:px-16">
           <div className="max-w-lg">
             <h1 className="font-heading text-4xl lg:text-5xl font-bold text-primary-foreground mb-6 tracking-tight">
-              Top Sellers
+              Más Vendidos
             </h1>
             <p className="font-body text-lg lg:text-xl text-primary-foreground/80 leading-relaxed">
               Nuestras piezas más queridas por los amantes del arte en papel. 
@@ -115,7 +115,7 @@ const TopSellers = () => {
       <section className="py-20 bg-secondary">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="font-heading text-4xl font-bold text-secondary-foreground mb-4">
-            Los más vendidos
+            Más Vendidos
           </h2>
           <p className="font-body text-lg text-secondary-foreground/90 mb-8">
             Únete a nuestra comunidad de coleccionistas de arte en papel.

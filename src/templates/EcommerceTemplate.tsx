@@ -63,7 +63,7 @@ export const EcommerceTemplate = ({
               to="/top-sellers" 
               className="font-body text-base text-muted-foreground hover:text-secondary transition-colors"
             >
-              Top Sellers
+              Más Vendidos
             </Link>
             <Link 
               to="/coleccion-acordeon" 

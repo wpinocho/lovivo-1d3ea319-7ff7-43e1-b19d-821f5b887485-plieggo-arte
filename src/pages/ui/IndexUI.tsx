@@ -101,11 +101,11 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
                 link="/all-products"
               />
 
-              {/* Card 2: Top Sellers */}
+              {/* Card 2: Más Vendidos */}
               {!loadingCollections && collections.find(c => c.handle === 'top-sellers') && (
                 <CollectionNavigationCard 
-                  title="Top Sellers"
-                  image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/top-sellers.jpg"
+                  title="Más Vendidos"
+                  image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764998881511-f31r6hvzml7.png"
                   link="/top-sellers"
                 />
               )}
