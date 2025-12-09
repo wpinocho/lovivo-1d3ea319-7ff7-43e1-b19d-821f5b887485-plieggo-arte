@@ -91,12 +91,12 @@ export const EcommerceTemplate = ({
                 variant="ghost"
                 size="icon"
                 onClick={openCart}
-                className="relative hover:bg-primary/10"
+                className="relative hover:bg-primary/10 h-14 w-14"
                 aria-label="Ver carrito"
               >
-                <ShoppingCart className="h-5 w-5" />
+                <ShoppingCart className="h-10 w-10" />
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-sm font-bold rounded-full h-6 w-6 flex items-center justify-center">
                     {totalItems > 99 ? '99+' : totalItems}
                   </span>
                 )}
