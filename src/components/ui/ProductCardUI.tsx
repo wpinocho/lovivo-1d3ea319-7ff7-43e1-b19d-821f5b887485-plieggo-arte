@@ -29,12 +29,12 @@ export const ProductCardUI = ({ product }: ProductCardUIProps) => {
         <Card className="bg-card border-border overflow-hidden transition-all hover:shadow-lg group relative">
           <CardContent className="p-0 relative">
             {/* Imagen del producto - siempre visible */}
-            <div className="aspect-square bg-muted overflow-hidden relative">
+            <div className="bg-muted overflow-hidden relative">
               {(logic.matchingVariant?.image || (logic.product.images && logic.product.images.length > 0)) ? (
                 <img
                   src={(logic.matchingVariant?.image as any) || logic.product.images![0]}
                   alt={logic.product.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-auto object-contain"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground">
