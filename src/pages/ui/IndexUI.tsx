@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/ProductCard';
 import { CollectionNavigationCard } from '@/components/CollectionNavigationCard';
@@ -30,10 +30,26 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
     handleShowAllProducts,
   } = logic;
 
+  // Estado para controlar si mostrar todos los productos o solo 2 líneas (8 productos)
+  const [showAllProducts, setShowAllProducts] = useState(false);
+  const PRODUCTS_PER_ROW = 4;
+  const INITIAL_ROWS = 2;
+  const initialProductCount = PRODUCTS_PER_ROW * INITIAL_ROWS; // 8 productos
+
+  // Productos a mostrar según el estado
+  const displayedProducts = showAllProducts 
+    ? filteredProducts 
+    : filteredProducts.slice(0, initialProductCount);
+
   // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Reset showAllProducts cuando cambian los productos filtrados
+  useEffect(() => {
+    setShowAllProducts(false);
+  }, [selectedCollectionId, filteredProducts.length]);
 
   return (
     <EcommerceTemplate 
@@ -160,11 +176,27 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
               ))}
             </div>
           ) : filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                {displayedProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+              
+              {/* Botón "Ver más" - Solo se muestra si hay más de 8 productos y no están todos visibles */}
+              {filteredProducts.length > initialProductCount && !showAllProducts && (
+                <div className="flex justify-center mt-12">
+                  <Button 
+                    variant="outline" 
+                    size="lg"
+                    onClick={() => setShowAllProducts(true)}
+                    className="btn-hero-outline"
+                  >
+                    Ver más
+                  </Button>
+                </div>
+              )}
+            </>
           ) : (
             <div className="text-center py-16">
               <p className="font-body text-xl text-muted-foreground">
