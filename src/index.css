@@ -149,24 +149,24 @@ Paleta de colores exacta del cliente
   }
 
   .carousel-track > * {
-    width: calc((100vw - 8rem - 3rem) / 3.5); /* 3.5 cards visible */
-    max-width: 400px;
-    min-width: 280px;
+    width: calc((100vw - 8rem - 3rem) / 4); /* 4 cards cuadradas visible */
+    max-width: 350px;
+    min-width: 240px;
   }
 
   /* Efecto hover: desplaza el carrusel */
   .carousel-container:hover .carousel-track {
-    transform: translateX(calc(-1 * (((100vw - 8rem - 3rem) / 3.5) + 1.5rem)));
+    transform: translateX(calc(-1 * (((100vw - 8rem - 3rem) / 4) + 1.5rem)));
   }
 
   @media (max-width: 768px) {
     .carousel-track > * {
-      width: calc((100vw - 4rem - 1.5rem) / 2.5); /* 2.5 cards en mobile */
-      min-width: 200px;
+      width: calc((100vw - 4rem - 1.5rem) / 2.8); /* 2.8 cards en mobile */
+      min-width: 180px;
     }
 
     .carousel-container:hover .carousel-track {
-      transform: translateX(calc(-1 * (((100vw - 4rem - 1.5rem) / 2.5) + 1rem)));
+      transform: translateX(calc(-1 * (((100vw - 4rem - 1.5rem) / 2.8) + 1rem)));
     }
   }
 }
