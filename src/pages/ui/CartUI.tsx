@@ -54,7 +54,7 @@ interface CartUIProps {
 export const CartUI = ({ logic }: CartUIProps) => {
   return (
     <EcommerceTemplate 
-      pageTitle="Your Cart"
+      pageTitle="Tu Carrito"
       showCart={false}
     >
       <div className="max-w-6xl mx-auto">
@@ -62,13 +62,13 @@ export const CartUI = ({ logic }: CartUIProps) => {
           <div className="text-center py-16">
             <ShoppingCart className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
             <h2 className="text-2xl font-semibold mb-4">
-              Your cart is empty
+              Tu carrito está vacío
             </h2>
             <p className="text-muted-foreground mb-8 text-lg">
-              Add some products to start your purchase
+              Agrega productos para comenzar tu compra
             </p>
             <Button onClick={logic.handleNavigateHome} size="lg">
-              Continue Shopping
+              Seguir Comprando
             </Button>
           </div>
         ) : (
@@ -77,7 +77,7 @@ export const CartUI = ({ logic }: CartUIProps) => {
             <div className="lg:col-span-2 space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold">
-                  Products ({logic.itemCount})
+                  Productos ({logic.itemCount})
                 </h2>
                 <Button
                   variant="ghost"
@@ -85,7 +85,7 @@ export const CartUI = ({ logic }: CartUIProps) => {
                   className="text-muted-foreground"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
-                  Continue shopping
+                  Seguir comprando
                 </Button>
               </div>
               
@@ -103,7 +103,7 @@ export const CartUI = ({ logic }: CartUIProps) => {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
-                            No image
+                            Sin imagen
                           </div>
                         )}
                       </div>
@@ -158,7 +158,7 @@ export const CartUI = ({ logic }: CartUIProps) => {
                               className="text-destructive hover:text-destructive"
                             >
                               <Trash2 className="h-4 w-4 mr-2" />
-                              Remove
+                              Eliminar
                             </Button>
                           </div>
                         </div>
@@ -174,12 +174,12 @@ export const CartUI = ({ logic }: CartUIProps) => {
               <div className="sticky top-24">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Order Summary</CardTitle>
+                    <CardTitle>Resumen del Pedido</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
                       <div className="flex justify-between">
-                        <span>Subtotal ({logic.itemCount} items)</span>
+                        <span>Subtotal ({logic.itemCount} {logic.itemCount === 1 ? 'producto' : 'productos'})</span>
                         <span>{formatMoney(logic.total, logic.currencyCode)}</span>
                       </div>
                     </div>
@@ -201,7 +201,7 @@ export const CartUI = ({ logic }: CartUIProps) => {
                         }}
                         disabled={logic.isCreatingOrder}
                       >
-                        {logic.isCreatingOrder ? 'Processing...' : 'Checkout'}
+                        {logic.isCreatingOrder ? 'Procesando...' : 'Pagar'}
                       </Button>
 
                       <Button 
@@ -209,7 +209,7 @@ export const CartUI = ({ logic }: CartUIProps) => {
                         className="w-full" 
                         onClick={logic.handleNavigateHome}
                       >
-                        Continue Shopping
+                        Seguir Comprando
                       </Button>
                     </div>
                   </CardContent>
