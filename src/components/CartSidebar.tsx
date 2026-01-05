@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { useCart } from "@/contexts/CartContext"
 import { useCheckout } from "@/hooks/useCheckout"
 import { useSettings } from "@/contexts/SettingsContext"
+import { formatMoney } from "@/lib/money"
 import { Minus, Plus, Trash2, ExternalLink } from "lucide-react"
 import { useNavigate, Link } from "react-router-dom"
 
@@ -140,7 +141,7 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
                             
                             <div className="text-right">
                               <div className="font-semibold text-sm">
-                                ${(((item.variant?.price ?? item.product.price) || 0) * item.quantity).toFixed(2)}
+                                {formatMoney(((item.variant?.price ?? item.product.price) || 0) * item.quantity, currencyCode)}
                               </div>
                               <Button
                                 variant="ghost"
@@ -164,7 +165,7 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
                 <div className="space-y-3">
                   <div className="flex justify-between font-semibold text-lg">
                     <span>Total</span>
-                    <span>${finalTotal.toFixed(2)}</span>
+                    <span>{formatMoney(finalTotal, currencyCode)}</span>
                   </div>
                 </div>
 
