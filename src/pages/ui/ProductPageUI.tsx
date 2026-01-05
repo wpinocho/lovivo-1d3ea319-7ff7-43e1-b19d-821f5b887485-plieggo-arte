@@ -83,12 +83,12 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
     return (
       <EcommerceTemplate>
         <div className="text-center py-16">
-            <h1 className="text-4xl font-bold mb-4">Product not found</h1>
-            <p className="text-muted-foreground mb-8">The product you're looking for doesn't exist or has been deleted.</p>
+            <h1 className="text-4xl font-bold mb-4">Producto no encontrado</h1>
+            <p className="text-muted-foreground mb-8">El producto que buscas no existe o ha sido eliminado.</p>
             <Button asChild>
               <Link to="/">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to home
+                Volver al inicio
               </Link>
             </Button>
         </div>
@@ -128,13 +128,23 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
 
           {logic.product.description && (
             <div>
-              <h3 className="font-semibold mb-2">Description</h3>
+              <h3 className="font-semibold mb-2">Descripción</h3>
               <div 
                 className="text-muted-foreground prose prose-sm max-w-none"
                 dangerouslySetInnerHTML={{ __html: logic.product.description }}
               />
             </div>
           )}
+
+          {/* Presentación */}
+          <Card className="border-primary/20">
+            <CardContent className="pt-6">
+              <h3 className="font-semibold mb-3 text-primary">Presentación</h3>
+              <p className="text-muted-foreground">
+                Viene enmarcado con marco de madera y protección de acrílico, listo para colgar.
+              </p>
+            </CardContent>
+          </Card>
 
           {/* Product Options */}
           {logic.product.options && logic.product.options.length > 0 && (
@@ -158,7 +168,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                         >
                           {value}
                           {!isAvailable && (
-                            <span className="ml-1 text-xs">(Out of stock)</span>
+                            <span className="ml-1 text-xs">(Agotado)</span>
                           )}
                         </Button>
                       )
@@ -173,7 +183,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
           <div className="space-y-4">
             <div className="flex items-center space-x-4">
               <Label htmlFor="quantity" className="text-base font-medium">
-                Quantity
+                Cantidad
               </Label>
               <div className="flex items-center space-x-2">
                 <Button
@@ -210,11 +220,11 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                 size="lg"
               >
                 <ShoppingCart className="mr-2 h-4 w-4" />
-                {logic.inStock ? 'Add to cart' : 'Out of stock'}
+                {logic.inStock ? 'Agregar al carrito' : 'Agotado'}
               </Button>
               
               {!logic.inStock && (
-                <Badge variant="secondary">Out of stock</Badge>
+                <Badge variant="secondary">Agotado</Badge>
               )}
             </div>
           </div>
@@ -223,14 +233,14 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
           {logic.matchingVariant && (
             <Card>
               <CardContent className="pt-6">
-                <h3 className="font-semibold mb-2">Product information</h3>
+                <h3 className="font-semibold mb-2">Información del producto</h3>
                 <div className="space-y-2 text-sm text-muted-foreground">
                   <div className="flex justify-between">
                     <span>SKU:</span>
                     <span>{logic.matchingVariant.sku || 'N/A'}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Available stock:</span>
+                    <span>Stock disponible:</span>
                     <span>{logic.matchingVariant.inventory_quantity || 0}</span>
                   </div>
                 </div>
@@ -246,7 +256,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
             className="w-full"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Continue shopping
+            Seguir comprando
           </Button>
         </div>
       </div>
