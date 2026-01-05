@@ -229,25 +229,6 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
             </div>
           </div>
 
-          {/* Product Info */}
-          {logic.matchingVariant && (
-            <Card>
-              <CardContent className="pt-6">
-                <h3 className="font-semibold mb-2">Información del producto</h3>
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <div className="flex justify-between">
-                    <span>SKU:</span>
-                    <span>{logic.matchingVariant.sku || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Stock disponible:</span>
-                    <span>{logic.matchingVariant.inventory_quantity || 0}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
           <Separator />
 
           <Button
