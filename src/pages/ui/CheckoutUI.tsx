@@ -54,7 +54,7 @@ export default function CheckoutUI() {
               <div className="space-y-8 bg-card p-6 rounded-lg">
                 {/* Contact Section */}
                 <section>
-                  <h2 className="text-xl font-semibold mb-4">Contact</h2>
+                  <h2 className="text-xl font-semibold mb-4">Contacto</h2>
                   <div className="space-y-4">
                     <div>
                       <Input 
@@ -62,7 +62,7 @@ export default function CheckoutUI() {
                         value={logic.email} 
                         onChange={e => logic.setEmail(e.target.value)} 
                         onBlur={() => logic.saveClientData(true)} 
-                        placeholder="Email address" 
+                        placeholder="Correo electrónico" 
                         className="w-full" 
                       />
                     </div>
@@ -73,7 +73,7 @@ export default function CheckoutUI() {
                         onCheckedChange={checked => logic.setSubscribeNews(checked as boolean)} 
                       />
                       <Label htmlFor="subscribe" className="text-sm">
-                        Send me news and offers via email
+                        Enviarme noticias y ofertas por correo
                       </Label>
                     </div>
                   </div>
@@ -97,7 +97,7 @@ export default function CheckoutUI() {
                         }} 
                         className="w-4 h-4" 
                       />
-                      <label htmlFor="use-pickup" className="text-sm font-medium">Store pickup</label>
+                      <label htmlFor="use-pickup" className="text-sm font-medium">Recoger en tienda</label>
                     </div>
                     
                     {logic.usePickup && (
@@ -130,18 +130,18 @@ export default function CheckoutUI() {
                                   <div className="text-sm text-muted-foreground mt-1">
                                     {location.line1}{location.line2 && `, ${location.line2}`}, {location.city}, {location.country}
                                   </div>
-                                  {!isExpanded && <div className="text-sm text-primary mt-1">See you there</div>}
+                                  {!isExpanded && <div className="text-sm text-primary mt-1">Nos vemos ahí</div>}
                                   {isExpanded && (
                                     <>
                                       <div className="text-sm text-muted-foreground mt-1">
                                         {location.city}, {location.state}, {location.country} - {location.postal_code}
                                       </div>
-                                      {location.schedule && <div className="text-sm text-muted-foreground">Schedule: {location.schedule}</div>}
+                                      {location.schedule && <div className="text-sm text-muted-foreground">Horario: {location.schedule}</div>}
                                       {location.instructions && <div className="text-sm text-primary mt-1">{location.instructions}</div>}
                                     </>
                                   )}
                                 </div>
-                                <div className="font-semibold text-green-600">FREE</div>
+                                <div className="font-semibold text-green-600">GRATIS</div>
                               </label>
                             </div>
                           );
@@ -154,7 +154,7 @@ export default function CheckoutUI() {
                 {/* Delivery Section */}
                 {!logic.usePickup && (
                   <section>
-                    <h2 className="text-xl font-semibold mb-4">Delivery</h2>
+                    <h2 className="text-xl font-semibold mb-4">Entrega</h2>
                     
                     <div className="space-y-4">
                       {/* País/Región */}
@@ -170,7 +170,7 @@ export default function CheckoutUI() {
                           }}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Country / Region" />
+                            <SelectValue placeholder="País / Región" />
                           </SelectTrigger>
                           <SelectContent>
                             {Array.isArray(logic.availableCountries) && logic.availableCountries.length > 0 ? 
@@ -194,7 +194,7 @@ export default function CheckoutUI() {
                             value={logic.firstName} 
                             onChange={e => logic.setFirstName(e.target.value)} 
                             onBlur={() => logic.saveClientData(true)} 
-                            placeholder="First name" 
+                            placeholder="Nombre" 
                           />
                         </div>
                         <div>
@@ -203,7 +203,7 @@ export default function CheckoutUI() {
                             value={logic.lastName} 
                             onChange={e => logic.setLastName(e.target.value)} 
                             onBlur={() => logic.saveClientData(true)} 
-                            placeholder="Last name" 
+                            placeholder="Apellidos" 
                           />
                         </div>
                       </div>
@@ -217,7 +217,7 @@ export default function CheckoutUI() {
                             ...logic.address,
                             line1: e.target.value
                           })} 
-                          placeholder="Address" 
+                          placeholder="Dirección" 
                         />
                       </div>
 
@@ -229,13 +229,13 @@ export default function CheckoutUI() {
                             ...logic.address,
                             line2: e.target.value
                           })} 
-                          placeholder="Apartment, suite, etc. (optional)" 
+                          placeholder="Apartamento, suite, etc. (opcional)" 
                         />
                       </div>
 
                       {/* Colonia */}
                       <div>
-                        <Input id="colonia" placeholder="Neighborhood" />
+                        <Input id="colonia" placeholder="Colonia" />
                       </div>
 
                       {/* Código postal, Ciudad, Estado */}
@@ -248,7 +248,7 @@ export default function CheckoutUI() {
                               ...logic.address,
                               postal_code: e.target.value
                             })} 
-                            placeholder="Postal code" 
+                            placeholder="Código postal" 
                           />
                         </div>
                         <div>
@@ -259,7 +259,7 @@ export default function CheckoutUI() {
                               ...logic.address,
                               city: e.target.value
                             })} 
-                            placeholder="City"
+                            placeholder="Ciudad"
                           />
                         </div>
                         <div>
@@ -274,7 +274,7 @@ export default function CheckoutUI() {
                             }}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="State" />
+                              <SelectValue placeholder="Estado" />
                             </SelectTrigger>
                             <SelectContent>
                               {Array.isArray(logic.availableStates) && logic.availableStates.length > 0 ? 
@@ -307,7 +307,7 @@ export default function CheckoutUI() {
                 {/* Métodos de envío */}
                 {!logic.usePickup && logic.deliveryExpectations && logic.deliveryExpectations.length > 0 && (
                   <section>
-                    <h3 className="text-lg font-semibold mb-4">Shipping methods</h3>
+                    <h3 className="text-lg font-semibold mb-4">Métodos de envío</h3>
                     <div className="space-y-2">
                       {Array.isArray(logic.deliveryExpectations) && logic.deliveryExpectations.map((method: any, index: number) => (
                         <div key={index} className="border rounded-lg">
@@ -332,7 +332,7 @@ export default function CheckoutUI() {
                               </div>
                             </div>
                             <div className="font-semibold">
-                              {method.hasPrice && method.price ? `$${parseFloat(method.price).toFixed(2)}` : 'FREE'}
+                              {method.hasPrice && method.price ? logic.formatMoney(parseFloat(method.price)) : 'GRATIS'}
                             </div>
                           </label>
                         </div>
@@ -343,7 +343,7 @@ export default function CheckoutUI() {
 
                 {/* Dirección de facturación */}
                 <section>
-                  <h3 className="text-lg font-semibold mb-4">Billing address</h3>
+                  <h3 className="text-lg font-semibold mb-4">Dirección de facturación</h3>
                   <div className="space-y-4">
                     {/* Solo mostrar radio buttons cuando NO sea pickup */}
                     {!logic.usePickup && (
@@ -357,7 +357,7 @@ export default function CheckoutUI() {
                             onChange={() => logic.setUseSameAddress(true)}
                             className="w-4 h-4"
                           />
-                          <Label htmlFor="same-address">Same as shipping address</Label>
+                          <Label htmlFor="same-address">Igual a la dirección de envío</Label>
                         </div>
                         <div className="flex items-center space-x-2">
                           <input
@@ -368,7 +368,7 @@ export default function CheckoutUI() {
                             onChange={() => logic.setUseSameAddress(false)}
                             className="w-4 h-4"
                           />
-                          <Label htmlFor="different-address">Use a different billing address</Label>
+                          <Label htmlFor="different-address">Usar una dirección de facturación diferente</Label>
                         </div>
                       </div>
                     )}
@@ -379,33 +379,33 @@ export default function CheckoutUI() {
                         <CardContent className="p-6 space-y-4">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <Label htmlFor="billing-first-name">First name</Label>
+                              <Label htmlFor="billing-first-name">Nombre</Label>
                               <Input
                                 id="billing-first-name"
                                 value={logic.billingAddress.first_name}
                                 onChange={(e) => logic.setBillingAddress(prev => ({ ...prev, first_name: e.target.value }))}
-                                placeholder="First name"
+                                placeholder="Nombre"
                               />
                             </div>
                             <div>
-                              <Label htmlFor="billing-last-name">Last name</Label>
+                              <Label htmlFor="billing-last-name">Apellidos</Label>
                               <Input
                                 id="billing-last-name"
                                 value={logic.billingAddress.last_name}
                                 onChange={(e) => logic.setBillingAddress(prev => ({ ...prev, last_name: e.target.value }))}
-                                placeholder="Last name"
+                                placeholder="Apellidos"
                               />
                             </div>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <Label htmlFor="billing-country">Country</Label>
+                              <Label htmlFor="billing-country">País</Label>
                               <Select 
                                 value={logic.billingAddress.country} 
                                 onValueChange={(value) => logic.setBillingAddress(prev => ({ ...prev, country: value }))}
                               >
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select country" />
+                                  <SelectValue placeholder="Selecciona un país" />
                                 </SelectTrigger>
                                 <SelectContent>
                                   {Array.isArray(logic.availableCountries) && logic.availableCountries.map((country: any) => (
@@ -417,7 +417,7 @@ export default function CheckoutUI() {
                               </Select>
                             </div>
                             <div>
-                              <Label htmlFor="billing-postal-code">Postal code</Label>
+                              <Label htmlFor="billing-postal-code">Código postal</Label>
                               <Input
                                 id="billing-postal-code"
                                 value={logic.billingAddress.postal_code}
@@ -428,13 +428,13 @@ export default function CheckoutUI() {
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <Label htmlFor="billing-state">State</Label>
+                              <Label htmlFor="billing-state">Estado</Label>
                               <Select 
                                 value={logic.billingAddress.state} 
                                 onValueChange={(value) => logic.setBillingAddress(prev => ({ ...prev, state: value }))}
                               >
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select state" />
+                                  <SelectValue placeholder="Selecciona un estado" />
                                 </SelectTrigger>
                                 <SelectContent>
                                   {(() => {
@@ -451,31 +451,31 @@ export default function CheckoutUI() {
                               </Select>
                             </div>
                             <div>
-                              <Label htmlFor="billing-city">City</Label>
+                              <Label htmlFor="billing-city">Ciudad</Label>
                               <Input
                                 id="billing-city"
                                 value={logic.billingAddress.city}
                                 onChange={(e) => logic.setBillingAddress(prev => ({ ...prev, city: e.target.value }))}
-                                placeholder="City"
+                                placeholder="Ciudad"
                               />
                             </div>
                           </div>
                           <div>
-                            <Label htmlFor="billing-line1">Address</Label>
+                            <Label htmlFor="billing-line1">Dirección</Label>
                             <Input
                               id="billing-line1"
                               value={logic.billingAddress.line1}
                               onChange={(e) => logic.setBillingAddress(prev => ({ ...prev, line1: e.target.value }))}
-                              placeholder="Street and number"
+                              placeholder="Calle y número"
                             />
                           </div>
                           <div>
-                            <Label htmlFor="billing-line2">Apartment, suite, etc. (optional)</Label>
+                            <Label htmlFor="billing-line2">Apartamento, suite, etc. (opcional)</Label>
                             <Input
                               id="billing-line2"
                               value={logic.billingAddress.line2}
                               onChange={(e) => logic.setBillingAddress(prev => ({ ...prev, line2: e.target.value }))}
-                              placeholder="Apartment, suite, etc."
+                              placeholder="Apartamento, suite, etc."
                             />
                           </div>
                         </CardContent>
@@ -486,7 +486,7 @@ export default function CheckoutUI() {
 
                 {/* Pago */}
                 <section>
-                  <h3 className="text-lg font-semibold mb-4">Payment</h3>
+                  <h3 className="text-lg font-semibold mb-4">Pago</h3>
                   <StripePayment 
                     amountCents={Math.round(logic.finalTotal * 100)} 
                     currency={logic.currencyCode.toLowerCase()} 
@@ -533,7 +533,7 @@ export default function CheckoutUI() {
                   {logic.itemsLoading && logic.summaryItems.length === 0 ? (
                     <div className="text-center py-8">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-                      <p className="mt-2 text-gray-600">Loading products...</p>
+                      <p className="mt-2 text-gray-600">Cargando productos...</p>
                     </div>
                   ) : null}
                   
@@ -551,7 +551,7 @@ export default function CheckoutUI() {
                             )}
                           </div>
                           <span className="text-sm text-yellow-800">
-                            {logic.revalidating ? 'Restoring your cart...' : 'Showing saved data'}
+                            {logic.revalidating ? 'Restaurando tu carrito...' : 'Mostrando datos guardados'}
                           </span>
                         </div>
                         {!logic.revalidating && (
@@ -561,7 +561,7 @@ export default function CheckoutUI() {
                             onClick={logic.refreshItems}
                             className="text-yellow-800 hover:text-yellow-900"
                           >
-                            Update
+                            Actualizar
                           </Button>
                         )}
                       </div>
@@ -578,12 +578,12 @@ export default function CheckoutUI() {
                       
                       {/* Main message */}
                       <h3 className="text-lg font-semibold text-foreground">
-                        Your cart is empty
+                        Tu carrito está vacío
                       </h3>
                       
                       {/* Secondary message */}
                       <p className="text-muted-foreground text-center text-sm">
-                        Add a product to start your checkout
+                        Agrega un producto para comenzar tu compra
                       </p>
                       
                       {/* CTA Button */}
@@ -591,7 +591,7 @@ export default function CheckoutUI() {
                         onClick={() => navigate('/')}
                         className="mt-4"
                       >
-                        Start Shopping
+                        Comenzar a Comprar
                       </Button>
                     </div>
                   ) : (
@@ -611,7 +611,7 @@ export default function CheckoutUI() {
                           <h4 className="font-medium">{item.product.name}</h4>
                           {item.variant && <p className="text-sm text-muted-foreground">{item.variant.name}</p>}
                           <div className="flex items-center justify-between mt-1">
-                            <span className="text-sm text-muted-foreground">Quantity</span>
+                            <span className="text-sm text-muted-foreground">Cantidad</span>
                             <div className="flex items-center space-x-2">
                               <Button 
                                 variant="outline" 
@@ -638,7 +638,7 @@ export default function CheckoutUI() {
                           </div>
                         </div>
                         <div className="font-semibold">
-                          ${((item.variant?.price ?? item.product.price ?? 0) * item.quantity).toFixed(2)}
+                          {logic.formatMoney((item.variant?.price ?? item.product.price ?? 0) * item.quantity)}
                         </div>
                       </div>
                     ))
@@ -646,11 +646,11 @@ export default function CheckoutUI() {
 
                   {/* Código de descuento */}
                   <div className="space-y-2">
-                    <div className="text-sm font-medium">Discount code</div>
+                    <div className="text-sm font-medium">Código de descuento</div>
                     {!logic.discount ? (
                       <div className="flex gap-2">
                         <Input 
-                          placeholder="Enter your coupon" 
+                          placeholder="Ingresa tu cupón" 
                           value={logic.couponCode} 
                           onChange={e => logic.setCouponCode(e.target.value.toUpperCase())} 
                           className="text-sm" 
@@ -664,13 +664,13 @@ export default function CheckoutUI() {
                           disabled={logic.isValidatingCoupon || !logic.couponCode.trim()}
                         >
                           <Tag className="h-4 w-4 mr-1" />
-                          {logic.isValidatingCoupon ? '...' : 'Apply'}
+                          {logic.isValidatingCoupon ? '...' : 'Aplicar'}
                         </Button>
                       </div>
                     ) : (
                       <div className="flex items-center justify-between text-sm bg-muted/50 border border-border p-3 rounded-lg">
                         <span className="text-foreground font-medium">
-                          Coupon applied: {logic.couponCode}
+                          Cupón aplicado: {logic.couponCode}
                         </span>
                         <Button 
                           variant="ghost" 
@@ -688,30 +688,30 @@ export default function CheckoutUI() {
                   <div className="space-y-2 pt-4 border-t">
                     <div className="flex justify-between">
                       <span>Subtotal</span>
-                      <span>${logic.summaryTotal.toFixed(2)}</span>
+                      <span>{logic.formatMoney(logic.summaryTotal)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Shipping</span>
+                      <span>Envío</span>
                       <span className={`${logic.isCalculatingShipping ? 'opacity-50 blur-sm' : ''} transition-all duration-200`}>
-                        {logic.selectedPickupLocation ? 'FREE (Store pickup)' : 
-                         logic.shippingCost > 0 ? `$${logic.shippingCost.toFixed(2)}` : 'FREE'}
+                        {logic.selectedPickupLocation ? 'GRATIS (Recoger en tienda)' : 
+                         logic.shippingCost > 0 ? logic.formatMoney(logic.shippingCost) : 'GRATIS'}
                       </span>
                     </div>
                     {logic.discount && (
                       <div className="flex justify-between">
-                        <span>Discount ({logic.getDiscountDisplayText(logic.discount, logic.totalQuantity)})</span>
-                        <span>- ${logic.discountAmount.toFixed(2)}</span>
+                        <span>Descuento ({logic.getDiscountDisplayText(logic.discount, logic.totalQuantity)})</span>
+                        <span>- {logic.formatMoney(logic.discountAmount)}</span>
                       </div>
                     )}
                     <div className="flex justify-between text-lg font-semibold pt-2 border-t">
                       <span>Total</span>
                       <div className={`text-right ${logic.isCalculatingTotal ? 'opacity-50 blur-sm' : ''} transition-all duration-200`}>
                         <div className="text-sm text-muted-foreground">{logic.currencyCode.toUpperCase()}</div>
-                        <div>${logic.finalTotal.toFixed(2)}</div>
+                        <div>{logic.formatMoney(logic.finalTotal)}</div>
                       </div>
                     </div>
                     <div className="text-sm text-muted-foreground text-center">
-                      Includes ${(logic.finalTotal * 0.16).toFixed(2)} in taxes
+                      Incluye {logic.formatMoney(logic.finalTotal * 0.16)} en impuestos
                     </div>
                   </div>
                 </div>

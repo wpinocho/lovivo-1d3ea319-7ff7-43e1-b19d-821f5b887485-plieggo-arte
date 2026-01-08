@@ -9,6 +9,7 @@ import { useOrderItems } from "@/hooks/useOrderItems";
 import { calculateDiscountAmount, validateDiscount, type Discount } from "@/lib/discount-utils";
 import { logger } from "@/lib/logger";
 import { trackInitiateCheckout, tracking } from "@/lib/tracking-utils";
+import { formatMoney as formatMoneyUtil } from "@/lib/money";
 
 /**
  * FORBIDDEN ADAPTER - CheckoutAdapter
@@ -588,6 +589,9 @@ export const useCheckoutLogic = () => {
   const requiresDeliveryMethod = !selectedPickupLocation && !!(deliveryExpectations && deliveryExpectations.length > 0);
   const canPay = !requiresDeliveryMethod || !!selectedDeliveryMethod;
 
+  // Money formatting helper
+  const formatMoney = (amount: number) => formatMoneyUtil(amount, currencyCode);
+
   return {
     // State
     order,
@@ -671,6 +675,7 @@ export const useCheckoutLogic = () => {
     isValidEmail,
     isValidPhone,
     applyURLParams,
+    formatMoney,
     
     // Refs
     couponInputRef,
