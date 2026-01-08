@@ -598,11 +598,21 @@ export default function CheckoutUI() {
                     Array.isArray(logic.summaryItems) && logic.summaryItems.map(item => (
                       <div key={item.key} className="flex items-center space-x-4">
                         <div className="relative">
-                          <img 
-                            src={item.product.images?.[0] || "/placeholder.svg"} 
-                            alt={item.product.name} 
-                            className="w-16 h-16 object-cover rounded border" 
-                          />
+                          {(item.product.images && item.product.images.length > 0) ? (
+                            <img 
+                              src={item.product.images[0]} 
+                              alt={item.product.name} 
+                              className="w-16 h-16 object-cover rounded border" 
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                              }}
+                            />
+                          ) : (
+                            <div className="w-16 h-16 bg-muted rounded border flex items-center justify-center text-muted-foreground text-xs">
+                              Sin imagen
+                            </div>
+                          )}
                           <span className="absolute -top-2 -right-2 bg-muted text-muted-foreground text-xs rounded-full w-6 h-6 flex items-center justify-center">
                             {item.quantity}
                           </span>
