@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { EcommerceTemplate } from "@/templates/EcommerceTemplate"
 import { ShoppingCart, ArrowLeft, Plus, Minus } from "lucide-react"
 import { Link } from "react-router-dom"
+import { cn } from "@/lib/utils"
 
 import type { Product, ProductVariant } from "@/lib/supabase"
 
@@ -101,13 +102,40 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
   return (
     <EcommerceTemplate>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Product Image */}
-        <div className="aspect-square rounded-lg overflow-hidden bg-muted">
-          <img
-            src={logic.currentImage || "/placeholder.svg"}
-            alt={logic.product.title}
-            className="w-full h-full object-contain"
-          />
+        {/* Product Gallery */}
+        <div className="space-y-4">
+          {/* Imagen principal */}
+          <div className="aspect-square rounded-lg overflow-hidden bg-muted">
+            <img
+              src={logic.currentImage || "/placeholder.svg"}
+              alt={logic.product.title}
+              className="w-full h-full object-contain"
+            />
+          </div>
+          
+          {/* Thumbnails (solo si hay más de 1 imagen) */}
+          {logic.product.images && logic.product.images.length > 1 && (
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {logic.product.images.map((img: string, index: number) => (
+                <button
+                  key={index}
+                  onClick={() => logic.setSelectedImage(img)}
+                  className={cn(
+                    "flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 transition-all",
+                    logic.selectedImage === img || (index === 0 && !logic.selectedImage)
+                      ? "border-primary ring-2 ring-primary/20" 
+                      : "border-border hover:border-secondary"
+                  )}
+                >
+                  <img
+                    src={img}
+                    alt={`${logic.product.title} - imagen ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Product Details */}
