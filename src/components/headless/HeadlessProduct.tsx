@@ -247,6 +247,37 @@ export const useProductLogic = () => {
     setQuantity(Math.max(1, newQuantity))
   }
 
+  // Helper para obtener imágenes a mostrar según variante seleccionada
+  const getDisplayImages = (): string[] => {
+    if (!product) return []
+    
+    const productImages = product.images || []
+    const variants = (product as any).variants as any[] | undefined
+    const matchingVariant = getMatchingVariant()
+    
+    // Recolectar TODAS las image_urls de TODAS las variantes
+    const allVariantImageUrls = new Set<string>()
+    if (Array.isArray(variants)) {
+      variants.forEach((v: any) => {
+        if (v.image_urls && Array.isArray(v.image_urls)) {
+          v.image_urls.forEach((url: string) => allVariantImageUrls.add(url))
+        }
+      })
+    }
+    
+    // Encontrar imágenes generales (las que NO están en ninguna variante)
+    const generalImages = productImages.filter(img => !allVariantImageUrls.has(img))
+    
+    // Si hay variante seleccionada con image_urls
+    if (matchingVariant?.image_urls && matchingVariant.image_urls.length > 0) {
+      // Combinar: imágenes de variante + imágenes generales
+      return [...matchingVariant.image_urls, ...generalImages]
+    }
+    
+    // Sin variante seleccionada o variante sin image_urls: mostrar todas las del producto
+    return productImages
+  }
+
   // Calculated values
   const options = product ? (product as any).options : undefined
   const variants = product ? (product as any).variants : undefined
@@ -256,6 +287,7 @@ export const useProductLogic = () => {
   const currentImage = getCurrentImage()
   const inStock = isInStock()
   const matchingVariant = getMatchingVariant()
+  const displayImages = getDisplayImages()
   
   const discountPercentage = currentCompareAt && currentPrice && currentCompareAt > currentPrice 
     ? Math.round(((currentCompareAt - currentPrice) / currentCompareAt) * 100)
@@ -280,6 +312,7 @@ export const useProductLogic = () => {
     inStock,
     matchingVariant,
     discountPercentage,
+    displayImages,
     
     // Cart info
     totalItems: getTotalItems(),

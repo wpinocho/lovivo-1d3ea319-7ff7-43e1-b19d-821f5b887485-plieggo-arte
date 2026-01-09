@@ -23,6 +23,7 @@ export type ProductVariant = {
   inventory_quantity?: number
   available?: boolean
   image?: string
+  image_urls?: string[]
   created_at?: string
 }
 

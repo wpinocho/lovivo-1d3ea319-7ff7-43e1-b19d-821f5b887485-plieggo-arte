@@ -45,8 +45,10 @@ interface ProductPageUIProps {
     currentCompareAt: number | null
     currentImage: string | null
     inStock: boolean
+    displayImages: string[]
     
     // Handlers
+    setSelectedImage: (image: string) => void
     handleOptionSelect: (optionName: string, value: string) => void
     handleQuantityChange: (quantity: number) => void
     handleAddToCart: () => void
@@ -63,6 +65,13 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Reset selected image when variant changes
+  useEffect(() => {
+    if (logic.displayImages && logic.displayImages.length > 0) {
+      logic.setSelectedImage(logic.displayImages[0]);
+    }
+  }, [logic.matchingVariant]);
 
   if (logic.loading) {
     return (
@@ -114,9 +123,9 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
           </div>
           
           {/* Thumbnails (solo si hay más de 1 imagen) */}
-          {logic.product.images && logic.product.images.length > 1 && (
+          {logic.displayImages && logic.displayImages.length > 1 && (
             <div className="flex gap-2 overflow-x-auto pb-2">
-              {logic.product.images.map((img: string, index: number) => (
+              {logic.displayImages.map((img: string, index: number) => (
                 <button
                   key={index}
                   onClick={() => logic.setSelectedImage(img)}
