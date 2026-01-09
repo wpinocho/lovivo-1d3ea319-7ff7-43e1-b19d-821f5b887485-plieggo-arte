@@ -33,11 +33,11 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
 
-  // Smooth spring animation for grid movement
-  // Damping: 30 (more resistance = smoother)
-  // Stiffness: 120 (lower = slower, more fluid)
-  const gridX = useSpring(mouseX, { damping: 30, stiffness: 120 })
-  const gridY = useSpring(mouseY, { damping: 30, stiffness: 120 })
+  // Smooth spring animation for grid movement (Lusano-style ~2s delay)
+  // Damping: 50 (high resistance = slow, fluid motion)
+  // Stiffness: 60 (low stiffness = gentle acceleration)
+  const gridX = useSpring(mouseX, { damping: 50, stiffness: 60 })
+  const gridY = useSpring(mouseY, { damping: 50, stiffness: 60 })
 
   useEffect(() => {
     if (isOpen) {
@@ -86,6 +86,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
   }
 
   // Convertir productos + variantes en items "planos" para el grid
+  // Deduplicación: Solo URLs únicas (evita repetir 20x20 = 50x50)
   const getGalleryItems = () => {
     interface GalleryItem {
       id: string
@@ -96,32 +97,40 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
     }
 
     const items: GalleryItem[] = []
+    const seenUrls = new Set<string>()  // Track URLs únicas
     
     products.forEach((product) => {
-      // 1. Agregar imagen principal del producto
+      // 1. Agregar imagen principal del producto (si es única)
       if (product.images && product.images.length > 0) {
-        items.push({
-          id: product.id,
-          slug: product.slug,
-          title: product.title,
-          price: product.price as number,
-          image: product.images[0]
-        })
+        const mainImage = product.images[0]
+        if (!seenUrls.has(mainImage)) {
+          seenUrls.add(mainImage)
+          items.push({
+            id: product.id,
+            slug: product.slug,
+            title: product.title,
+            price: product.price as number,
+            image: mainImage
+          })
+        }
       }
       
-      // 2. Agregar imágenes de variantes con image_urls
+      // 2. Agregar imágenes de variantes (solo URLs únicas)
       const variants = (product as any).variants
       if (variants && Array.isArray(variants)) {
         variants.forEach((variant: any, vIndex: number) => {
           if (variant.image_urls && Array.isArray(variant.image_urls)) {
             variant.image_urls.forEach((imageUrl: string, imgIndex: number) => {
-              items.push({
-                id: `${product.id}-variant-${vIndex}-${imgIndex}`,
-                slug: product.slug,
-                title: `${product.title}${variant.title ? ` - ${variant.title}` : ''}`,
-                price: (variant.price || product.price) as number,
-                image: imageUrl
-              })
+              if (!seenUrls.has(imageUrl)) {  // Solo si no existe
+                seenUrls.add(imageUrl)
+                items.push({
+                  id: `${product.id}-variant-${vIndex}-${imgIndex}`,
+                  slug: product.slug,
+                  title: `${product.title}${variant.title ? ` - ${variant.title}` : ''}`,
+                  price: (variant.price || product.price) as number,
+                  image: imageUrl
+                })
+              }
             })
           }
         })
