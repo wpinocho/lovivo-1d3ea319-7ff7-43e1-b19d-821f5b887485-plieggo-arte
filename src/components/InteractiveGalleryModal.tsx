@@ -15,8 +15,8 @@ interface InteractiveGalleryModalProps {
  * INTERACTIVE GALLERY MODAL - Lusano-Style Parallax
  * 
  * Sistema de coordenadas inverso:
- * - Grid: 350% x 220% (overflow para parallax horizontal)
- * - Mouse en (50%, 50%) → Grid centrado en (-125%, -60%)
+ * - Grid: 240% x 220% (overflow para parallax horizontal)
+ * - Mouse en (50%, 50%) → Grid centrado en (-70%, -60%)
  * - Movimiento suave con spring physics
  * 
  * Optimizado para ~50-60 items (productos + variantes) en 5 filas asimétricas
@@ -27,17 +27,17 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
   const { formatMoney } = useSettings()
 
   // LUSANO-STYLE COORDINATE MAPPING
-  // Canvas: Width 350% (3.5x), Height 220% (2.2x)
+  // Canvas: Width 240% (2.4x), Height 220% (2.2x)
   // Mouse position directly maps to canvas position with smooth spring animation
-  // Center (50%, 50%) → Canvas at (-125%, -60%)
+  // Center (50%, 50%) → Canvas at (-70%, -60%)
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
 
-  // Smooth spring animation for grid movement (Lusano-style ~2s delay)
-  // Damping: 50 (high resistance = slow, fluid motion)
-  // Stiffness: 60 (low stiffness = gentle acceleration)
-  const gridX = useSpring(mouseX, { damping: 50, stiffness: 60 })
-  const gridY = useSpring(mouseY, { damping: 50, stiffness: 60 })
+  // Smooth spring animation for grid movement (Lusano-style ~3-4s delay)
+  // Damping: 80 (very high resistance = very slow, heavy motion)
+  // Stiffness: 40 (very low stiffness = spring-like bounce)
+  const gridX = useSpring(mouseX, { damping: 80, stiffness: 40 })
+  const gridY = useSpring(mouseY, { damping: 80, stiffness: 40 })
 
   useEffect(() => {
     if (isOpen) {
@@ -74,10 +74,10 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
     const mousePercentY = (e.clientY - rect.top) / rect.height
 
     // Map to canvas position
-    // Canvas X: 350% (overflow 250%) → targetX = -(mousePercent * 2.5 * viewportSize)
+    // Canvas X: 240% (overflow 140%) → targetX = -(mousePercent * 1.4 * viewportSize)
     // Canvas Y: 220% (overflow 120%) → targetY = -(mousePercent * 1.2 * viewportSize)
-    // When mouse at (50%, 50%) → canvas at (-125%, -60%) [CENTERED]
-    const targetX = -(mousePercentX * 2.5 * rect.width)
+    // When mouse at (50%, 50%) → canvas at (-70%, -60%) [CENTERED]
+    const targetX = -(mousePercentX * 1.4 * rect.width)
     const targetY = -(mousePercentY * 1.2 * rect.height)
 
     // Update motion values (spring will animate smoothly)
@@ -193,7 +193,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
           x: gridX,
           y: gridY,
         }}
-        className="absolute inset-0 w-[350%] h-[220%] relative"
+        className="absolute inset-0 w-[240%] h-[220%] relative"
       >
         {loading ? (
           <div className="absolute inset-0 flex items-center justify-center">
@@ -220,8 +220,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
                     position: 'absolute',
                     top: `${position.top}%`,
                     left: `${position.left}%`,
-                    width: '120px',
-                    maxHeight: '220px'
+                    width: '120px'
                   }}
                 >
                   {/* Product Image - Respeta aspect ratio */}
