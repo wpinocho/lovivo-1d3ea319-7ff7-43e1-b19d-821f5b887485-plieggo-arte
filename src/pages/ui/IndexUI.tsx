@@ -5,6 +5,7 @@ import { CollectionNavigationCard } from '@/components/CollectionNavigationCard'
 import { FloatingCart } from '@/components/FloatingCart';
 import { InspirationCarousel } from '@/components/InspirationCarousel';
 import { EcommerceTemplate } from '@/templates/EcommerceTemplate';
+import { InteractiveGalleryModal } from '@/components/InteractiveGalleryModal';
 import { Link } from 'react-router-dom';
 import type { UseIndexLogicReturn } from '@/components/headless/HeadlessIndex';
 
@@ -35,6 +36,9 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
   const PRODUCTS_PER_ROW = 4;
   const INITIAL_ROWS = 2;
   const initialProductCount = PRODUCTS_PER_ROW * INITIAL_ROWS; // 8 productos
+
+  // Estado para controlar la galería interactiva
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
   // Productos a mostrar según el estado
   const displayedProducts = showAllProducts 
@@ -216,12 +220,12 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
           
           <div className="flex items-center justify-center gap-4 mb-12">
             <div className="h-px w-32 bg-border"></div>
-            <Link 
-              to="/top-sellers"
-              className="font-body text-xl text-muted-foreground hover:text-secondary transition-colors"
+            <button
+              onClick={() => setIsGalleryOpen(true)}
+              className="font-body text-xl text-muted-foreground hover:text-secondary transition-colors cursor-pointer"
             >
               Descubre regalos
-            </Link>
+            </button>
             <div className="h-px w-32 bg-border"></div>
           </div>
         </div>
@@ -231,6 +235,12 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
       <InspirationCarousel />
 
       <FloatingCart />
+
+      {/* Interactive Gallery Modal */}
+      <InteractiveGalleryModal 
+        isOpen={isGalleryOpen}
+        onClose={() => setIsGalleryOpen(false)}
+      />
     </EcommerceTemplate>
   );
 };
