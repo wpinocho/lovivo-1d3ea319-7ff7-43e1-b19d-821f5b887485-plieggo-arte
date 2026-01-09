@@ -21,8 +21,9 @@ import { isVariantAvailable } from '@/lib/utils'
  * - Estados de carga y navegación
  */
 
-export const useProductLogic = () => {
-  const { slug } = useParams<{ slug: string }>()
+export const useProductLogic = (slugProp?: string) => {
+  const { slug: slugFromParams } = useParams<{ slug: string }>()
+  const slug = slugProp || slugFromParams
   const navigate = useNavigate()
   const [product, setProduct] = useState<ProductType | null>(null)
   const [loading, setLoading] = useState(true)
@@ -340,11 +341,12 @@ export const useProductLogic = () => {
 }
 
 interface HeadlessProductProps {
+  slug?: string
   children: (logic: ReturnType<typeof useProductLogic>) => React.ReactNode
 }
 
-export const HeadlessProduct = ({ children }: HeadlessProductProps) => {
-  const productLogic = useProductLogic()
+export const HeadlessProduct = ({ slug, children }: HeadlessProductProps) => {
+  const productLogic = useProductLogic(slug)
   
   return <>{children(productLogic)}</>
 }
