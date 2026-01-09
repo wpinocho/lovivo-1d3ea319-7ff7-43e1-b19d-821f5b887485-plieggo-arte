@@ -1,10 +1,11 @@
-import { motion, useMotionValue, useSpring } from 'framer-motion'
+import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { supabase, type Product } from '@/lib/supabase'
 import { STORE_ID } from '@/lib/config'
 import { useSettings } from '@/contexts/SettingsContext'
+import { HeadlessProduct } from '@/components/headless/HeadlessProduct'
+import { ProductPageUI } from '@/pages/ui/ProductPageUI'
 
 interface InteractiveGalleryModalProps {
   isOpen: boolean
@@ -24,6 +25,7 @@ interface InteractiveGalleryModalProps {
 export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryModalProps) => {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedProductSlug, setSelectedProductSlug] = useState<string | null>(null)
   const { formatMoney } = useSettings()
 
   // LUSANO-STYLE COORDINATE MAPPING
@@ -156,7 +158,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
       
       for (let col = 0; col < itemsInThisRow; col++) {
         // Distribuir horizontalmente con variación caótica
-        const leftBase = (col / itemsInThisRow) * 95 + 2
+        const leftBase = (col / itemsInThisRow) * 84 + 8
         
         positions.push({
           top: topBase + (Math.random() * 4 - 2),  // ±2% variación vertical
@@ -166,6 +168,14 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
     }
     
     return positions
+  }
+
+  const handleProductClick = (slug: string) => {
+    setSelectedProductSlug(slug)
+  }
+
+  const handleCloseProductPopup = () => {
+    setSelectedProductSlug(null)
   }
 
   if (!isOpen) return null
@@ -211,44 +221,26 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
                 const position = chaosPositions[index % chaosPositions.length]
 
               return (
-                <Link
+                <motion.button
                   key={item.id}
-                  to={`/products/${item.slug}`}
-                  onClick={onClose}
-                  className="group relative overflow-hidden bg-card shadow-md hover:shadow-xl transition-shadow duration-300"
+                  onClick={() => handleProductClick(item.slug)}
+                  className="group relative overflow-hidden bg-card shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer"
                   style={{
                     position: 'absolute',
                     top: `${position.top}%`,
                     left: `${position.left}%`,
                     width: '120px'
                   }}
+                  whileHover={{ scale: 1.5 }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
                 >
                   {/* Product Image - Respeta aspect ratio */}
-                  <motion.img
+                  <img
                     src={item.image}
                     alt={item.title}
                     className="w-full h-auto object-contain"
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.4, ease: 'easeOut' }}
                   />
-
-                  {/* Overlay with info on hover - Estilo Plieggo */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    whileHover={{ opacity: 1 }}
-                    className="absolute inset-0 bg-black/85 flex flex-col items-center justify-center text-primary-foreground transition-opacity duration-300"
-                  >
-                    <h3 className="font-heading text-base font-bold mb-1 text-center px-2 leading-tight">
-                      {item.title}
-                    </h3>
-                    <p className="font-heading text-xs tracking-[0.15em] uppercase mb-2 text-primary-foreground/60">
-                      2025
-                    </p>
-                    <p className="font-body text-lg font-semibold text-primary">
-                      {formatMoney(item.price)}
-                    </p>
-                  </motion.div>
-                </Link>
+                </motion.button>
               )
             })
             })()}
@@ -262,6 +254,44 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
           Mueve el cursor para explorar
         </p>
       </div>
+
+      {/* Product Popup Modal */}
+      <AnimatePresence>
+        {selectedProductSlug && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-20 bg-background/95 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8"
+            onClick={handleCloseProductPopup}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              className="relative bg-card rounded-sm shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close button */}
+              <button
+                onClick={handleCloseProductPopup}
+                className="absolute top-4 right-4 z-10 p-2 hover:bg-secondary/10 transition-colors rounded-sm group"
+                aria-label="Cerrar producto"
+              >
+                <X className="h-6 w-6 text-foreground group-hover:text-secondary transition-colors" strokeWidth={1.5} />
+              </button>
+
+              {/* Product content - Using HeadlessProduct + ProductPageUI */}
+              <div className="p-4 sm:p-8">
+                <HeadlessProduct slug={selectedProductSlug}>
+                  {(logic) => <ProductPageUI logic={logic} />}
+                </HeadlessProduct>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }
