@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { EcommerceTemplate } from "@/templates/EcommerceTemplate"
-import { ShoppingCart, ArrowLeft, Plus, Minus } from "lucide-react"
+import { ShoppingCart, ArrowLeft, Plus, Minus, Package, Shield, Award, MapPin, Sparkles, Ruler, Palette, Frame, Zap, Clock } from "lucide-react"
 import { Link } from "react-router-dom"
 import { cn } from "@/lib/utils"
 
@@ -163,23 +163,120 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
             </div>
           </div>
 
+          {/* Storytelling Section */}
           {logic.product.description && (
-            <div>
-              <h3 className="font-semibold mb-2">Descripción</h3>
-              <div 
-                className="text-muted-foreground prose prose-sm max-w-none"
-                dangerouslySetInnerHTML={{ __html: logic.product.description }}
-              />
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-heading text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  La Historia Detrás de Esta Pieza
+                </h3>
+                <div 
+                  className="text-muted-foreground prose prose-sm max-w-none leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: logic.product.description }}
+                />
+              </div>
+              
+              {/* Creation Details */}
+              <div className="flex flex-wrap gap-4 text-sm">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Clock className="h-4 w-4 text-primary" />
+                  <span>8-12 horas de creación</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Palette className="h-4 w-4 text-primary" />
+                  <span>Origami arquitectónico</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Award className="h-4 w-4 text-primary" />
+                  <span>Cada pliegue hecho a mano</span>
+                </div>
+              </div>
             </div>
           )}
 
-          {/* Presentación */}
-          <Card className="border-primary/20">
+          {/* Specifications Table */}
+          <Card className="border-border/50">
             <CardContent className="pt-6">
-              <h3 className="font-semibold mb-3 text-primary">Presentación</h3>
-              <p className="text-muted-foreground">
-                Viene enmarcado con marco de madera y protección de acrílico, listo para colgar.
-              </p>
+              <h3 className="font-heading text-lg font-semibold mb-4 flex items-center gap-2">
+                <Ruler className="h-5 w-5 text-primary" />
+                Especificaciones
+              </h3>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex items-start gap-2">
+                  <Ruler className="h-4 w-4 text-muted-foreground mt-0.5" />
+                  <div>
+                    <span className="font-medium block">Dimensiones</span>
+                    <span className="text-muted-foreground">{logic.matchingVariant?.title || logic.product.options?.[0]?.values?.[0] || 'Según variante'}</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Palette className="h-4 w-4 text-muted-foreground mt-0.5" />
+                  <div>
+                    <span className="font-medium block">Material</span>
+                    <span className="text-muted-foreground">Papel Canson 300g</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Frame className="h-4 w-4 text-muted-foreground mt-0.5" />
+                  <div>
+                    <span className="font-medium block">Marco</span>
+                    <span className="text-muted-foreground">Madera natural</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Shield className="h-4 w-4 text-muted-foreground mt-0.5" />
+                  <div>
+                    <span className="font-medium block">Protección</span>
+                    <span className="text-muted-foreground">Acrílico 3mm</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Why Choose Plieggo */}
+          <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="pt-6">
+              <h3 className="font-heading text-lg font-semibold mb-4 text-primary">Por Qué Elegir Plieggo</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <span className="font-medium block text-sm">Único</span>
+                    <span className="text-xs text-muted-foreground">Cada pieza es única</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Award className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <span className="font-medium block text-sm">Premium</span>
+                    <span className="text-xs text-muted-foreground">Materiales de alta calidad</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <MapPin className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <span className="font-medium block text-sm">Mexicano</span>
+                    <span className="text-xs text-muted-foreground">100% diseño nacional</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Frame className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <span className="font-medium block text-sm">Listo para colgar</span>
+                    <span className="text-xs text-muted-foreground">Marco incluido</span>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -189,25 +286,47 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
               {logic.product.options.map((option) => (
                 <div key={option.name}>
                   <Label className="text-base font-medium">{option.name}</Label>
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <div className="flex flex-wrap gap-3 mt-2">
                     {option.values.map((value) => {
                       const isSelected = logic.selected[option.name] === value
                       const isAvailable = logic.isOptionValueAvailable(option.name, value)
                       
+                      // Get inventory info for urgency/scarcity
+                      const variant = logic.product.variants?.find((v: any) => 
+                        v.title === value || Object.values(v.option_values || {}).includes(value)
+                      )
+                      const inventory = variant?.inventory_quantity || 0
+                      const trackInventory = variant?.track_inventory !== false
+                      const showUrgency = isAvailable && trackInventory && inventory > 0 && inventory <= 5
+                      const showBackorder = isAvailable && (!trackInventory || inventory === 0)
+                      
                       return (
-                        <Button
-                          key={value}
-                          variant={isSelected ? "default" : "outline"}
-                          size="sm"
-                          disabled={!isAvailable}
-                          onClick={() => logic.handleOptionSelect(option.name, value)}
-                          className={!isAvailable ? "opacity-50 cursor-not-allowed" : ""}
-                        >
-                          {value}
-                          {!isAvailable && (
-                            <span className="ml-1 text-xs">(Agotado)</span>
+                        <div key={value} className="flex flex-col gap-1.5">
+                          <Button
+                            variant={isSelected ? "default" : "outline"}
+                            size="sm"
+                            disabled={!isAvailable}
+                            onClick={() => logic.handleOptionSelect(option.name, value)}
+                            className={!isAvailable ? "opacity-50 cursor-not-allowed" : ""}
+                          >
+                            {value}
+                            {!isAvailable && (
+                              <span className="ml-1 text-xs">(Agotado)</span>
+                            )}
+                          </Button>
+                          {isSelected && showUrgency && (
+                            <span className="text-xs text-amber-600 font-medium flex items-center gap-1">
+                              <Zap className="h-3 w-3" />
+                              {inventory === 1 ? '¡Solo 1 disponible!' : `Últimas ${inventory} unidades`}
+                            </span>
                           )}
-                        </Button>
+                          {isSelected && showBackorder && (
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              Producción bajo pedido - 7 días
+                            </span>
+                          )}
+                        </div>
                       )
                     })}
                   </div>
@@ -249,24 +368,42 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="space-y-4">
               <Button
                 onClick={logic.handleAddToCart}
                 disabled={!logic.inStock}
-                className="flex-1"
+                className="w-full"
                 size="lg"
               >
-                <ShoppingCart className="mr-2 h-4 w-4" />
+                <ShoppingCart className="mr-2 h-5 w-5" />
                 {logic.inStock ? 'Agregar al carrito' : 'Agotado'}
               </Button>
               
-              {!logic.inStock && (
-                <Badge variant="secondary">Agotado</Badge>
-              )}
+              {/* Trust Badges */}
+              <Card className="border-secondary/20 bg-secondary/5">
+                <CardContent className="pt-4 pb-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 text-sm">
+                      <Package className="h-5 w-5 text-secondary flex-shrink-0" />
+                      <span className="text-foreground"><span className="font-medium">Envío gratis</span> en CDMX</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      <Sparkles className="h-5 w-5 text-secondary flex-shrink-0" />
+                      <span className="text-foreground"><span className="font-medium">Pieza única</span> hecha a mano</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      <Shield className="h-5 w-5 text-secondary flex-shrink-0" />
+                      <span className="text-foreground"><span className="font-medium">Garantía</span> de satisfacción 30 días</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      <MapPin className="h-5 w-5 text-secondary flex-shrink-0" />
+                      <span className="text-foreground"><span className="font-medium">Diseño 100% mexicano</span></span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
-
-          <Separator />
 
           <Button
             variant="outline"
