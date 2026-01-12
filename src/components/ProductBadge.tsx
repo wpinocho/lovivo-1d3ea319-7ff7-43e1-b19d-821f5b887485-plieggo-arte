@@ -19,22 +19,22 @@ const badgeConfig = {
   'best-seller': {
     icon: Award,
     label: 'MÁS VENDIDO',
-    className: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/30 hover:bg-yellow-500/20'
+    className: 'bg-primary/20 text-primary border-primary/40 hover:bg-primary/30'
   },
   'limited-edition': {
     icon: Gem,
     label: 'EDICIÓN LIMITADA',
-    className: 'bg-purple-500/10 text-purple-700 border-purple-500/30 hover:bg-purple-500/20'
+    className: 'bg-secondary/20 text-secondary border-secondary/40 hover:bg-secondary/30'
   },
   'new': {
     icon: Sparkles,
     label: 'NUEVO',
-    className: 'bg-green-500/10 text-green-700 border-green-500/30 hover:bg-green-500/20'
+    className: 'bg-primary/15 text-primary border-primary/30 hover:bg-primary/25'
   },
   'popular': {
     icon: Flame,
     label: 'POPULAR',
-    className: 'bg-orange-500/10 text-orange-700 border-orange-500/30 hover:bg-orange-500/20'
+    className: 'bg-secondary/15 text-secondary border-secondary/30 hover:bg-secondary/25'
   }
 }
 

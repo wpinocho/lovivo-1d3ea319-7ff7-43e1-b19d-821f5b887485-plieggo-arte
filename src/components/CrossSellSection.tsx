@@ -44,10 +44,7 @@ export const CrossSellSection = ({ currentProduct }: CrossSellSectionProps) => {
         
         const { data, error } = await supabase
           .from('products')
-          .select(`
-            *,
-            variants:product_variants(*)
-          `)
+          .select('*')
           .eq('status', 'active')
           .contains('collection_ids', [collectionId])
           .neq('id', currentProduct.id)
@@ -61,10 +58,7 @@ export const CrossSellSection = ({ currentProduct }: CrossSellSectionProps) => {
       if (products.length < 3) {
         const { data, error } = await supabase
           .from('products')
-          .select(`
-            *,
-            variants:product_variants(*)
-          `)
+          .select('*')
           .eq('status', 'active')
           .neq('id', currentProduct.id)
           .limit(3 - products.length)
@@ -82,13 +76,9 @@ export const CrossSellSection = ({ currentProduct }: CrossSellSectionProps) => {
   }
 
   const handleQuickAdd = (product: Product) => {
-    // Si tiene variantes, agregar la primera variante
-    // Si no tiene variantes, agregar el producto base
-    const variant = product.variants && product.variants.length > 0 
-      ? product.variants[0] 
-      : undefined
-    
-    addItem(product, variant)
+    // Agregar producto base sin variante específica
+    // El usuario puede ajustar opciones desde el carrito
+    addItem(product, undefined)
     
     toast({
       title: "Agregado al carrito",
@@ -131,9 +121,7 @@ export const CrossSellSection = ({ currentProduct }: CrossSellSectionProps) => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {relatedProducts.map((product) => {
-            const displayPrice = product.variants && product.variants.length > 0
-              ? product.variants[0].price
-              : product.price || 0
+            const displayPrice = product.price || 0
 
             return (
               <div 
