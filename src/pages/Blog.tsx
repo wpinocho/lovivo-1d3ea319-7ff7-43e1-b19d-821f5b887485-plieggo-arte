@@ -86,7 +86,7 @@ const BlogPage = () => {
                   )}
                   <div className="mt-4">
                     <span className="text-primary hover:text-primary/80 text-sm font-medium">
-                      Read more →
+                      Leer más →
                     </span>
                   </div>
                 </div>
@@ -95,7 +95,7 @@ const BlogPage = () => {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">No articles available at this time.</p>
+            <p className="text-muted-foreground">No hay artículos disponibles en este momento.</p>
           </div>
         )}
       </div>

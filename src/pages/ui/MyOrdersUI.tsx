@@ -147,7 +147,7 @@ export default function MyOrdersUI({ user, authLoading }: MyOrdersUIProps) {
                         className="mt-4"
                       >
                         <ShoppingBag className="mr-2 h-4 w-4" />
-                        Start Shopping
+                        Comenzar a Comprar
                       </Button>
                     </div>
                   </CardContent>

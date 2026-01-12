@@ -102,7 +102,7 @@ const ThankYou = () => {
   }
 
   return (
-    <EcommerceTemplate pageTitle="Order Confirmation" showCart={true}>
+    <EcommerceTemplate pageTitle="Confirmación de Pedido" showCart={true}>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Confirmation Header */}
         <div className="text-center mb-8">
