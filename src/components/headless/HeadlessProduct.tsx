@@ -236,11 +236,6 @@ export const useProductLogic = (slugProp?: string) => {
       num_items: quantity
     })
     
-    toast({
-      title: "Producto agregado",
-      description: `${quantity} ${product.title} agregado al carrito.`,
-    })
-    
     setTimeout(() => openCart(), 300)
   }
 

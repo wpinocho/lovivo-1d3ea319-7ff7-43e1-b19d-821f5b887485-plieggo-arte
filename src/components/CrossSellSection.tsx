@@ -6,7 +6,6 @@ import { ShoppingCart, ArrowRight } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { STORE_ID } from "@/lib/config"
 import { useCart } from "@/contexts/CartContext"
-import { useToast } from "@/hooks/use-toast"
 import { formatMoney } from "@/lib/money"
 import { useSettings } from "@/contexts/SettingsContext"
 import type { Product } from "@/lib/supabase"
@@ -26,7 +25,6 @@ export const CrossSellSection = ({ currentProduct }: CrossSellSectionProps) => {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const { addItem } = useCart()
-  const { toast } = useToast()
   const { currencyCode } = useSettings()
 
   useEffect(() => {
@@ -100,12 +98,6 @@ export const CrossSellSection = ({ currentProduct }: CrossSellSectionProps) => {
     // Agregar producto base sin variante específica
     // El usuario puede ajustar opciones desde el carrito
     addItem(product, undefined)
-    
-    toast({
-      title: "Agregado al carrito",
-      description: `${product.title} agregado exitosamente`,
-      duration: 2000,
-    })
   }
 
   if (loading) {
