@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { EcommerceTemplate } from "@/templates/EcommerceTemplate"
-import { ShoppingCart, ArrowLeft, Plus, Minus, Package, Shield, Award, MapPin, Sparkles, Ruler, Palette, Frame, Zap, Clock } from "lucide-react"
+import { ShoppingCart, ArrowLeft, Plus, Minus, Package, Shield, Award, MapPin, Sparkles, Ruler, Palette, Frame, Zap, Clock, HeartHandshake } from "lucide-react"
 import { Link } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { ProductBadge, type BadgeType } from "@/components/ProductBadge"
@@ -301,7 +301,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                       <span className="text-foreground"><span className="font-medium">Envío gratis</span> en CDMX</span>
                     </div>
                     <div className="flex items-center gap-3 text-sm">
-                      <Sparkles className="h-5 w-5 text-secondary flex-shrink-0" />
+                      <HeartHandshake className="h-5 w-5 text-secondary flex-shrink-0" />
                       <span className="text-foreground"><span className="font-medium">Pieza única</span> hecha a mano</span>
                     </div>
                     <div className="flex items-center gap-3 text-sm">
@@ -418,7 +418,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-start gap-3">
                   <div className="p-2 rounded-lg bg-primary/10">
-                    <Sparkles className="h-5 w-5 text-primary" />
+                    <HeartHandshake className="h-5 w-5 text-primary" />
                   </div>
                   <div>
                     <span className="font-medium block text-sm">Único</span>
