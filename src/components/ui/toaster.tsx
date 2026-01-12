@@ -27,7 +27,7 @@ export function Toaster() {
           </Toast>
         )
       })}
-      <ToastViewport />
+      <ToastViewport className="top-[50%] translate-y-[-50%] right-4 left-auto bottom-auto" />
     </ToastProvider>
   )
 }

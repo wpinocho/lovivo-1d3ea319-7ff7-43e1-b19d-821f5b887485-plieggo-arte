@@ -211,8 +211,10 @@ export const useProductLogic = (slugProp?: string) => {
     
     if (hasVariants && !variantToAdd) {
       toast({
-        title: "Selecciona opciones",
-        description: "Elige una variante disponible.",
+        title: "Selecciona tamaño",
+        description: "Elige un tamaño disponible.",
+        variant: "destructive",
+        className: "bg-secondary text-secondary-foreground border-secondary",
       })
       return
     }

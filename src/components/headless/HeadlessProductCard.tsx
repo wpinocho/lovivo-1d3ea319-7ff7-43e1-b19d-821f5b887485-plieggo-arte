@@ -117,8 +117,10 @@ export const useProductCardLogic = (product: Product) => {
     const variantToAdd = hasVariants ? matchingVariant : undefined
     if (hasVariants && !variantToAdd) {
       toast({
-        title: "Selecciona opciones",
-        description: "Elige una variante disponible.",
+        title: "Selecciona tamaño",
+        description: "Elige un tamaño disponible.",
+        variant: "destructive",
+        className: "bg-secondary text-secondary-foreground border-secondary",
       })
       return
     }
