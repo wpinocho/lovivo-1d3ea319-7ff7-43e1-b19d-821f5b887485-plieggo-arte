@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ShoppingCart, ArrowRight } from "lucide-react"
 import { supabase } from "@/lib/supabase"
+import { STORE_ID } from "@/lib/config"
 import { useCart } from "@/contexts/CartContext"
 import { useToast } from "@/hooks/use-toast"
 import { formatMoney } from "@/lib/money"
@@ -36,30 +37,50 @@ export const CrossSellSection = ({ currentProduct }: CrossSellSectionProps) => {
     try {
       setLoading(true)
       
-      // 1. Intentar obtener productos de la misma colección
+      // 1. Intentar obtener la colección del producto actual
       let products: Product[] = []
       
-      if (currentProduct.collection_ids && currentProduct.collection_ids.length > 0) {
-        const collectionId = currentProduct.collection_ids[0]
+      // Primero, obtener las colecciones del producto
+      const { data: productCollections, error: collError } = await supabase
+        .from('collection_products')
+        .select('collection_id')
+        .eq('product_id', currentProduct.id)
+      
+      if (!collError && productCollections && productCollections.length > 0) {
+        // El producto pertenece a una colección
+        const collectionId = productCollections[0].collection_id
         
-        const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .eq('status', 'active')
-          .contains('collection_ids', [collectionId])
-          .neq('id', currentProduct.id)
-          .limit(3)
+        // Obtener otros productos de la misma colección
+        const { data: collectionProductIds, error: cpError } = await supabase
+          .from('collection_products')
+          .select('product_id')
+          .eq('collection_id', collectionId)
+          .neq('product_id', currentProduct.id)
         
-        if (error) throw error
-        products = data || []
+        if (!cpError && collectionProductIds && collectionProductIds.length > 0) {
+          const productIds = collectionProductIds.map(cp => cp.product_id)
+          
+          // Obtener los productos completos
+          const { data, error } = await supabase
+            .from('products')
+            .select('*')
+            .eq('status', 'active')
+            .eq('store_id', STORE_ID)
+            .in('id', productIds)
+            .limit(3)
+          
+          if (error) throw error
+          products = data || []
+        }
       }
       
-      // 2. Si no hay suficientes productos de la colección, completar con aleatorios
+      // 2. Si no hay suficientes productos de la colección, completar con aleatorios del mismo store
       if (products.length < 3) {
         const { data, error } = await supabase
           .from('products')
           .select('*')
           .eq('status', 'active')
+          .eq('store_id', STORE_ID)
           .neq('id', currentProduct.id)
           .limit(3 - products.length)
         
