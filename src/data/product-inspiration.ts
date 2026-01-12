@@ -27,6 +27,14 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
       context: 'Sala'
     }
   ],
+
+  'acorden-blanco-puro': [
+    {
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768261757909-23adqmkabx2.png',
+      alt: 'Cuadro Acordeón Blanco Puro vertical enmarcado en madera en rincón de lectura minimalista con tonos beige y cojines crema',
+      context: 'Rincón de lectura'
+    }
+  ],
   
   // Otros productos se pueden agregar aquí con el mismo formato
   // 'slug-del-producto': [{ src: 'url', alt: 'descripción', context: 'contexto' }]
