@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast'
 import { useSettings } from '@/contexts/SettingsContext'
 import { trackViewContent, trackAddToCart, tracking } from '@/lib/tracking-utils'
 import { isVariantAvailable } from '@/lib/utils'
+import { getBadgeForProduct } from '@/lib/product-badges'
 
 /**
  * FORBIDDEN HEADLESS COMPONENT - HeadlessProduct
@@ -58,7 +59,13 @@ export const useProductLogic = (slugProp?: string) => {
         return
       }
 
-      setProduct(data)
+      // Asignar badge automáticamente basándose en tags y otros criterios
+      const productWithBadge = {
+        ...data,
+        badge: getBadgeForProduct(data) || undefined
+      }
+
+      setProduct(productWithBadge)
       // Set first image as selected
       if (data.images && data.images.length > 0) {
         setSelectedImage(data.images[0])

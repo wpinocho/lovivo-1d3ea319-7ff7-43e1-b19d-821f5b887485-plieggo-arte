@@ -10,6 +10,9 @@ import { EcommerceTemplate } from "@/templates/EcommerceTemplate"
 import { ShoppingCart, ArrowLeft, Plus, Minus, Package, Shield, Award, MapPin, Sparkles, Ruler, Palette, Frame, Zap, Clock } from "lucide-react"
 import { Link } from "react-router-dom"
 import { cn } from "@/lib/utils"
+import { ProductBadge, type BadgeType } from "@/components/ProductBadge"
+import { ProductFAQ } from "@/components/ProductFAQ"
+import { CrossSellSection } from "@/components/CrossSellSection"
 
 import type { Product, ProductVariant } from "@/lib/supabase"
 
@@ -110,9 +113,10 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
 
   return (
     <EcommerceTemplate>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Product Gallery */}
-        <div className="space-y-4">
+      <div className="space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Product Gallery */}
+          <div className="space-y-4">
           {/* Imagen principal */}
           <div className="aspect-square rounded-lg overflow-hidden bg-muted">
             <img
@@ -147,10 +151,15 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
           )}
         </div>
 
-        {/* Product Details */}
-        <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold">{logic.product.title}</h1>
+          {/* Product Details */}
+          <div className="space-y-6">
+            {/* Badge */}
+            {logic.product.badge && (
+              <ProductBadge type={logic.product.badge as BadgeType} />
+            )}
+            
+            <div>
+              <h1 className="text-3xl font-bold">{logic.product.title}</h1>
             <div className="flex items-center gap-4 mt-2">
               <span className="text-2xl font-bold">
                 {logic.formatMoney(logic.currentPrice)}
@@ -413,7 +422,14 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Seguir comprando
           </Button>
+          </div>
         </div>
+
+        {/* FAQ Section */}
+        <ProductFAQ />
+
+        {/* Cross-sell Section */}
+        <CrossSellSection currentProduct={logic.product} />
       </div>
     </EcommerceTemplate>
   )

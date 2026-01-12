@@ -43,6 +43,9 @@ export type Product = {
   track_inventory?: boolean
   options?: ProductOption[]
   variants?: ProductVariant[]
+  badge?: 'best-seller' | 'limited-edition' | 'new' | 'popular'
+  collection_ids?: string[]
+  tags?: string[]
 }
 
 export type Collection = {

@@ -2,7 +2,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 import { HeadlessProductCard } from "@/components/headless/HeadlessProductCard"
+import { ProductBadge, type BadgeType } from "@/components/ProductBadge"
 import type { Product } from "@/lib/supabase"
+import { getBadgeForProduct } from "@/lib/product-badges"
 
 /**
  * EDITABLE UI COMPONENT - ProductCardUI
@@ -23,11 +25,20 @@ interface ProductCardUIProps {
 }
 
 export const ProductCardUI = ({ product }: ProductCardUIProps) => {
+  const badge = getBadgeForProduct(product)
+  
   return (
     <HeadlessProductCard product={product}>
       {(logic) => (
         <Card className="bg-card border-border overflow-hidden transition-all hover:shadow-lg group relative">
           <CardContent className="p-0 relative">
+            {/* Badge arriba de la imagen */}
+            {badge && (
+              <div className="absolute top-3 left-3 z-10">
+                <ProductBadge type={badge as BadgeType} />
+              </div>
+            )}
+            
             {/* Imagen del producto - con efecto hover para segunda imagen */}
             <div className="bg-muted overflow-hidden relative">
               {(logic.matchingVariant?.image || (logic.product.images && logic.product.images.length > 0)) ? (
