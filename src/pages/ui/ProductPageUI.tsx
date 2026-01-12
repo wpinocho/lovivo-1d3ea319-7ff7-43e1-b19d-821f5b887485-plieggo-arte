@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -15,6 +15,7 @@ import { ProductFAQ } from "@/components/ProductFAQ"
 import { CrossSellSection } from "@/components/CrossSellSection"
 import { ProductRating } from "@/components/ProductRating"
 import { getProductReview } from "@/data/product-reviews"
+import { ReviewsModal } from "@/components/ReviewsModal"
 
 import type { Product, ProductVariant } from "@/lib/supabase"
 
@@ -66,6 +67,9 @@ interface ProductPageUIProps {
 }
 
 export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
+  // Estado del modal de reviews
+  const [isReviewsModalOpen, setIsReviewsModalOpen] = useState(false)
+  
   // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -171,10 +175,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                     <ProductRating 
                       rating={review.rating} 
                       reviewCount={review.reviewCount}
-                      onClick={() => {
-                        // TODO: Abrir modal de reseñas (Fase 3)
-                        console.log('Abrir modal de reseñas')
-                      }}
+                      onClick={() => setIsReviewsModalOpen(true)}
                     />
                   </div>
                 ) : null
@@ -451,6 +452,14 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
         {/* Cross-sell Section */}
         <CrossSellSection currentProduct={logic.product} />
       </div>
+
+      {/* Reviews Modal */}
+      <ReviewsModal
+        isOpen={isReviewsModalOpen}
+        onClose={() => setIsReviewsModalOpen(false)}
+        productSlug={logic.product.slug}
+        productTitle={logic.product.title}
+      />
     </EcommerceTemplate>
   )
 }
