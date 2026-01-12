@@ -14,6 +14,7 @@ import { ProductBadge, type BadgeType } from "@/components/ProductBadge"
 import { ProductFAQ } from "@/components/ProductFAQ"
 import { CrossSellSection } from "@/components/CrossSellSection"
 import { ProductRating } from "@/components/ProductRating"
+import { getProductReview } from "@/data/product-reviews"
 
 import type { Product, ProductVariant } from "@/lib/supabase"
 
@@ -162,17 +163,22 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
             <div>
               <h1 className="text-3xl font-bold">{logic.product.title}</h1>
               
-              {/* Rating Summary */}
-              <div className="mt-3">
-                <ProductRating 
-                  rating={4.8} 
-                  reviewCount={24}
-                  onClick={() => {
-                    // TODO: Abrir modal de reseñas (Fase 3)
-                    console.log('Abrir modal de reseñas')
-                  }}
-                />
-              </div>
+              {/* Rating Summary - Dinámico por producto */}
+              {(() => {
+                const review = getProductReview(logic.product.slug)
+                return review.reviewCount > 0 ? (
+                  <div className="mt-3">
+                    <ProductRating 
+                      rating={review.rating} 
+                      reviewCount={review.reviewCount}
+                      onClick={() => {
+                        // TODO: Abrir modal de reseñas (Fase 3)
+                        console.log('Abrir modal de reseñas')
+                      }}
+                    />
+                  </div>
+                ) : null
+              })()}
             
             <div className="flex items-center gap-4 mt-4">
               <span className="text-2xl font-bold">
