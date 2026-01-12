@@ -16,6 +16,7 @@ import { CrossSellSection } from "@/components/CrossSellSection"
 import { ProductRating } from "@/components/ProductRating"
 import { getProductReview } from "@/data/product-reviews"
 import { ReviewsModal } from "@/components/ReviewsModal"
+import { ProductInspirationGallery } from "@/components/ProductInspirationGallery"
 
 import type { Product, ProductVariant } from "@/lib/supabase"
 
@@ -155,6 +156,9 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
               ))}
             </div>
           )}
+
+          {/* Inspiration Gallery - Muestra el producto en contextos reales */}
+          <ProductInspirationGallery productSlug={logic.product.slug} />
         </div>
 
           {/* Product Details */}
