@@ -159,7 +159,7 @@ export const CrossSellSection = ({ currentProduct }: CrossSellSectionProps) => {
                       <img
                         src={product.images[0]}
                         alt={product.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
