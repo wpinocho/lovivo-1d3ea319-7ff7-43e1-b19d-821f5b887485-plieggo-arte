@@ -30,9 +30,9 @@ export default function MyOrdersUI({ user, authLoading }: MyOrdersUIProps) {
     <EcommerceTemplate layout="centered">
       <div className="py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">My Orders</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Mis Pedidos</h1>
           <p className="text-muted-foreground mt-2">
-            Here you can see the history of all your orders
+            Aquí puedes ver el historial de todos tus pedidos
           </p>
         </div>
 
@@ -60,9 +60,9 @@ export default function MyOrdersUI({ user, authLoading }: MyOrdersUIProps) {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="font-semibold text-xl">Sign in required</h3>
+                  <h3 className="font-semibold text-xl">Inicio de sesión requerido</h3>
                   <p className="text-muted-foreground max-w-sm mx-auto">
-                    You need to sign in to your account to view your order history.
+                    Necesitas iniciar sesión en tu cuenta para ver tu historial de pedidos.
                   </p>
                 </div>
                 <Button 
@@ -71,7 +71,7 @@ export default function MyOrdersUI({ user, authLoading }: MyOrdersUIProps) {
                   className="mt-4"
                 >
                   <LogIn className="mr-2 h-4 w-4" />
-                  Sign In
+                  Iniciar Sesión
                 </Button>
               </div>
             </CardContent>
@@ -108,16 +108,16 @@ export default function MyOrdersUI({ user, authLoading }: MyOrdersUIProps) {
                         <AlertCircle className="h-12 w-12 text-destructive" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-lg">Unable to load orders</h3>
+                        <h3 className="font-semibold text-lg">No se pueden cargar los pedidos</h3>
                         <p className="text-muted-foreground mt-2">
                           {isColumnError 
-                            ? "There's a configuration issue. Please contact support."
-                            : "We couldn't load your orders. Please try again."}
+                            ? "Hay un problema de configuración. Por favor contacta a soporte."
+                            : "No pudimos cargar tus pedidos. Por favor intenta de nuevo."}
                         </p>
                       </div>
                       <Button onClick={refetch} variant="outline" size="lg">
                         <RefreshCw className="mr-2 h-4 w-4" />
-                        Try Again
+                        Intentar de Nuevo
                       </Button>
                     </div>
                   </CardContent>
@@ -136,9 +136,9 @@ export default function MyOrdersUI({ user, authLoading }: MyOrdersUIProps) {
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <h3 className="font-semibold text-xl">No orders yet</h3>
+                        <h3 className="font-semibold text-xl">Aún no hay pedidos</h3>
                         <p className="text-muted-foreground max-w-sm mx-auto">
-                          You haven't placed any orders yet. Start shopping and your order history will appear here.
+                          Todavía no has realizado ningún pedido. Comienza a comprar y tu historial aparecerá aquí.
                         </p>
                       </div>
                       <Button 
@@ -164,7 +164,7 @@ export default function MyOrdersUI({ user, authLoading }: MyOrdersUIProps) {
                         <div>
                           <CardTitle className="flex items-center gap-2">
                             <Package className="h-5 w-5" />
-                            Order #{order.order_number || order.id.slice(0, 8)}
+                            Pedido #{order.order_number || order.id.slice(0, 8)}
                           </CardTitle>
                           <CardDescription className="flex items-center gap-4 mt-2">
                             <span className="flex items-center gap-1">
@@ -178,7 +178,7 @@ export default function MyOrdersUI({ user, authLoading }: MyOrdersUIProps) {
                           </CardDescription>
                         </div>
                         <Badge variant={order.status === 'completed' ? 'default' : 'secondary'}>
-                          {order.status === 'completed' ? 'Completed' : order.status === 'pending' ? 'Pending' : 'Processing'}
+                          {order.status === 'completed' ? 'Completado' : order.status === 'pending' ? 'Pendiente' : 'Procesando'}
                         </Badge>
                       </div>
                     </CardHeader>
@@ -186,8 +186,8 @@ export default function MyOrdersUI({ user, authLoading }: MyOrdersUIProps) {
                     <CardContent>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Order status:</span>
-                          <span className="font-medium capitalize">{order.status || 'Processing'}</span>
+                          <span className="text-muted-foreground">Estado del pedido:</span>
+                          <span className="font-medium capitalize">{order.status === 'completed' ? 'Completado' : order.status === 'pending' ? 'Pendiente' : 'Procesando'}</span>
                         </div>
                         
                         <div className="flex justify-between text-sm">
@@ -197,14 +197,14 @@ export default function MyOrdersUI({ user, authLoading }: MyOrdersUIProps) {
                         
                         {order.discount_amount > 0 && (
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Discount:</span>
+                            <span className="text-muted-foreground">Descuento:</span>
                             <span className="font-medium text-green-600">-{formatMoney(order.discount_amount, order.currency_code)}</span>
                           </div>
                         )}
 
                         {order.shipping_address && (
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Shipping:</span>
+                            <span className="text-muted-foreground">Envío:</span>
                             <span className="font-medium text-right">
                               {typeof order.shipping_address === 'string' 
                                 ? order.shipping_address 
