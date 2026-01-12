@@ -51,34 +51,34 @@ export const EcommerceTemplate = ({
           <BrandLogoLeft />
 
           {/* Navigation - Desktop */}
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className="hidden md:flex items-center space-x-2">
             <Link 
               to="/all-products" 
-              className="font-body text-base text-muted-foreground hover:text-secondary transition-colors"
+              className="font-body text-base text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-4 py-2 rounded-sm"
             >
               Todos los Cuadros
             </Link>
             <Link 
               to="/top-sellers" 
-              className="font-body text-base text-muted-foreground hover:text-secondary transition-colors"
+              className="font-body text-base text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-4 py-2 rounded-sm"
             >
               Más Vendidos
             </Link>
             <Link 
               to="/coleccion-acordeon" 
-              className="font-body text-base text-muted-foreground hover:text-secondary transition-colors"
+              className="font-body text-base text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-4 py-2 rounded-sm"
             >
               Acordeón
             </Link>
             <Link 
               to="/coleccion-espacio" 
-              className="font-body text-base text-muted-foreground hover:text-secondary transition-colors"
+              className="font-body text-base text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-4 py-2 rounded-sm"
             >
               Espacio
             </Link>
             <Link 
               to="/about" 
-              className="font-body text-base text-muted-foreground hover:text-secondary transition-colors"
+              className="font-body text-base text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-4 py-2 rounded-sm"
             >
               Sobre Nosotros
             </Link>
