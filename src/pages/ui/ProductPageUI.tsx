@@ -382,7 +382,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                   <div>
                     <span className="font-medium block">Dimensiones</span>
                     <span className="text-muted-foreground">
-                      {logic.matchingVariant?.title?.split('/')[0]?.trim() || logic.product.options?.[0]?.values?.[0] || 'Según variante'}
+                      {logic.matchingVariant?.title?.split('/')[0]?.trim() || 'Variable'}
                     </span>
                   </div>
                 </div>
