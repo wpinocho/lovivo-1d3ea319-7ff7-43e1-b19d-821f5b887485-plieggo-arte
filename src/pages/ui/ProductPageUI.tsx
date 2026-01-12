@@ -193,6 +193,133 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
             </div>
           </div>
 
+          {/* Product Options - Moved below price */}
+          {logic.product.options && logic.product.options.length > 0 && (
+            <div className="space-y-4">
+              {logic.product.options.map((option) => (
+                <div key={option.name}>
+                  <Label className="text-base font-medium">{option.name}</Label>
+                  <div className="flex flex-wrap gap-3 mt-2">
+                    {option.values.map((value) => {
+                      const isSelected = logic.selected[option.name] === value
+                      const isAvailable = logic.isOptionValueAvailable(option.name, value)
+                      
+                      // Get inventory info for urgency/scarcity
+                      const variant = logic.product.variants?.find((v: any) => 
+                        v.title === value || Object.values(v.option_values || {}).includes(value)
+                      )
+                      const inventory = variant?.inventory_quantity || 0
+                      const trackInventory = variant?.track_inventory !== false
+                      const showUrgency = isAvailable && trackInventory && inventory > 0 && inventory <= 5
+                      const showBackorder = isAvailable && (!trackInventory || inventory === 0)
+                      
+                      return (
+                        <div key={value} className="flex flex-col gap-1.5">
+                          <Button
+                            variant={isSelected ? "default" : "outline"}
+                            size="sm"
+                            disabled={!isAvailable}
+                            onClick={() => logic.handleOptionSelect(option.name, value)}
+                            className={!isAvailable ? "opacity-50 cursor-not-allowed" : ""}
+                          >
+                            {value}
+                            {!isAvailable && (
+                              <span className="ml-1 text-xs">(Agotado)</span>
+                            )}
+                          </Button>
+                          {isSelected && showUrgency && (
+                            <span className="text-xs text-amber-600 font-medium flex items-center gap-1">
+                              <Zap className="h-3 w-3" />
+                              {inventory === 1 ? '¡Solo 1 disponible!' : `Últimas ${inventory} unidades`}
+                            </span>
+                          )}
+                          {isSelected && showBackorder && (
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              Producción bajo pedido - 7 días
+                            </span>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Quantity and Add to Cart - Moved below price */}
+          <div className="space-y-4">
+            <div className="flex items-center space-x-4">
+              <Label htmlFor="quantity" className="text-base font-medium">
+                Cantidad
+              </Label>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => logic.handleQuantityChange(Math.max(1, logic.quantity - 1))}
+                  disabled={logic.quantity <= 1}
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <Input
+                  id="quantity"
+                  type="number"
+                  min="1"
+                  value={logic.quantity}
+                  onChange={(e) => logic.handleQuantityChange(parseInt(e.target.value) || 1)}
+                  className="w-20 text-center"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => logic.handleQuantityChange(logic.quantity + 1)}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <Button
+                onClick={logic.handleAddToCart}
+                disabled={!logic.inStock}
+                className="w-full"
+                size="lg"
+              >
+                <ShoppingCart className="mr-2 h-5 w-5" />
+                {logic.inStock ? 'Agregar al carrito' : 'Agotado'}
+              </Button>
+              
+              {/* Trust Badges */}
+              <Card className="border-secondary/20 bg-secondary/5">
+                <CardContent className="pt-4 pb-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 text-sm">
+                      <Package className="h-5 w-5 text-secondary flex-shrink-0" />
+                      <span className="text-foreground"><span className="font-medium">Envío gratis</span> en CDMX</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      <Sparkles className="h-5 w-5 text-secondary flex-shrink-0" />
+                      <span className="text-foreground"><span className="font-medium">Pieza única</span> hecha a mano</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      <Shield className="h-5 w-5 text-secondary flex-shrink-0" />
+                      <span className="text-foreground"><span className="font-medium">Garantía</span> de satisfacción 30 días</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm">
+                      <MapPin className="h-5 w-5 text-secondary flex-shrink-0" />
+                      <span className="text-foreground"><span className="font-medium">Diseño 100% mexicano</span></span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          <Separator className="my-6" />
+
           {/* Description Section */}
           {logic.product.description && (
             <div className="space-y-4">
@@ -326,131 +453,6 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
               </div>
             </CardContent>
           </Card>
-
-          {/* Product Options */}
-          {logic.product.options && logic.product.options.length > 0 && (
-            <div className="space-y-4">
-              {logic.product.options.map((option) => (
-                <div key={option.name}>
-                  <Label className="text-base font-medium">{option.name}</Label>
-                  <div className="flex flex-wrap gap-3 mt-2">
-                    {option.values.map((value) => {
-                      const isSelected = logic.selected[option.name] === value
-                      const isAvailable = logic.isOptionValueAvailable(option.name, value)
-                      
-                      // Get inventory info for urgency/scarcity
-                      const variant = logic.product.variants?.find((v: any) => 
-                        v.title === value || Object.values(v.option_values || {}).includes(value)
-                      )
-                      const inventory = variant?.inventory_quantity || 0
-                      const trackInventory = variant?.track_inventory !== false
-                      const showUrgency = isAvailable && trackInventory && inventory > 0 && inventory <= 5
-                      const showBackorder = isAvailable && (!trackInventory || inventory === 0)
-                      
-                      return (
-                        <div key={value} className="flex flex-col gap-1.5">
-                          <Button
-                            variant={isSelected ? "default" : "outline"}
-                            size="sm"
-                            disabled={!isAvailable}
-                            onClick={() => logic.handleOptionSelect(option.name, value)}
-                            className={!isAvailable ? "opacity-50 cursor-not-allowed" : ""}
-                          >
-                            {value}
-                            {!isAvailable && (
-                              <span className="ml-1 text-xs">(Agotado)</span>
-                            )}
-                          </Button>
-                          {isSelected && showUrgency && (
-                            <span className="text-xs text-amber-600 font-medium flex items-center gap-1">
-                              <Zap className="h-3 w-3" />
-                              {inventory === 1 ? '¡Solo 1 disponible!' : `Últimas ${inventory} unidades`}
-                            </span>
-                          )}
-                          {isSelected && showBackorder && (
-                            <span className="text-xs text-muted-foreground flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              Producción bajo pedido - 7 días
-                            </span>
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Quantity and Add to Cart */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-4">
-              <Label htmlFor="quantity" className="text-base font-medium">
-                Cantidad
-              </Label>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => logic.handleQuantityChange(Math.max(1, logic.quantity - 1))}
-                  disabled={logic.quantity <= 1}
-                >
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <Input
-                  id="quantity"
-                  type="number"
-                  min="1"
-                  value={logic.quantity}
-                  onChange={(e) => logic.handleQuantityChange(parseInt(e.target.value) || 1)}
-                  className="w-20 text-center"
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => logic.handleQuantityChange(logic.quantity + 1)}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <Button
-                onClick={logic.handleAddToCart}
-                disabled={!logic.inStock}
-                className="w-full"
-                size="lg"
-              >
-                <ShoppingCart className="mr-2 h-5 w-5" />
-                {logic.inStock ? 'Agregar al carrito' : 'Agotado'}
-              </Button>
-              
-              {/* Trust Badges */}
-              <Card className="border-secondary/20 bg-secondary/5">
-                <CardContent className="pt-4 pb-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-sm">
-                      <Package className="h-5 w-5 text-secondary flex-shrink-0" />
-                      <span className="text-foreground"><span className="font-medium">Envío gratis</span> en CDMX</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm">
-                      <Sparkles className="h-5 w-5 text-secondary flex-shrink-0" />
-                      <span className="text-foreground"><span className="font-medium">Pieza única</span> hecha a mano</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm">
-                      <Shield className="h-5 w-5 text-secondary flex-shrink-0" />
-                      <span className="text-foreground"><span className="font-medium">Garantía</span> de satisfacción 30 días</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm">
-                      <MapPin className="h-5 w-5 text-secondary flex-shrink-0" />
-                      <span className="text-foreground"><span className="font-medium">Diseño 100% mexicano</span></span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
 
           <Button
             variant="outline"
