@@ -76,11 +76,6 @@ export const ProductCardUI = ({ product }: ProductCardUIProps) => {
                       -{logic.discountPercentage}%
                     </span>
                   )}
-                  {logic.product.featured && (
-                    <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-sm font-medium">
-                      Destacado
-                    </span>
-                  )}
                   {!logic.inStock && (
                     <span className="bg-muted text-muted-foreground text-xs px-2 py-1 rounded-sm font-medium">
                       Agotado

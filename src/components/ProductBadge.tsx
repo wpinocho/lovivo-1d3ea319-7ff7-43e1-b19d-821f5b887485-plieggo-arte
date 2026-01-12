@@ -19,7 +19,7 @@ const badgeConfig = {
   'best-seller': {
     icon: Award,
     label: 'MÁS VENDIDO',
-    className: 'bg-primary/20 text-primary border-primary/40 hover:bg-primary/30'
+    className: 'bg-[#1F3A5F] text-white border-[#1F3A5F] hover:bg-[#1F3A5F]/90'
   },
   'limited-edition': {
     icon: null,
