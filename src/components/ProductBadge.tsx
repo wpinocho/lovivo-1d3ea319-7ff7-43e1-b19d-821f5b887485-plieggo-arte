@@ -22,9 +22,9 @@ const badgeConfig = {
     className: 'bg-primary/20 text-primary border-primary/40 hover:bg-primary/30'
   },
   'limited-edition': {
-    icon: Gem,
+    icon: null,
     label: 'EDICIÓN LIMITADA',
-    className: 'bg-secondary/20 text-secondary border-secondary/40 hover:bg-secondary/30'
+    className: 'bg-secondary text-secondary-foreground border-0'
   },
   'new': {
     icon: Sparkles,
@@ -51,7 +51,7 @@ export const ProductBadge = ({ type, className }: ProductBadgeProps) => {
         className
       )}
     >
-      <Icon className="h-3.5 w-3.5" />
+      {Icon && <Icon className="h-3.5 w-3.5" />}
       {config.label}
     </Badge>
   )
