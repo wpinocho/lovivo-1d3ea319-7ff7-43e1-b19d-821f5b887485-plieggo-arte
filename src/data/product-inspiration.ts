@@ -35,6 +35,14 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
       context: 'Rincón de lectura'
     }
   ],
+
+  'luna-azul': [
+    {
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768262127623-rdstk26b0tf.png',
+      alt: 'Cuadro Luna Azul enmarcado en madera sobre sofá beige modular, mujer leyendo libro en sala minimalista con mesa auxiliar de madera',
+      context: 'Sala de estar'
+    }
+  ],
   
   // Otros productos se pueden agregar aquí con el mismo formato
   // 'slug-del-producto': [{ src: 'url', alt: 'descripción', context: 'contexto' }]
