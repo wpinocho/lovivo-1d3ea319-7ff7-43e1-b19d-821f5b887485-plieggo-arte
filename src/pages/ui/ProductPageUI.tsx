@@ -381,7 +381,9 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                   <Ruler className="h-4 w-4 text-muted-foreground mt-0.5" />
                   <div>
                     <span className="font-medium block">Dimensiones</span>
-                    <span className="text-muted-foreground">{logic.matchingVariant?.title || logic.product.options?.[0]?.values?.[0] || 'Según variante'}</span>
+                    <span className="text-muted-foreground">
+                      {logic.matchingVariant?.title?.split('/')[0]?.trim() || logic.product.options?.[0]?.values?.[0] || 'Según variante'}
+                    </span>
                   </div>
                 </div>
                 <div className="flex items-start gap-2">
