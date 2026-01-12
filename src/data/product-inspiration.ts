@@ -14,8 +14,8 @@ export interface InspirationImage {
 export const productInspirationImages: Record<string, InspirationImage[]> = {
   'acorden-rosa-sereno': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768260560314-rrzsybcuhei.png',
-      alt: 'Cuadro Acordeón Rosa en cuarto de bebé con decoración minimalista',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768261239411-r8fph4k62i.png',
+      alt: 'Cuadro Acordeón Rosa Sereno en cuarto de bebé con decoración minimalista en tonos crema y madera natural',
       context: 'Cuarto de bebé'
     }
   ],
