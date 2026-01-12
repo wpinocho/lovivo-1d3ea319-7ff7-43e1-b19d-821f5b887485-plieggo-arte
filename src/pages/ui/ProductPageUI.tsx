@@ -193,22 +193,39 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
             </div>
           </div>
 
-          {/* Storytelling Section */}
+          {/* Description Section */}
           {logic.product.description && (
             <div className="space-y-4">
               <div>
                 <h3 className="font-heading text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  La Historia Detrás de Esta Pieza
+                  <Package className="h-5 w-5 text-primary" />
+                  Descripción de la Pieza
                 </h3>
                 <div 
                   className="text-muted-foreground prose prose-sm max-w-none leading-relaxed"
                   dangerouslySetInnerHTML={{ __html: logic.product.description }}
                 />
               </div>
+            </div>
+          )}
+
+          {/* Storytelling Section - Historia de Inspiración */}
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-heading text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                La Historia Detrás de Esta Pieza
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Inspirada en el arte milenario del origami japonés y la elegancia de los abanicos plegables, 
+                esta pieza celebra la geometría orgánica y el movimiento contenido. Cada pliegue es una expresión 
+                de simetría perfecta, relieve táctil y delicadeza visual. La técnica de doblado arquitectónico 
+                busca traer balance y sofisticación contemporánea, donde la luz y la sombra danzan entre los pliegues 
+                para crear profundidad escultural. Es un homenaje a la paciencia artesanal y la belleza de lo simple.
+              </p>
               
               {/* Creation Details */}
-              <div className="flex flex-wrap gap-4 text-sm">
+              <div className="flex flex-wrap gap-4 text-sm mt-4">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Clock className="h-4 w-4 text-primary" />
                   <span>8-12 horas de creación</span>
@@ -223,7 +240,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                 </div>
               </div>
             </div>
-          )}
+          </div>
 
           {/* Specifications Table */}
           <Card className="border-border/50">
