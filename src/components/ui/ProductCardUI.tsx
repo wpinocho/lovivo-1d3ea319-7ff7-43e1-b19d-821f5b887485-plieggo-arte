@@ -183,36 +183,6 @@ export const ProductCardUI = ({ product }: ProductCardUIProps) => {
                 </div>
               </div>
             </div>
-
-            {/* Footer: Título, Rating y Precio - Siempre visible */}
-            <div className="p-4 space-y-2">
-              <Link to={`/products/${logic.product.slug}`}>
-                <h3 className="font-heading font-semibold text-foreground text-base line-clamp-1 hover:text-primary transition-colors">
-                  {logic.product.title}
-                </h3>
-              </Link>
-
-              {/* Rating - Siempre visible */}
-              {review.reviewCount > 0 && (
-                <ProductRating 
-                  rating={review.rating} 
-                  reviewCount={review.reviewCount}
-                  size="sm"
-                />
-              )}
-
-              {/* Precio */}
-              <div className="flex items-center gap-2">
-                <span className="font-heading text-foreground font-bold text-lg">
-                  {logic.formatMoney(logic.currentPrice)}
-                </span>
-                {logic.currentCompareAt && logic.currentCompareAt > logic.currentPrice && (
-                  <span className="font-body text-muted-foreground text-sm line-through">
-                    {logic.formatMoney(logic.currentCompareAt)}
-                  </span>
-                )}
-              </div>
-            </div>
           </CardContent>
         </Card>
       )}
