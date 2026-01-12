@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils"
 import { ProductBadge, type BadgeType } from "@/components/ProductBadge"
 import { ProductFAQ } from "@/components/ProductFAQ"
 import { CrossSellSection } from "@/components/CrossSellSection"
+import { ProductRating } from "@/components/ProductRating"
 
 import type { Product, ProductVariant } from "@/lib/supabase"
 
@@ -160,7 +161,20 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
             
             <div>
               <h1 className="text-3xl font-bold">{logic.product.title}</h1>
-            <div className="flex items-center gap-4 mt-2">
+              
+              {/* Rating Summary */}
+              <div className="mt-3">
+                <ProductRating 
+                  rating={4.8} 
+                  reviewCount={24}
+                  onClick={() => {
+                    // TODO: Abrir modal de reseñas (Fase 3)
+                    console.log('Abrir modal de reseñas')
+                  }}
+                />
+              </div>
+            
+            <div className="flex items-center gap-4 mt-4">
               <span className="text-2xl font-bold">
                 {logic.formatMoney(logic.currentPrice)}
               </span>
