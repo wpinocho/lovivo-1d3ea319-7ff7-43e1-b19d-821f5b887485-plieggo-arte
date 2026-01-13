@@ -13,6 +13,9 @@ interface OrderDetails {
   id: string
   order_number: string
   total_amount: number
+  subtotal?: number
+  discount_amount?: number
+  discount_code?: string
   currency_code: string
   status: string
   shipping_address?: any
@@ -168,7 +171,21 @@ const ThankYou = () => {
               <Separator />
 
               <div className="space-y-2">
-                <div className="flex justify-between text-lg font-bold">
+                {order.subtotal !== undefined && (
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span>{formatMoney(order.subtotal, order.currency_code)}</span>
+                  </div>
+                )}
+                
+                {order.discount_amount && order.discount_amount > 0 && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Descuento{order.discount_code ? ` (${order.discount_code})` : ''}</span>
+                    <span>- {formatMoney(order.discount_amount, order.currency_code)}</span>
+                  </div>
+                )}
+                
+                <div className="flex justify-between text-lg font-bold pt-2 border-t">
                   <span>Total</span>
                   <span>{formatMoney(order.total_amount, order.currency_code)}</span>
                 </div>
@@ -189,11 +206,11 @@ const ThankYou = () => {
                 <div>
                   <h4 className="font-medium mb-2">Dirección de Envío:</h4>
                   <div className="text-sm text-muted-foreground space-y-1">
-                    <p>{order.shipping_address.first_name} {order.shipping_address.last_name}</p>
-                    <p>{order.shipping_address.address1}</p>
-                    {order.shipping_address.address2 && <p>{order.shipping_address.address2}</p>}
-                    <p>{order.shipping_address.city}, {order.shipping_address.province}</p>
-                    <p>{order.shipping_address.zip} {order.shipping_address.country}</p>
+                    <p>{order.shipping_address.first_name || ''} {order.shipping_address.last_name || ''}</p>
+                    <p>{order.shipping_address.line1 || order.shipping_address.address1 || ''}</p>
+                    {(order.shipping_address.line2 || order.shipping_address.address2) && <p>{order.shipping_address.line2 || order.shipping_address.address2}</p>}
+                    <p>{order.shipping_address.city || ''}, {order.shipping_address.state || order.shipping_address.province || ''}</p>
+                    <p>{order.shipping_address.postal_code || order.shipping_address.zip || ''} {order.shipping_address.country || ''}</p>
                     {order.shipping_address.phone && <p>Teléfono: {order.shipping_address.phone}</p>}
                   </div>
                 </div>
