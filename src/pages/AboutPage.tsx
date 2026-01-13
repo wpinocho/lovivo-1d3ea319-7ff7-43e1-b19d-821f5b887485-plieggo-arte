@@ -43,8 +43,8 @@ const AboutPage = () => {
             {/* Featured Image */}
             <div className="relative overflow-hidden rounded-sm bg-muted shadow-lg">
               <img 
-                src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1765334405604-c7141gn11x6.png"
-                alt="Luna Llena - Arte en papel"
+                src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768264307443-0pvi0rnbd3qo.png"
+                alt="Cuadro Plieggo con cortinas de lino y luz natural - Ambiente elegante"
                 className="w-full h-auto"
               />
             </div>
