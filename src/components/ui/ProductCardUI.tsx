@@ -33,7 +33,7 @@ export const ProductCardUI = ({ product }: ProductCardUIProps) => {
   return (
     <HeadlessProductCard product={product}>
       {(logic) => (
-        <Card className="bg-card border-border overflow-hidden transition-all hover:shadow-lg group relative">
+        <Card className="bg-card border-transparent overflow-hidden transition-all hover:shadow-lg group relative">
           <CardContent className="p-0 relative">
             {/* Badge arriba de la imagen */}
             {badge && (
