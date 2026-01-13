@@ -32,7 +32,7 @@ const AboutPage = () => {
           <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Quote */}
             <div className="text-center lg:text-left">
-              <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl font-bold text-primary mb-8 leading-tight tracking-tight">
+              <h1 className="font-heading text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-8 leading-tight tracking-tight">
                 "El arte es la mentira que nos hace ver la verdad"
               </h1>
               <p className="font-body text-xl text-muted-foreground">
@@ -65,7 +65,7 @@ const AboutPage = () => {
 
             {/* Text Right */}
             <div>
-              <h2 className="font-heading text-4xl md:text-5xl font-bold text-primary mb-8 tracking-tight">
+              <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-8 tracking-tight">
                 Nuestra Visión
               </h2>
               <div className="space-y-6 font-body text-lg text-muted-foreground leading-relaxed">
@@ -91,7 +91,7 @@ const AboutPage = () => {
             {/* Vertical Text Left */}
             <div className="relative flex items-center justify-center lg:justify-start">
               <h2 
-                className="font-heading text-6xl md:text-7xl lg:text-8xl font-bold text-primary tracking-tight"
+                className="font-heading text-6xl md:text-7xl lg:text-8xl font-bold text-foreground tracking-tight"
                 style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
               >
                 Atelier
@@ -121,7 +121,7 @@ const AboutPage = () => {
             </p>
 
             <div className="inline-block">
-              <p className="font-heading text-xl font-semibold text-primary">
+              <p className="font-heading text-xl font-semibold text-foreground">
                 Es arquitectura en papel, arte que respira con tu espacio.
               </p>
             </div>
