@@ -107,6 +107,14 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
       context: 'Sala de estar / Hogar'
     }
   ],
+
+  'acorden-terracota-vibrante': [
+    {
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768864289040-zgs6nbndct.png',
+      alt: 'Cuadro Acordeón Terracota Vibrante vertical con pliegues naranja sobre fondo morado azulado, enmarcado en madera clara, sala de estar con sofá beige moderno, perro blanco descansando, manta tejida gris, cojín plisado beige, mesa de centro negra con planta verde',
+      context: 'Sala de estar'
+    }
+  ],
   
   // Otros productos se pueden agregar aquí con el mismo formato
   // 'slug-del-producto': [{ src: 'url', alt: 'descripción', context: 'contexto' }]
