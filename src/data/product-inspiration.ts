@@ -22,8 +22,8 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'acorden-rosa-sereno': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768261239411-r8fph4k62i.png',
-      alt: 'Cuadro Acordeón Rosa Sereno en cuarto de bebé con decoración minimalista en tonos crema y madera natural',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768866865564-wwljwyq0hsb.png',
+      alt: 'Cuadro Acordeón Rosa Sereno enmarcado en madera colgado en cuarto de bebé con cuna de madera natural, estante curvo con ositos de peluche, sillón crema con mantas tejidas, cómoda gris con lámpara de ratán, canasta de mimbre con peluches y decoración en tonos beige, crema y rosa pastel',
       context: 'Cuarto de bebé'
     }
   ],
