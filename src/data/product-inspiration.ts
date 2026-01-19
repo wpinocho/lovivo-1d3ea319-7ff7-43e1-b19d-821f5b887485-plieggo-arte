@@ -59,6 +59,14 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
       context: 'Sala de estar'
     }
   ],
+
+  'acorden-crema-natural': [
+    {
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768857662388-m405gfc399n.png',
+      alt: 'Cuadro Acordeón Crema Natural vertical enmarcado en madera sobre fondo morado lavanda en sala minimalista con silla de ratán, planta ficus y piso de madera',
+      context: 'Sala minimalista'
+    }
+  ],
   
   // Otros productos se pueden agregar aquí con el mismo formato
   // 'slug-del-producto': [{ src: 'url', alt: 'descripción', context: 'contexto' }]
