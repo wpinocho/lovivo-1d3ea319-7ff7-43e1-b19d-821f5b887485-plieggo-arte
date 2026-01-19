@@ -139,6 +139,14 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
       context: 'Oficina / Rincón de trabajo'
     }
   ],
+
+  'acorden-burdeos-intenso': [
+    {
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768865459387-crpaizr8748.png',
+      alt: 'Cuadro Acordeón Burdeos Intenso vertical con pliegues burdeos profundos enmarcado en madera colgado en comedor minimalista moderno con mesa de madera, banco tapizado gris, sillas crema, ventanales amplios con luz natural, cortinas beige, credenza de madera con plantas verdes, jarrón blanco escultural y decoración neutra',
+      context: 'Comedor / Sala de estar'
+    }
+  ],
   
   // Otros productos se pueden agregar aquí con el mismo formato
   // 'slug-del-producto': [{ src: 'url', alt: 'descripción', context: 'contexto' }]
