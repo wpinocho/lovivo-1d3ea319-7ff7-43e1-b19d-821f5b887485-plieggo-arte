@@ -75,6 +75,14 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
       context: 'Pasillo / Entrada'
     }
   ],
+
+  'luna-negra': [
+    {
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768860244179-abxxjni5ffb.png',
+      alt: 'Cuadro Luna Negra con pliegues acordeón negros enmarcado en madera sobre pared de hormigón crema con cortinas de lino natural moviéndose con luz natural y ventana de marco negro arquitectónico',
+      context: 'Sala de estar'
+    }
+  ],
   
   // Otros productos se pueden agregar aquí con el mismo formato
   // 'slug-del-producto': [{ src: 'url', alt: 'descripción', context: 'contexto' }]
