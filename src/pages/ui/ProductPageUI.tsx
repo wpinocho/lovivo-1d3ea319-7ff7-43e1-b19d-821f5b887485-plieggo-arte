@@ -159,6 +159,26 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
 
           {/* Inspiration Gallery - Muestra el producto en contextos reales */}
           <ProductInspirationGallery productSlug={logic.product.slug} />
+
+          {/* Size Guide - Visual */}
+          <Card className="border-border/50 overflow-hidden">
+            <CardContent className="p-0">
+              <div className="bg-muted/30 p-6">
+                <h3 className="font-heading text-lg font-semibold mb-2 flex items-center gap-2">
+                  <Ruler className="h-5 w-5 text-primary" />
+                  Guía de Tamaños
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Encuentra el tamaño perfecto para tu espacio
+                </p>
+              </div>
+              <img
+                src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768866178168-84itdh4fyv.png"
+                alt="Guía de tamaños - 20x20cm, 50x50cm, 30x90cm con persona de referencia"
+                className="w-full h-auto"
+              />
+            </CardContent>
+          </Card>
         </div>
 
           {/* Product Details */}
@@ -412,26 +432,6 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Size Guide - Visual */}
-          <Card className="border-border/50 overflow-hidden">
-            <CardContent className="p-0">
-              <div className="bg-muted/30 p-6">
-                <h3 className="font-heading text-lg font-semibold mb-2 flex items-center gap-2">
-                  <Ruler className="h-5 w-5 text-primary" />
-                  Guía de Tamaños
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Encuentra el tamaño perfecto para tu espacio
-                </p>
-              </div>
-              <img
-                src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768866178168-84itdh4fyv.png"
-                alt="Guía de tamaños - 20x20cm, 50x50cm, 30x90cm con persona de referencia"
-                className="w-full h-auto"
-              />
             </CardContent>
           </Card>
 
