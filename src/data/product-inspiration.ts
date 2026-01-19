@@ -99,6 +99,14 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
       context: 'Sala / Consola'
     }
   ],
+
+  'estrellas': [
+    {
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768864130263-scnm9sjwc4q.jpg',
+      alt: 'Cuadro Estrellas con pliegues origami en negro y gris formando estrellas geométricas, enmarcado en madera sobre pared crema, sala de estar con sofá beige, madre e hijo abrazándose, lámpara de papel tipo abanico, cortinas crema y piso de madera',
+      context: 'Sala de estar / Hogar'
+    }
+  ],
   
   // Otros productos se pueden agregar aquí con el mismo formato
   // 'slug-del-producto': [{ src: 'url', alt: 'descripción', context: 'contexto' }]
