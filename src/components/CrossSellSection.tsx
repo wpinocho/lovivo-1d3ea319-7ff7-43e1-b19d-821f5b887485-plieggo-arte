@@ -144,6 +144,7 @@ export const CrossSellSection = ({ currentProduct }: CrossSellSectionProps) => {
                 <Link 
                   to={`/products/${product.slug}`}
                   className="block"
+                  onClick={() => window.scrollTo(0, 0)}
                 >
                   {/* Image */}
                   <div className="aspect-square rounded-lg overflow-hidden bg-muted mb-3 group-hover:ring-2 group-hover:ring-primary/20 transition-all">
