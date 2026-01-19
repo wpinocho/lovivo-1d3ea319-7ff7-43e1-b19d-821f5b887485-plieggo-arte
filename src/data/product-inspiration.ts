@@ -123,6 +123,14 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
       context: 'Entrada / Recibidor'
     }
   ],
+
+  'acorden-morado-lavanda': [
+    {
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768864647510-dn58ya9g1u7.jpg',
+      alt: 'Cuadro Acordeón Morado Lavanda vertical enmarcado en madera clara sobre pared blanca con repisas flotantes de madera, plantas verdes en macetas de mimbre, fotos familiares enmarcadas, libros coloridos y decoración personal hogareña',
+      context: 'Pared con repisas / Galería personal'
+    }
+  ],
   
   // Otros productos se pueden agregar aquí con el mismo formato
   // 'slug-del-producto': [{ src: 'url', alt: 'descripción', context: 'contexto' }]
