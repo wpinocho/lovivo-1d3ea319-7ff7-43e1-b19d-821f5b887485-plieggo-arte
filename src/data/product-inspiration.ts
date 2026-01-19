@@ -131,6 +131,14 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
       context: 'Pared con repisas / Galería personal'
     }
   ],
+
+  'acorden-rosa-morado': [
+    {
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768865061204-msohs3kp00o.png',
+      alt: 'Cuadro Acordeón Rosa Morado con pliegues rosa sobre fondo morado enmarcado en madera, repisas flotantes con plantas verdes, fotos familiares, libros, macramé, mesa rústica de madera con lámpara de ratán, flores secas, taza y manta beige en rincón de trabajo bohemio',
+      context: 'Oficina / Rincón de trabajo'
+    }
+  ],
   
   // Otros productos se pueden agregar aquí con el mismo formato
   // 'slug-del-producto': [{ src: 'url', alt: 'descripción', context: 'contexto' }]
