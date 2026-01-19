@@ -12,6 +12,14 @@ export interface InspirationImage {
 }
 
 export const productInspirationImages: Record<string, InspirationImage[]> = {
+  'acorden-beige-sutil': [
+    {
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768863755362-2rp5dp6xb8.png',
+      alt: 'Tríptico de tres cuadros Acordeón Beige Sutil enmarcados en madera sobre sofá beige con respaldo de madera acanalada, mesa de centro redonda y decoración natural en sala elegante',
+      context: 'Sala de estar'
+    }
+  ],
+
   'acorden-rosa-sereno': [
     {
       src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768261239411-r8fph4k62i.png',
