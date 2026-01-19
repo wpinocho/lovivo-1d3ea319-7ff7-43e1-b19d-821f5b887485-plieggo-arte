@@ -83,6 +83,14 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
       context: 'Sala de estar'
     }
   ],
+
+  'acorden-rayas-sobre-morado': [
+    {
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768863362883-ktas6zyfn7i.png',
+      alt: 'Cuadro Acordeón Rayas sobre Morado enmarcado en madera clara sobre consola naranja de madera con plantas verdes, lámpara esférica crema y pared blanca minimalista',
+      context: 'Sala / Consola'
+    }
+  ],
   
   // Otros productos se pueden agregar aquí con el mismo formato
   // 'slug-del-producto': [{ src: 'url', alt: 'descripción', context: 'contexto' }]
