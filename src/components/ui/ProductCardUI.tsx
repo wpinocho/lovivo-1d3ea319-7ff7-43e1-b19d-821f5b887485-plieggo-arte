@@ -33,11 +33,11 @@ export const ProductCardUI = ({ product }: ProductCardUIProps) => {
   return (
     <HeadlessProductCard product={product}>
       {(logic) => (
-        <Card className="bg-card border-transparent overflow-hidden transition-all hover:shadow-lg group relative">
+        <Card className="bg-card border-2 border-transparent overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 hover:border-primary hover:-translate-y-2 group relative">
           <CardContent className="p-0 relative">
             {/* Badge arriba de la imagen */}
             {badge && (
-              <div className="absolute top-3 left-3 z-10">
+              <div className="absolute top-3 left-3 z-10 transition-transform duration-300 group-hover:scale-110">
                 <ProductBadge type={badge as BadgeType} />
               </div>
             )}
@@ -50,14 +50,14 @@ export const ProductCardUI = ({ product }: ProductCardUIProps) => {
                   <img
                     src={(logic.matchingVariant?.image as any) || logic.product.images![0]}
                     alt={logic.product.title}
-                    className="w-full h-auto object-contain transition-opacity duration-300 group-hover:opacity-0"
+                    className="w-full h-auto object-contain transition-all duration-500 group-hover:opacity-0 group-hover:scale-110"
                   />
                   {/* Segunda imagen al hover (solo si existe) */}
                   {!logic.matchingVariant?.image && logic.product.images && logic.product.images.length > 1 && (
                     <img
                       src={logic.product.images[1]}
                       alt={`${logic.product.title} - vista alternativa`}
-                      className="absolute inset-0 w-full h-auto object-contain opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                      className="absolute inset-0 w-full h-auto object-contain opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:scale-105"
                     />
                   )}
                 </>
@@ -68,7 +68,7 @@ export const ProductCardUI = ({ product }: ProductCardUIProps) => {
               )}
 
               {/* Overlay con detalles - aparece en hover */}
-              <div className="absolute inset-0 bg-background/95 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-6">
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/98 to-background/95 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-between p-6 translate-y-4 group-hover:translate-y-0">
                 {/* Top: Badges */}
                 <div className="flex flex-col gap-2 items-start">
                   {logic.discountPercentage && (
