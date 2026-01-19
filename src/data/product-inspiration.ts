@@ -67,6 +67,14 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
       context: 'Sala minimalista'
     }
   ],
+
+  'acorden-crema-rayas': [
+    {
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768858602183-nfd1q0dwone.jpg',
+      alt: 'Cuadro Acordeón Crema Rayas con fondo azul grisáceo a rayas enmarcado en madera en pasillo blanco luminoso con niño corriendo, lámpara de globo dorado y tapete vintage',
+      context: 'Pasillo / Entrada'
+    }
+  ],
   
   // Otros productos se pueden agregar aquí con el mismo formato
   // 'slug-del-producto': [{ src: 'url', alt: 'descripción', context: 'contexto' }]
