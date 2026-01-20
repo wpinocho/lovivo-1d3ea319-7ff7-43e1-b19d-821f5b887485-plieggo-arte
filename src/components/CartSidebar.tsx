@@ -7,6 +7,8 @@ import { useSettings } from "@/contexts/SettingsContext"
 import { formatMoney } from "@/lib/money"
 import { Minus, Plus, Trash2, ExternalLink } from "lucide-react"
 import { useNavigate, Link } from "react-router-dom"
+import { ProductRating } from "@/components/ProductRating"
+import { getProductReview } from "@/data/product-reviews"
 
 interface CartSidebarProps {
   isOpen: boolean
@@ -118,6 +120,20 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
                           <h4 className="font-medium text-sm text-foreground line-clamp-2">
                             {item.product.title}{item.variant?.title ? ` - ${item.variant.title}` : ''}
                           </h4>
+                          
+                          {/* Rating con estrellas */}
+                          {(() => {
+                            const review = getProductReview(item.product.slug)
+                            return review.reviewCount > 0 ? (
+                              <div className="mt-1.5">
+                                <ProductRating 
+                                  rating={review.rating} 
+                                  reviewCount={review.reviewCount}
+                                  size="sm"
+                                />
+                              </div>
+                            ) : null
+                          })()}
                           
                           <div className="flex items-center justify-between mt-3">
                             <div className="flex items-center space-x-1">
