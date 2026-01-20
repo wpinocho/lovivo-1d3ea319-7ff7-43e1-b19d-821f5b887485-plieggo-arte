@@ -160,7 +160,26 @@ export const EcommerceTemplate = ({
 
             <div className="flex-1">
               <h3 className="font-heading font-semibold mb-4 text-secondary-foreground">Síguenos</h3>
-              <SocialLinks />
+              <div className="flex items-center gap-4">
+                <SocialLinks />
+                <a
+                  href="https://www.instagram.com/p_de_plieggo?igsh=MTYzbDRiZmNsemV2eQ%3D%3D&utm_source=qr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Síguenos en Instagram"
+                  title="Síguenos en Instagram"
+                  className="opacity-70 hover:opacity-100 transition-all duration-300 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-secondary-foreground/50 rounded p-1 hover:scale-110"
+                >
+                  <img
+                    src="/social-icons/instagram.svg"
+                    alt="Instagram"
+                    className="h-5 w-5 filter brightness-0 dark:invert"
+                    style={{
+                      filter: 'brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(7500%) hue-rotate(0deg) brightness(100%) contrast(100%)'
+                    }}
+                  />
+                </a>
+              </div>
             </div>
           </div>
         </div>
