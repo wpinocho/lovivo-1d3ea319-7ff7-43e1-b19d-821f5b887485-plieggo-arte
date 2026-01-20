@@ -94,7 +94,10 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
               {/* Cart Items */}
               <div className="flex-1 overflow-y-auto p-6 space-y-4">
                 {state.items.map((item) => (
-                  <Card key={item.key}>
+                  <Card 
+                    key={item.key}
+                    className="group transition-all duration-500 hover:border-primary hover:shadow-[0_10px_40px_-15px_rgba(193,102,72,0.4)] hover:-translate-y-2 cursor-pointer"
+                  >
                     <CardContent className="p-4">
                       <div className="flex items-start space-x-3">
                         <div className="w-16 h-16 bg-muted rounded-md overflow-hidden flex-shrink-0">
@@ -102,7 +105,7 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
                             <img
                               src={item.variant?.image || item.product.images![0]}
                               alt={item.product.title}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
