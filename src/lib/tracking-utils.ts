@@ -1,6 +1,7 @@
 import { facebookPixel } from '@/lib/facebook-pixel';
-import posthog from 'posthog-js';
+import { callEdge } from '@/lib/edge';
 import { STORE_ID } from '@/lib/config';
+import posthog from 'posthog-js';
 
 // Types for tracking parameters
 export interface TrackingProduct {
@@ -23,9 +24,28 @@ export interface TrackingParams {
   custom_parameters?: Record<string, any>;
 }
 
+// Interface for CAPI user data
+interface UserDataForCapi {
+  fbp?: string;
+  fbc?: string;
+  client_user_agent: string;
+  em?: string;  // Email hashed SHA256
+  ph?: string;  // Phone hashed SHA256
+}
+
 class TrackingUtility {
   private isDebugMode = process.env.NODE_ENV === 'development';
-  
+  private pixelId: string | null = null;
+  private fbp: string | null = null;
+  private fbc: string | null = null;
+
+  // Setter for pixel data (called from PixelContext)
+  setPixelData(pixelId: string | null, fbp: string | null, fbc: string | null) {
+    this.pixelId = pixelId;
+    this.fbp = fbp;
+    this.fbc = fbc;
+  }
+
   private log(event: string, params: any) {
     if (this.isDebugMode) {
       console.group(`🎯 Tracking: ${event}`);
@@ -49,7 +69,7 @@ class TrackingUtility {
 
   private formatValue(value?: number): number {
     if (typeof value !== 'number' || isNaN(value) || value < 0) return 0;
-    return Math.round(value * 100) / 100; // Round to 2 decimals
+    return Math.round(value * 100) / 100;
   }
 
   private formatContentIds(products?: TrackingProduct[]): string[] {
@@ -71,6 +91,71 @@ class TrackingUtility {
     };
   }
 
+  // Generate UUID for deduplication
+  private generateEventId(): string {
+    return crypto.randomUUID();
+  }
+
+  // Get user data for CAPI
+  private getUserDataForCapi(): UserDataForCapi {
+    return {
+      fbp: this.fbp || undefined,
+      fbc: this.fbc || undefined,
+      client_user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : ''
+    };
+  }
+
+  // Send event to server (CAPI) - fire and forget
+  private async sendToServer(
+    eventName: string,
+    eventId: string,
+    customData: Record<string, any>
+  ): Promise<void> {
+    // Only send if we have a pixel configured
+    if (!this.pixelId) {
+      this.log(`CAPI Skip (no pixel): ${eventName}`, { eventId });
+      return;
+    }
+
+    try {
+      await callEdge('meta-capi', {
+        store_id: STORE_ID,
+        event_name: eventName,
+        event_id: eventId,
+        event_source_url: typeof window !== 'undefined' ? window.location.href : '',
+        user_data: this.getUserDataForCapi(),
+        custom_data: customData
+      });
+      this.log(`CAPI: ${eventName}`, { eventId, customData });
+    } catch (error) {
+      // Log but don't throw - CAPI is fire and forget
+      this.logError(`CAPI: ${eventName}`, error);
+    }
+  }
+
+  // Main hybrid tracking method
+  private trackHybrid(
+    eventName: string,
+    browserParams: Record<string, any>,
+    customData: Record<string, any>
+  ): void {
+    const eventId = this.generateEventId();
+
+    // 1. Browser Pixel (if available and initialized)
+    if (this.pixelId) {
+      facebookPixel.track(eventName, browserParams, eventId);
+    }
+
+    // 2. Server-side via Edge Function (fire and forget)
+    this.sendToServer(eventName, eventId, customData);
+
+    // 3. PostHog (if loaded)
+    if (this.isPostHogLoaded()) {
+      posthog.capture(eventName.toLowerCase(), { ...customData, event_id: eventId });
+    }
+
+    this.log(eventName, { eventId, browserParams, customData });
+  }
 
   /**
    * Track page view - automatically called on route changes
@@ -94,30 +179,26 @@ class TrackingUtility {
    */
   trackViewContent(params: TrackingParams): void {
     try {
-      const { products, value, currency, content_category } = params;
+      const { products, content_category } = params;
       
       if (!products || products.length === 0) {
         console.warn('🟡 ViewContent: No products provided');
         return;
       }
 
-      const trackingParams = {
+      const browserParams = {
         ...this.buildStandardParams(params),
         ...(content_category && { content_category })
       };
 
-      facebookPixel.viewContent(trackingParams);
-      
-      if (this.isPostHogLoaded()) {
-        posthog.capture('product_viewed', {
-          product_ids: trackingParams.content_ids,
-          value: trackingParams.value,
-          currency: trackingParams.currency,
-          content_category
-        });
-      }
-      
-      this.log('ViewContent', trackingParams);
+      const customData = {
+        content_ids: browserParams.content_ids,
+        value: browserParams.value,
+        currency: browserParams.currency,
+        content_category
+      };
+
+      this.trackHybrid('ViewContent', browserParams, customData);
     } catch (error) {
       this.logError('ViewContent', error);
     }
@@ -128,7 +209,7 @@ class TrackingUtility {
    */
   trackAddToCart(params: TrackingParams): void {
     try {
-      const { products, value, currency } = params;
+      const { products, value } = params;
       
       if (!products || products.length === 0) {
         console.warn('🟡 AddToCart: No products provided');
@@ -140,18 +221,15 @@ class TrackingUtility {
         return;
       }
 
-      const trackingParams = this.buildStandardParams(params);
-      facebookPixel.addToCart(trackingParams);
-      
-      if (this.isPostHogLoaded()) {
-        posthog.capture('product_added_to_cart', {
-          product_ids: trackingParams.content_ids,
-          value: trackingParams.value,
-          currency: trackingParams.currency
-        });
-      }
-      
-      this.log('AddToCart', trackingParams);
+      const browserParams = this.buildStandardParams(params);
+      const customData = {
+        content_ids: browserParams.content_ids,
+        value: browserParams.value,
+        currency: browserParams.currency,
+        num_items: params.num_items || products.length
+      };
+
+      this.trackHybrid('AddToCart', browserParams, customData);
     } catch (error) {
       this.logError('AddToCart', error);
     }
@@ -162,7 +240,7 @@ class TrackingUtility {
    */
   trackInitiateCheckout(params: TrackingParams): void {
     try {
-      const { products, value, currency, num_items } = params;
+      const { products, value, num_items } = params;
       
       if (!products || products.length === 0) {
         console.warn('🟡 InitiateCheckout: No products provided');
@@ -174,23 +252,19 @@ class TrackingUtility {
         return;
       }
 
-      const trackingParams = {
+      const browserParams = {
         ...this.buildStandardParams(params),
         num_items: num_items || products.length
       };
 
-      facebookPixel.initiateCheckout(trackingParams);
-      
-      if (this.isPostHogLoaded()) {
-        posthog.capture('checkout_initiated', {
-          product_ids: trackingParams.content_ids,
-          value: trackingParams.value,
-          currency: trackingParams.currency,
-          num_items: trackingParams.num_items
-        });
-      }
-      
-      this.log('InitiateCheckout', trackingParams);
+      const customData = {
+        content_ids: browserParams.content_ids,
+        value: browserParams.value,
+        currency: browserParams.currency,
+        num_items: browserParams.num_items
+      };
+
+      this.trackHybrid('InitiateCheckout', browserParams, customData);
     } catch (error) {
       this.logError('InitiateCheckout', error);
     }
@@ -201,7 +275,7 @@ class TrackingUtility {
    */
   trackPurchase(params: TrackingParams): void {
     try {
-      const { products, value, currency, order_id } = params;
+      const { products, value, order_id } = params;
       
       if (!products || products.length === 0) {
         console.warn('🟡 Purchase: No products provided');
@@ -213,29 +287,16 @@ class TrackingUtility {
         return;
       }
 
-      const trackingParams = {
-        ...this.buildStandardParams(params),
-        ...(order_id && { 
-          custom_data: { 
-            order_id,
-            ...params.custom_parameters 
-          }
-        })
+      const browserParams = this.buildStandardParams(params);
+      const customData = {
+        content_ids: browserParams.content_ids,
+        value: browserParams.value,
+        currency: browserParams.currency,
+        order_id,
+        ...params.custom_parameters
       };
 
-      facebookPixel.purchase(trackingParams);
-      
-      if (this.isPostHogLoaded()) {
-        posthog.capture('purchase_completed', {
-          product_ids: trackingParams.content_ids,
-          value: trackingParams.value,
-          currency: trackingParams.currency,
-          order_id,
-          ...params.custom_parameters
-        });
-      }
-      
-      this.log('Purchase', trackingParams);
+      this.trackHybrid('Purchase', browserParams, customData);
     } catch (error) {
       this.logError('Purchase', error);
     }
@@ -253,25 +314,33 @@ class TrackingUtility {
         return;
       }
 
-      const trackingParams = {
+      const eventId = this.generateEventId();
+      const browserParams = {
         search_string: search_string.trim(),
         ...(products && products.length > 0 && {
           content_ids: this.formatContentIds(products)
         })
       };
 
-      facebookPixel.search(trackingParams);
+      // Browser pixel
+      if (this.pixelId) {
+        facebookPixel.search(browserParams, eventId);
+      }
+
+      // Server-side
+      this.sendToServer('Search', eventId, browserParams);
       
       if (this.isPostHogLoaded()) {
         posthog.capture('search_performed', {
           search_query: search_string.trim(),
+          event_id: eventId,
           ...(products && products.length > 0 && {
             product_ids: this.formatContentIds(products)
           })
         });
       }
       
-      this.log('Search', trackingParams);
+      this.log('Search', browserParams);
     } catch (error) {
       this.logError('Search', error);
     }
@@ -289,11 +358,18 @@ class TrackingUtility {
 
       const cleanEventName = eventName.trim().replace(/[^a-zA-Z0-9_]/g, '_');
       const trackingParams = parameters || {};
+      const eventId = this.generateEventId();
 
-      facebookPixel.track(cleanEventName, trackingParams);
+      // Browser pixel
+      if (this.pixelId) {
+        facebookPixel.track(cleanEventName, trackingParams, eventId);
+      }
+
+      // Server-side
+      this.sendToServer(cleanEventName, eventId, trackingParams);
       
       if (this.isPostHogLoaded()) {
-        posthog.capture(cleanEventName, trackingParams);
+        posthog.capture(cleanEventName, { ...trackingParams, event_id: eventId });
       }
       
       this.log(`CustomEvent: ${cleanEventName}`, trackingParams);
