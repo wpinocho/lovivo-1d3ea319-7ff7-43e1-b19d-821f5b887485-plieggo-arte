@@ -13,6 +13,7 @@ interface SettingsContextType {
   shippingCoverage: any
   pickupLocations: any
   deliveryExpectations: any
+  metaPixelId: string | null
   isLoading: boolean
   error: Error | null
   formatMoney: (value: number) => string
@@ -24,7 +25,7 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 const fetchStoreSettings = async (): Promise<StoreSettings> => {
   const { data, error } = await supabase
     .from('store_settings')
-    .select('currency_code, store_id, id, updated_at, social_links, store_language, date_format, shipping_coverage, pickup_locations, delivery_expectations')
+    .select('currency_code, store_id, id, updated_at, social_links, store_language, date_format, shipping_coverage, pickup_locations, delivery_expectations, meta_pixel_id')
     .eq('store_id', STORE_ID)
     .maybeSingle()
 
@@ -40,7 +41,8 @@ const fetchStoreSettings = async (): Promise<StoreSettings> => {
       date_format: 'DD/MM/YYYY',
       shipping_coverage: null,
       pickup_locations: null,
-      delivery_expectations: null
+      delivery_expectations: null,
+      meta_pixel_id: undefined
     }
   }
 
@@ -74,6 +76,7 @@ export const SettingsProvider = ({ children }: SettingsProviderProps) => {
   const shippingCoverage = settings?.shipping_coverage || null
   const pickupLocations = settings?.pickup_locations || null
   const deliveryExpectations = settings?.delivery_expectations || null
+  const metaPixelId = settings?.meta_pixel_id || null
 
   const formatMoneyWithCurrency = (value: number): string => {
     return formatMoney(value, currencyCode)
@@ -89,6 +92,7 @@ export const SettingsProvider = ({ children }: SettingsProviderProps) => {
         shippingCoverage,
         pickupLocations,
         deliveryExpectations,
+        metaPixelId,
         isLoading,
         error: error as Error | null,
         formatMoney: formatMoneyWithCurrency,
