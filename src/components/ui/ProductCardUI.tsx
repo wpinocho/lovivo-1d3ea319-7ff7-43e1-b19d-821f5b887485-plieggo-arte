@@ -30,6 +30,20 @@ export const ProductCardUI = ({ product }: ProductCardUIProps) => {
   const badge = getBadgeForProduct(product)
   const review = getProductReview(product.slug)
   
+  // Detectar colección para aplicar aspect ratio correcto
+  const isEspacioCollection = product.tags?.some((tag: string) => 
+    tag.includes('Colección Espacio') || tag.includes('coleccion-espacio')
+  ) || false
+  
+  // Colección Espacio = cuadrado con crop, resto = rectangular con imagen completa
+  const imageContainerClass = isEspacioCollection 
+    ? "aspect-square" 
+    : "aspect-[3/4]"
+  
+  const imageObjectFit = isEspacioCollection 
+    ? "object-cover" 
+    : "object-contain"
+  
   return (
     <HeadlessProductCard product={product}>
       {(logic) => (
@@ -43,21 +57,21 @@ export const ProductCardUI = ({ product }: ProductCardUIProps) => {
             )}
             
             {/* Imagen del producto - con efecto hover para segunda imagen */}
-            <div className="bg-muted overflow-hidden relative aspect-square">
+            <div className={`bg-muted overflow-hidden relative ${imageContainerClass}`}>
               {(logic.matchingVariant?.image || (logic.product.images && logic.product.images.length > 0)) ? (
                 <>
                   {/* Imagen principal */}
                   <img
                     src={(logic.matchingVariant?.image as any) || logic.product.images![0]}
                     alt={logic.product.title}
-                    className="w-full h-full object-cover transition-all duration-500 group-hover:opacity-0 group-hover:scale-110"
+                    className={`w-full h-full ${imageObjectFit} transition-all duration-500 group-hover:opacity-0 group-hover:scale-110`}
                   />
                   {/* Segunda imagen al hover (solo si existe) */}
                   {!logic.matchingVariant?.image && logic.product.images && logic.product.images.length > 1 && (
                     <img
                       src={logic.product.images[1]}
                       alt={`${logic.product.title} - vista alternativa`}
-                      className="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:scale-105"
+                      className={`absolute inset-0 w-full h-full ${imageObjectFit} opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:scale-105`}
                     />
                   )}
                 </>

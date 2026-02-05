@@ -48,17 +48,16 @@ const TopSellers = () => {
         return
       }
 
-      // Sort products: Colección Espacio first (identified by tags)
-      const sortedProducts = data.sort((a, b) => {
-        const aIsEspacio = a.tags?.some((tag: string) => tag.includes('Colección Espacio')) || false
-        const bIsEspacio = b.tags?.some((tag: string) => tag.includes('Colección Espacio')) || false
-        
-        if (aIsEspacio && !bIsEspacio) return -1
-        if (!aIsEspacio && bIsEspacio) return 1
-        return 0
-      })
-
-      setProducts(sortedProducts)
+      // Sort products: Colección Espacio first, then rest
+      const espacioProducts = data.filter(p => 
+        p.tags?.some((tag: string) => tag.includes('Colección Espacio'))
+      )
+      const otherProducts = data.filter(p => 
+        !p.tags?.some((tag: string) => tag.includes('Colección Espacio'))
+      )
+      
+      // Combine: Espacio first, then others
+      setProducts([...espacioProducts, ...otherProducts])
     } catch (error) {
       console.error('Error fetching products:', error)
     } finally {
