@@ -306,17 +306,19 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
               className="relative bg-card rounded-sm shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close button */}
-              <button
-                onClick={handleCloseProductPopup}
-                className="absolute top-4 right-4 z-10 p-2 hover:bg-secondary/10 transition-colors rounded-sm group"
-                aria-label="Cerrar producto"
-              >
-                <X className="h-6 w-6 text-foreground group-hover:text-secondary transition-colors" strokeWidth={1.5} />
-              </button>
+              {/* Close button - Sticky para que siempre sea visible */}
+              <div className="sticky top-0 right-0 z-20 flex justify-end p-4 sm:p-6 bg-card">
+                <button
+                  onClick={handleCloseProductPopup}
+                  className="p-2 hover:bg-secondary/10 transition-colors rounded-sm group"
+                  aria-label="Cerrar producto"
+                >
+                  <X className="h-6 w-6 text-foreground group-hover:text-secondary transition-colors" strokeWidth={1.5} />
+                </button>
+              </div>
 
               {/* Product content - Sin template (sin header/menú) */}
-              <div className="p-4 sm:p-8">
+              <div className="px-4 pb-4 sm:px-8 sm:pb-8 -mt-2">
                 <HeadlessProduct slug={selectedProductSlug}>
                   {(logic) => <ProductPageUI logic={logic} noTemplate />}
                 </HeadlessProduct>
