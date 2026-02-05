@@ -65,16 +65,20 @@ interface ProductPageUIProps {
     // Any other properties that might come from HeadlessProduct
     [key: string]: any
   }
+  // Modal mode: No renderizar EcommerceTemplate (sin header/navegación)
+  noTemplate?: boolean
 }
 
-export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
+export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps) => {
   // Estado del modal de reviews
   const [isReviewsModalOpen, setIsReviewsModalOpen] = useState(false)
   
-  // Scroll to top when component mounts
+  // Scroll to top when component mounts (solo si no es modal)
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    if (!noTemplate) {
+      window.scrollTo(0, 0);
+    }
+  }, [noTemplate]);
 
   // Reset selected image when variant changes
   useEffect(() => {
@@ -118,8 +122,9 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
 
   if (!logic.product) return null
 
-  return (
-    <EcommerceTemplate>
+  // Main product content
+  const productContent = (
+    <>
       <div className="space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Product Gallery */}
@@ -505,6 +510,9 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
         productSlug={logic.product.slug}
         productTitle={logic.product.title}
       />
-    </EcommerceTemplate>
+    </>
   )
+
+  // Render con o sin template según el modo
+  return noTemplate ? productContent : <EcommerceTemplate>{productContent}</EcommerceTemplate>
 }

@@ -315,10 +315,10 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
                 <X className="h-6 w-6 text-foreground group-hover:text-secondary transition-colors" strokeWidth={1.5} />
               </button>
 
-              {/* Product content - Using HeadlessProduct + ProductPageUI */}
+              {/* Product content - Sin template (sin header/menú) */}
               <div className="p-4 sm:p-8">
                 <HeadlessProduct slug={selectedProductSlug}>
-                  {(logic) => <ProductPageUI logic={logic} />}
+                  {(logic) => <ProductPageUI logic={logic} noTemplate />}
                 </HeadlessProduct>
               </div>
             </motion.div>
