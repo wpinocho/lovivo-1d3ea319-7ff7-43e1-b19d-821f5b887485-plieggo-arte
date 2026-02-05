@@ -35,7 +35,7 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
   const aspectRatioClass = aspectRatio === 'square' 
     ? 'aspect-square' 
     : aspectRatio === 'rectangle'
-    ? 'aspect-[3/4]'
+    ? 'aspect-[1/2]'
     : ''
   
   return (
