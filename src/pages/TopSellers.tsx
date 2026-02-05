@@ -43,21 +43,7 @@ const TopSellers = () => {
         .eq('status', 'active')
         .in('id', productIds)
 
-      if (!data) {
-        setProducts([])
-        return
-      }
-
-      // Sort products: Colección Espacio first, then rest
-      const espacioProducts = data.filter(p => 
-        p.tags?.some((tag: string) => tag.includes('Colección Espacio'))
-      )
-      const otherProducts = data.filter(p => 
-        !p.tags?.some((tag: string) => tag.includes('Colección Espacio'))
-      )
-      
-      // Combine: Espacio first, then others
-      setProducts([...espacioProducts, ...otherProducts])
+      setProducts(data || [])
     } catch (error) {
       console.error('Error fetching products:', error)
     } finally {
