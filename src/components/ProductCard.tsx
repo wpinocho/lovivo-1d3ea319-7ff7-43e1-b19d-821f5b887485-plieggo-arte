@@ -10,8 +10,9 @@ import type { Product } from "@/lib/supabase"
 
 interface ProductCardProps {
   product: Product
+  aspectRatio?: 'square' | 'rectangle' | 'auto'
 }
 
-export const ProductCard = ({ product }: ProductCardProps) => {
-  return <ProductCardUI product={product} />
+export const ProductCard = ({ product, aspectRatio = 'auto' }: ProductCardProps) => {
+  return <ProductCardUI product={product} aspectRatio={aspectRatio} />
 }

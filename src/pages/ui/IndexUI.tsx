@@ -8,6 +8,10 @@ import { EcommerceTemplate } from '@/templates/EcommerceTemplate';
 import { InteractiveGalleryModal } from '@/components/InteractiveGalleryModal';
 import { Link } from 'react-router-dom';
 import type { UseIndexLogicReturn } from '@/components/headless/HeadlessIndex';
+import { supabase, type Product } from '@/lib/supabase';
+import { STORE_ID } from '@/lib/config';
+
+type ProductWithCollection = Product & { collectionType?: 'espacio' | 'acordeon' }
 
 /**
  * EDITABLE UI - IndexUI (Plieggo)
@@ -40,10 +44,60 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
   // Estado para controlar la galería interactiva
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
+  // Estado para productos con información de colección
+  const [productsWithCollection, setProductsWithCollection] = useState<ProductWithCollection[]>([]);
+
+  // Fetch collection info for products
+  useEffect(() => {
+    const fetchCollectionInfo = async () => {
+      if (filteredProducts.length === 0) {
+        setProductsWithCollection([]);
+        return;
+      }
+
+      try {
+        // Get Espacio and Acordeon collection IDs
+        const { data: collectionData } = await supabase
+          .from('collections')
+          .select('id, handle')
+          .eq('store_id', STORE_ID)
+          .in('handle', ['coleccion-espacio', 'coleccion-acordeon']);
+
+        const espacioCollectionId = collectionData?.find(c => c.handle === 'coleccion-espacio')?.id;
+        const acordeonCollectionId = collectionData?.find(c => c.handle === 'coleccion-acordeon')?.id;
+
+        // Get all collection_products relationships
+        const { data: allCollectionProducts } = await supabase
+          .from('collection_products')
+          .select('product_id, collection_id')
+          .in('product_id', filteredProducts.map(p => p.id));
+
+        // Map products with their collection type
+        const enhanced: ProductWithCollection[] = filteredProducts.map(product => {
+          const productCollections = allCollectionProducts?.filter(cp => cp.product_id === product.id).map(cp => cp.collection_id) || [];
+          const isEspacio = productCollections.includes(espacioCollectionId);
+          const isAcordeon = productCollections.includes(acordeonCollectionId);
+          
+          return {
+            ...product,
+            collectionType: isEspacio ? 'espacio' as const : isAcordeon ? 'acordeon' as const : undefined
+          };
+        });
+
+        setProductsWithCollection(enhanced);
+      } catch (error) {
+        console.error('Error fetching collection info:', error);
+        setProductsWithCollection(filteredProducts);
+      }
+    };
+
+    fetchCollectionInfo();
+  }, [filteredProducts]);
+
   // Productos a mostrar según el estado
   const displayedProducts = showAllProducts 
-    ? filteredProducts 
-    : filteredProducts.slice(0, initialProductCount);
+    ? productsWithCollection 
+    : productsWithCollection.slice(0, initialProductCount);
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -191,16 +245,26 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
                 <div key={i} className="bg-muted rounded-sm h-96 animate-pulse"></div>
               ))}
             </div>
-          ) : filteredProducts.length > 0 ? (
+          ) : productsWithCollection.length > 0 ? (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {displayedProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <ProductCard 
+                    key={product.id} 
+                    product={product}
+                    aspectRatio={
+                      product.collectionType === 'espacio' 
+                        ? 'square' 
+                        : product.collectionType === 'acordeon'
+                        ? 'rectangle'
+                        : 'auto'
+                    }
+                  />
                 ))}
               </div>
               
               {/* Botón "Ver más" - Solo se muestra si hay más de 8 productos y no están todos visibles */}
-              {filteredProducts.length > initialProductCount && !showAllProducts && (
+              {productsWithCollection.length > initialProductCount && !showAllProducts && (
                 <div className="flex justify-center mt-12">
                   <Button 
                     variant="outline" 

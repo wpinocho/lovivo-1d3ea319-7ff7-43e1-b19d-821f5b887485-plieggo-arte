@@ -5,8 +5,10 @@ import { InspirationCarousel } from '@/components/InspirationCarousel'
 import { supabase, type Product } from '@/lib/supabase'
 import { STORE_ID } from '@/lib/config'
 
+type ProductWithCollection = Product & { collectionType?: 'espacio' | 'acordeon' }
+
 const AllProducts = () => {
-  const [products, setProducts] = useState<Product[]>([])
+  const [products, setProducts] = useState<ProductWithCollection[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -24,7 +26,38 @@ const AllProducts = () => {
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      setProducts(data || [])
+      
+      if (!data) return
+
+      // Get Espacio and Acordeon collection IDs
+      const { data: collections } = await supabase
+        .from('collections')
+        .select('id, handle')
+        .eq('store_id', STORE_ID)
+        .in('handle', ['coleccion-espacio', 'coleccion-acordeon'])
+
+      const espacioCollectionId = collections?.find(c => c.handle === 'coleccion-espacio')?.id
+      const acordeonCollectionId = collections?.find(c => c.handle === 'coleccion-acordeon')?.id
+
+      // Get all collection_products relationships
+      const { data: allCollectionProducts } = await supabase
+        .from('collection_products')
+        .select('product_id, collection_id')
+        .in('product_id', data.map(p => p.id))
+
+      // Map products with their collection type
+      const productsWithCollection: ProductWithCollection[] = data.map(product => {
+        const productCollections = allCollectionProducts?.filter(cp => cp.product_id === product.id).map(cp => cp.collection_id) || []
+        const isEspacio = productCollections.includes(espacioCollectionId)
+        const isAcordeon = productCollections.includes(acordeonCollectionId)
+        
+        return {
+          ...product,
+          collectionType: isEspacio ? 'espacio' as const : isAcordeon ? 'acordeon' as const : undefined
+        }
+      })
+
+      setProducts(productsWithCollection)
     } catch (error) {
       console.error('Error fetching products:', error)
     } finally {
@@ -79,7 +112,17 @@ const AllProducts = () => {
           ) : products.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard 
+                  key={product.id} 
+                  product={product}
+                  aspectRatio={
+                    product.collectionType === 'espacio' 
+                      ? 'square' 
+                      : product.collectionType === 'acordeon'
+                      ? 'rectangle'
+                      : 'auto'
+                  }
+                />
               ))}
             </div>
           ) : (
