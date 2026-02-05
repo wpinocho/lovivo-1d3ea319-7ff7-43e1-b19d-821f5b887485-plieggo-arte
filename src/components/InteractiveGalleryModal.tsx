@@ -1,11 +1,12 @@
 import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { supabase, type Product } from '@/lib/supabase'
 import { STORE_ID } from '@/lib/config'
 import { useSettings } from '@/contexts/SettingsContext'
 import { HeadlessProduct } from '@/components/headless/HeadlessProduct'
 import { ProductPageUI } from '@/pages/ui/ProductPageUI'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 interface InteractiveGalleryModalProps {
   isOpen: boolean
@@ -27,6 +28,8 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
   const [loading, setLoading] = useState(true)
   const [selectedProductSlug, setSelectedProductSlug] = useState<string | null>(null)
   const { formatMoney } = useSettings()
+  const isMobile = useIsMobile()
+  const containerRef = useRef<HTMLDivElement>(null)
 
   // LUSANO-STYLE COORDINATE MAPPING
   // Canvas: Width 240% (2.4x), Height 220% (2.2x)
@@ -44,8 +47,18 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
   useEffect(() => {
     if (isOpen) {
       fetchProducts()
+      
+      // MOBILE: Empezar centrado
+      if (isMobile && containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect()
+        // Centro: mouse en (50%, 50%) → grid en (-70%, -60%)
+        const centerX = -(0.5 * 1.4 * rect.width)
+        const centerY = -(0.5 * 1.2 * rect.height)
+        mouseX.set(centerX)
+        mouseY.set(centerY)
+      }
     }
-  }, [isOpen])
+  }, [isOpen, isMobile])
 
   const fetchProducts = async () => {
     setLoading(true)
@@ -69,6 +82,8 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
   // LUSANO-STYLE COORDINATE MAPPING
   // Maps mouse position to fixed canvas coordinates
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isMobile) return // No procesar en mobile
+    
     const rect = e.currentTarget.getBoundingClientRect()
     
     // Get mouse position relative to viewport (0-1)
@@ -85,6 +100,19 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
     // Update motion values (spring will animate smoothly)
     mouseX.set(targetX)
     mouseY.set(targetY)
+  }
+
+  // MOBILE: Drag constraints dinámicos
+  const getDragConstraints = () => {
+    if (!containerRef.current) return { top: 0, left: 0, right: 0, bottom: 0 }
+    
+    const rect = containerRef.current.getBoundingClientRect()
+    return {
+      top: -(1.2 * rect.height), // -120% del viewport
+      left: -(1.4 * rect.width),  // -140% del viewport
+      right: 0,
+      bottom: 0
+    }
   }
 
   // Convertir productos + variantes en items "planos" para el grid
@@ -182,6 +210,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
 
   return (
     <motion.div
+      ref={containerRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -191,15 +220,19 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
       {/* Close Button - Estilo Plieggo */}
       <button
         onClick={onClose}
-        className="absolute top-8 right-8 z-10 p-3 hover:bg-secondary/10 transition-colors rounded-sm group"
+        className="absolute top-4 right-4 sm:top-8 sm:right-8 z-10 p-3 hover:bg-secondary/10 transition-colors rounded-sm group"
         aria-label="Cerrar galería"
       >
         <X className="h-6 w-6 text-foreground group-hover:text-secondary transition-colors" strokeWidth={1.5} />
       </button>
 
-      {/* Asymmetric Masonry Grid - Moves in OPPOSITE direction of mouse */}
+      {/* Asymmetric Masonry Grid - Desktop: Spring animation, Mobile: Drag */}
       <motion.div
-        style={{
+        drag={isMobile} // Solo drag en mobile
+        dragConstraints={isMobile ? getDragConstraints() : undefined}
+        dragElastic={0.1}
+        dragTransition={{ bounceStiffness: 200, bounceDamping: 20 }}
+        style={isMobile ? {} : {
           x: gridX,
           y: gridY,
         }}
@@ -229,9 +262,9 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
                     position: 'absolute',
                     top: `${position.top}%`,
                     left: `${position.left}%`,
-                    width: '120px'
+                    width: isMobile ? '100px' : '120px' // Más pequeño en mobile
                   }}
-                  whileHover={{ scale: 1.5 }}
+                  whileHover={{ scale: isMobile ? 1.2 : 1.5 }} // Menos zoom en mobile
                   transition={{ duration: 0.4, ease: 'easeOut' }}
                 >
                   {/* Product Image - Respeta aspect ratio */}
@@ -248,10 +281,10 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
         )}
       </motion.div>
 
-      {/* Instructions at bottom - Estilo Plieggo */}
-      <div className="absolute bottom-8 left-0 right-0 text-center z-10 pointer-events-none">
+      {/* Instructions at bottom - Dinámicas según dispositivo */}
+      <div className="absolute bottom-4 sm:bottom-8 left-0 right-0 text-center z-10 pointer-events-none">
         <p className="font-heading text-xs tracking-[0.3em] uppercase text-muted-foreground">
-          Mueve el cursor para explorar
+          {isMobile ? 'Arrastra para explorar' : 'Mueve el cursor para explorar'}
         </p>
       </div>
 
