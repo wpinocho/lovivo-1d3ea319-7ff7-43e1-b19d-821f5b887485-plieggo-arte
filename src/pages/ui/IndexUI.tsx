@@ -91,7 +91,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
               className="btn-hero group relative overflow-hidden shadow-[0_0_30px_rgba(193,102,72,0.4)] hover:shadow-[0_0_50px_rgba(193,102,72,0.6)] transition-all duration-500 hover:scale-105 hover:-translate-y-1 text-lg px-8 py-6 h-auto"
             >
               <span className="relative z-10 flex items-center gap-2 font-semibold tracking-wide">
-                ✨ Descubre regalos únicos
+                Descubre regalos únicos
                 <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
               </span>
             </Button>
@@ -237,7 +237,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
               className="btn-hero group relative overflow-hidden shadow-[0_0_30px_rgba(193,102,72,0.4)] hover:shadow-[0_0_50px_rgba(193,102,72,0.6)] transition-all duration-500 hover:scale-105 hover:-translate-y-1 text-lg px-10 py-7 h-auto"
             >
               <span className="relative z-10 flex items-center gap-3 font-bold tracking-wide text-xl">
-                🎁 Descubre regalos
+                Descubre regalos
                 <span className="transition-transform duration-300 group-hover:translate-x-1 text-2xl">→</span>
               </span>
             </Button>
