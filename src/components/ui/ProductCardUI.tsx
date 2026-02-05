@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { HeadlessProductCard } from "@/components/headless/HeadlessProductCard"
 import { ProductBadge, type BadgeType } from "@/components/ProductBadge"
 import { ProductRating } from "@/components/ProductRating"
@@ -28,6 +28,7 @@ interface ProductCardUIProps {
 }
 
 export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIProps) => {
+  const navigate = useNavigate()
   const badge = getBadgeForProduct(product)
   const review = getProductReview(product.slug)
   
@@ -41,7 +42,10 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
   return (
     <HeadlessProductCard product={product}>
       {(logic) => (
-        <Card className="bg-card border-2 border-transparent overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 hover:border-primary hover:-translate-y-2 group relative">
+        <Card 
+          className="bg-card border-2 border-transparent overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20 hover:border-primary hover:-translate-y-2 group relative cursor-pointer"
+          onClick={() => navigate(`/products/${logic.product.slug}`)}
+        >
           <CardContent className="p-0 relative">
             {/* Badge arriba de la imagen */}
             {badge && (
@@ -93,7 +97,7 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
 
                 {/* Middle: Título y descripción */}
                 <div className="flex-1 flex flex-col justify-center">
-                  <Link to={`/products/${logic.product.slug}`} className="block mb-3">
+                  <div className="block mb-3">
                     <h3 className="font-heading font-semibold text-foreground text-lg mb-2 line-clamp-2">
                       {logic.product.title}
                     </h3>
@@ -102,7 +106,7 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
                         {logic.product.description.replace(/<[^>]*>/g, '')}
                       </p>
                     )}
-                  </Link>
+                  </div>
 
                   {/* Variantes */}
                   {logic.hasVariants && logic.options && (
@@ -120,7 +124,10 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
                                   <button
                                     key={val}
                                     type="button"
-                                    onClick={() => logic.handleOptionChange(opt.name, val)}
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      logic.handleOptionChange(opt.name, val)
+                                    }}
                                     title={`${opt.name}: ${val}`}
                                     className={`h-6 w-6 rounded-full border-2 transition-all ${
                                       isSelected ? 'border-foreground scale-110' : 'border-border'
@@ -137,7 +144,10 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
                                 <button
                                   key={val}
                                   type="button"
-                                  onClick={() => logic.handleOptionChange(opt.name, val)}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    logic.handleOptionChange(opt.name, val)
+                                  }}
                                   className={`border-2 rounded-sm px-2 py-0.5 text-xs font-medium transition-all ${
                                     isSelected 
                                       ? 'border-foreground bg-foreground text-background' 
@@ -174,7 +184,8 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
                   </div>
                   <Button
                     size="sm"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation()
                       logic.onAddToCartSuccess()
                       logic.handleAddToCart()
                     }}
