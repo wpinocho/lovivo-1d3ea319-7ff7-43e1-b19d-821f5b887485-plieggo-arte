@@ -80,9 +80,21 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
             <h1 className="font-heading text-6xl md:text-7xl font-bold text-foreground mb-4 tracking-tight">
               Plieggo
             </h1>
-            <p className="font-body text-xl text-muted-foreground max-w-md mx-auto">
+            <p className="font-body text-xl text-muted-foreground max-w-md mx-auto mb-8">
               Arte en papel hecho a mano
             </p>
+            
+            {/* CTA Hero - Botón Terracota Glowing */}
+            <Button
+              onClick={() => setIsGalleryOpen(true)}
+              size="lg"
+              className="btn-hero group relative overflow-hidden shadow-[0_0_30px_rgba(193,102,72,0.4)] hover:shadow-[0_0_50px_rgba(193,102,72,0.6)] transition-all duration-500 hover:scale-105 hover:-translate-y-1 text-lg px-8 py-6 h-auto"
+            >
+              <span className="relative z-10 flex items-center gap-2 font-semibold tracking-wide">
+                ✨ Descubre regalos únicos
+                <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+              </span>
+            </Button>
           </div>
         </div>
       </section>
@@ -218,15 +230,17 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
             Explora ideas de regalo y accesorios de temporada
           </h2>
           
-          <div className="flex items-center justify-center gap-4 mb-12">
-            <div className="h-px w-32 bg-border"></div>
-            <button
+          <div className="flex justify-center mb-12">
+            <Button
               onClick={() => setIsGalleryOpen(true)}
-              className="font-body text-xl text-muted-foreground hover:text-secondary transition-colors cursor-pointer"
+              size="lg"
+              className="btn-hero group relative overflow-hidden shadow-[0_0_30px_rgba(193,102,72,0.4)] hover:shadow-[0_0_50px_rgba(193,102,72,0.6)] transition-all duration-500 hover:scale-105 hover:-translate-y-1 text-lg px-10 py-7 h-auto"
             >
-              Descubre regalos
-            </button>
-            <div className="h-px w-32 bg-border"></div>
+              <span className="relative z-10 flex items-center gap-3 font-bold tracking-wide text-xl">
+                🎁 Descubre regalos
+                <span className="transition-transform duration-300 group-hover:translate-x-1 text-2xl">→</span>
+              </span>
+            </Button>
           </div>
         </div>
       </section>
