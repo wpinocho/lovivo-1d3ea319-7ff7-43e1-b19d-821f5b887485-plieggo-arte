@@ -4,9 +4,10 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { EcommerceTemplate } from "@/templates/EcommerceTemplate"
-import { Minus, Plus, Trash2, ShoppingCart, ArrowLeft } from "lucide-react"
+import { Minus, Plus, Trash2, ShoppingCart, ArrowLeft, Bolt, Info } from "lucide-react"
 import { Link } from "react-router-dom"
 import { formatMoney } from "@/lib/money"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 /**
  * EDITABLE UI COMPONENT - CartUI
@@ -29,6 +30,7 @@ interface CartUIProps {
     total: number
     itemCount: number
     isEmpty: boolean
+    isBuyNow: boolean
     
     // Acciones del carrito
     updateQuantity: (key: string, quantity: number) => void
@@ -77,7 +79,7 @@ export const CartUI = ({ logic }: CartUIProps) => {
             <div className="lg:col-span-2 space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold">
-                  Productos ({logic.itemCount})
+                  {logic.isBuyNow ? 'Compra Rápida' : `Productos (${logic.itemCount})`}
                 </h2>
                 <Button
                   variant="ghost"
@@ -88,6 +90,16 @@ export const CartUI = ({ logic }: CartUIProps) => {
                   Seguir comprando
                 </Button>
               </div>
+
+              {/* Buy Now Alert */}
+              {logic.isBuyNow && (
+                <Alert className="border-primary/20 bg-primary/5">
+                  <Bolt className="h-4 w-4 text-primary" />
+                  <AlertDescription className="text-sm">
+                    <span className="font-medium">Compra rápida activada.</span> Vas a comprar solo este producto. Tu carrito permanecerá intacto.
+                  </AlertDescription>
+                </Alert>
+              )}
               
               {logic.items.map((item) => (
                 <Card key={item.key}>
@@ -127,6 +139,7 @@ export const CartUI = ({ logic }: CartUIProps) => {
                               size="icon"
                               onClick={() => logic.updateQuantity(item.key, item.quantity - 1)}
                               className="h-9 w-9"
+                              disabled={logic.isBuyNow}
                             >
                               <Minus className="h-4 w-4" />
                             </Button>
@@ -138,6 +151,7 @@ export const CartUI = ({ logic }: CartUIProps) => {
                               size="icon"
                               onClick={() => logic.updateQuantity(item.key, item.quantity + 1)}
                               className="h-9 w-9"
+                              disabled={logic.isBuyNow}
                             >
                               <Plus className="h-4 w-4" />
                             </Button>
@@ -156,6 +170,7 @@ export const CartUI = ({ logic }: CartUIProps) => {
                               size="sm"
                               onClick={() => logic.removeItem(item.key)}
                               className="text-destructive hover:text-destructive"
+                              disabled={logic.isBuyNow}
                             >
                               <Trash2 className="h-4 w-4 mr-2" />
                               Eliminar
@@ -201,16 +216,19 @@ export const CartUI = ({ logic }: CartUIProps) => {
                         }}
                         disabled={logic.isCreatingOrder}
                       >
-                        {logic.isCreatingOrder ? 'Procesando...' : 'Pagar'}
+                        {logic.isBuyNow && <Bolt className="mr-2 h-5 w-5" />}
+                        {logic.isCreatingOrder ? 'Procesando...' : (logic.isBuyNow ? 'Comprar ahora' : 'Pagar')}
                       </Button>
 
-                      <Button 
-                        variant="outline" 
-                        className="w-full" 
-                        onClick={logic.handleNavigateHome}
-                      >
-                        Seguir Comprando
-                      </Button>
+                      {!logic.isBuyNow && (
+                        <Button 
+                          variant="outline" 
+                          className="w-full" 
+                          onClick={logic.handleNavigateHome}
+                        >
+                          Seguir Comprando
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

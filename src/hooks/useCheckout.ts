@@ -20,6 +20,7 @@ interface CheckoutOptions {
   billingAddress?: any
   notes?: string
   currencyCode?: string
+  items?: any[] // Opcional: usar items custom en lugar del carrito
 }
 
 export const useCheckout = () => {
@@ -48,8 +49,11 @@ export const useCheckout = () => {
   const checkout = async (options: CheckoutOptions = {}): Promise<CheckoutResponse> => {
     setIsLoading(true)
     try {
+      // Usar items custom si se proveen (Buy Now), de lo contrario usar el carrito normal
+      const itemsToCheckout = options.items || cart.items
+      
       const order = await createCheckoutFromCart(
-        cart.items,
+        itemsToCheckout,
         options.customerInfo,
         options.discountCode,
         options.shippingAddress,

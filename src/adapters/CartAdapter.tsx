@@ -1,7 +1,8 @@
 import { useCart } from "@/contexts/CartContext"
 import { useCheckout } from "@/hooks/useCheckout"
 import { useSettings } from "@/contexts/SettingsContext"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
+import { useState, useEffect } from "react"
 
 /**
  * FORBIDDEN ADAPTER - CartAdapter
@@ -12,8 +13,36 @@ import { useNavigate } from "react-router-dom"
 export const useCartLogic = () => {
   const { state, updateQuantity, removeItem } = useCart()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { checkout, isLoading: isCreatingOrder } = useCheckout()
   const { currencyCode } = useSettings()
+  
+  // Estado para "Buy Now" temporal
+  const [isBuyNow, setIsBuyNow] = useState(false)
+  const [tempCartState, setTempCartState] = useState<any>(null)
+  
+  // Detectar modo "Buy Now" y cargar carrito temporal
+  useEffect(() => {
+    const buyNowParam = searchParams.get('buy_now')
+    if (buyNowParam === 'true') {
+      try {
+        const tempCart = sessionStorage.getItem('buy_now_temp_cart')
+        if (tempCart) {
+          const parsed = JSON.parse(tempCart)
+          setIsBuyNow(true)
+          setTempCartState(parsed)
+        }
+      } catch (error) {
+        console.error('Error loading Buy Now cart:', error)
+      }
+    } else {
+      setIsBuyNow(false)
+      setTempCartState(null)
+    }
+  }, [searchParams])
+  
+  // Usar carrito temporal si es "Buy Now", de lo contrario el carrito normal
+  const activeState = isBuyNow && tempCartState ? tempCartState : state
 
   const handleCreateCheckout = async () => {
     try {
@@ -24,15 +53,24 @@ export const useCartLogic = () => {
         last_name: 'Demo'
       }
 
-      // Snapshot del carrito antes de crear la orden (el hook limpia el carrito)
+      // Usar carrito temporal si es "Buy Now", de lo contrario carrito normal
+      const itemsToCheckout = activeState.items
+      const totalToCheckout = activeState.total
+
+      // Snapshot del carrito antes de crear la orden
       try {
-        sessionStorage.setItem('checkout_cart', JSON.stringify({ items: state.items, total: state.total }))
+        sessionStorage.setItem('checkout_cart', JSON.stringify({ 
+          items: itemsToCheckout, 
+          total: totalToCheckout,
+          isBuyNow: isBuyNow 
+        }))
       } catch {}
 
       console.log('Calling checkout function...')
       const order = await checkout({
         customerInfo,
-        currencyCode: currencyCode
+        currencyCode: currencyCode,
+        items: itemsToCheckout // Pasar items explícitamente (temporales o normales)
       })
 
       console.log('Order created:', order)
@@ -45,6 +83,13 @@ export const useCartLogic = () => {
         console.log('Order saved to sessionStorage')
       } catch (e) {
         console.error('Error saving to sessionStorage:', e)
+      }
+
+      // Limpiar carrito temporal si es "Buy Now"
+      if (isBuyNow) {
+        try {
+          sessionStorage.removeItem('buy_now_temp_cart')
+        } catch {}
       }
 
       console.log('Navigating to /checkout...')
@@ -65,11 +110,12 @@ export const useCartLogic = () => {
   }
 
   return {
-    // Estado del carrito
-    items: state.items,
-    total: state.total,
-    itemCount: state.items.length,
-    isEmpty: state.items.length === 0,
+    // Estado del carrito (temporal o normal)
+    items: activeState.items,
+    total: activeState.total,
+    itemCount: activeState.items.length,
+    isEmpty: activeState.items.length === 0,
+    isBuyNow,
     
     // Acciones del carrito
     updateQuantity,
