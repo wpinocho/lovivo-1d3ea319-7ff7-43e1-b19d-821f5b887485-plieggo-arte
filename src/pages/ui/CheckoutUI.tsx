@@ -633,7 +633,29 @@ export default function CheckoutUI() {
                         </div>
                         <div className="flex-1">
                           <h4 className="font-medium">{item.product.name}</h4>
-                          {item.variant && <p className="text-sm text-muted-foreground">{item.variant.name}</p>}
+                          {item.variant && (
+                            <p className="text-sm text-muted-foreground">
+                              {(() => {
+                                // Clean variant name: extract only size/color, remove URLs and SKUs
+                                const variantName = item.variant.name || '';
+                                
+                                // Split by "/" and filter out URLs and long strings
+                                const parts = variantName.split('/').map(p => p.trim());
+                                const cleanParts = parts.filter(part => {
+                                  // Remove URLs
+                                  if (part.startsWith('http://') || part.startsWith('https://')) return false;
+                                  // Remove long strings (likely URLs without protocol or SKUs)
+                                  if (part.length > 50) return false;
+                                  // Remove numeric-only parts (quantities)
+                                  if (/^\d+$/.test(part)) return false;
+                                  // Keep size patterns (e.g., "30cm x 90cm", "50x50cm")
+                                  return true;
+                                });
+                                
+                                return cleanParts.slice(0, 2).join(' / ') || variantName;
+                              })()}
+                            </p>
+                          )}
                           <div className="flex items-center justify-between mt-1">
                             <span className="text-sm text-muted-foreground">Cantidad</span>
                             <div className="flex items-center space-x-2">
