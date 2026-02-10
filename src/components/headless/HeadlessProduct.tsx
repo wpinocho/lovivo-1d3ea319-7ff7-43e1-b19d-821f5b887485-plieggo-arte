@@ -253,68 +253,6 @@ export const useProductLogic = (slugProp?: string) => {
     setTimeout(() => openCart(), 300)
   }
 
-  const handleBuyNow = () => {
-    if (!product) return
-    
-    const variants = (product as any).variants
-    const hasVariants = Array.isArray(variants) && variants.length > 0
-    const variantToAdd = hasVariants ? getMatchingVariant() : undefined
-    
-    if (hasVariants && !variantToAdd) {
-      toast({
-        title: "Selecciona tamaño",
-        description: "Elige un tamaño disponible.",
-        variant: "destructive",
-        className: "bg-secondary text-secondary-foreground border-secondary",
-      })
-      return
-    }
-    
-    // Guardar el carrito actual en sessionStorage para preservarlo
-    try {
-      const currentCart = { items: getTotalItems() }
-      sessionStorage.setItem('buy_now_cart_backup', JSON.stringify(currentCart))
-    } catch {}
-    
-    // Crear checkout temporal solo con este producto
-    const tempCheckoutItems = [{
-      product: product,
-      variant: variantToAdd,
-      quantity: quantity,
-      key: `${product.id}-${variantToAdd?.id || 'none'}`
-    }]
-    
-    // Calcular total temporal
-    const currentPrice = getCurrentPrice()
-    const tempTotal = currentPrice * quantity
-    
-    // Guardar checkout temporal en sessionStorage
-    try {
-      sessionStorage.setItem('buy_now_temp_cart', JSON.stringify({ 
-        items: tempCheckoutItems, 
-        total: tempTotal,
-        isBuyNow: true 
-      }))
-    } catch {}
-    
-    // Track InitiateCheckout event
-    trackAddToCart({
-      products: [tracking.createTrackingProduct({
-        id: product.id,
-        title: product.title,
-        price: currentPrice,
-        category: 'product',
-        variant: variantToAdd
-      })],
-      value: currentPrice * quantity,
-      currency: tracking.getCurrencyFromSettings(currencyCode),
-      num_items: quantity
-    })
-    
-    // Navegar directo al checkout
-    navigate('/cart?buy_now=true')
-  }
-
   const handleNavigateBack = () => navigate(-1)
   const handleNavigateToCart = () => navigate('/cart')
 
@@ -398,7 +336,6 @@ export const useProductLogic = (slugProp?: string) => {
     
     // Actions
     handleAddToCart,
-    handleBuyNow,
     handleNavigateBack,
     handleNavigateToCart,
     handleOptionSelect,

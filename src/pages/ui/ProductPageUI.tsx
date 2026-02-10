@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { EcommerceTemplate } from "@/templates/EcommerceTemplate"
-import { ShoppingCart, ArrowLeft, Plus, Minus, Package, Shield, Award, MapPin, Sparkles, Ruler, Palette, Frame, Zap, Clock, HeartHandshake, Bolt } from "lucide-react"
+import { ShoppingCart, ArrowLeft, Plus, Minus, Package, Shield, Award, MapPin, Sparkles, Ruler, Palette, Frame, Zap, Clock, HeartHandshake } from "lucide-react"
 import { Link } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { ProductBadge, type BadgeType } from "@/components/ProductBadge"
@@ -59,7 +59,6 @@ interface ProductPageUIProps {
     handleOptionSelect: (optionName: string, value: string) => void
     handleQuantityChange: (quantity: number) => void
     handleAddToCart: () => void
-    handleBuyNow: () => void
     handleNavigateBack: () => void
     isOptionValueAvailable: (optionName: string, value: string) => boolean
     
@@ -312,22 +311,9 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
             </div>
 
             <div className="space-y-4">
-              {/* Buy Now Button - Primary CTA */}
-              <Button
-                onClick={logic.handleBuyNow}
-                disabled={!logic.inStock}
-                className="w-full"
-                size="lg"
-              >
-                <Bolt className="mr-2 h-5 w-5" />
-                {logic.inStock ? 'Comprar ahora' : 'Agotado'}
-              </Button>
-
-              {/* Add to Cart Button - Secondary */}
               <Button
                 onClick={logic.handleAddToCart}
                 disabled={!logic.inStock}
-                variant="outline"
                 className="w-full"
                 size="lg"
               >
