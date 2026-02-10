@@ -90,7 +90,7 @@ export const useProductLogic = (slugProp?: string) => {
     }
   }
 
-  // Auto-select options that have only one available value
+  // Auto-select options that have only one available value OR prefer "30x90cm"
   useEffect(() => {
     if (!product) return
     
@@ -111,6 +111,14 @@ export const useProductLogic = (slugProp?: string) => {
       if (availableValues.length === 1 && !selected[opt.name]) {
         newSelected[opt.name] = availableValues[0]
         hasChanges = true
+      }
+      // If multiple values available, prefer "30x90cm" if it exists
+      else if (availableValues.length > 1 && !selected[opt.name]) {
+        const preferred = availableValues.find((val: string) => val === '30x90cm' || val === '30x90')
+        if (preferred) {
+          newSelected[opt.name] = preferred
+          hasChanges = true
+        }
       }
     }
     
