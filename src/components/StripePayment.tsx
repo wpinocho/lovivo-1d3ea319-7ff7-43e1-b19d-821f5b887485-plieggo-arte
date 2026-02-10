@@ -12,6 +12,7 @@ import { useCart } from "@/contexts/CartContext"
 import { useCheckoutState } from "@/hooks/useCheckoutState"
 import { useSettings } from "@/contexts/SettingsContext"
 import { trackPurchase, tracking } from "@/lib/tracking-utils"
+import { formatMoney } from "@/lib/money"
 
 interface StripePaymentProps {
   amountCents: number
