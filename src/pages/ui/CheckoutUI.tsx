@@ -595,7 +595,18 @@ export default function CheckoutUI() {
                       </Button>
                     </div>
                   ) : (
-                    Array.isArray(logic.summaryItems) && logic.summaryItems.map(item => (
+                    Array.isArray(logic.summaryItems) && logic.summaryItems.map(item => {
+                      // Debug: Log item data to console
+                      console.log('🔍 Checkout item:', {
+                        key: item.key,
+                        productName: item.product.name,
+                        variantName: item.variant?.name,
+                        hasImages: item.product.images?.length > 0,
+                        firstImage: item.product.images?.[0],
+                        imageType: typeof item.product.images?.[0]
+                      });
+                      
+                      return (
                       <div key={item.key} className="flex items-center space-x-4">
                         <div className="relative">
                           {(item.product.images && item.product.images.length > 0 && typeof item.product.images[0] === 'string') ? (
@@ -606,7 +617,7 @@ export default function CheckoutUI() {
                               loading="lazy"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
-                                console.error('Error loading image:', item.product.images[0]);
+                                console.error('❌ Error loading image:', item.product.images[0]);
                                 target.onerror = null; // Prevent infinite loop
                                 target.src = '/placeholder.svg'; // Fallback to placeholder
                               }}
@@ -654,7 +665,8 @@ export default function CheckoutUI() {
                           {logic.formatMoney((item.variant?.price ?? item.product.price ?? 0) * item.quantity)}
                         </div>
                       </div>
-                    ))
+                      )
+                    })
                   )}
 
                   {/* Código de descuento */}
