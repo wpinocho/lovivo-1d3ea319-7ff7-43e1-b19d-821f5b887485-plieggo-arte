@@ -112,9 +112,13 @@ export const useProductLogic = (slugProp?: string) => {
         newSelected[opt.name] = availableValues[0]
         hasChanges = true
       }
-      // If multiple values available, prefer "30x90cm" if it exists
+      // If multiple values available, prefer "30x90" size (any format) if it exists
       else if (availableValues.length > 1 && !selected[opt.name]) {
-        const preferred = availableValues.find((val: string) => val === '30x90cm' || val === '30x90')
+        // Normalize and look for 30x90 in any format ("30x90cm", "30cm x 90cm", etc.)
+        const preferred = availableValues.find((val: string) => {
+          const normalized = val.toLowerCase().replace(/\s+/g, '').replace(/cm/g, '')
+          return normalized === '30x90' || normalized.includes('30x90')
+        })
         if (preferred) {
           newSelected[opt.name] = preferred
           hasChanges = true
