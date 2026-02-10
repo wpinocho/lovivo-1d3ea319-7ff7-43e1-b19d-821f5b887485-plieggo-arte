@@ -65,8 +65,7 @@ function PaymentForm({
 
   const amountLabel = useMemo(() => {
     const amt = (amountCents || 0) / 100
-    const cur = (currency || "usd").toUpperCase()
-    return `${cur} $${amt.toFixed(2)}`
+    return formatMoney(amt, currency || "mxn", 'es-MX')
   }, [amountCents, currency])
 
   // Normalize edge response into an order-like object for our cache
