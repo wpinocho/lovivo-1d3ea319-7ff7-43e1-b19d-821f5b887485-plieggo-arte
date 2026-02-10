@@ -208,24 +208,21 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
                   className="shrink-0 font-medium text-xs md:text-sm"
                   onClick={(e) => {
                     e.stopPropagation()
-                    // Navega a la página de producto
+                    navigate(`/products/${logic.product.slug}`)
                   }}
                 >
                   Ver detalle →
                 </Button>
               </div>
 
-              {/* Beneficios adicionales */}
-              <div className="flex flex-col gap-1 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  🚚 Envío gratis
-                </span>
-                {logic.product.inventory && logic.product.inventory < 5 && logic.product.inventory > 0 && (
+              {/* Urgencia de stock */}
+              {logic.product.inventory && logic.product.inventory < 5 && logic.product.inventory > 0 && (
+                <div className="flex flex-col gap-1 text-xs text-muted-foreground">
                   <span className="text-destructive font-medium">
                     ⚠️ ¡Solo quedan {logic.product.inventory}!
                   </span>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
