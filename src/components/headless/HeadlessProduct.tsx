@@ -253,6 +253,53 @@ export const useProductLogic = (slugProp?: string) => {
     setTimeout(() => openCart(), 300)
   }
 
+  const handleBuyNow = () => {
+    if (!product) return
+    
+    const variants = (product as any).variants
+    const hasVariants = Array.isArray(variants) && variants.length > 0
+    const variantToAdd = hasVariants ? getMatchingVariant() : undefined
+    
+    if (hasVariants && !variantToAdd) {
+      toast({
+        title: "Selecciona tamaño",
+        description: "Elige un tamaño disponible.",
+        variant: "destructive",
+        className: "bg-secondary text-secondary-foreground border-secondary",
+      })
+      return
+    }
+    
+    // Save current cart to sessionStorage to preserve it
+    const currentCart = sessionStorage.getItem('cart')
+    if (currentCart) {
+      sessionStorage.setItem('cart_backup', currentCart)
+    }
+    
+    // Add product to cart
+    for (let i = 0; i < quantity; i++) {
+      addItem(product, variantToAdd)
+    }
+    
+    // Track AddToCart event
+    const currentPrice = getCurrentPrice()
+    trackAddToCart({
+      products: [tracking.createTrackingProduct({
+        id: product.id,
+        title: product.title,
+        price: currentPrice,
+        category: 'product',
+        variant: variantToAdd
+      })],
+      value: currentPrice * quantity,
+      currency: tracking.getCurrencyFromSettings(currencyCode),
+      num_items: quantity
+    })
+    
+    // Navigate to cart with buy_now flag
+    navigate('/cart?buy_now=true')
+  }
+
   const handleNavigateBack = () => navigate(-1)
   const handleNavigateToCart = () => navigate('/cart')
 
@@ -336,6 +383,7 @@ export const useProductLogic = (slugProp?: string) => {
     
     // Actions
     handleAddToCart,
+    handleBuyNow,
     handleNavigateBack,
     handleNavigateToCart,
     handleOptionSelect,

@@ -44,6 +44,18 @@ const ThankYou = () => {
           setOrder(completedOrder)
           // Clean up localStorage
           localStorage.removeItem('completed_order')
+          
+          // Restaurar carrito backup si existía (buy_now preserva el carrito original)
+          try {
+            const cartBackup = sessionStorage.getItem('cart_backup')
+            if (cartBackup) {
+              sessionStorage.setItem('cart', cartBackup)
+              sessionStorage.removeItem('cart_backup')
+              console.log('Cart restored after buy_now purchase')
+            }
+          } catch (e) {
+            console.error('Error restoring cart backup:', e)
+          }
         } else {
           setOrder(null)
         }

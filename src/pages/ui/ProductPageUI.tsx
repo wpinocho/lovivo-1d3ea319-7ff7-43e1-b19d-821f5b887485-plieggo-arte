@@ -59,6 +59,7 @@ interface ProductPageUIProps {
     handleOptionSelect: (optionName: string, value: string) => void
     handleQuantityChange: (quantity: number) => void
     handleAddToCart: () => void
+    handleBuyNow: () => void
     handleNavigateBack: () => void
     isOptionValueAvailable: (optionName: string, value: string) => boolean
     
@@ -310,14 +311,26 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
+              {/* Comprar ahora - Botón primario */}
               <Button
-                onClick={logic.handleAddToCart}
+                onClick={logic.handleBuyNow}
                 disabled={!logic.inStock}
                 className="w-full"
                 size="lg"
               >
                 <ShoppingCart className="mr-2 h-5 w-5" />
+                {logic.inStock ? 'Comprar ahora' : 'Agotado'}
+              </Button>
+
+              {/* Agregar al carrito - Botón secundario */}
+              <Button
+                onClick={logic.handleAddToCart}
+                disabled={!logic.inStock}
+                variant="outline"
+                className="w-full"
+                size="lg"
+              >
                 {logic.inStock ? 'Agregar al carrito' : 'Agotado'}
               </Button>
               
