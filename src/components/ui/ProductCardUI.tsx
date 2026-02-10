@@ -47,9 +47,9 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
           onClick={() => navigate(`/products/${logic.product.slug}`)}
         >
           <CardContent className="p-0 relative">
-            {/* Badge arriba de la imagen */}
+            {/* Badge arriba de la imagen - Posición top-right más prominente */}
             {badge && (
-              <div className="absolute top-3 left-3 z-10 transition-transform duration-300 group-hover:scale-110">
+              <div className="absolute top-3 right-3 z-10 transition-transform duration-300 group-hover:scale-110">
                 <ProductBadge type={badge as BadgeType} />
               </div>
             )}
@@ -79,9 +79,9 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
                 </div>
               )}
 
-              {/* Overlay con detalles - aparece en hover */}
+              {/* Overlay con variantes - aparece en hover (solo para quick-add) */}
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/98 to-background/95 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-between p-6 translate-y-4 group-hover:translate-y-0">
-                {/* Top: Badges */}
+                {/* Top: Badges de descuento */}
                 <div className="flex flex-col gap-2 items-start">
                   {logic.discountPercentage && (
                     <span className="bg-destructive text-destructive-foreground text-xs px-2 py-1 rounded-sm font-medium">
@@ -95,22 +95,11 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
                   )}
                 </div>
 
-                {/* Middle: Título y descripción */}
+                {/* Middle: Variantes para quick-add */}
                 <div className="flex-1 flex flex-col justify-center">
-                  <div className="block mb-3">
-                    <h3 className="font-heading font-semibold text-foreground text-lg mb-2 line-clamp-2">
-                      {logic.product.title}
-                    </h3>
-                    {logic.product.description && (
-                      <p className="font-body text-muted-foreground text-sm line-clamp-2">
-                        {logic.product.description.replace(/<[^>]*>/g, '')}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Variantes */}
                   {logic.hasVariants && logic.options && (
-                    <div className="mb-3 space-y-2">
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium text-foreground mb-2">Selecciona opciones:</p>
                       {logic.options.map((opt) => (
                         <div key={opt.id}>
                           <div className="font-body text-xs font-medium text-foreground mb-1">{opt.name}</div>
@@ -129,8 +118,8 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
                                       logic.handleOptionChange(opt.name, val)
                                     }}
                                     title={`${opt.name}: ${val}`}
-                                    className={`h-6 w-6 rounded-full border-2 transition-all ${
-                                      isSelected ? 'border-foreground scale-110' : 'border-border'
+                                    className={`h-7 w-7 rounded-full border-2 transition-all ${
+                                      isSelected ? 'border-foreground scale-110 ring-2 ring-primary' : 'border-border'
                                     } ${logic.selected[opt.name] && !isSelected ? 'opacity-40' : ''}`}
                                     style={{ 
                                       backgroundColor: swatch
@@ -148,7 +137,7 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
                                     e.stopPropagation()
                                     logic.handleOptionChange(opt.name, val)
                                   }}
-                                  className={`border-2 rounded-sm px-2 py-0.5 text-xs font-medium transition-all ${
+                                  className={`border-2 rounded-sm px-2 py-1 text-xs font-medium transition-all ${
                                     isSelected 
                                       ? 'border-foreground bg-foreground text-background' 
                                       : logic.selected[opt.name] && !isSelected
@@ -170,31 +159,72 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
                   )}
                 </div>
 
-                {/* Bottom: Precio y botón */}
-                <div className="flex items-center justify-between">
-                  <div className="flex flex-col">
-                    <span className="font-heading text-foreground font-bold text-xl">
-                      {logic.formatMoney(logic.currentPrice)}
-                    </span>
-                    {logic.currentCompareAt && logic.currentCompareAt > logic.currentPrice && (
-                      <span className="font-body text-muted-foreground text-sm line-through">
-                        {logic.formatMoney(logic.currentCompareAt)}
-                      </span>
-                    )}
+                {/* Bottom: Botón agregar al carrito en hover */}
+                <Button
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    logic.onAddToCartSuccess()
+                    logic.handleAddToCart()
+                  }}
+                  disabled={!logic.canAddToCart}
+                  className="btn-hero w-full"
+                >
+                  {logic.inStock ? 'Agregar al carrito' : 'Agotado'}
+                </Button>
+              </div>
+            </div>
+
+            {/* INFO SIEMPRE VISIBLE - Debajo de la imagen */}
+            <div className="p-4 space-y-3">
+              {/* Título y descripción */}
+              <div>
+                <h3 className="font-heading font-semibold text-foreground text-base md:text-lg mb-1 line-clamp-2 leading-tight">
+                  {logic.product.title}
+                </h3>
+                {review && (
+                  <div className="mb-2">
+                    <ProductRating rating={review.rating} count={review.count} size="sm" />
                   </div>
-                  <Button
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      logic.onAddToCartSuccess()
-                      logic.handleAddToCart()
-                    }}
-                    disabled={!logic.canAddToCart}
-                    className="btn-hero"
-                  >
-                    {logic.inStock ? 'Agregar' : 'Agotado'}
-                  </Button>
+                )}
+              </div>
+
+              {/* Precio y CTA - Siempre visible */}
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-col">
+                  <span className="font-heading text-foreground font-bold text-xl md:text-2xl">
+                    {logic.formatMoney(logic.currentPrice)}
+                  </span>
+                  {logic.currentCompareAt && logic.currentCompareAt > logic.currentPrice && (
+                    <span className="font-body text-muted-foreground text-xs line-through">
+                      {logic.formatMoney(logic.currentCompareAt)}
+                    </span>
+                  )}
                 </div>
+                
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="shrink-0 font-medium text-xs md:text-sm"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    // Navega a la página de producto
+                  }}
+                >
+                  Ver detalle →
+                </Button>
+              </div>
+
+              {/* Beneficios adicionales */}
+              <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  🚚 Envío gratis
+                </span>
+                {logic.product.inventory && logic.product.inventory < 5 && logic.product.inventory > 0 && (
+                  <span className="text-destructive font-medium">
+                    ⚠️ ¡Solo quedan {logic.product.inventory}!
+                  </span>
+                )}
               </div>
             </div>
           </CardContent>

@@ -113,8 +113,8 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
     <EcommerceTemplate 
       showCart={true}
     >
-      {/* SECCIÓN 1: Hero Section - Mitad de pantalla */}
-      <section className="relative h-[50vh] min-h-[500px] overflow-hidden">
+      {/* SECCIÓN 1: Hero Section - Optimizado para ver productos más rápido */}
+      <section className="relative h-[35vh] min-h-[400px] overflow-hidden">
         <div className="absolute inset-0">
           <video 
             src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/store-videos/1d3ea319-7ff7-43e1-b19d-821f5b887485/hero-paper-folding.mp4"
@@ -153,8 +153,8 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
         </div>
       </section>
 
-      {/* SECCIÓN 2: Statement de Marca - Con mucho padding */}
-      <section style={{ letterSpacing: '0px', paddingBottom: '70px' }} className="py-24 md:py-32">
+      {/* SECCIÓN 2: Statement de Marca - Compacto */}
+      <section style={{ letterSpacing: '0px' }} className="py-12 md:py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground mb-8 leading-tight tracking-tight">
             Pliegues que transforman espacios
@@ -176,7 +176,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
       </section>
 
       {/* SECCIÓN 3: Navegación Visual / Carrusel de Colecciones */}
-      <section className="py-16 bg-muted/30 overflow-hidden">
+      <section className="py-8 bg-muted/30 overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="carousel-container group">
             <div className="carousel-track">

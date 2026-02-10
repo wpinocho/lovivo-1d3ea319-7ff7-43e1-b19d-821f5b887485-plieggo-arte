@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Button } from '@/components/ui/button'
 
 interface CollectionNavigationCardProps {
   title: string
@@ -36,11 +37,20 @@ export const CollectionNavigationCard = ({
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-foreground/30 to-transparent" />
       </div>
       
-      {/* Title */}
-      <div className="absolute bottom-0 left-0 right-0 p-4">
+      {/* Title y CTA */}
+      <div className="absolute bottom-0 left-0 right-0 p-4 space-y-3">
         <h3 className="font-heading text-xl md:text-2xl font-bold text-background tracking-tight leading-tight">
           {title}
         </h3>
+        
+        {/* CTA Button - Siempre visible */}
+        <Button 
+          size="sm" 
+          variant="secondary"
+          className="bg-background text-foreground hover:bg-background/90 font-medium text-sm transition-all duration-300 group-hover:translate-x-1"
+        >
+          Explorar →
+        </Button>
       </div>
     </Link>
   )
