@@ -135,20 +135,15 @@ export const useCheckoutLogic = () => {
     } catch {}
   }, []);
 
+  const hasTrackedCheckout = useRef(false);
+
   useEffect(() => {
     // Espera a que el estado de checkout se inicialice
     if (!isInitialized) return;
 
-    // Fallback: si tenemos el id en sessionStorage, no redirigir
-    try {
-      const ssId = sessionStorage.getItem('checkout_order_id');
-      if (ssId) return;
-    } catch {}
-
-    // Allow rendering even without active checkout - empty state will be shown in UI
-    
-    // Track InitiateCheckout event when checkout is active
-    if (orderItems.length > 0) {
+    // Track InitiateCheckout ANTES de cualquier return
+    if (!hasTrackedCheckout.current && orderItems.length > 0 && orderTotal > 0) {
+      hasTrackedCheckout.current = true;
       trackInitiateCheckout({
         products: orderItems.map((item: any) => tracking.createTrackingProduct({
           id: item.product_id,
@@ -162,6 +157,12 @@ export const useCheckoutLogic = () => {
         num_items: orderTotalQuantity
       });
     }
+
+    // Fallback: si tenemos el id en sessionStorage, no redirigir
+    try {
+      const ssId = sessionStorage.getItem('checkout_order_id');
+      if (ssId) return;
+    } catch {}
   }, [isInitialized, hasActiveCheckout, navigate, toast, orderItems, orderTotal, currencyCode, orderTotalQuantity]);
 
   // Email validation

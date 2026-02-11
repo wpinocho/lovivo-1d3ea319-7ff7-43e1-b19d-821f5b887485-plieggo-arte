@@ -111,12 +111,6 @@ class TrackingUtility {
     eventId: string,
     customData: Record<string, any>
   ): Promise<void> {
-    // Only send if we have a pixel configured
-    if (!this.pixelId) {
-      this.log(`CAPI Skip (no pixel): ${eventName}`, { eventId });
-      return;
-    }
-
     try {
       await callEdge('meta-capi', {
         store_id: STORE_ID,
