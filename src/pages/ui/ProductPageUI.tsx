@@ -135,6 +135,8 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
             <img
               src={logic.currentImage || "/placeholder.svg"}
               alt={logic.product.title}
+              loading="eager"
+              fetchPriority="high"
               className="w-full h-full object-contain"
             />
           </div>
@@ -156,6 +158,8 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
                   <img
                     src={img}
                     alt={`${logic.product.title} - imagen ${index + 1}`}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover"
                   />
                 </button>
@@ -181,6 +185,8 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
               <img
                 src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768866178168-84itdh4fyv.png"
                 alt="Guía de tamaños - 20x20cm, 50x50cm, 30x90cm con persona de referencia"
+                loading="lazy"
+                decoding="async"
                 className="w-full h-auto"
               />
             </CardContent>

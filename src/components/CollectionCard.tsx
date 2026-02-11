@@ -5,17 +5,21 @@ import { type Collection } from '@/lib/supabase'
 interface CollectionCardProps {
   collection: Collection
   onViewProducts: (collectionId: string) => void
+  eager?: boolean
 }
 
-export const CollectionCard = ({ collection, onViewProducts }: CollectionCardProps) => {
+export const CollectionCard = ({ collection, onViewProducts, eager }: CollectionCardProps) => {
   return (
     <Card className="bg-card border-border overflow-hidden transition-all hover:shadow-lg">
       <CardContent className="p-0">
-        <div className="aspect-[4/3] bg-muted overflow-hidden">
+        <div className="aspect-[4/3] bg-muted overflow-hidden" style={{ aspectRatio: '4/3' }}>
           {collection.image ? (
             <img 
               src={collection.image} 
               alt={collection.name}
+              loading={eager ? "eager" : "lazy"}
+              fetchPriority={eager ? "high" : undefined}
+              decoding="async"
               className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
             />
           ) : (

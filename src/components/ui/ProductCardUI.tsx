@@ -62,6 +62,8 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
                   <img
                     src={(logic.matchingVariant?.image as any) || logic.product.images![0]}
                     alt={logic.product.title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover transition-all duration-500 group-hover:opacity-0 group-hover:scale-110"
                   />
                   {/* Segunda imagen al hover (solo si existe) */}
@@ -69,6 +71,8 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
                     <img
                       src={logic.product.images[1]}
                       alt={`${logic.product.title} - vista alternativa`}
+                      loading="lazy"
+                      decoding="async"
                       className="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:scale-105"
                     />
                   )}

@@ -6,13 +6,15 @@ interface CollectionNavigationCardProps {
   image: string
   link: string
   onClick?: () => void
+  eager?: boolean
 }
 
 export const CollectionNavigationCard = ({ 
   title, 
   image, 
   link, 
-  onClick 
+  onClick,
+  eager 
 }: CollectionNavigationCardProps) => {
   const handleClick = (e: React.MouseEvent) => {
     if (onClick) {
@@ -31,6 +33,9 @@ export const CollectionNavigationCard = ({
         <img 
           src={image} 
           alt={title}
+          loading={eager ? "eager" : "lazy"}
+          fetchPriority={eager ? "high" : undefined}
+          decoding="async"
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         {/* Overlay gradient */}

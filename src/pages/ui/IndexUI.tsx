@@ -178,43 +178,54 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
       {/* SECCIÓN 3: Navegación Visual / Carrusel de Colecciones */}
       <section className="py-8 bg-muted/30 overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="carousel-container group">
-            <div className="carousel-track">
-              {/* Card 1: Todos los cuadros */}
-              <CollectionNavigationCard 
-                title="Todos los cuadros"
-                image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764996809955-ayg66qfvgl.png"
-                link="/all-products"
-              />
-
-              {/* Card 2: Más Vendidos */}
-              {!loadingCollections && collections.find(c => c.handle === 'top-sellers') && (
-                <CollectionNavigationCard 
-                  title="Más Vendidos"
-                  image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764998881511-f31r6hvzml7.png"
-                  link="/top-sellers"
-                />
-              )}
-
-              {/* Card 3: Colección Acordeón */}
-              {!loadingCollections && collections.find(c => c.handle === 'coleccion-acordeon') && (
-                <CollectionNavigationCard 
-                  title="Colección Acordeón"
-                  image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764999104043-w3acvjpnzjl.png"
-                  link="/coleccion-acordeon"
-                />
-              )}
-
-              {/* Card 4: Colección Espacio */}
-              {!loadingCollections && collections.find(c => c.handle === 'coleccion-espacio') && (
-                <CollectionNavigationCard 
-                  title="Colección Espacio"
-                  image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764997368709-im0m2rvtb7.png"
-                  link="/coleccion-espacio"
-                />
-              )}
+          {loadingCollections ? (
+            <div className="carousel-container">
+              <div className="carousel-track">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="collection-card bg-muted rounded-sm animate-pulse aspect-square flex-shrink-0" />
+                ))}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="carousel-container group">
+              <div className="carousel-track">
+                {/* Card 1: Todos los cuadros - EAGER (primera imagen) */}
+                <CollectionNavigationCard 
+                  title="Todos los cuadros"
+                  image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764996809955-ayg66qfvgl.png"
+                  link="/all-products"
+                  eager={true}
+                />
+
+                {/* Card 2: Más Vendidos */}
+                {collections.find(c => c.handle === 'top-sellers') && (
+                  <CollectionNavigationCard 
+                    title="Más Vendidos"
+                    image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764998881511-f31r6hvzml7.png"
+                    link="/top-sellers"
+                  />
+                )}
+
+                {/* Card 3: Colección Acordeón */}
+                {collections.find(c => c.handle === 'coleccion-acordeon') && (
+                  <CollectionNavigationCard 
+                    title="Colección Acordeón"
+                    image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764999104043-w3acvjpnzjl.png"
+                    link="/coleccion-acordeon"
+                  />
+                )}
+
+                {/* Card 4: Colección Espacio */}
+                {collections.find(c => c.handle === 'coleccion-espacio') && (
+                  <CollectionNavigationCard 
+                    title="Colección Espacio"
+                    image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764997368709-im0m2rvtb7.png"
+                    link="/coleccion-espacio"
+                  />
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -242,7 +253,11 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {[...Array(8)].map((_, i) => (
-                <div key={i} className="bg-muted rounded-sm h-96 animate-pulse"></div>
+                <div key={i} className="space-y-3">
+                  <div className="bg-muted rounded-sm aspect-square animate-pulse" />
+                  <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
+                  <div className="h-6 bg-muted rounded animate-pulse w-1/2" />
+                </div>
               ))}
             </div>
           ) : productsWithCollection.length > 0 ? (
