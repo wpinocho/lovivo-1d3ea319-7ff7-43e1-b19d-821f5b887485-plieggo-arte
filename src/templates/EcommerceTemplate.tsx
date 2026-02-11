@@ -3,6 +3,7 @@ import { PageTemplate } from './PageTemplate'
 import { BrandLogoLeft } from '@/components/BrandLogoLeft'
 import { SocialLinks } from '@/components/SocialLinks'
 import { FloatingCart } from '@/components/FloatingCart'
+import { AnnouncementBar } from '@/components/AnnouncementBar'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { ShoppingCart } from 'lucide-react'
@@ -195,6 +196,7 @@ export const EcommerceTemplate = ({
 
   return (
     <>
+      <AnnouncementBar />
       <PageTemplate 
         header={header}
         footer={footer}
