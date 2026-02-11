@@ -31,7 +31,7 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
         debug: process.env.NODE_ENV === 'development',
         
         // Optimizaciones
-        disable_session_recording: true,
+        disable_session_recording: false,
         advanced_disable_decide: false,
         
       loaded: (posthog) => {
