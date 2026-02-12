@@ -170,3 +170,90 @@ Paleta de colores exacta del cliente
     }
   }
 }
+
+/* Hero Carousel Animations */
+@layer utilities {
+  /* Smooth transitions for GPU acceleration */
+  .transition-600 {
+    transition-duration: 600ms;
+  }
+
+  /* Hero slide animations */
+  @keyframes slideInFromRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideOutToLeft {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeOutDown {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+  }
+
+  /* Apply animations */
+  .slide-enter {
+    animation: slideInFromRight 700ms ease-out;
+  }
+
+  .slide-exit {
+    animation: slideOutToLeft 700ms ease-out;
+  }
+
+  .text-enter {
+    animation: fadeInUp 600ms ease-out;
+  }
+
+  .text-exit {
+    animation: fadeOutDown 300ms ease-out;
+  }
+
+  /* Staggered delays for text elements */
+  .text-enter-delay-0 {
+    animation-delay: 0ms;
+  }
+
+  .text-enter-delay-150 {
+    animation-delay: 150ms;
+  }
+
+  .text-enter-delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .text-enter-delay-450 {
+    animation-delay: 450ms;
+  }
+}
