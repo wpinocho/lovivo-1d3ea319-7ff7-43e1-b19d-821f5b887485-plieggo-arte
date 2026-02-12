@@ -55,31 +55,31 @@ export const EcommerceTemplate = ({
           <nav className="hidden md:flex items-center gap-0">
             <Link 
               to="/all-products" 
-              className="font-body text-xs text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-1.5 rounded-sm whitespace-nowrap"
+              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-1 py-1.5 rounded-sm whitespace-nowrap"
             >
               Todos los Cuadros
             </Link>
             <Link 
               to="/top-sellers" 
-              className="font-body text-xs text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-1.5 rounded-sm whitespace-nowrap"
+              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-1 py-1.5 rounded-sm whitespace-nowrap"
             >
               Más Vendidos
             </Link>
             <Link 
               to="/coleccion-acordeon" 
-              className="font-body text-xs text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-1.5 rounded-sm whitespace-nowrap"
+              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-1 py-1.5 rounded-sm whitespace-nowrap"
             >
               Acordeón
             </Link>
             <Link 
               to="/coleccion-espacio" 
-              className="font-body text-xs text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-1.5 rounded-sm whitespace-nowrap"
+              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-1 py-1.5 rounded-sm whitespace-nowrap"
             >
               Espacio
             </Link>
             <Link 
               to="/about" 
-              className="font-body text-xs text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-1.5 rounded-sm whitespace-nowrap"
+              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-1 py-1.5 rounded-sm whitespace-nowrap"
             >
               Nosotros
             </Link>
