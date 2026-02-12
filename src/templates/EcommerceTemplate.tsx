@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import { PageTemplate } from './PageTemplate'
 import { BrandLogoLeft } from '@/components/BrandLogoLeft'
 import { SocialLinks } from '@/components/SocialLinks'
@@ -6,12 +6,19 @@ import { FloatingCart } from '@/components/FloatingCart'
 import { AnnouncementBar } from '@/components/AnnouncementBar'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { ShoppingCart } from 'lucide-react'
+import { ShoppingCart, Menu, X } from 'lucide-react'
 import { useCartUI } from '@/components/CartProvider'
 import { useCart } from '@/contexts/CartContext'
 import { useCollections } from '@/hooks/useCollections'
 import { Input } from '@/components/ui/input'
 import { ScrollLink } from '@/components/ScrollLink'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet'
 
 /**
  * EDITABLE TEMPLATE - EcommerceTemplate
@@ -43,11 +50,68 @@ export const EcommerceTemplate = ({
   const { getTotalItems } = useCart()
   const totalItems = getTotalItems()
   const { hasCollections, loading: loadingCollections } = useCollections()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const header = (
     <div className={`py-4 bg-background/95 backdrop-blur ${headerClassName}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-4 md:gap-8">
+          {/* Mobile Menu Toggle */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden h-10 w-10"
+                aria-label="Abrir menú"
+              >
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+              <SheetHeader>
+                <SheetTitle className="font-heading text-2xl">Menú</SheetTitle>
+              </SheetHeader>
+              <nav className="flex flex-col gap-4 mt-8">
+                <Link 
+                  to="/all-products" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="font-body text-lg text-foreground hover:text-primary py-3 border-b border-border"
+                >
+                  Todos los Cuadros
+                </Link>
+                <Link 
+                  to="/top-sellers" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="font-body text-lg text-foreground hover:text-primary py-3 border-b border-border"
+                >
+                  Más Vendidos
+                </Link>
+                <Link 
+                  to="/coleccion-acordeon" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="font-body text-lg text-foreground hover:text-primary py-3 border-b border-border"
+                >
+                  Acordeón
+                </Link>
+                <Link 
+                  to="/coleccion-espacio" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="font-body text-lg text-foreground hover:text-primary py-3 border-b border-border"
+                >
+                  Espacio
+                </Link>
+                <Link 
+                  to="/about" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="font-body text-lg text-foreground hover:text-primary py-3 border-b border-border"
+                >
+                  Nosotros
+                </Link>
+              </nav>
+            </SheetContent>
+          </Sheet>
+
           {/* Logo */}
           <BrandLogoLeft />
 
@@ -92,12 +156,12 @@ export const EcommerceTemplate = ({
                 variant="ghost"
                 size="icon"
                 onClick={openCart}
-                className="relative hover:bg-primary/10 h-14 w-14"
+                className="relative hover:bg-primary/10 h-10 w-10 md:h-14 md:w-14"
                 aria-label="Ver carrito"
               >
-                <ShoppingCart className="h-10 w-10" />
+                <ShoppingCart className="h-6 w-6 md:h-10 md:w-10" />
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-sm font-bold rounded-full h-6 w-6 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs md:text-sm font-bold rounded-full h-5 w-5 md:h-6 md:w-6 flex items-center justify-center">
                     {totalItems > 99 ? '99+' : totalItems}
                   </span>
                 )}
