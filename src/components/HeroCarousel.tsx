@@ -134,7 +134,7 @@ export const HeroCarousel = ({
                 alt={slide.headline}
                 loading={index === 0 ? 'eager' : 'lazy'}
                 fetchPriority={index === 0 ? 'high' : 'auto'}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-center"
               />
             ) : (
               <video
@@ -145,7 +145,7 @@ export const HeroCarousel = ({
                 muted
                 playsInline
                 preload={index === 2 ? 'metadata' : 'none'}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-center"
                 aria-label={slide.headline}
               />
             )}

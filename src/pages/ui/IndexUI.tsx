@@ -152,12 +152,13 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
   return (
     <EcommerceTemplate 
       showCart={true}
+      layout='full-width'
     >
       {/* HERO CAROUSEL - Fullscreen con 3 slides */}
       <HeroCarousel slides={heroSlides} />
 
       {/* Navegación Visual / Carrusel de Colecciones */}
-      <section className="py-8 bg-muted/30 overflow-hidden">
+      <section className="py-8 bg-muted/30 overflow-hidden px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {loadingCollections ? (
             <div className="carousel-container">
