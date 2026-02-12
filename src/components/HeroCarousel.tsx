@@ -248,26 +248,7 @@ export const HeroCarousel = ({
         </div>
       </div>
 
-      {/* Navigation Arrows - Desktop */}
-      <div className="hidden md:block">
-        <button
-          onClick={prevSlide}
-          disabled={isTransitioning}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full p-3 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
-          aria-label="Slide anterior"
-        >
-          <ChevronLeft className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
-        </button>
 
-        <button
-          onClick={nextSlide}
-          disabled={isTransitioning}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full p-3 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
-          aria-label="Siguiente slide"
-        >
-          <ChevronRight className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
-        </button>
-      </div>
 
       {/* Dots Indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-3">
