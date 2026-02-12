@@ -160,52 +160,61 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
       {/* Navegación Visual / Carrusel de Colecciones */}
       <section className="py-8 bg-muted/30 overflow-hidden px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
+          {/* Título de sección */}
+          <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-6 text-center tracking-tight">
+            Explora nuestras colecciones
+          </h2>
+          
           {loadingCollections ? (
-            <div className="carousel-container">
-              <div className="carousel-track">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="collection-card bg-muted rounded-sm animate-pulse aspect-square flex-shrink-0" />
-                ))}
-              </div>
+            <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="min-w-[280px] sm:min-w-[320px] bg-muted rounded-sm animate-pulse aspect-square flex-shrink-0 snap-center" />
+              ))}
             </div>
           ) : (
-            <div className="carousel-container group">
-              <div className="carousel-track">
-                {/* Card 1: Todos los cuadros - EAGER (primera imagen) */}
+            <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 touch-pan-x">
+              {/* Touch scrollable carousel */}
+              <div className="min-w-[280px] sm:min-w-[320px] flex-shrink-0 snap-center">
                 <CollectionNavigationCard 
                   title="Todos los cuadros"
                   image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764996809955-ayg66qfvgl.png"
                   link="/all-products"
                   eager={true}
                 />
+              </div>
 
-                {/* Card 2: Más Vendidos */}
-                {collections.find(c => c.handle === 'top-sellers') && (
+              {/* Card 2: Más Vendidos */}
+              {collections.find(c => c.handle === 'top-sellers') && (
+                <div className="min-w-[280px] sm:min-w-[320px] flex-shrink-0 snap-center">
                   <CollectionNavigationCard 
                     title="Más Vendidos"
                     image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764998881511-f31r6hvzml7.png"
                     link="/top-sellers"
                   />
-                )}
+                </div>
+              )}
 
-                {/* Card 3: Colección Acordeón */}
-                {collections.find(c => c.handle === 'coleccion-acordeon') && (
+              {/* Card 3: Colección Acordeón */}
+              {collections.find(c => c.handle === 'coleccion-acordeon') && (
+                <div className="min-w-[280px] sm:min-w-[320px] flex-shrink-0 snap-center">
                   <CollectionNavigationCard 
                     title="Colección Acordeón"
                     image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764999104043-w3acvjpnzjl.png"
                     link="/coleccion-acordeon"
                   />
-                )}
+                </div>
+              )}
 
-                {/* Card 4: Colección Espacio */}
-                {collections.find(c => c.handle === 'coleccion-espacio') && (
+              {/* Card 4: Colección Espacio */}
+              {collections.find(c => c.handle === 'coleccion-espacio') && (
+                <div className="min-w-[280px] sm:min-w-[320px] flex-shrink-0 snap-center">
                   <CollectionNavigationCard 
                     title="Colección Espacio"
                     image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764997368709-im0m2rvtb7.png"
                     link="/coleccion-espacio"
                   />
-                )}
-              </div>
+                </div>
+              )}
             </div>
           )}
         </div>

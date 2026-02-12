@@ -256,4 +256,14 @@ Paleta de colores exacta del cliente
   .text-enter-delay-450 {
     animation-delay: 450ms;
   }
+
+  /* Hide scrollbar for touch scrollable carousels */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari, Opera */
+  }
 }

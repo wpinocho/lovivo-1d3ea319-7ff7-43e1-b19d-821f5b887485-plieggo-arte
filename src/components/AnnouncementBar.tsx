@@ -46,10 +46,10 @@ export const AnnouncementBar = () => {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* Navigation Arrows - Hidden on mobile */}
+      {/* Navigation Arrows - Visible on all screens */}
       <button
         onClick={goToPrevious}
-        className="absolute left-2 top-1/2 -translate-y-1/2 hidden md:flex items-center justify-center w-8 h-8 hover:bg-secondary-foreground/10 rounded-sm transition-colors z-10"
+        className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 hover:bg-secondary-foreground/10 rounded-sm transition-colors z-10"
         aria-label="Mensaje anterior"
       >
         <ChevronLeft className="h-4 w-4" />
@@ -57,14 +57,14 @@ export const AnnouncementBar = () => {
 
       <button
         onClick={goToNext}
-        className="absolute right-2 top-1/2 -translate-y-1/2 hidden md:flex items-center justify-center w-8 h-8 hover:bg-secondary-foreground/10 rounded-sm transition-colors z-10"
+        className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 hover:bg-secondary-foreground/10 rounded-sm transition-colors z-10"
         aria-label="Siguiente mensaje"
       >
         <ChevronRight className="h-4 w-4" />
       </button>
 
       {/* Messages Container */}
-      <div className="relative w-full h-full flex items-center justify-center px-12 md:px-16">
+      <div className="relative w-full h-full flex items-center justify-center px-12">
         {MESSAGES.map((message, index) => (
           <div
             key={index}
@@ -84,22 +84,7 @@ export const AnnouncementBar = () => {
         ))}
       </div>
 
-      {/* Dots Indicator - Mobile */}
-      <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-1.5 md:hidden">
-        {MESSAGES.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentIndex(index)}
-            className={cn(
-              "w-1.5 h-1.5 rounded-full transition-all duration-300",
-              index === currentIndex 
-                ? "bg-secondary-foreground w-4" 
-                : "bg-secondary-foreground/40"
-            )}
-            aria-label={`Ir al mensaje ${index + 1}`}
-          />
-        ))}
-      </div>
+
     </div>
   )
 }
