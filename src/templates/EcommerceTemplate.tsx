@@ -47,46 +47,46 @@ export const EcommerceTemplate = ({
   const header = (
     <div className={`py-4 bg-background/95 backdrop-blur ${headerClassName}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center gap-8">
           {/* Logo */}
           <BrandLogoLeft />
 
           {/* Navigation - Desktop */}
-          <nav className="hidden md:flex items-center gap-0">
+          <nav className="hidden md:flex items-center gap-1">
             <Link 
               to="/all-products" 
-              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-1 py-1.5 rounded-sm whitespace-nowrap"
+              className="font-body text-lg text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-1.5 rounded-sm whitespace-nowrap"
             >
               Todos los Cuadros
             </Link>
             <Link 
               to="/top-sellers" 
-              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-1 py-1.5 rounded-sm whitespace-nowrap"
+              className="font-body text-lg text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-1.5 rounded-sm whitespace-nowrap"
             >
               Más Vendidos
             </Link>
             <Link 
               to="/coleccion-acordeon" 
-              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-1 py-1.5 rounded-sm whitespace-nowrap"
+              className="font-body text-lg text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-1.5 rounded-sm whitespace-nowrap"
             >
               Acordeón
             </Link>
             <Link 
               to="/coleccion-espacio" 
-              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-1 py-1.5 rounded-sm whitespace-nowrap"
+              className="font-body text-lg text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-1.5 rounded-sm whitespace-nowrap"
             >
               Espacio
             </Link>
             <Link 
               to="/about" 
-              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-1 py-1.5 rounded-sm whitespace-nowrap"
+              className="font-body text-lg text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-1.5 rounded-sm whitespace-nowrap"
             >
               Nosotros
             </Link>
           </nav>
 
           {/* Cart */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 ml-auto">
             {showCart && (
               <Button
                 variant="ghost"
