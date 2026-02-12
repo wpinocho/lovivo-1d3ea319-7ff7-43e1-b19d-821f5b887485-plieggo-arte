@@ -174,7 +174,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
           ) : (
             <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 touch-pan-x">
               {/* Touch scrollable carousel */}
-              <div className="min-w-[280px] sm:min-w-[320px] flex-shrink-0 snap-center">
+              <div className="w-[85vw] sm:min-w-[320px] flex-shrink-0 snap-center">
                 <CollectionNavigationCard 
                   title="Todos los cuadros"
                   image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764996809955-ayg66qfvgl.png"
@@ -185,7 +185,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
 
               {/* Card 2: Más Vendidos */}
               {collections.find(c => c.handle === 'top-sellers') && (
-                <div className="min-w-[280px] sm:min-w-[320px] flex-shrink-0 snap-center">
+                <div className="w-[85vw] sm:min-w-[320px] flex-shrink-0 snap-center">
                   <CollectionNavigationCard 
                     title="Más Vendidos"
                     image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764998881511-f31r6hvzml7.png"
@@ -196,7 +196,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
 
               {/* Card 3: Colección Acordeón */}
               {collections.find(c => c.handle === 'coleccion-acordeon') && (
-                <div className="min-w-[280px] sm:min-w-[320px] flex-shrink-0 snap-center">
+                <div className="w-[85vw] sm:min-w-[320px] flex-shrink-0 snap-center">
                   <CollectionNavigationCard 
                     title="Colección Acordeón"
                     image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764999104043-w3acvjpnzjl.png"
@@ -207,7 +207,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
 
               {/* Card 4: Colección Espacio */}
               {collections.find(c => c.handle === 'coleccion-espacio') && (
-                <div className="min-w-[280px] sm:min-w-[320px] flex-shrink-0 snap-center">
+                <div className="w-[85vw] sm:min-w-[320px] flex-shrink-0 snap-center">
                   <CollectionNavigationCard 
                     title="Colección Espacio"
                     image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764997368709-im0m2rvtb7.png"

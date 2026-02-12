@@ -128,7 +128,7 @@ export const HeroCarousel = ({
 
   return (
     <section 
-      className="relative w-full h-screen md:aspect-video md:max-h-[85vh] overflow-hidden bg-background"
+      className="relative w-full h-[70vh] md:aspect-video md:max-h-[85vh] overflow-hidden bg-background"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -151,7 +151,7 @@ export const HeroCarousel = ({
                 alt={slide.headline}
                 loading={index === 0 ? 'eager' : 'lazy'}
                 fetchPriority={index === 0 ? 'high' : 'auto'}
-                className="w-full h-full object-contain md:object-cover object-center"
+                className="w-full h-full object-cover object-center"
               />
             ) : (
               <video
@@ -162,7 +162,7 @@ export const HeroCarousel = ({
                 muted
                 playsInline
                 preload={index === 2 ? 'metadata' : 'none'}
-                className="w-full h-full object-contain md:object-cover object-center"
+                className="w-full h-full object-cover object-center"
                 aria-label={slide.headline}
               />
             )}
