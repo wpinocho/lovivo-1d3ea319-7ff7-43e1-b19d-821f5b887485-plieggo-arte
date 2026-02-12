@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
@@ -44,6 +44,7 @@ export const HeroCarousel = ({
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
   const [showText, setShowText] = useState(true)
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([])
 
   const totalSlides = slides.length
 
@@ -57,6 +58,22 @@ export const HeroCarousel = ({
 
     return () => clearInterval(interval)
   }, [currentSlide, isPaused])
+
+  // Control video playback
+  useEffect(() => {
+    videoRefs.current.forEach((video, index) => {
+      if (!video) return
+      
+      if (index === currentSlide) {
+        // Play video when it's the current slide
+        video.play().catch(err => console.log('Video play error:', err))
+      } else {
+        // Pause and reset other videos
+        video.pause()
+        video.currentTime = 0
+      }
+    })
+  }, [currentSlide])
 
   const nextSlide = () => {
     if (isTransitioning) return
@@ -111,7 +128,7 @@ export const HeroCarousel = ({
 
   return (
     <section 
-      className="relative h-screen min-h-[600px] max-h-[900px] overflow-hidden bg-background"
+      className="relative w-full aspect-video max-h-[85vh] overflow-hidden bg-background"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -138,9 +155,9 @@ export const HeroCarousel = ({
               />
             ) : (
               <video
+                ref={(el) => { videoRefs.current[index] = el }}
                 src={slide.src}
                 poster={slide.poster}
-                autoPlay={index === currentSlide}
                 loop
                 muted
                 playsInline

@@ -52,34 +52,34 @@ export const EcommerceTemplate = ({
           <BrandLogoLeft />
 
           {/* Navigation - Desktop */}
-          <nav className="hidden md:flex items-center space-x-1">
+          <nav className="hidden md:flex items-center">
             <Link 
               to="/all-products" 
-              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-3 py-2 rounded-sm"
+              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-2 rounded-sm"
             >
               Todos los Cuadros
             </Link>
             <Link 
               to="/top-sellers" 
-              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-3 py-2 rounded-sm"
+              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-2 rounded-sm"
             >
               Más Vendidos
             </Link>
             <Link 
               to="/coleccion-acordeon" 
-              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-3 py-2 rounded-sm"
+              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-2 rounded-sm"
             >
               Acordeón
             </Link>
             <Link 
               to="/coleccion-espacio" 
-              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-3 py-2 rounded-sm"
+              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-2 rounded-sm"
             >
               Espacio
             </Link>
             <Link 
               to="/about" 
-              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-3 py-2 rounded-sm"
+              className="font-body text-sm text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-2 rounded-sm"
             >
               Nosotros
             </Link>
