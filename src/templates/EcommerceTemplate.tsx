@@ -3,8 +3,9 @@ import { PageTemplate } from './PageTemplate'
 import { BrandLogoLeft } from '@/components/BrandLogoLeft'
 import { SocialLinks } from '@/components/SocialLinks'
 import { FloatingCart } from '@/components/FloatingCart'
+import { FloatingWhatsApp } from '@/components/FloatingWhatsApp'
 import { AnnouncementBar } from '@/components/AnnouncementBar'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { ShoppingCart, Menu, X } from 'lucide-react'
 import { useCartUI } from '@/components/CartProvider'
@@ -51,6 +52,10 @@ export const EcommerceTemplate = ({
   const totalItems = getTotalItems()
   const { hasCollections, loading: loadingCollections } = useCollections()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const location = useLocation()
+  
+  // No mostrar WhatsApp en checkout
+  const showWhatsApp = !location.pathname.includes('/checkout')
 
   const header = (
     <div className={`py-4 bg-background/95 backdrop-blur ${headerClassName}`}>
@@ -271,6 +276,14 @@ export const EcommerceTemplate = ({
       </PageTemplate>
       
       {showCart && <FloatingCart />}
+      {showWhatsApp && (
+        <FloatingWhatsApp 
+          phoneNumber="+52 55 3121 5386"
+          message="¡Hola! Tengo una pregunta sobre los cuadros de Plieggo"
+          tooltip="¿Necesitas ayuda?"
+          showTooltip={true}
+        />
+      )}
     </>
   )
 }
