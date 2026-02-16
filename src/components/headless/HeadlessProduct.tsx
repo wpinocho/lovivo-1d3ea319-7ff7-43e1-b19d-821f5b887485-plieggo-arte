@@ -6,6 +6,7 @@ import { useCart } from '@/contexts/CartContext'
 import { useCartUI } from '@/components/CartProvider'
 import { useToast } from '@/hooks/use-toast'
 import { useSettings } from '@/contexts/SettingsContext'
+import { useCheckout } from '@/hooks/useCheckout'
 import { trackViewContent, trackAddToCart, tracking } from '@/lib/tracking-utils'
 import { isVariantAvailable } from '@/lib/utils'
 import { getBadgeForProduct } from '@/lib/product-badges'
@@ -33,10 +34,11 @@ export const useProductLogic = (slugProp?: string) => {
   const [selected, setSelected] = useState<Record<string, string>>({})
   const [quantity, setQuantity] = useState(1)
   
-  const { addItem, getTotalItems } = useCart()
+  const { addItem, getTotalItems, state } = useCart()
   const { openCart } = useCartUI()
   const { toast } = useToast()
   const { formatMoney, currencyCode } = useSettings()
+  const { checkout, isLoading: isCheckingOut } = useCheckout()
 
   useEffect(() => {
     if (slug) {
@@ -253,7 +255,7 @@ export const useProductLogic = (slugProp?: string) => {
     setTimeout(() => openCart(), 300)
   }
 
-  const handleBuyNow = () => {
+  const handleBuyNow = async () => {
     if (!product) return
     
     const variants = (product as any).variants
@@ -296,8 +298,36 @@ export const useProductLogic = (slugProp?: string) => {
       num_items: quantity
     })
     
-    // Navigate to cart with buy_now flag
-    navigate('/cart?buy_now=true')
+    // Create checkout directly without navigating to cart
+    try {
+      // Wait a moment for cart state to update
+      await new Promise(resolve => setTimeout(resolve, 100))
+      
+      // Snapshot del carrito para la página de checkout
+      const cartSnapshot = sessionStorage.getItem('cart')
+      if (cartSnapshot) {
+        const cartData = JSON.parse(cartSnapshot)
+        sessionStorage.setItem('checkout_cart', JSON.stringify({ 
+          items: cartData.items || [], 
+          total: cartData.total || 0 
+        }))
+      }
+      
+      // Create order
+      const order = await checkout({
+        currencyCode: currencyCode
+      })
+      
+      // Save order to sessionStorage
+      sessionStorage.setItem('checkout_order', JSON.stringify(order))
+      sessionStorage.setItem('checkout_order_id', String(order.order_id))
+      
+      // Navigate directly to checkout
+      navigate('/checkout')
+    } catch (error) {
+      console.error('Error in handleBuyNow:', error)
+      // Si falla, mostrar un toast ya que useCheckout ya maneja el error
+    }
   }
 
   const handleNavigateBack = () => navigate(-1)
@@ -396,6 +426,7 @@ export const useProductLogic = (slugProp?: string) => {
     
     // States for UI
     canAddToCart: inStock && (!hasVariants || !!matchingVariant),
+    isCheckingOut,
     
     // Events for additional features
     onAddToCartSuccess: () => {

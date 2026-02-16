@@ -1,5 +1,3 @@
-import { useEffect } from "react"
-import { useSearchParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -54,20 +52,6 @@ interface CartUIProps {
 }
 
 export const CartUI = ({ logic }: CartUIProps) => {
-  const [searchParams] = useSearchParams()
-  const buyNow = searchParams.get('buy_now')
-
-  // Auto-checkout cuando se usa "Comprar ahora"
-  useEffect(() => {
-    if (buyNow === 'true' && !logic.isEmpty) {
-      // Esperar un momento para que se renderice el carrito
-      const timer = setTimeout(() => {
-        logic.handleCreateCheckout()
-      }, 500)
-      return () => clearTimeout(timer)
-    }
-  }, [buyNow, logic.isEmpty])
-
   return (
     <EcommerceTemplate 
       pageTitle="Tu Carrito"

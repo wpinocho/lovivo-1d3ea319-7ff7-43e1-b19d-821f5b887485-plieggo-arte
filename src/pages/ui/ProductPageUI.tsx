@@ -264,12 +264,12 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
               {/* Comprar ahora - Botón primario */}
               <Button
                 onClick={logic.handleBuyNow}
-                disabled={!logic.inStock}
+                disabled={!logic.inStock || logic.isCheckingOut}
                 className="w-full"
                 size="lg"
               >
                 <ShoppingCart className="mr-2 h-5 w-5" />
-                {logic.inStock ? 'Comprar ahora' : 'Agotado'}
+                {logic.isCheckingOut ? 'Procesando...' : (logic.inStock ? 'Comprar ahora' : 'Agotado')}
               </Button>
 
               {/* Agregar al carrito - Botón secundario */}
@@ -536,12 +536,12 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
           </div>
           <Button
             onClick={logic.handleBuyNow}
-            disabled={!logic.inStock}
+            disabled={!logic.inStock || logic.isCheckingOut}
             size="lg"
             className="flex-1"
           >
             <ShoppingCart className="mr-2 h-4 w-4" />
-            {logic.inStock ? 'Comprar' : 'Agotado'}
+            {logic.isCheckingOut ? 'Procesando...' : (logic.inStock ? 'Comprar' : 'Agotado')}
           </Button>
         </div>
       </div>
