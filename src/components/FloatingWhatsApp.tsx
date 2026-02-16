@@ -1,4 +1,4 @@
-import { MessageCircle, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 
@@ -94,7 +94,11 @@ export const FloatingWhatsApp = ({
         aria-label="Contactar por WhatsApp"
       >
         {/* Icono de WhatsApp */}
-        <MessageCircle className="w-7 h-7 md:w-8 md:h-8 group-hover:scale-110 transition-transform duration-300" />
+        <img 
+          src="/social-icons/whatsapp.svg" 
+          alt="WhatsApp" 
+          className="w-7 h-7 md:w-8 md:h-8 group-hover:scale-110 transition-transform duration-300"
+        />
         
         {/* Pulse animation */}
         <span className="absolute inset-0 rounded-full bg-[#25D366] opacity-75 animate-ping" style={{ animationDuration: '2s' }} />
