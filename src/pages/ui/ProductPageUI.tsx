@@ -218,12 +218,6 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
                               {inventory === 1 ? '¡Solo 1 disponible!' : `Últimas ${inventory} unidades`}
                             </span>
                           )}
-                          {isSelected && showBackorder && (
-                            <span className="text-xs text-muted-foreground flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              Producción bajo pedido - 7 días
-                            </span>
-                          )}
                         </div>
                       )
                     })}

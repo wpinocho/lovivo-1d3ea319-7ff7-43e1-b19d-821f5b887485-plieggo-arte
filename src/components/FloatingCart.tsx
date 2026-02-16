@@ -11,7 +11,7 @@ export const FloatingCart = () => {
   if (totalItems === 0) return null
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="hidden lg:block fixed bottom-6 right-6 z-50">
       <Button
         onClick={openCart}
         className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 shadow-lg"
