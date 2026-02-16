@@ -45,11 +45,14 @@ export const useCheckout = () => {
   const notesTimerRef = useRef<NodeJS.Timeout | null>(null)
   const itemsTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-  const checkout = async (options: CheckoutOptions = {}): Promise<CheckoutResponse> => {
+  const checkout = async (options: CheckoutOptions = {}, itemsOverride?: any[]): Promise<CheckoutResponse> => {
     setIsLoading(true)
     try {
+      // Usar itemsOverride si se provee (para "Buy Now"), sino usar cart.items
+      const itemsToCheckout = itemsOverride || cart.items
+      
       const order = await createCheckoutFromCart(
-        cart.items,
+        itemsToCheckout,
         options.customerInfo,
         options.discountCode,
         options.shippingAddress,

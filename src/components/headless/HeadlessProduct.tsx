@@ -295,32 +295,18 @@ export const useProductLogic = (slugProp?: string) => {
     
     // Create checkout directly - skip cart UI (Shopify Buy Now pattern)
     try {
-      // Esperar a que el carrito se actualice en localStorage
-      // El CartContext guarda en localStorage sincrónicamente
-      await new Promise(resolve => setTimeout(resolve, 50))
+      // Build items array manually for checkout (bypass cart state dependency)
+      const itemsForCheckout = [{
+        key: `${product.id}${variantToAdd ? `:${variantToAdd.id}` : ''}`,
+        product: product,
+        variant: variantToAdd,
+        quantity: quantity // Use the selected quantity
+      }]
       
-      // Leer el carrito actualizado desde localStorage
-      const cartData = localStorage.getItem('cart-state')
-      if (!cartData) {
-        throw new Error('No se pudo leer el carrito')
-      }
-      
-      const parsedCart = JSON.parse(cartData)
-      
-      // Snapshot para la UI de checkout
-      sessionStorage.setItem('checkout_cart', JSON.stringify({ 
-        items: parsedCart.items || [], 
-        total: parsedCart.total || 0 
-      }))
-      
-      // Create order con el carrito ya actualizado
+      // Create order passing items directly (doesn't depend on cart context state)
       const order = await checkout({
         currencyCode: currencyCode
-      })
-      
-      // Save order to sessionStorage
-      sessionStorage.setItem('checkout_order', JSON.stringify(order))
-      sessionStorage.setItem('checkout_order_id', String(order.order_id))
+      }, itemsForCheckout) // Pass items directly to bypass cart state
       
       // Navigate directly to checkout (bypass cart UI)
       navigate('/checkout')
