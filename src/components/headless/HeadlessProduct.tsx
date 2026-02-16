@@ -272,13 +272,8 @@ export const useProductLogic = (slugProp?: string) => {
       return
     }
     
-    // Save current cart to sessionStorage to preserve it
-    const currentCart = sessionStorage.getItem('cart')
-    if (currentCart) {
-      sessionStorage.setItem('cart_backup', currentCart)
-    }
-    
-    // Add product to cart
+    // BEST PRACTICE (Shopify): Agregar al carrito primero
+    // Esto permite aplicar descuentos, mantener inventario consistente
     for (let i = 0; i < quantity; i++) {
       addItem(product, variantToAdd)
     }
@@ -298,22 +293,27 @@ export const useProductLogic = (slugProp?: string) => {
       num_items: quantity
     })
     
-    // Create checkout directly without navigating to cart
+    // Create checkout directly - skip cart UI (Shopify Buy Now pattern)
     try {
-      // Wait a moment for cart state to update
-      await new Promise(resolve => setTimeout(resolve, 100))
+      // Esperar a que el carrito se actualice en localStorage
+      // El CartContext guarda en localStorage sincrónicamente
+      await new Promise(resolve => setTimeout(resolve, 50))
       
-      // Snapshot del carrito para la página de checkout
-      const cartSnapshot = sessionStorage.getItem('cart')
-      if (cartSnapshot) {
-        const cartData = JSON.parse(cartSnapshot)
-        sessionStorage.setItem('checkout_cart', JSON.stringify({ 
-          items: cartData.items || [], 
-          total: cartData.total || 0 
-        }))
+      // Leer el carrito actualizado desde localStorage
+      const cartData = localStorage.getItem('cart-state')
+      if (!cartData) {
+        throw new Error('No se pudo leer el carrito')
       }
       
-      // Create order
+      const parsedCart = JSON.parse(cartData)
+      
+      // Snapshot para la UI de checkout
+      sessionStorage.setItem('checkout_cart', JSON.stringify({ 
+        items: parsedCart.items || [], 
+        total: parsedCart.total || 0 
+      }))
+      
+      // Create order con el carrito ya actualizado
       const order = await checkout({
         currencyCode: currencyCode
       })
@@ -322,11 +322,11 @@ export const useProductLogic = (slugProp?: string) => {
       sessionStorage.setItem('checkout_order', JSON.stringify(order))
       sessionStorage.setItem('checkout_order_id', String(order.order_id))
       
-      // Navigate directly to checkout
+      // Navigate directly to checkout (bypass cart UI)
       navigate('/checkout')
     } catch (error) {
       console.error('Error in handleBuyNow:', error)
-      // Si falla, mostrar un toast ya que useCheckout ya maneja el error
+      // useCheckout ya maneja el toast de error
     }
   }
 
