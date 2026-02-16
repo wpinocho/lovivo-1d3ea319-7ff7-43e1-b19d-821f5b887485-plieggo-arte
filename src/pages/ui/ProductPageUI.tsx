@@ -126,12 +126,13 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
   // Main product content
   const productContent = (
     <>
-      <div className="space-y-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Product Gallery */}
-          <div className="space-y-4">
-          {/* Imagen principal */}
-          <div className="aspect-square rounded-lg overflow-hidden bg-muted">
+      {/* Add padding-bottom on mobile for sticky CTA bar */}
+      <div className="space-y-8 pb-24 lg:pb-0">
+        {/* Mobile-optimized flex layout with order control */}
+        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6 lg:gap-8">
+          
+          {/* 1. IMAGEN PRINCIPAL - Order 1 mobile, left column desktop */}
+          <div className="order-1 lg:order-none aspect-square rounded-lg overflow-hidden bg-muted">
             <img
               src={logic.currentImage || "/placeholder.svg"}
               alt={logic.product.title}
@@ -140,61 +141,9 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
               className="w-full h-full object-contain"
             />
           </div>
-          
-          {/* Thumbnails (solo si hay más de 1 imagen) */}
-          {logic.displayImages && logic.displayImages.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto pb-2">
-              {logic.displayImages.map((img: string, index: number) => (
-                <button
-                  key={index}
-                  onClick={() => logic.setSelectedImage(img)}
-                  className={cn(
-                    "flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 transition-all",
-                    logic.selectedImage === img || (index === 0 && !logic.selectedImage)
-                      ? "border-primary ring-2 ring-primary/20" 
-                      : "border-border hover:border-secondary"
-                  )}
-                >
-                  <img
-                    src={img}
-                    alt={`${logic.product.title} - imagen ${index + 1}`}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-          )}
 
-          {/* Inspiration Gallery - Muestra el producto en contextos reales */}
-          <ProductInspirationGallery productSlug={logic.product.slug} />
-
-          {/* Size Guide - Visual */}
-          <Card className="border-border/50 overflow-hidden">
-            <CardContent className="p-0">
-              <div className="bg-muted/30 p-6">
-                <h3 className="font-heading text-lg font-semibold mb-2 flex items-center gap-2">
-                  <Ruler className="h-5 w-5 text-primary" />
-                  Guía de Tamaños
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Encuentra el tamaño perfecto para tu espacio
-                </p>
-              </div>
-              <img
-                src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768866178168-84itdh4fyv.png"
-                alt="Guía de tamaños - 20x20cm, 50x50cm, 30x90cm con persona de referencia"
-                loading="lazy"
-                decoding="async"
-                className="w-full h-auto"
-              />
-            </CardContent>
-          </Card>
-        </div>
-
-          {/* Product Details */}
-          <div className="space-y-6">
+          {/* 2. PRODUCT INFO (Title, Price, Options, CTAs) - Order 2 mobile, right column desktop */}
+          <div className="order-2 lg:order-none space-y-6">
             {/* Badge */}
             {logic.product.badge && (
               <ProductBadge type={logic.product.badge as BadgeType} />
@@ -366,152 +315,206 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
             </div>
           </div>
 
-          <Separator className="my-6" />
+          </div>
 
-          {/* Description Section */}
-          {logic.product.description && (
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-heading text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
-                  <Package className="h-5 w-5 text-primary" />
-                  Descripción de la Pieza
-                </h3>
-                <div 
-                  className="text-muted-foreground prose prose-sm max-w-none leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: logic.product.description }}
-                />
-              </div>
+          {/* 3. THUMBNAILS - Order 3 mobile (after CTAs), stays in left column desktop */}
+          {logic.displayImages && logic.displayImages.length > 1 && (
+            <div className="order-3 lg:order-none lg:col-start-1 flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
+              {logic.displayImages.map((img: string, index: number) => (
+                <button
+                  key={index}
+                  onClick={() => logic.setSelectedImage(img)}
+                  className={cn(
+                    "flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 transition-all snap-center",
+                    logic.selectedImage === img || (index === 0 && !logic.selectedImage)
+                      ? "border-primary ring-2 ring-primary/20" 
+                      : "border-border hover:border-secondary"
+                  )}
+                >
+                  <img
+                    src={img}
+                    alt={`${logic.product.title} - imagen ${index + 1}`}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
             </div>
           )}
 
-          {/* Storytelling Section - Historia de Inspiración */}
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-heading text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
-                La Historia Detrás de Esta Pieza
-              </h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Inspirada en el arte milenario del origami japonés y la elegancia de los abanicos plegables, 
-                esta pieza celebra la geometría orgánica y el movimiento contenido. Cada pliegue es una expresión 
-                de simetría perfecta, relieve táctil y delicadeza visual. La técnica de doblado arquitectónico 
-                busca traer balance y sofisticación contemporánea, donde la luz y la sombra danzan entre los pliegues 
-                para crear profundidad escultural. Es un homenaje a la paciencia artesanal y la belleza de lo simple.
-              </p>
-              
-              {/* Creation Details */}
-              <div className="flex flex-wrap gap-4 text-sm mt-4">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Clock className="h-4 w-4 text-primary" />
-                  <span>8-12 horas de creación</span>
+          {/* 4-13. REMAINING SECTIONS - Order 4+ mobile, span full width */}
+          <div className="order-4 lg:order-none lg:col-span-2 space-y-8">
+            
+            {/* Description Section */}
+            {logic.product.description && (
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-heading text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <Package className="h-5 w-5 text-primary" />
+                    Descripción de la Pieza
+                  </h3>
+                  <div 
+                    className="text-muted-foreground prose prose-sm max-w-none leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: logic.product.description }}
+                  />
                 </div>
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Palette className="h-4 w-4 text-primary" />
-                  <span>Origami arquitectónico</span>
-                </div>
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Award className="h-4 w-4 text-primary" />
-                  <span>Cada pliegue hecho a mano</span>
+              </div>
+            )}
+
+            {/* Storytelling Section - Historia de Inspiración */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-heading text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  La Historia Detrás de Esta Pieza
+                </h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Inspirada en el arte milenario del origami japonés y la elegancia de los abanicos plegables, 
+                  esta pieza celebra la geometría orgánica y el movimiento contenido. Cada pliegue es una expresión 
+                  de simetría perfecta, relieve táctil y delicadeza visual. La técnica de doblado arquitectónico 
+                  busca traer balance y sofisticación contemporánea, donde la luz y la sombra danzan entre los pliegues 
+                  para crear profundidad escultural. Es un homenaje a la paciencia artesanal y la belleza de lo simple.
+                </p>
+                
+                {/* Creation Details */}
+                <div className="flex flex-wrap gap-4 text-sm mt-4">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Clock className="h-4 w-4 text-primary" />
+                    <span>8-12 horas de creación</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Palette className="h-4 w-4 text-primary" />
+                    <span>Origami arquitectónico</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Award className="h-4 w-4 text-primary" />
+                    <span>Cada pliegue hecho a mano</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Specifications Table */}
-          <Card className="border-border/50">
-            <CardContent className="pt-6">
-              <h3 className="font-heading text-lg font-semibold mb-4 flex items-center gap-2">
-                <Ruler className="h-5 w-5 text-primary" />
-                Especificaciones
-              </h3>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="flex items-start gap-2">
-                  <Ruler className="h-4 w-4 text-muted-foreground mt-0.5" />
-                  <div>
-                    <span className="font-medium block">Dimensiones</span>
-                    <span className="text-muted-foreground">
-                      {logic.matchingVariant?.title?.split('/')[0]?.trim() || 'Variable'}
-                    </span>
+            {/* Specifications Table */}
+            <Card className="border-border/50">
+              <CardContent className="pt-6">
+                <h3 className="font-heading text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Ruler className="h-5 w-5 text-primary" />
+                  Especificaciones
+                </h3>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="flex items-start gap-2">
+                    <Ruler className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div>
+                      <span className="font-medium block">Dimensiones</span>
+                      <span className="text-muted-foreground">
+                        {logic.matchingVariant?.title?.split('/')[0]?.trim() || 'Variable'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Palette className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div>
+                      <span className="font-medium block">Material</span>
+                      <span className="text-muted-foreground">Papel Canson 300g</span>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Frame className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div>
+                      <span className="font-medium block">Marco</span>
+                      <span className="text-muted-foreground">Madera natural</span>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Shield className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div>
+                      <span className="font-medium block">Protección</span>
+                      <span className="text-muted-foreground">Acrílico 3mm</span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-start gap-2">
-                  <Palette className="h-4 w-4 text-muted-foreground mt-0.5" />
-                  <div>
-                    <span className="font-medium block">Material</span>
-                    <span className="text-muted-foreground">Papel Canson 300g</span>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Frame className="h-4 w-4 text-muted-foreground mt-0.5" />
-                  <div>
-                    <span className="font-medium block">Marco</span>
-                    <span className="text-muted-foreground">Madera natural</span>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <Shield className="h-4 w-4 text-muted-foreground mt-0.5" />
-                  <div>
-                    <span className="font-medium block">Protección</span>
-                    <span className="text-muted-foreground">Acrílico 3mm</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* Why Choose Plieggo */}
-          <Card className="border-primary/20 bg-primary/5">
-            <CardContent className="pt-6">
-              <h3 className="font-heading text-lg font-semibold mb-4 text-primary">Por Qué Elegir Plieggo</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <HeartHandshake className="h-5 w-5 text-primary" />
+            {/* Why Choose Plieggo */}
+            <Card className="border-primary/20 bg-primary/5">
+              <CardContent className="pt-6">
+                <h3 className="font-heading text-lg font-semibold mb-4 text-primary">Por Qué Elegir Plieggo</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <HeartHandshake className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <span className="font-medium block text-sm">Único</span>
+                      <span className="text-xs text-muted-foreground">Cada pieza es única</span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="font-medium block text-sm">Único</span>
-                    <span className="text-xs text-muted-foreground">Cada pieza es única</span>
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Award className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <span className="font-medium block text-sm">Premium</span>
+                      <span className="text-xs text-muted-foreground">Materiales de alta calidad</span>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <MapPin className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <span className="font-medium block text-sm">Mexicano</span>
+                      <span className="text-xs text-muted-foreground">100% diseño nacional</span>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Frame className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <span className="font-medium block text-sm">Listo para colgar</span>
+                      <span className="text-xs text-muted-foreground">Marco incluido</span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Award className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <span className="font-medium block text-sm">Premium</span>
-                    <span className="text-xs text-muted-foreground">Materiales de alta calidad</span>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <MapPin className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <span className="font-medium block text-sm">Mexicano</span>
-                    <span className="text-xs text-muted-foreground">100% diseño nacional</span>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Frame className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <span className="font-medium block text-sm">Listo para colgar</span>
-                    <span className="text-xs text-muted-foreground">Marco incluido</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          <Button
-            variant="outline"
-            onClick={logic.handleNavigateBack}
-            className="w-full"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Seguir comprando
-          </Button>
+            {/* Inspiration Gallery - Muestra el producto en contextos reales */}
+            <ProductInspirationGallery productSlug={logic.product.slug} />
+
+            {/* Size Guide - Visual */}
+            <Card className="border-border/50 overflow-hidden">
+              <CardContent className="p-0">
+                <div className="bg-muted/30 p-6">
+                  <h3 className="font-heading text-lg font-semibold mb-2 flex items-center gap-2">
+                    <Ruler className="h-5 w-5 text-primary" />
+                    Guía de Tamaños
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Encuentra el tamaño perfecto para tu espacio
+                  </p>
+                </div>
+                <img
+                  src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768866178168-84itdh4fyv.png"
+                  alt="Guía de tamaños - 20x20cm, 50x50cm, 30x90cm con persona de referencia"
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-auto"
+                />
+              </CardContent>
+            </Card>
+
+            <Button
+              variant="outline"
+              onClick={logic.handleNavigateBack}
+              className="w-full"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Seguir comprando
+            </Button>
           </div>
         </div>
 
@@ -529,6 +532,25 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
         productSlug={logic.product.slug}
         productTitle={logic.product.title}
       />
+
+      {/* Sticky CTA Bar - Mobile Only (Best Practice for Conversion) */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border shadow-lg z-40 p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex-1">
+            <p className="text-xs text-muted-foreground">Precio</p>
+            <p className="text-xl font-bold">{logic.formatMoney(logic.currentPrice)}</p>
+          </div>
+          <Button
+            onClick={logic.handleBuyNow}
+            disabled={!logic.inStock}
+            size="lg"
+            className="flex-1"
+          >
+            <ShoppingCart className="mr-2 h-4 w-4" />
+            {logic.inStock ? 'Comprar' : 'Agotado'}
+          </Button>
+        </div>
+      </div>
     </>
   )
 
