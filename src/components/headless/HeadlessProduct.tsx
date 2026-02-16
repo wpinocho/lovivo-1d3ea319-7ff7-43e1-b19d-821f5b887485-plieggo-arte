@@ -332,29 +332,19 @@ export const useProductLogic = (slugProp?: string) => {
     if (!product) return []
     
     const productImages = product.images || []
-    const variants = (product as any).variants as any[] | undefined
     const matchingVariant = getMatchingVariant()
     
-    // Recolectar TODAS las image_urls de TODAS las variantes
-    const allVariantImageUrls = new Set<string>()
-    if (Array.isArray(variants)) {
-      variants.forEach((v: any) => {
-        if (v.image_urls && Array.isArray(v.image_urls)) {
-          v.image_urls.forEach((url: string) => allVariantImageUrls.add(url))
-        }
-      })
-    }
-    
-    // Encontrar imágenes generales (las que NO están en ninguna variante)
-    const generalImages = productImages.filter(img => !allVariantImageUrls.has(img))
-    
-    // Si hay variante seleccionada con image_urls
+    // BEST PRACTICE: Si hay variante con image_urls, mostrarlas primero + todas las del producto
     if (matchingVariant?.image_urls && matchingVariant.image_urls.length > 0) {
-      // Combinar: imágenes de variante + imágenes generales
-      return [...matchingVariant.image_urls, ...generalImages]
+      // Crear Set para evitar duplicados
+      const uniqueImages = new Set<string>([
+        ...matchingVariant.image_urls, // Imágenes de la variante primero
+        ...productImages // Luego todas las del producto
+      ])
+      return Array.from(uniqueImages)
     }
     
-    // Sin variante seleccionada o variante sin image_urls: mostrar todas las del producto
+    // Sin variante o variante sin image_urls: mostrar todas las imágenes del producto
     return productImages
   }
 
