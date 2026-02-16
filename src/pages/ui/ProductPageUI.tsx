@@ -142,8 +142,34 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
             />
           </div>
 
-          {/* 2. PRODUCT INFO (Title, Price, Options, CTAs) - Order 2 mobile, right column desktop */}
-          <div className="order-2 lg:order-none space-y-6">
+          {/* 2. THUMBNAILS - Order 2 mobile (right after main image), stays in left column desktop */}
+          {logic.displayImages && logic.displayImages.length > 1 && (
+            <div className="order-2 lg:order-none lg:col-start-1 flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
+              {logic.displayImages.map((img: string, index: number) => (
+                <button
+                  key={index}
+                  onClick={() => logic.setSelectedImage(img)}
+                  className={cn(
+                    "flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 transition-all snap-center",
+                    logic.selectedImage === img || (index === 0 && !logic.selectedImage)
+                      ? "border-primary ring-2 ring-primary/20" 
+                      : "border-border hover:border-secondary"
+                  )}
+                >
+                  <img
+                    src={img}
+                    alt={`${logic.product.title} - imagen ${index + 1}`}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* 3. PRODUCT INFO (Title, Price, Options, CTAs) - Order 3 mobile, right column desktop */}
+          <div className="order-3 lg:order-none space-y-6">
             {/* Badge */}
             {logic.product.badge && (
               <ProductBadge type={logic.product.badge as BadgeType} />
@@ -310,32 +336,6 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
           </div>
 
           </div>
-
-          {/* 3. THUMBNAILS - Order 3 mobile (after CTAs), stays in left column desktop */}
-          {logic.displayImages && logic.displayImages.length > 1 && (
-            <div className="order-3 lg:order-none lg:col-start-1 flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
-              {logic.displayImages.map((img: string, index: number) => (
-                <button
-                  key={index}
-                  onClick={() => logic.setSelectedImage(img)}
-                  className={cn(
-                    "flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 transition-all snap-center",
-                    logic.selectedImage === img || (index === 0 && !logic.selectedImage)
-                      ? "border-primary ring-2 ring-primary/20" 
-                      : "border-border hover:border-secondary"
-                  )}
-                >
-                  <img
-                    src={img}
-                    alt={`${logic.product.title} - imagen ${index + 1}`}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-          )}
 
           {/* 4-13. REMAINING SECTIONS - Order 4+ mobile, span full width */}
           <div className="order-4 lg:order-none lg:col-span-2 space-y-8">
