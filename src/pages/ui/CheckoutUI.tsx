@@ -12,6 +12,7 @@ import { CountryPhoneSelect } from "@/components/CountryPhoneSelect";
 import { HeadlessCheckout } from "@/components/headless/HeadlessCheckout";
 import { useURLCheckoutParams } from "@/hooks/useURLCheckoutParams";
 import { BrandLogoLeft } from "@/components/BrandLogoLeft";
+import { useTokenCheckout } from "@/hooks/useTokenCheckout";
 
 /**
  * EDITABLE UI COMPONENT - CheckoutUI
@@ -31,11 +32,49 @@ import { BrandLogoLeft } from "@/components/BrandLogoLeft";
 export default function CheckoutUI() {
   const { params, hasParams } = useURLCheckoutParams();
   const navigate = useNavigate();
+  const { isLoadingToken, tokenError, hasToken } = useTokenCheckout();
 
   // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // Token loading/error state - show before normal checkout
+  if (isLoadingToken || hasToken) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full">
+          <CardContent className="pt-6">
+            {tokenError ? (
+              <>
+                <div className="text-center mb-4">
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-destructive/10 rounded-full mb-3">
+                    <X className="h-6 w-6 text-destructive" />
+                  </div>
+                  <h2 className="text-xl font-semibold mb-2">Error al cargar la orden</h2>
+                  <p className="text-muted-foreground">{tokenError}</p>
+                </div>
+                <Button 
+                  onClick={() => navigate('/')}
+                  className="w-full"
+                >
+                  Volver al inicio
+                </Button>
+              </>
+            ) : (
+              <>
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                  <h2 className="text-xl font-semibold mb-2">Cargando orden...</h2>
+                  <p className="text-muted-foreground">Por favor espera un momento</p>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <HeadlessCheckout>
