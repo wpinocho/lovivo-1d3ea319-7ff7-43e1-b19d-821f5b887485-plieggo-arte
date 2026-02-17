@@ -72,11 +72,9 @@ const AllProducts = () => {
         {/* Left: Image */}
         <div className="relative bg-muted overflow-hidden">
           <img 
-            src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product_images/collections/all-products-hero.webp"
+            src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764996809955-ayg66qfvgl.png"
             alt="Todos los cuadros"
             className="w-full h-full object-cover"
-            width="1200"
-            height="966"
           />
         </div>
 

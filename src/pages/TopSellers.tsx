@@ -96,11 +96,9 @@ const TopSellers = () => {
         {/* Left: Image */}
         <div className="relative bg-muted overflow-hidden">
           <img 
-            src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product_images/collections/top-sellers-hero.webp"
+            src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764998881511-f31r6hvzml7.png"
             alt="Más Vendidos"
             className="w-full h-full object-cover"
-            width="1200"
-            height="961"
           />
         </div>
 

@@ -11,7 +11,6 @@ import { SettingsProvider } from "@/contexts/SettingsContext";
 import { PixelProvider } from "@/contexts/PixelContext";
 import { PostHogProvider } from "@/contexts/PostHogContext";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { PageLoader } from "@/components/PageLoader";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
@@ -55,7 +54,7 @@ const App = () => (
                 <BrowserRouter>
                   <CartUIProvider>
                     <PageViewTracker />
-                    <Suspense fallback={<PageLoader />}>
+                    <Suspense fallback={<div className="min-h-screen bg-background" />}>
                       <Routes>
                         <Route path="/" element={<Index />} />
                         <Route path="/products/:slug" element={<Product />} />
