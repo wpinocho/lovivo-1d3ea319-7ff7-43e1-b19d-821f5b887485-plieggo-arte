@@ -67,42 +67,23 @@ const AllProducts = () => {
 
   return (
     <EcommerceTemplate>
-      {/* Hero Split Section */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
-        {/* Left: Image */}
-        <div className="relative bg-muted overflow-hidden">
-          <img 
-            src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764996809955-ayg66qfvgl.png"
-            alt="Todos los cuadros"
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        {/* Right: Text on solid color */}
-        <div className="bg-muted flex items-center justify-center px-8 py-16 lg:px-16">
-          <div className="max-w-lg">
-            <h1 className="font-heading text-4xl lg:text-5xl font-bold text-foreground mb-6 tracking-tight">
-              Todos los cuadros
-            </h1>
-            <p className="font-body text-lg lg:text-xl text-muted-foreground leading-relaxed">
-              Explora nuestra colección completa de arte en papel hecho a mano. Cada pieza es única, 
-              creada con técnicas tradicionales de doblado y composición arquitectónica. 
-              Desde formas geométricas hasta ilusiones espaciales, encuentra el pliegue perfecto 
-              para transformar tu espacio.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Products Grid Section */}
-      <section className="py-16 bg-background">
+      {/* Products Grid Section - FIRST */}
+      <section className="py-16 md:py-20 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
+              Todos los Cuadros
+            </h1>
+            <p className="font-body text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+              Explora nuestra colección completa de arte textil artesanal
+            </p>
             <p className="font-body text-muted-foreground">
               {products.length} {products.length === 1 ? 'producto' : 'productos'}
             </p>
           </div>
 
+          {/* Products Grid */}
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {[...Array(8)].map((_, i) => (
@@ -135,11 +116,41 @@ const AllProducts = () => {
         </div>
       </section>
 
+      {/* Hero Split Section - AFTER PRODUCTS */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
+        {/* Left: Image */}
+        <div className="relative bg-muted overflow-hidden">
+          <img 
+            src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/collections/all-products.webp"
+            alt="Todos los cuadros"
+            width={1920}
+            height={1080}
+            loading="lazy"
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        {/* Right: Text on solid color */}
+        <div className="bg-muted flex items-center justify-center px-8 py-16 lg:px-16">
+          <div className="max-w-lg">
+            <h2 className="font-heading text-3xl lg:text-4xl font-bold text-foreground mb-6 tracking-tight">
+              Arte hecho a mano
+            </h2>
+            <p className="font-body text-lg lg:text-xl text-muted-foreground leading-relaxed">
+              Explora nuestra colección completa de arte en papel hecho a mano. Cada pieza es única, 
+              creada con técnicas tradicionales de doblado y composición arquitectónica. 
+              Desde formas geométricas hasta ilusiones espaciales, encuentra el pliegue perfecto 
+              para transformar tu espacio.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Bottom CTA Section */}
       <section className="py-20 bg-primary">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="font-heading text-4xl font-bold text-primary-foreground mb-4">
-            Arte hecho a mano
+            Piezas únicas
           </h2>
           <p className="font-body text-lg text-primary-foreground/90 mb-8">
             Cada cuadro es una pieza única. Envíos a toda la república.

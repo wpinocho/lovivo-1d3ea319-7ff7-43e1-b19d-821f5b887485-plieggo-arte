@@ -53,41 +53,23 @@ const CollectionAcordeon = () => {
 
   return (
     <EcommerceTemplate>
-      {/* Hero Split Section */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
-        {/* Left: Image */}
-        <div className="relative bg-muted overflow-hidden">
-          <img 
-            src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764999104043-w3acvjpnzjl.png"
-            alt="Colección Acordeón - Proceso artesanal"
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        {/* Right: Text on solid color */}
-        <div className="bg-secondary flex items-center justify-center px-8 py-16 lg:px-16">
-          <div className="max-w-lg">
-            <h1 className="font-heading text-4xl lg:text-5xl font-bold text-secondary-foreground mb-6 tracking-tight">
+      {/* Products Grid Section - FIRST */}
+      <section className="py-16 md:py-20 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
               Colección Acordeón
             </h1>
-            <p className="font-body text-lg lg:text-xl text-secondary-foreground/80 leading-relaxed">
-              Geometría en movimiento: pliegues que se expanden y contraen como un acordeón musical. 
-              Esta colección celebra la repetición rítmica y la simetría arquitectónica del papel doblado. 
-              Perfecta para espacios que buscan dinamismo visual y carácter contemporáneo.
+            <p className="font-body text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+              Armonía visual en cada pliegue
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Products Grid Section */}
-      <section className="py-16 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
             <p className="font-body text-muted-foreground">
               {products.length} {products.length === 1 ? 'producto' : 'productos'}
             </p>
           </div>
 
+          {/* Products Grid */}
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {[...Array(4)].map((_, i) => (
@@ -107,6 +89,35 @@ const CollectionAcordeon = () => {
               </p>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Hero Split Section - AFTER PRODUCTS */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
+        {/* Left: Image */}
+        <div className="relative bg-muted overflow-hidden">
+          <img 
+            src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/collections/acordeon.webp"
+            alt="Colección Acordeón - Proceso artesanal"
+            width={1920}
+            height={1080}
+            loading="lazy"
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        {/* Right: Text on solid color */}
+        <div className="bg-secondary flex items-center justify-center px-8 py-16 lg:px-16">
+          <div className="max-w-lg">
+            <h2 className="font-heading text-3xl lg:text-4xl font-bold text-secondary-foreground mb-6 tracking-tight">
+              Diseño en movimiento
+            </h2>
+            <p className="font-body text-lg lg:text-xl text-secondary-foreground/80 leading-relaxed">
+              Geometría en movimiento: pliegues que se expanden y contraen como un acordeón musical. 
+              Esta colección celebra la repetición rítmica y la simetría arquitectónica del papel doblado. 
+              Perfecta para espacios que buscan dinamismo visual y carácter contemporáneo.
+            </p>
+          </div>
         </div>
       </section>
 
