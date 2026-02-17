@@ -58,9 +58,11 @@ const CollectionAcordeon = () => {
         {/* Left: Image */}
         <div className="relative bg-muted overflow-hidden">
           <img 
-            src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764999104043-w3acvjpnzjl.png"
+            src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product_images/collections/acordeon-hero.webp"
             alt="Colección Acordeón - Proceso artesanal"
             className="w-full h-full object-cover"
+            width="1200"
+            height="955"
           />
         </div>
 

@@ -80,4 +80,41 @@ export default defineConfig(() => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    // Target modern browsers for smaller bundle
+    target: 'es2020',
+    // Minify aggressively
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.logs in production
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info', 'console.debug'],
+      },
+    },
+    // Chunk splitting for better caching
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunks
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-select', '@radix-ui/react-tabs', '@radix-ui/react-toast'],
+          'vendor-supabase': ['@supabase/supabase-js'],
+          'vendor-stripe': ['@stripe/react-stripe-js', '@stripe/stripe-js'],
+          'vendor-utils': ['clsx', 'tailwind-merge', 'date-fns', 'zod'],
+        },
+      },
+    },
+    // Increase chunk size warning limit (we're code-splitting properly)
+    chunkSizeWarningLimit: 1000,
+  },
+  // Optimize dependencies
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@supabase/supabase-js',
+    ],
+  },
 }));

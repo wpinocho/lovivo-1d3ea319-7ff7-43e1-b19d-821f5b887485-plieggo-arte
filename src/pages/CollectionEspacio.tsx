@@ -58,9 +58,11 @@ const CollectionEspacio = () => {
         {/* Left: Image */}
         <div className="relative bg-muted overflow-hidden">
           <img 
-            src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764997368709-im0m2rvtb7.png"
+            src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product_images/collections/espacio-hero.webp"
             alt="Colección Espacio - Proceso artesanal"
             className="w-full h-full object-cover"
+            width="1200"
+            height="964"
           />
         </div>
 
