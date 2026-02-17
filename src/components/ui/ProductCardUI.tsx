@@ -32,12 +32,12 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
   const badge = getBadgeForProduct(product)
   const review = getProductReview(product.slug)
   
-  // Determine aspect ratio class
+  // Determine aspect ratio class - MOBILE: always square, DESKTOP: use real ratio
   const aspectRatioClass = aspectRatio === 'square' 
     ? 'aspect-square' 
     : aspectRatio === 'rectangle'
-    ? 'aspect-[1/2]'
-    : ''
+    ? 'aspect-square md:aspect-[1/2]'  // Mobile: square, Desktop: rectangle
+    : 'aspect-square md:aspect-auto'   // Mobile: square, Desktop: auto
   
   return (
     <HeadlessProductCard product={product}>
