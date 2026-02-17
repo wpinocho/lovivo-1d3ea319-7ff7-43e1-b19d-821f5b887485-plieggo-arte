@@ -64,7 +64,7 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
                     alt={logic.product.title}
                     loading="lazy"
                     decoding="async"
-                    className="w-full h-full object-cover transition-all duration-500 group-hover:opacity-0 group-hover:scale-110"
+                    className="w-full h-full object-contain transition-all duration-500 group-hover:opacity-0 group-hover:scale-105"
                   />
                   {/* Segunda imagen al hover (solo si existe) */}
                   {!logic.matchingVariant?.image && logic.product.images && logic.product.images.length > 1 && (
@@ -73,7 +73,7 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
                       alt={`${logic.product.title} - vista alternativa`}
                       loading="lazy"
                       decoding="async"
-                      className="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:scale-105"
+                      className="absolute inset-0 w-full h-full object-contain opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:scale-105"
                     />
                   )}
                 </>
