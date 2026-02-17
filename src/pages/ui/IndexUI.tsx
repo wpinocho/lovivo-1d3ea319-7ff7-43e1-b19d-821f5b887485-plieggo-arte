@@ -177,7 +177,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
               <div className="w-[78vw] sm:w-[320px] flex-shrink-0 snap-center">
                 <CollectionNavigationCard 
                   title="Todos los cuadros"
-                  image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764996809955-ayg66qfvgl.png"
+                  image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/all-products-hero.webp"
                   link="/all-products"
                   eager={true}
                 />
@@ -188,7 +188,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
                 <div className="w-[78vw] sm:w-[320px] flex-shrink-0 snap-center">
                   <CollectionNavigationCard 
                     title="Más Vendidos"
-                    image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764998881511-f31r6hvzml7.png"
+                    image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/top-sellers-hero.webp"
                     link="/top-sellers"
                   />
                 </div>
@@ -199,7 +199,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
                 <div className="w-[78vw] sm:w-[320px] flex-shrink-0 snap-center">
                   <CollectionNavigationCard 
                     title="Colección Acordeón"
-                    image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764999104043-w3acvjpnzjl.png"
+                    image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acordeon-hero.webp"
                     link="/coleccion-acordeon"
                   />
                 </div>
@@ -210,7 +210,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
                 <div className="w-[78vw] sm:w-[320px] flex-shrink-0 snap-center">
                   <CollectionNavigationCard 
                     title="Colección Espacio"
-                    image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1764997368709-im0m2rvtb7.png"
+                    image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/espacio-hero.webp"
                     link="/coleccion-espacio"
                   />
                 </div>
