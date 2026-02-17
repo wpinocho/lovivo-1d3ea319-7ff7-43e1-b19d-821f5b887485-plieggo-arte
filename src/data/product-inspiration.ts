@@ -14,7 +14,7 @@ export interface InspirationImage {
 export const productInspirationImages: Record<string, InspirationImage[]> = {
   'acorden-beige-sutil': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768863755362-2rp5dp6xb8.png',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acorden-beige-sutil.webp',
       alt: 'Tríptico de tres cuadros Acordeón Beige Sutil enmarcados en madera sobre sofá beige con respaldo de madera acanalada, mesa de centro redonda y decoración natural en sala elegante',
       context: 'Sala de estar'
     }
@@ -22,7 +22,7 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'acorden-rosa-sereno': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768866865564-wwljwyq0hsb.png',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acorden-rosa-sereno.webp',
       alt: 'Cuadro Acordeón Rosa Sereno enmarcado en madera colgado en cuarto de bebé con cuna de madera natural, estante curvo con ositos de peluche, sillón crema con mantas tejidas, cómoda gris con lámpara de ratán, canasta de mimbre con peluches y decoración en tonos beige, crema y rosa pastel',
       context: 'Cuarto de bebé'
     }
@@ -30,7 +30,7 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'acorden-verde-salvia': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768261609059-e6isjx6l8g4.jpg',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acorden-verde-salvia.webp',
       alt: 'Cuadro Acordeón Verde Salvia enmarcado en sala de estar moderna con sofá verde menta, mesa de madera y decoración minimalista',
       context: 'Sala'
     }
@@ -38,7 +38,7 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'acorden-blanco-puro': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768261757909-23adqmkabx2.png',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acorden-blanco-puro.webp',
       alt: 'Cuadro Acordeón Blanco Puro vertical enmarcado en madera en rincón de lectura minimalista con tonos beige y cojines crema',
       context: 'Rincón de lectura'
     }
@@ -46,7 +46,7 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'acorden-morado-blanco': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768853818482-c456sasz69f.png',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acorden-morado-blanco.webp',
       alt: 'Cuadro Acordeón Morado Blanco enmarcado en madera sobre banco de almacenamiento gris con cojines naranjas a cuadros en entrada elegante con paredes ocre',
       context: 'Entrada / Recibidor'
     }
@@ -54,7 +54,7 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'luna-azul': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768262127623-rdstk26b0tf.png',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/luna-azul.webp',
       alt: 'Cuadro Luna Azul enmarcado en madera sobre sofá beige modular, mujer leyendo libro en sala minimalista con mesa auxiliar de madera',
       context: 'Sala de estar'
     }
@@ -62,7 +62,7 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'luna-llena': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768262277837-j8smxnzmt7n.png',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/luna-llena.webp',
       alt: 'Cuadro Luna Llena en tonos crema enmarcado en madera sobre pared blanca, hombre relajado en sillón beige en sala minimalista',
       context: 'Sala de estar'
     }
@@ -70,7 +70,7 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'acorden-crema-natural': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768857662388-m405gfc399n.png',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acorden-crema-natural.webp',
       alt: 'Cuadro Acordeón Crema Natural vertical enmarcado en madera sobre fondo morado lavanda en sala minimalista con silla de ratán, planta ficus y piso de madera',
       context: 'Sala minimalista'
     }
@@ -78,7 +78,7 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'acorden-crema-rayas': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768858602183-nfd1q0dwone.jpg',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acorden-crema-rayas.webp',
       alt: 'Cuadro Acordeón Crema Rayas con fondo azul grisáceo a rayas enmarcado en madera en pasillo blanco luminoso con niño corriendo, lámpara de globo dorado y tapete vintage',
       context: 'Pasillo / Entrada'
     }
@@ -86,7 +86,7 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'luna-negra': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768860244179-abxxjni5ffb.png',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/luna-negra.webp',
       alt: 'Cuadro Luna Negra con pliegues acordeón negros enmarcado en madera sobre pared de hormigón crema con cortinas de lino natural moviéndose con luz natural y ventana de marco negro arquitectónico',
       context: 'Sala de estar'
     }
@@ -94,7 +94,7 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'acorden-rayas-sobre-morado': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768863362883-ktas6zyfn7i.png',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acorden-rayas-sobre-morado.webp',
       alt: 'Cuadro Acordeón Rayas sobre Morado enmarcado en madera clara sobre consola naranja de madera con plantas verdes, lámpara esférica crema y pared blanca minimalista',
       context: 'Sala / Consola'
     }
@@ -102,7 +102,7 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'estrellas': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768864130263-scnm9sjwc4q.jpg',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/estrellas.webp',
       alt: 'Cuadro Estrellas con pliegues origami en negro y gris formando estrellas geométricas, enmarcado en madera sobre pared crema, sala de estar con sofá beige, madre e hijo abrazándose, lámpara de papel tipo abanico, cortinas crema y piso de madera',
       context: 'Sala de estar / Hogar'
     }
@@ -110,7 +110,7 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'acorden-terracota-vibrante': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768864289040-zgs6nbndct.png',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acorden-terracota-vibrante.webp',
       alt: 'Cuadro Acordeón Terracota Vibrante vertical con pliegues naranja sobre fondo morado azulado, enmarcado en madera clara, sala de estar con sofá beige moderno, perro blanco descansando, manta tejida gris, cojín plisado beige, mesa de centro negra con planta verde',
       context: 'Sala de estar'
     }
@@ -118,7 +118,7 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'acorden-morado-elegante': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768864465174-k2q4qtmnp5e.png',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acorden-morado-elegante.webp',
       alt: 'Cuadro Acordeón Morado Elegante enmarcado en marco gris sobre pared color mostaza, banco de almacenamiento gris-verde con cojines naranja a cuadros, jarrón con flores amarillas en entrada elegante',
       context: 'Entrada / Recibidor'
     }
@@ -126,7 +126,7 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'acorden-morado-lavanda': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768864647510-dn58ya9g1u7.jpg',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acorden-morado-lavanda.webp',
       alt: 'Cuadro Acordeón Morado Lavanda vertical enmarcado en madera clara sobre pared blanca con repisas flotantes de madera, plantas verdes en macetas de mimbre, fotos familiares enmarcadas, libros coloridos y decoración personal hogareña',
       context: 'Pared con repisas / Galería personal'
     }
@@ -134,7 +134,7 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'acorden-rosa-morado': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768865061204-msohs3kp00o.png',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acorden-rosa-morado.webp',
       alt: 'Cuadro Acordeón Rosa Morado con pliegues rosa sobre fondo morado enmarcado en madera, repisas flotantes con plantas verdes, fotos familiares, libros, macramé, mesa rústica de madera con lámpara de ratán, flores secas, taza y manta beige en rincón de trabajo bohemio',
       context: 'Oficina / Rincón de trabajo'
     }
@@ -142,7 +142,7 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'acorden-burdeos-intenso': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768865459387-crpaizr8748.png',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acorden-burdeos-intenso.webp',
       alt: 'Cuadro Acordeón Burdeos Intenso vertical con pliegues burdeos profundos enmarcado en madera colgado en comedor minimalista moderno con mesa de madera, banco tapizado gris, sillas crema, ventanales amplios con luz natural, cortinas beige, credenza de madera con plantas verdes, jarrón blanco escultural y decoración neutra',
       context: 'Comedor / Sala de estar'
     }
