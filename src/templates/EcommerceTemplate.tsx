@@ -56,6 +56,8 @@ export const EcommerceTemplate = ({
   
   // No mostrar WhatsApp en checkout
   const showWhatsApp = !location.pathname.includes('/checkout')
+  // En página de producto (móvil), ocultar WhatsApp para no tapar el CTA de compra
+  const isProductPage = location.pathname.startsWith('/products/')
 
   const header = (
     <div className={`py-4 bg-background/95 backdrop-blur ${headerClassName}`}>
@@ -282,6 +284,7 @@ export const EcommerceTemplate = ({
           message="¡Hola! Tengo una pregunta sobre los cuadros de Plieggo"
           tooltip="¿Necesitas ayuda?"
           showTooltip={true}
+          hideOnMobile={isProductPage}
         />
       )}
     </>

@@ -20,6 +20,8 @@ interface FloatingWhatsAppProps {
   message?: string // Mensaje pre-rellenado opcional
   tooltip?: string
   showTooltip?: boolean
+  /** Oculta el botón en móvil (< lg). Útil en página de producto para no tapar el CTA de compra */
+  hideOnMobile?: boolean
 }
 
 export const FloatingWhatsApp = ({
@@ -27,6 +29,7 @@ export const FloatingWhatsApp = ({
   message = '¡Hola! Tengo una pregunta sobre los productos',
   tooltip = 'Chatea con nosotros',
   showTooltip = true,
+  hideOnMobile = false,
 }: FloatingWhatsAppProps) => {
   const [isVisible, setIsVisible] = useState(false)
   const [isTooltipVisible, setIsTooltipVisible] = useState(false)
@@ -69,7 +72,7 @@ export const FloatingWhatsApp = ({
   if (!isVisible) return null
 
   return (
-    <div className="fixed bottom-5 right-5 md:bottom-6 md:right-6 z-50 flex items-center gap-3">
+    <div className={`fixed z-50 items-center gap-3 bottom-5 right-5 lg:bottom-[88px] lg:right-6 ${hideOnMobile ? 'hidden lg:flex' : 'flex'}`}>
       {/* Tooltip */}
       {isTooltipVisible && (
         <div className="hidden md:flex items-center gap-2 animate-in slide-in-from-right-5 fade-in duration-500">
