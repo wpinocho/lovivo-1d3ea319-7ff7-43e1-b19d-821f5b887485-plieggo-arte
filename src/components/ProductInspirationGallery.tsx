@@ -47,7 +47,7 @@ export const ProductInspirationGallery = ({ productSlug }: ProductInspirationGal
             <img
               src={image.src}
               alt={image.alt}
-              className="w-full h-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+              className="w-full h-auto object-cover lg:max-h-[400px] transition-transform duration-300 group-hover:scale-[1.02]"
             />
             
             {/* Overlay con contexto */}

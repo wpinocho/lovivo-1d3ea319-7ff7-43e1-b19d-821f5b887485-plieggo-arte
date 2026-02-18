@@ -169,7 +169,7 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
           )}
 
           {/* 3. PRODUCT INFO (Title, Price, Options, CTAs) - Order 3 mobile, right column desktop */}
-          <div className="order-3 lg:order-none space-y-6">
+          <div className="order-3 lg:order-none lg:col-start-2 lg:row-start-1 lg:row-span-2 space-y-6">
             {/* Badge */}
             {logic.product.badge && (
               <ProductBadge type={logic.product.badge as BadgeType} />
@@ -476,11 +476,15 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
               </CardContent>
             </Card>
 
-            {/* Inspiration Gallery - Muestra el producto en contextos reales */}
-            <ProductInspirationGallery productSlug={logic.product.slug} />
+            {/* Inspiration Gallery + Size Guide - Side by Side en Desktop */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Inspiration Gallery - Muestra el producto en contextos reales */}
+              <div>
+                <ProductInspirationGallery productSlug={logic.product.slug} />
+              </div>
 
-            {/* Size Guide - Visual */}
-            <Card className="border-border/50 overflow-hidden">
+              {/* Size Guide - Visual */}
+              <Card className="border-border/50 overflow-hidden">
               <CardContent className="p-0">
                 <div className="bg-muted/30 p-6">
                   <h3 className="font-heading text-lg font-semibold mb-2 flex items-center gap-2">
@@ -496,10 +500,11 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
                   alt="Guía de tamaños - 20x20cm, 50x50cm, 30x90cm con persona de referencia"
                   loading="lazy"
                   decoding="async"
-                  className="w-full h-auto"
+                  className="w-full h-auto object-cover lg:max-h-[400px]"
                 />
               </CardContent>
             </Card>
+            </div>
 
             <Button
               variant="outline"
