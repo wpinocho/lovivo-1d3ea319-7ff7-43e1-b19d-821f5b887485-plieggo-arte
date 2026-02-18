@@ -106,7 +106,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
     {
       type: 'image',
       src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1770920004212-qzo0zur4y1s.jpg',
-      eyebrow: 'Nueva Colección 2024',
+      eyebrow: 'Nueva Colección 2026',
       headline: 'Colección Acordeón',
       subheadline: 'Pliegues rítmicos que transforman paredes en esculturas de luz',
       cta: {
@@ -133,8 +133,9 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
       headline: 'Arte que respira',
       subheadline: 'Cada pieza es única, cada pliegue cuenta una historia',
       cta: {
-        text: 'Conoce el proceso',
-        link: '/about'
+        text: 'Descubre regalos',
+        link: '/about',
+        onClick: () => setIsGalleryOpen(true)
       }
     }
   ];
