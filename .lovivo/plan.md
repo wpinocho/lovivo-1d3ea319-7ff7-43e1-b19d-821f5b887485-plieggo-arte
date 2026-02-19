@@ -15,11 +15,11 @@ Estado de cada paso:
 🔄 Paso 1 — Tipos en supabase.ts
 Agregar: AppliedRule, Bundle, BundleItem, PriceRule Agregar applied_rules al interface Order PENDIENTE: usuario enviará contenido del archivo
 
-⬜ Paso 2 — Archivos nuevos (copiar tal cual)
+✅ Paso 2 — Archivos nuevos (creados)
 src/lib/cart-utils.ts
 src/hooks/useBundles.ts
 src/hooks/usePriceRules.ts
-src/components/ui/BundleCard.tsx
+src/components/ui/BundleCard.tsx  ⚠️ usa addBundle (disponible tras Paso 3)
 src/components/ui/PriceRuleBadge.tsx
 ⬜ Paso 3 — CartContext.tsx (bundle support)
 Union types + ADD_BUNDLE action + addBundle method + normalizeItem + getItemPrice
