@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { useCart } from '@/contexts/CartContext'
 import { useSettings } from '@/contexts/SettingsContext'
 import { createCheckoutFromCart, createSampleOrder, updateCheckout, type CheckoutUpdatePayload } from '@/lib/checkout'
+import { cartToApiItems } from '@/lib/cart-utils'
 import { useToast } from '@/hooks/use-toast'
 import { logger } from '@/lib/logger'
 import { useCheckoutState } from './useCheckoutState'
@@ -45,14 +46,11 @@ export const useCheckout = () => {
   const notesTimerRef = useRef<NodeJS.Timeout | null>(null)
   const itemsTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-  const checkout = async (options: CheckoutOptions = {}, itemsOverride?: any[]): Promise<CheckoutResponse> => {
+  const checkout = async (options: CheckoutOptions = {}): Promise<CheckoutResponse> => {
     setIsLoading(true)
     try {
-      // Usar itemsOverride si se provee (para "Buy Now"), sino usar cart.items
-      const itemsToCheckout = itemsOverride || cart.items
-      
       const order = await createCheckoutFromCart(
-        itemsToCheckout,
+        cart.items,
         options.customerInfo,
         options.discountCode,
         options.shippingAddress,
@@ -141,24 +139,13 @@ export const useCheckout = () => {
         })
       }
 
-      const checkoutItems = sourceItems.map(item => {
-        // Si viene del carrito (CartItem)
-        if (item.product && item.key) {
-          return {
-            product_id: item.product.id,
-            quantity: item.quantity,
-            ...(item.variant && { variant_id: item.variant.id })
-          }
-        }
-        // Si viene directo con product_id (OrderItem)
-        else {
-          return {
+      const checkoutItems = sourceItems.some((item: any) => item.type === 'bundle' || item.product)
+        ? cartToApiItems(sourceItems)
+        : sourceItems.map((item: any) => ({
             product_id: item.product_id,
             quantity: item.quantity,
             ...(item.variant_id && { variant_id: item.variant_id })
-          }
-        }
-      })
+          }))
 
       if (immediate) {
         logger.debug('Executing immediate items update with checkout items:', checkoutItems);
@@ -490,6 +477,10 @@ export const useCheckout = () => {
   // SEPARACIÓN: Ya no conectamos automáticamente con CartContext
   // El checkout manejará sus propios productos internamente
 
+  // Extract applied_rules: prefer lastOrder (kept fresh via checkout:updated events) over checkoutState (separate hook instance, may be stale)
+  const appliedRules = lastOrder?.order?.applied_rules ?? checkoutState?.order?.applied_rules ?? []
+  const backendDiscountAmount = (appliedRules || []).reduce((sum: number, rule: any) => sum + (rule.discount || 0), 0)
+
   const createSample = async (): Promise<CheckoutResponse> => {
     setIsLoading(true)
     try {
@@ -538,6 +529,10 @@ export const useCheckout = () => {
     updateBillingAddress,
     updateDiscountCode,
     updateNotes,
+    
+    // Applied rules (automatic discounts from backend)
+    appliedRules: appliedRules || [],
+    backendDiscountAmount,
     
     // Estado del carrito
     lastOrder,

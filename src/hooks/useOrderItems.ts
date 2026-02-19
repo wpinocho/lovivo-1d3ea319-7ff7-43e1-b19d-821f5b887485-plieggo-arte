@@ -462,6 +462,9 @@ export const useOrderItems = () => {
       } 
       // Si checkout-update devuelve order_items en el top-level (respuesta ligera con product details)
       else if (response && 'order_items' in response && (response as any).order_items) {
+        // Update cached order with financial fields (discount_amount, applied_rules, etc.)
+        const checkoutFns = checkoutStateRef.current!
+        mergeResponseIntoCache(checkoutFns.updateOrderCache, checkoutFns.getOrderSnapshot, response)
         const items = transformOrderItems((response as any).order_items, previousItems)
         setOrderItems(items)
       } 
