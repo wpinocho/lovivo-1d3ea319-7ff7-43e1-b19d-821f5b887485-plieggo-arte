@@ -169,7 +169,7 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
           )}
 
           {/* 3. PRODUCT INFO (Title, Price, Options, CTAs) - Order 3 mobile, right column desktop */}
-          <div className="order-3 lg:order-none lg:col-start-2 lg:row-start-1 lg:row-span-2 space-y-6">
+          <div className={`order-3 lg:order-none lg:col-start-2 lg:row-start-1 space-y-6 ${logic.displayImages && logic.displayImages.length > 1 ? 'lg:row-span-2' : ''}`}>
             {/* Badge */}
             {logic.product.badge && (
               <ProductBadge type={logic.product.badge as BadgeType} />
@@ -506,14 +506,7 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
             </Card>
             </div>
 
-            <Button
-              variant="outline"
-              onClick={logic.handleNavigateBack}
-              className="w-full"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Seguir comprando
-            </Button>
+
           </div>
         </div>
 
