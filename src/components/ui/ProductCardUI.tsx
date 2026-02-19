@@ -84,7 +84,7 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
               )}
 
               {/* Overlay con variantes - aparece en hover (solo para quick-add) */}
-              <div className="absolute inset-0 bg-gradient-to-t from-background/55 via-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-between p-6 translate-y-4 group-hover:translate-y-0">
+              <div className="absolute inset-0 bg-gradient-to-t from-background/30 via-background/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-between p-6 translate-y-4 group-hover:translate-y-0">
                 {/* Top: Badges de descuento */}
                 <div className="flex flex-col gap-2 items-start">
                   {logic.discountPercentage && (
