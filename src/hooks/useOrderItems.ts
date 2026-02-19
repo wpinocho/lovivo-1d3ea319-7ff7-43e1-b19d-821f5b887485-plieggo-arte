@@ -7,6 +7,24 @@ import { STORE_ID } from '@/lib/config'
 import { useToast } from '@/hooks/use-toast'
 import { logger } from '@/lib/logger'
 
+// Merge financial fields from a checkout-update flat response into the order cache
+const mergeResponseIntoCache = (
+  updateOrderCache: (data: any) => void,
+  getOrderSnapshot: () => any,
+  response: any
+) => {
+  const current = getOrderSnapshot()
+  if (!current) return
+  updateOrderCache({
+    ...current,
+    ...(response.discount_amount !== undefined && { discount_amount: response.discount_amount }),
+    ...(response.applied_rules !== undefined && { applied_rules: response.applied_rules }),
+    ...(response.subtotal !== undefined && { subtotal: response.subtotal }),
+    ...(response.total_amount !== undefined && { total_amount: response.total_amount }),
+    ...(response.shipping_amount !== undefined && { shipping_amount: response.shipping_amount }),
+  })
+}
+
 export interface OrderItem {
   key: string
   product_id: string
@@ -383,6 +401,9 @@ export const useOrderItems = () => {
         } 
         // Si checkout-update devuelve order_items en el top-level (respuesta ligera con product details)
         else if (response && 'order_items' in response && (response as any).order_items) {
+          // Merge financial fields (discount_amount, applied_rules, etc.) into cache
+          const checkoutFns = checkoutStateRef.current!
+          mergeResponseIntoCache(checkoutFns.updateOrderCache, checkoutFns.getOrderSnapshot, response)
           const serverItems = transformOrderItems((response as any).order_items, previousItems)
           // Proteger cantidad optimista: usar el máximo entre servidor y lo solicitado
           const mergedItems = serverItems.map(item => 
