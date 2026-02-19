@@ -3,6 +3,7 @@ import { callEdge } from './edge'
 import { STORE_ID } from './config'
 import type { CartItem } from '@/contexts/CartContext'
 import type { CheckoutPayload, CheckoutResponse, CheckoutItem } from './supabase'
+import { cartToApiItems } from './cart-utils'
 
 export const createCheckoutFromCart = async (
   cartItems: CartItem[],
@@ -26,12 +27,8 @@ export const createCheckoutFromCart = async (
   }
 
   // Convertir items del carrito al formato esperado por checkout-create
-  const items: CheckoutItem[] = cartItems.map(cartItem => ({
-    product_id: cartItem.product.id,
-    quantity: cartItem.quantity,
-    // Solo incluir variant_id si existe una variante seleccionada
-    ...(cartItem.variant && { variant_id: cartItem.variant.id })
-  }))
+  // Descompone bundles en productos individuales y merge duplicados
+  const items: CheckoutItem[] = cartToApiItems(cartItems)
 
   const payload: CheckoutPayload = {
     store_id: STORE_ID,
@@ -72,6 +69,13 @@ export interface CheckoutUpdateResponse {
   shipping_amount?: number
   subtotal?: number
   total_amount?: number
+  discount_amount?: number
+  applied_rules?: Array<{
+    rule_id: string
+    title: string
+    rule_type: 'volume' | 'bogo' | 'free_shipping' | 'bundle'
+    discount: number
+  }> | null
   updated_fields?: string[]
 }
 
