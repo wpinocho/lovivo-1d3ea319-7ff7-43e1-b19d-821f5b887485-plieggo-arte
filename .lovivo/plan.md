@@ -12,8 +12,8 @@ Migración en Progreso: Bundles + Price Rules
 Estado de cada paso:
 
 ✅ Paso 0 — Plan definido
-🔄 Paso 1 — Tipos en supabase.ts
-Agregar: AppliedRule, Bundle, BundleItem, PriceRule Agregar applied_rules al interface Order PENDIENTE: usuario enviará contenido del archivo
+✅ Paso 1 — Tipos en supabase.ts
+AppliedRule, Bundle, BundleItem, PriceRule + applied_rules en Order — YA ESTABAN presentes
 
 ✅ Paso 2 — Archivos nuevos (creados)
 src/lib/cart-utils.ts
@@ -21,7 +21,7 @@ src/hooks/useBundles.ts
 src/hooks/usePriceRules.ts
 src/components/ui/BundleCard.tsx  ⚠️ usa addBundle (disponible tras Paso 3)
 src/components/ui/PriceRuleBadge.tsx
-⬜ Paso 3 — CartContext.tsx (bundle support)
+✅ Paso 3 — CartContext.tsx (bundle support)
 Union types + ADD_BUNDLE action + addBundle method + normalizeItem + getItemPrice
 
 ⬜ Paso 4 — checkout.ts
