@@ -54,16 +54,16 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'luna-azul': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/luna-azul.webp',
-      alt: 'Cuadro Luna Azul enmarcado en madera sobre sofá beige modular, mujer leyendo libro en sala minimalista con mesa auxiliar de madera',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1771519019932-4us27uu9kn6.webp',
+      alt: 'Cuadro Luna Azul enmarcado en madera oscura sobre pared blanca, mujer de negro leyendo en sofá mostaza en sala minimalista con piso de madera',
       context: 'Sala de estar'
     }
   ],
 
   'luna-llena': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/luna-llena.webp',
-      alt: 'Cuadro Luna Llena en tonos crema enmarcado en madera sobre pared blanca, hombre relajado en sillón beige en sala minimalista',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1771519019933-4qh4u3t5wg9.webp',
+      alt: 'Cuadro Luna Llena en tonos crema enmarcado en madera, hombre sentado en sillón de cuero marrón en sala con luz natural y ventana',
       context: 'Sala de estar'
     }
   ],
@@ -86,9 +86,9 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'luna-negra': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/luna-negra.webp',
-      alt: 'Cuadro Luna Negra con pliegues acordeón negros enmarcado en madera sobre pared de hormigón crema con cortinas de lino natural moviéndose con luz natural y ventana de marco negro arquitectónico',
-      context: 'Sala de estar'
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1771519019933-yn3o6hairv.webp',
+      alt: 'Cuadro Luna Negra enmarcado en madera oscura sobre pared blanca en comedor moderno con mesa y sillas de madera natural, plantas verdes y ventanales amplios con jardín',
+      context: 'Comedor'
     }
   ],
 
@@ -102,9 +102,9 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 
   'estrellas': [
     {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/estrellas.webp',
-      alt: 'Cuadro Estrellas con pliegues origami en negro y gris formando estrellas geométricas, enmarcado en madera sobre pared crema, sala de estar con sofá beige, madre e hijo abrazándose, lámpara de papel tipo abanico, cortinas crema y piso de madera',
-      context: 'Sala de estar / Hogar'
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1771519019933-hn3s2yu15ng.webp',
+      alt: 'Proceso artesanal del cuadro Estrellas: manos doblando papel oscuro en formas geométricas sobre mesa de trabajo con herramientas de origami',
+      context: 'Proceso artesanal'
     }
   ],
 
