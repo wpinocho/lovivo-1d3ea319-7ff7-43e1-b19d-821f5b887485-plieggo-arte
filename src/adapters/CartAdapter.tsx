@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom"
  * Los componentes de UI solo pueden consumir estos métodos, no modificar la lógica interna.
  */
 export const useCartLogic = () => {
-  const { state, updateQuantity, removeItem } = useCart()
+  const { state, updateQuantity, removeItem, addBundle } = useCart()
   const navigate = useNavigate()
   const { checkout, isLoading: isCreatingOrder } = useCheckout()
   const { currencyCode } = useSettings()
@@ -74,6 +74,7 @@ export const useCartLogic = () => {
     // Acciones del carrito
     updateQuantity,
     removeItem,
+    addBundle,
     
     // Navegación y checkout
     handleCreateCheckout,

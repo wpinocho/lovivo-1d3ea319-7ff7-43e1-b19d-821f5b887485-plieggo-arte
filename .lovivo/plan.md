@@ -39,23 +39,15 @@ Union types + ADD_BUNDLE action + addBundle method + normalizeItem + getItemPric
 ### ✅ Paso 6 — useCheckout.ts
 - appliedRules usa prioridad correcta: lastOrder?.order?.applied_rules ?? checkoutState?.order?.applied_rules ?? [] ✓
 
-### ⬜ Paso 7 — UI Integration (SIGUIENTE PASO)
-Pendiente de implementar. Adaptaciones específicas al diseño de Plieggo:
+### ✅ Paso 7 — UI Integration (COMPLETADO)
 
-1. **IndexUI** (`src/pages/ui/IndexUI.tsx`)
-   - Importar useBundles() y BundleCard
-   - Agregar sección de bundles (después de productos destacados o donde encaje)
-
-2. **ProductCard** (`src/components/ProductCard.tsx`)
-   - Importar usePriceRules() y PriceRuleBadge
-   - Llamar getRulesForProduct(product.id) y renderizar badges
-
-3. **CartSidebar** (`src/components/CartSidebar.tsx`)
-   - Detectar item.type === 'bundle' y renderizar bundleItems anidados
-   - Usar formatMoney para todos los precios
-
-4. **CartAdapter** (`src/adapters/CartAdapter.tsx`)
-   - Exportar addBundle del contexto
+1. **IndexUI** — sección "Paquetes especiales" con BundleCard grid (solo visible si hay bundles activos)
+2. **ProductCard** — llama usePriceRules() y pasa priceRules a ProductCardUI
+3. **ProductCardUI** — acepta prop priceRules y renderiza PriceRuleBadge debajo del título
+4. **CartSidebar** — renderizado diferenciado: bundle items con nombre de paquete + lista de productos internos; product items sin cambios
+5. **CartAdapter** — addBundle exportado en useCartLogic()
 
 ## Suggested Next Steps
-Paso 7 — UI Integration (en chunks: primero CartAdapter + CartSidebar, luego IndexUI, luego ProductCard)
+- Crear bundles y price rules desde el Dashboard para probar la UI
+- Verificar que la sección de bundles aparece en Index cuando hay bundles activos
+- Ajustar estilos si hace falta

@@ -12,6 +12,8 @@ import { Link } from 'react-router-dom';
 import type { UseIndexLogicReturn } from '@/components/headless/HeadlessIndex';
 import { supabase, type Product } from '@/lib/supabase';
 import { STORE_ID } from '@/lib/config';
+import { useBundles } from '@/hooks/useBundles';
+import { BundleCard } from '@/components/ui/BundleCard';
 
 type ProductWithCollection = Product & { collectionType?: 'espacio' | 'acordeon' }
 
@@ -45,6 +47,9 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
 
   // Estado para controlar la galería interactiva
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+
+  // Bundles
+  const { bundles, loading: loadingBundles } = useBundles();
 
   // Estado para productos con información de colección
   const [productsWithCollection, setProductsWithCollection] = useState<ProductWithCollection[]>([]);
@@ -293,6 +298,38 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
           )}
         </div>
       </section>
+
+      {/* Bundles Section — solo visible si hay paquetes activos */}
+      {(loadingBundles || bundles.length > 0) && (
+        <section className="py-16 bg-muted/30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="font-heading text-4xl font-bold text-foreground tracking-tight mb-2">
+              Paquetes especiales
+            </h2>
+            <p className="font-body text-muted-foreground mb-10">
+              Lleva varios cuadros juntos y ahorra
+            </p>
+
+            {loadingBundles ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="space-y-3">
+                    <div className="bg-muted rounded-sm aspect-square animate-pulse" />
+                    <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
+                    <div className="h-6 bg-muted rounded animate-pulse w-1/2" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                {bundles.map(bundle => (
+                  <BundleCard key={bundle.id} bundle={bundle} />
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Gift Ideas Section */}
       <section className="py-24 bg-background">

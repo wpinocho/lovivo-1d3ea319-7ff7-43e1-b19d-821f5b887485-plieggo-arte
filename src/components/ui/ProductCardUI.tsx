@@ -4,9 +4,10 @@ import { Link, useNavigate } from "react-router-dom"
 import { HeadlessProductCard } from "@/components/headless/HeadlessProductCard"
 import { ProductBadge, type BadgeType } from "@/components/ProductBadge"
 import { ProductRating } from "@/components/ProductRating"
-import type { Product } from "@/lib/supabase"
+import type { Product, PriceRule } from "@/lib/supabase"
 import { getBadgeForProduct } from "@/lib/product-badges"
 import { getProductReview } from "@/data/product-reviews"
+import { PriceRuleBadge } from "@/components/ui/PriceRuleBadge"
 
 /**
  * EDITABLE UI COMPONENT - ProductCardUI
@@ -25,9 +26,10 @@ import { getProductReview } from "@/data/product-reviews"
 interface ProductCardUIProps {
   product: Product
   aspectRatio?: 'square' | 'rectangle' | 'auto'
+  priceRules?: PriceRule[]
 }
 
-export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIProps) => {
+export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [] }: ProductCardUIProps) => {
   const navigate = useNavigate()
   const badge = getBadgeForProduct(product)
   const review = getProductReview(product.slug)
@@ -193,6 +195,14 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
                 {review && (
                   <div className="mb-2">
                     <ProductRating rating={review.rating} count={review.count} size="sm" />
+                  </div>
+                )}
+                {/* Price rule badges */}
+                {priceRules.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {priceRules.map(rule => (
+                      <PriceRuleBadge key={rule.id} rule={rule} />
+                    ))}
                   </div>
                 )}
               </div>

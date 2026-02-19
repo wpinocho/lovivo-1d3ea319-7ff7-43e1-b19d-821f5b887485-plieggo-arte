@@ -1,11 +1,11 @@
 import { ProductCardUI } from "@/components/ui/ProductCardUI"
 import type { Product } from "@/lib/supabase"
+import { usePriceRules } from "@/hooks/usePriceRules"
 
 /**
  * ROUTE COMPONENT - ProductCard
  * 
- * Este componente solo importa y usa ProductCardUI.
- * Toda la lógica está en HeadlessProductCard y la presentación en ProductCardUI.
+ * Llama usePriceRules y pasa las reglas aplicables a ProductCardUI.
  */
 
 interface ProductCardProps {
@@ -14,5 +14,7 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ product, aspectRatio = 'auto' }: ProductCardProps) => {
-  return <ProductCardUI product={product} aspectRatio={aspectRatio} />
+  const { getRulesForProduct } = usePriceRules()
+  const priceRules = getRulesForProduct(product.id)
+  return <ProductCardUI product={product} aspectRatio={aspectRatio} priceRules={priceRules} />
 }

@@ -5,7 +5,7 @@ import { useCart } from "@/contexts/CartContext"
 import { useCheckout } from "@/hooks/useCheckout"
 import { useSettings } from "@/contexts/SettingsContext"
 import { formatMoney } from "@/lib/money"
-import { Minus, Plus, Trash2, ExternalLink } from "lucide-react"
+import { Minus, Plus, Trash2, ExternalLink, Package } from "lucide-react"
 import { useNavigate, Link } from "react-router-dom"
 import { ProductRating } from "@/components/ProductRating"
 import { getProductReview } from "@/data/product-reviews"
@@ -16,7 +16,7 @@ interface CartSidebarProps {
 }
 
 export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
-  const { state, updateQuantity, removeItem, clearCart } = useCart()
+  const { state, updateQuantity, removeItem } = useCart()
   const navigate = useNavigate()
   const { checkout, isLoading: isCreatingOrder } = useCheckout()
   const { currencyCode } = useSettings()
@@ -95,36 +95,115 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
             <>
               {/* Cart Items */}
               <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                {state.items.map((item) => (
-                  <Card 
-                    key={item.key}
-                    className="group transition-all duration-500 hover:border-primary hover:shadow-[0_10px_40px_-15px_rgba(193,102,72,0.4)] hover:-translate-y-2 cursor-pointer"
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-16 h-16 bg-muted rounded-md overflow-hidden flex-shrink-0">
-                          {item.product.images && item.product.images.length > 0 || item.variant?.image ? (
-                            <img
-                              src={item.variant?.image || item.product.images![0]}
-                              alt={item.product.title}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
-                              Sin imagen
+                {state.items.map((item) => {
+                  // ── Bundle item ──
+                  if (item.type === 'bundle') {
+                    return (
+                      <Card
+                        key={item.key}
+                        className="group transition-all duration-500 hover:border-primary hover:shadow-[0_10px_40px_-15px_rgba(193,102,72,0.4)] hover:-translate-y-2"
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-start space-x-3">
+                            <div className="w-16 h-16 bg-muted rounded-md overflow-hidden flex-shrink-0">
+                              {item.bundle.images?.[0] ? (
+                                <img
+                                  src={item.bundle.images[0]}
+                                  alt={item.bundle.title}
+                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                  <Package className="h-6 w-6" />
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                        
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-sm text-foreground line-clamp-2">
-                            {item.product.title}{item.variant?.title ? ` - ${item.variant.title}` : ''}
-                          </h4>
+
+                            <div className="flex-1 min-w-0">
+                              <span className="text-xs font-medium bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+                                Paquete
+                              </span>
+                              <h4 className="font-medium text-sm text-foreground line-clamp-2 mt-1">
+                                {item.bundle.title}
+                              </h4>
+                              {item.bundleItems.length > 0 && (
+                                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                  {item.bundleItems.map(bi => `${bi.quantity}× ${bi.product.title}`).join(' + ')}
+                                </p>
+                              )}
+
+                              <div className="flex items-center justify-between mt-3">
+                                <div className="flex items-center space-x-1">
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => updateQuantity(item.key, item.quantity - 1)}
+                                    className="h-7 w-7"
+                                  >
+                                    <Minus className="h-3 w-3" />
+                                  </Button>
+                                  <span className="font-medium px-2 text-sm">{item.quantity}</span>
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => updateQuantity(item.key, item.quantity + 1)}
+                                    className="h-7 w-7"
+                                  >
+                                    <Plus className="h-3 w-3" />
+                                  </Button>
+                                </div>
+
+                                <div className="text-right">
+                                  <div className="font-semibold text-sm">
+                                    {formatMoney(item.bundle.bundle_price * item.quantity, currencyCode)}
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeItem(item.key)}
+                                    className="text-destructive hover:text-destructive p-0 h-auto mt-1"
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )
+                  }
+
+                  // ── Product item ──
+                  const review = getProductReview(item.product.slug)
+                  return (
+                    <Card
+                      key={item.key}
+                      className="group transition-all duration-500 hover:border-primary hover:shadow-[0_10px_40px_-15px_rgba(193,102,72,0.4)] hover:-translate-y-2 cursor-pointer"
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-start space-x-3">
+                          <div className="w-16 h-16 bg-muted rounded-md overflow-hidden flex-shrink-0">
+                            {item.product.images && item.product.images.length > 0 || item.variant?.image ? (
+                              <img
+                                src={item.variant?.image || item.product.images![0]}
+                                alt={item.product.title}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
+                                Sin imagen
+                              </div>
+                            )}
+                          </div>
                           
-                          {/* Rating con estrellas */}
-                          {(() => {
-                            const review = getProductReview(item.product.slug)
-                            return review.reviewCount > 0 ? (
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-sm text-foreground line-clamp-2">
+                              {item.product.title}{item.variant?.title ? ` - ${item.variant.title}` : ''}
+                            </h4>
+                            
+                            {/* Rating con estrellas */}
+                            {review.reviewCount > 0 && (
                               <div className="mt-1.5">
                                 <ProductRating 
                                   rating={review.rating} 
@@ -132,51 +211,51 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
                                   size="sm"
                                 />
                               </div>
-                            ) : null
-                          })()}
-                          
-                          <div className="flex items-center justify-between mt-3">
-                            <div className="flex items-center space-x-1">
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => updateQuantity(item.key, item.quantity - 1)}
-                                className="h-7 w-7"
-                              >
-                                <Minus className="h-3 w-3" />
-                              </Button>
-                              <span className="font-medium px-2 text-sm">
-                                {item.quantity}
-                              </span>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => updateQuantity(item.key, item.quantity + 1)}
-                                className="h-7 w-7"
-                              >
-                                <Plus className="h-3 w-3" />
-                              </Button>
-                            </div>
+                            )}
                             
-                            <div className="text-right">
-                              <div className="font-semibold text-sm">
-                                {formatMoney(((item.variant?.price ?? item.product.price) || 0) * item.quantity, currencyCode)}
+                            <div className="flex items-center justify-between mt-3">
+                              <div className="flex items-center space-x-1">
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => updateQuantity(item.key, item.quantity - 1)}
+                                  className="h-7 w-7"
+                                >
+                                  <Minus className="h-3 w-3" />
+                                </Button>
+                                <span className="font-medium px-2 text-sm">
+                                  {item.quantity}
+                                </span>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => updateQuantity(item.key, item.quantity + 1)}
+                                  className="h-7 w-7"
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </Button>
                               </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => removeItem(item.key)}
-                                className="text-destructive hover:text-destructive p-0 h-auto mt-1"
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
+                              
+                              <div className="text-right">
+                                <div className="font-semibold text-sm">
+                                  {formatMoney(((item.variant?.price ?? item.product.price) || 0) * item.quantity, currencyCode)}
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeItem(item.key)}
+                                  className="text-destructive hover:text-destructive p-0 h-auto mt-1"
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  )
+                })}
               </div>
 
               {/* Order Summary */}
