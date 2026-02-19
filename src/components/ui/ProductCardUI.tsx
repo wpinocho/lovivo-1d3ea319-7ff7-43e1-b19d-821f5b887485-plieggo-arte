@@ -58,14 +58,19 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
             <div className={`bg-muted overflow-hidden relative ${aspectRatioClass}`}>
               {(logic.matchingVariant?.image || (logic.product.images && logic.product.images.length > 0)) ? (
                 <>
-                  {/* Imagen principal */}
-                  <img
-                    src={(logic.matchingVariant?.image as any) || logic.product.images![0]}
-                    alt={logic.product.title}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-contain transition-all duration-500 group-hover:opacity-0 group-hover:scale-105"
-                  />
+                  {/* Imagen principal - solo se oculta si hay segunda imagen */}
+                  {(() => {
+                    const hasSecondImage = !logic.matchingVariant?.image && logic.product.images && logic.product.images.length > 1
+                    return (
+                      <img
+                        src={(logic.matchingVariant?.image as any) || logic.product.images![0]}
+                        alt={logic.product.title}
+                        loading="lazy"
+                        decoding="async"
+                        className={`w-full h-full object-contain transition-all duration-500 group-hover:scale-105 ${hasSecondImage ? 'group-hover:opacity-0' : ''}`}
+                      />
+                    )
+                  })()}
                   {/* Segunda imagen al hover (solo si existe) */}
                   {!logic.matchingVariant?.image && logic.product.images && logic.product.images.length > 1 && (
                     <img
