@@ -13,6 +13,15 @@ export type ProductOption = {
   swatches?: Record<string, string>
 }
 
+export type ImageMetadata = {
+  url?: string
+  size_bytes?: number
+  content_type?: string
+  width?: number
+  height?: number
+  optimized?: boolean
+}
+
 export type ProductVariant = {
   id: string
   sku?: string
@@ -35,6 +44,7 @@ export type Product = {
   compare_at_price?: number
   description?: string
   images?: string[]
+  image_metadata?: ImageMetadata[]
   status?: string
   featured?: boolean
   store_id?: string
@@ -50,6 +60,7 @@ export type Collection = {
   name: string
   description?: string
   image?: string
+  image_metadata?: ImageMetadata
   status?: string
   store_id?: string
   featured?: boolean
@@ -93,6 +104,13 @@ export interface OrderItem {
   variant_id?: string
 }
 
+export interface AppliedRule {
+  rule_id: string
+  title: string
+  rule_type: 'volume' | 'bogo' | 'free_shipping' | 'bundle'
+  discount: number
+}
+
 export interface Order {
   id: string
   store_id: string
@@ -106,6 +124,8 @@ export interface Order {
   shipping_address?: any
   billing_address?: any
   notes?: string
+  discount_code?: string | null
+  applied_rules?: AppliedRule[] | null
   currency_code: string
   status: string
   checkout_token: string
@@ -149,6 +169,45 @@ export interface CheckoutResponse {
   status: string
   order: Order
   unavailable_items?: any[]
+}
+
+export type Bundle = {
+  id: string
+  title: string
+  description?: string
+  images?: string[]
+  slug?: string
+  bundle_price: number
+  discount_percentage?: number
+  compare_at_price?: number
+  status?: string
+  store_id?: string
+  created_at?: string
+}
+
+export type BundleItem = {
+  id: string
+  bundle_id: string
+  product_id: string
+  variant_id?: string
+  quantity: number
+  sort_order?: number
+  products?: Product
+}
+
+export type PriceRule = {
+  id: string
+  title: string
+  description?: string
+  rule_type: 'volume' | 'bogo' | 'free_shipping' | 'bundle'
+  conditions?: any
+  applies_to?: string
+  product_ids?: string[]
+  collection_ids?: string[]
+  active?: boolean
+  starts_at?: string | null
+  ends_at?: string | null
+  store_id?: string
 }
 
 export type StoreSettings = {
