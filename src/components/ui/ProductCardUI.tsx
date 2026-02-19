@@ -84,7 +84,7 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
               )}
 
               {/* Overlay con variantes - aparece en hover (solo para quick-add) */}
-              <div className="absolute inset-0 bg-gradient-to-t from-background/75 via-background/30 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-between p-6 translate-y-4 group-hover:translate-y-0">
+              <div className="absolute inset-0 bg-gradient-to-t from-background/55 via-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-between p-6 translate-y-4 group-hover:translate-y-0">
                 {/* Top: Badges de descuento */}
                 <div className="flex flex-col gap-2 items-start">
                   {logic.discountPercentage && (
@@ -103,7 +103,6 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
                 <div className="flex-1 flex flex-col justify-center">
                   {logic.hasVariants && logic.options && (
                     <div className="space-y-3">
-                      <p className="text-sm font-medium text-foreground mb-2">Selecciona opciones:</p>
                       {logic.options.map((opt) => (
                         <div key={opt.id}>
                           <div className="font-body text-xs font-medium text-foreground mb-1">{opt.name}</div>
@@ -124,7 +123,7 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
                                     title={`${opt.name}: ${val}`}
                                     className={`h-7 w-7 rounded-full border-2 transition-all ${
                                       isSelected ? 'border-foreground scale-110 ring-2 ring-primary' : 'border-border'
-                                    } ${logic.selected[opt.name] && !isSelected ? 'opacity-40' : ''}`}
+                                    } ${logic.selected[opt.name] && !isSelected ? 'opacity-70' : ''}`}
                                     style={{ 
                                       backgroundColor: swatch
                                     }}
@@ -145,7 +144,7 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto' }: ProductCardUIPr
                                     isSelected 
                                       ? 'border-foreground bg-foreground text-background' 
                                       : logic.selected[opt.name] && !isSelected
-                                        ? 'border-border bg-background text-muted-foreground opacity-40'
+                                        ? 'border-border bg-background text-muted-foreground opacity-70'
                                         : 'border-border bg-background text-foreground hover:border-foreground'
                                   }`}
                                   aria-pressed={isSelected}
