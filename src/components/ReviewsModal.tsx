@@ -36,7 +36,7 @@ export const ReviewsModal = ({ isOpen, onClose, productSlug, productTitle }: Rev
           <Star
             key={star}
             className={`${sizeClass} ${
-              star <= rating
+              star <= Math.round(rating)
                 ? 'fill-primary text-primary'
                 : 'fill-none text-border'
             }`}
@@ -67,7 +67,7 @@ export const ReviewsModal = ({ isOpen, onClose, productSlug, productTitle }: Rev
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[85vh] p-0 gap-0">
+      <DialogContent className="max-w-3xl max-h-[85vh] p-0 gap-0 flex flex-col overflow-hidden">
         {/* Header */}
         <DialogHeader className="px-6 pt-6 pb-4 border-b">
           <div className="flex items-start justify-between">
@@ -93,7 +93,7 @@ export const ReviewsModal = ({ isOpen, onClose, productSlug, productTitle }: Rev
         </DialogHeader>
 
         {/* Reviews List */}
-        <ScrollArea className="flex-1 px-6">
+        <ScrollArea className="flex-1 min-h-0 px-6">
           <div className="py-6 space-y-6">
             {reviews.map((review, index) => (
               <div key={review.id}>

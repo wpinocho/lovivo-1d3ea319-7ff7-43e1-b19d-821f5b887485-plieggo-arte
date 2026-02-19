@@ -92,8 +92,8 @@ export const productReviews: Record<string, ProductReview> = {
     reviewCount: 1
   },
   'estrellas': {
-    rating: 0,
-    reviewCount: 0
+    rating: 4.8,
+    reviewCount: 5
   }
 }
 
