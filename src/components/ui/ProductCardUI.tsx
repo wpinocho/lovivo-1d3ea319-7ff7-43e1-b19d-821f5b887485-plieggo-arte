@@ -95,7 +95,7 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [] }
                 {/* Top: Badges de descuento */}
                 <div className="flex flex-col gap-2 items-start">
                   {logic.discountPercentage && (
-                    <span className="bg-destructive text-destructive-foreground text-xs px-2 py-1 rounded-sm font-medium">
+                    <span className="bg-secondary text-secondary-foreground text-xs px-2 py-1 rounded-sm font-medium">
                       -{logic.discountPercentage}%
                     </span>
                   )}

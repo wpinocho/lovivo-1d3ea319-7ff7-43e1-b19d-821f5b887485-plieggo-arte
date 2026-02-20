@@ -27,6 +27,7 @@ const CollectionAcordeon = lazy(() => import('./pages/CollectionAcordeon'));
 const CollectionEspacio = lazy(() => import('./pages/CollectionEspacio'));
 const AllProducts = lazy(() => import('./pages/AllProducts'));
 const TopSellers = lazy(() => import('./pages/TopSellers'));
+const Bundle = lazy(() => import('./pages/Bundle'));
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ const App = () => (
                         <Route path="/coleccion-espacio" element={<CollectionEspacio />} />
                         <Route path="/all-products" element={<AllProducts />} />
                         <Route path="/top-sellers" element={<TopSellers />} />
+                        <Route path="/bundles/:slug" element={<Bundle />} />
                         {/* Aquí puedes agregar/modificar rutas */}
                         <Route path="*" element={<NotFound />} />
                       </Routes>

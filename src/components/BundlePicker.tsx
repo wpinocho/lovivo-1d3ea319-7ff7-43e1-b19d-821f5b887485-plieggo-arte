@@ -103,7 +103,7 @@ export const BundlePicker = ({ bundle, isOpen, onClose }: BundlePickerProps) => 
                   {formatMoney(bundle.compare_at_price)}
                 </span>
                 {savings && (
-                  <span className="bg-destructive/10 text-destructive text-xs px-2 py-1 rounded font-semibold">
+                  <span className="bg-secondary/15 text-secondary text-xs px-2 py-1 rounded font-semibold">
                     Ahorras {formatMoney(savings)}
                   </span>
                 )}
