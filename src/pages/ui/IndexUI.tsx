@@ -14,6 +14,7 @@ import { supabase, type Product } from '@/lib/supabase';
 import { STORE_ID } from '@/lib/config';
 import { useBundles } from '@/hooks/useBundles';
 import { BundleCard } from '@/components/ui/BundleCard';
+import { MixMatchBundleCard } from '@/components/MixMatchBundleCard';
 
 type ProductWithCollection = Product & { collectionType?: 'espacio' | 'acordeon' }
 
@@ -322,9 +323,13 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                {bundles.map(bundle => (
-                  <BundleCard key={bundle.id} bundle={bundle} />
-                ))}
+                {bundles.map(bundle =>
+                  bundle.bundle_type === 'mix_match' || bundle.bundle_type === 'mix_match_variant' ? (
+                    <MixMatchBundleCard key={bundle.id} bundle={bundle} />
+                  ) : (
+                    <BundleCard key={bundle.id} bundle={bundle} />
+                  )
+                )}
               </div>
             )}
           </div>

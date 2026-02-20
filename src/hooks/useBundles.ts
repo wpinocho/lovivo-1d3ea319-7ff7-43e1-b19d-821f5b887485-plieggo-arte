@@ -11,7 +11,7 @@ export const useBundles = () => {
       try {
         const { data, error } = await supabase
           .from('bundles')
-          .select('id, title, description, images, slug, bundle_price, discount_percentage, compare_at_price, status')
+          .select('id, title, description, images, slug, bundle_price, discount_percentage, compare_at_price, status, bundle_type, source_collection_id, pick_quantity, variant_filter')
           .eq('store_id', STORE_ID)
           .eq('status', 'active')
           .order('created_at', { ascending: false })

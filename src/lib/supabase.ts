@@ -183,6 +183,11 @@ export type Bundle = {
   status?: string
   store_id?: string
   created_at?: string
+  // Mix & Match fields
+  bundle_type?: 'fixed' | 'collection_fixed' | 'mix_match' | 'mix_match_variant'
+  source_collection_id?: string
+  pick_quantity?: number
+  variant_filter?: string
 }
 
 export type BundleItem = {
