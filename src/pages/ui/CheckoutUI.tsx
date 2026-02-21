@@ -791,6 +791,14 @@ export default function CheckoutUI() {
                          logic.shippingCost > 0 ? logic.formatMoney(logic.shippingCost) : 'GRATIS'}
                       </span>
                     </div>
+                    {/* Descuentos automáticos del backend (bundles, volumen, etc.) */}
+                    {logic.appliedRules && logic.appliedRules.length > 0 && logic.appliedRules.map((rule: any, i: number) => (
+                      <div key={i} className="flex justify-between text-sm text-green-700">
+                        <span>{rule.title || 'Descuento de paquete'}</span>
+                        <span>- {logic.formatMoney(rule.discount)}</span>
+                      </div>
+                    ))}
+                    {/* Descuento por cupón manual */}
                     {logic.discount && (
                       <div className="flex justify-between">
                         <span>Descuento ({logic.getDiscountDisplayText(logic.discount, logic.totalQuantity)})</span>

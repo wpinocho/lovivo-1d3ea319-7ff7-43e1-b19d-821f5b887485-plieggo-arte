@@ -6,41 +6,28 @@ Diseño: colores primario (terracota), secundario "Vino Burdeos", crema de fondo
 
 ## Cambios Recientes
 
-### Fix `useCollectionProducts.ts` ✅
-**Bug raíz:** El hook usaba un join PostgREST (`select('products (id, ...)')`) que fallaba con error `PGRST200` porque Supabase no encontraba la relación foreign key en el schema cache.
+### Fix descuento de bundle en checkout ✅
+**Bug:** `CheckoutAdapter.tsx` no importaba `backendDiscountAmount` ni `appliedRules` de `useCheckout`, por lo que el `finalTotal` no descontaba los descuentos automáticos del backend (bundles, volumen, etc.). El checkout mostraba $7,000 en lugar de $5,600.
 
-**Fix:** Cambio a consulta en dos pasos:
-1. `collection_products` → obtiene `product_id[]`
-2. `products.in('id', productIds)` → obtiene los productos
+**Fix:**
+1. `CheckoutAdapter.tsx` → desestructura `appliedRules` y `backendDiscountAmount` de `useCheckout()`, los incluye en el `finalTotal` y en el objeto retornado.
+   - `finalTotal = summaryTotal - discountAmount - backendDiscountAmount + shippingCost`
+2. `CheckoutUI.tsx` → muestra cada `appliedRule` como línea de descuento verde en el resumen de totales.
+
+### Fix `useCollectionProducts.ts` ✅
+**Bug raíz:** El hook usaba un join PostgREST que fallaba con `PGRST200`.
+**Fix:** Consulta en dos pasos: `collection_products` → `product_id[]`, luego `products.in('id', productIds)`.
 
 ### Fix WhatsApp en bundle page ✅
 WhatsApp tapaba el sticky CTA de compra en móvil en la página de bundle.
 Fix: `hideOnMobile={isProductPage || isBundlePage}` en EcommerceTemplate.tsx
-`isBundlePage = location.pathname.startsWith('/bundles/')`
 
 ### Sistema de Bundles — BundlePageUI.tsx ✅ COMPLETADO
 Rediseño completo de la página de bundle con UX correcto por tipo:
 
 **`fixed`** — Paquete cerrado con productos predefinidos
-- Mini lista "Incluye" en el hero panel
-- Grid "Qué incluye" debajo con imágenes
-- Botón directo sin selección requerida
-
-**`collection_fixed`** — El usuario elige N productos de una colección ✅ NUEVO
-- Picker con tarjetas de producto + contador `[− | 0 | +]` por tarjeta
-- Total seleccionado debe igualar `pick_quantity`
-- Permite seleccionar múltiples unidades del mismo producto
-- Progress bar en hero + sección picker con progreso repetido
-- Sticky mobile bar
-
-**`mix_match` / `mix_match_variant`** — El usuario elige N productos distintos
-- Tarjetas toggle (seleccionar/deseleccionar)
-- Máximo 1 de cada producto
-- Checkmark cuando está seleccionado
-- Progress bar en hero + sección picker
-- Sticky mobile bar
-
-**`filterProductsByVariant`**: fallback a todos los productos si ninguna variante coincide
+**`collection_fixed`** — El usuario elige N productos de una colección (picker con contadores +/−)
+**`mix_match` / `mix_match_variant`** — Tarjetas toggle, máximo 1 de cada producto
 
 ## Preferencias del Usuario
 - Idioma: Español
@@ -49,9 +36,10 @@ Rediseño completo de la página de bundle con UX correcto por tipo:
 - Sin hardcode de datos — siempre desde DB
 
 ## Archivos Clave
+- `src/adapters/CheckoutAdapter.tsx` — Lógica del checkout (adapter/headless)
+- `src/hooks/useCheckout.ts` — Hook de checkout; exporta `appliedRules` y `backendDiscountAmount`
+- `src/hooks/useOrderItems.ts` — Items del orden + totales
+- `src/pages/ui/CheckoutUI.tsx` — UI del checkout
 - `src/pages/ui/BundlePageUI.tsx` — UI completa de página de bundle
-- `src/pages/Bundle.tsx` — Route component (no tocar)
-- `src/hooks/useBundles.ts` — Fetch bundle by slug
 - `src/hooks/useCollectionProducts.ts` — Fetch products from collection (fix: 2-step query)
-- `src/contexts/CartContext.tsx` — addBundle, CartItem types
 - `src/templates/EcommerceTemplate.tsx` — Layout global con WhatsApp hide logic

@@ -34,7 +34,9 @@ export const useCheckoutLogic = () => {
     updateShippingAddress,
     updateBillingAddress,
     updateDiscountCode,
-    updateStates
+    updateStates,
+    appliedRules,
+    backendDiscountAmount
   } = useCheckout();
   
   const { 
@@ -584,7 +586,8 @@ export const useCheckoutLogic = () => {
     return discount ? calculateDiscountAmount(summaryTotal, discount.discount_type, discount.value, totalQuantity, discount.volume_conditions) : 0;
   }, [discount, summaryTotal, totalQuantity]);
 
-  const finalTotal = Math.max(0, summaryTotal - discountAmount + shippingCost);
+  // finalTotal descuenta tanto cupones manuales como descuentos automáticos del backend (bundles, volumen, etc.)
+  const finalTotal = Math.max(0, summaryTotal - discountAmount - backendDiscountAmount + shippingCost);
 
   // Payment enablement rules
   const requiresDeliveryMethod = !selectedPickupLocation && !!(deliveryExpectations && deliveryExpectations.length > 0);
@@ -643,6 +646,8 @@ export const useCheckoutLogic = () => {
     totalQuantity,
     itemsFingerprint,
     discountAmount,
+    backendDiscountAmount,
+    appliedRules,
     finalTotal,
     isCalculatingShipping,
     isCalculatingTotal,
