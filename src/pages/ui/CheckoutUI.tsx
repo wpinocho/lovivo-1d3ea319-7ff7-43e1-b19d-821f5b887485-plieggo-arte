@@ -656,17 +656,16 @@ export default function CheckoutUI() {
                       return (
                       <div key={item.key} className="flex items-center space-x-4">
                         <div className="relative">
-                          {(item.product.images && item.product.images.length > 0 && typeof item.product.images[0] === 'string') ? (
+                          {(item.variant_image || (item.product.images && item.product.images.length > 0 && typeof item.product.images[0] === 'string')) ? (
                             <img 
-                              src={item.product.images[0]} 
+                              src={item.variant_image || item.product.images![0]} 
                               alt={item.product.name || 'Product image'} 
                               className="w-16 h-16 object-cover rounded border" 
                               loading="lazy"
                               onError={(e) => {
                                 const target = e.target as HTMLImageElement;
-                                console.error('❌ Error loading image:', item.product.images[0]);
-                                target.onerror = null; // Prevent infinite loop
-                                target.src = '/placeholder.svg'; // Fallback to placeholder
+                                target.onerror = null;
+                                target.src = '/placeholder.svg';
                               }}
                             />
                           ) : (

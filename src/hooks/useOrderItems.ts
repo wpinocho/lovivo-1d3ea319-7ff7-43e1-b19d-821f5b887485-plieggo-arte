@@ -32,6 +32,7 @@ export interface OrderItem {
   quantity: number
   price: number
   total: number
+  variant_image?: string
   product: {
     id: string
     name: string
@@ -194,6 +195,7 @@ export const useOrderItems = () => {
         quantity: item.quantity,
         price: item.price,
         total: item.total,
+        variant_image: item.variant_image || undefined,
         product: {
           id: item.product_id,
           name: productName,
