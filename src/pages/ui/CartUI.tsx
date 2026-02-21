@@ -95,9 +95,9 @@ export const CartUI = ({ logic }: CartUIProps) => {
                     <div className="flex items-start space-x-4">
                       {/* Product Image */}
                       <div className="w-24 h-24 bg-muted rounded-lg overflow-hidden flex-shrink-0">
-                        {item.product.images && item.product.images.length > 0 || item.variant?.image ? (
+                        {item.variant?.image_urls?.[0] || item.variant?.image || (item.product.images && item.product.images.length > 0) ? (
                           <img
-                            src={item.variant?.image || item.product.images![0]}
+                            src={item.variant?.image_urls?.[0] || item.variant?.image || item.product.images![0]}
                             alt={item.product.title}
                             className="w-full h-full object-cover"
                           />

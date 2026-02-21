@@ -184,9 +184,9 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
                       <CardContent className="p-4">
                         <div className="flex items-start space-x-3">
                           <div className="w-16 h-16 bg-muted rounded-md overflow-hidden flex-shrink-0">
-                            {item.product.images && item.product.images.length > 0 || item.variant?.image ? (
+                            {item.variant?.image_urls?.[0] || item.variant?.image || (item.product.images && item.product.images.length > 0) ? (
                               <img
-                                src={item.variant?.image || item.product.images![0]}
+                                src={item.variant?.image_urls?.[0] || item.variant?.image || item.product.images![0]}
                                 alt={item.product.title}
                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                               />
