@@ -22,6 +22,30 @@ interface BundlePageUIProps {
   notFound: boolean
 }
 
+// ─── Image helpers ───────────────────────────────────────────────────────────
+/**
+ * Resolve the best image for a variant+product combo.
+ * Priority: variant.image_urls[0] → variant.image → product.images[0]
+ */
+const resolveImage = (product?: Product, variant?: ProductVariant): string | undefined => {
+  if (variant) {
+    if (variant.image_urls && variant.image_urls.length > 0) return variant.image_urls[0]
+    if (variant.image) return variant.image
+  }
+  return product?.images?.[0]
+}
+
+/**
+ * Resolve the best image for a BundleItem (fixed type).
+ * Looks up the variant by variant_id and uses its image first.
+ */
+const resolveBundleItemImage = (item: BundleItem): string | undefined => {
+  const variant = item.variant_id
+    ? item.products?.variants?.find(v => v.id === item.variant_id)
+    : undefined
+  return resolveImage(item.products, variant)
+}
+
 // ─── variant_filter helpers ───────────────────────────────────────────────────
 const getFilterValues = (vf: any): string[] => {
   if (!vf) return []
@@ -391,10 +415,10 @@ export const BundlePageUI = ({ bundle, items, loading, notFound }: BundlePageUIP
                 <div className="space-y-2.5">
                   {items.map(item => (
                     <div key={item.id} className="flex items-center gap-3">
-                      {item.products?.images?.[0] && (
+                      {resolveBundleItemImage(item) && (
                         <img
-                          src={item.products.images[0]}
-                          alt={item.products.title}
+                          src={resolveBundleItemImage(item)!}
+                          alt={item.products?.title || ''}
                           className="w-10 h-10 rounded-lg object-cover shrink-0"
                         />
                       )}
@@ -489,10 +513,10 @@ export const BundlePageUI = ({ bundle, items, loading, notFound }: BundlePageUIP
               {items.map(item => (
                 <div key={item.id} className="text-center group">
                   <div className="aspect-square bg-muted rounded-xl overflow-hidden mb-3 transition-transform duration-300 group-hover:scale-105 shadow-sm">
-                    {item.products?.images?.[0] ? (
+                    {resolveBundleItemImage(item) ? (
                       <img
-                        src={item.products.images[0]}
-                        alt={item.products.title || ''}
+                        src={resolveBundleItemImage(item)!}
+                        alt={item.products?.title || ''}
                         className="w-full h-full object-cover"
                         loading="lazy"
                       />
@@ -568,7 +592,7 @@ export const BundlePageUI = ({ bundle, items, loading, notFound }: BundlePageUIP
                   const key = getItemKey(product, variant)
                   const count = cfCounts[key] || 0
                   const price = variant?.price ?? product.price
-                  const image = variant?.image || product.images?.[0]
+                  const image = resolveImage(product, variant)
                   const canAdd = cfTotal < pickQuantity
 
                   return (
@@ -719,7 +743,7 @@ export const BundlePageUI = ({ bundle, items, loading, notFound }: BundlePageUIP
                   const isItemSelected = mmSelected.some(s => getItemKey(s.product, s.variant) === key)
                   const isDisabled = !isItemSelected && mmSelected.length >= pickQuantity
                   const price = variant?.price ?? product.price
-                  const image = variant?.image || product.images?.[0]
+                  const image = resolveImage(product, variant)
 
                   return (
                     <button

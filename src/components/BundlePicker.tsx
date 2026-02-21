@@ -155,7 +155,7 @@ export const BundlePicker = ({ bundle, isOpen, onClose }: BundlePickerProps) => 
                 const sel = isSelected(product.id)
                 const isDisabled = !sel && selected.length >= pickQuantity
                 const price = variant?.price ?? product.price
-                const image = variant?.image || product.images?.[0]
+                const image = variant?.image_urls?.[0] || variant?.image || product.images?.[0]
 
                 return (
                   <button
