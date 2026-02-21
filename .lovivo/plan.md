@@ -6,6 +6,18 @@ Diseño: colores primario (terracota), secundario "Vino Burdeos", crema de fondo
 
 ## Cambios Recientes
 
+### Fix `useCollectionProducts.ts` ✅
+**Bug raíz:** El hook usaba un join PostgREST (`select('products (id, ...)')`) que fallaba con error `PGRST200` porque Supabase no encontraba la relación foreign key en el schema cache.
+
+**Fix:** Cambio a consulta en dos pasos:
+1. `collection_products` → obtiene `product_id[]`
+2. `products.in('id', productIds)` → obtiene los productos
+
+### Fix WhatsApp en bundle page ✅
+WhatsApp tapaba el sticky CTA de compra en móvil en la página de bundle.
+Fix: `hideOnMobile={isProductPage || isBundlePage}` en EcommerceTemplate.tsx
+`isBundlePage = location.pathname.startsWith('/bundles/')`
+
 ### Sistema de Bundles — BundlePageUI.tsx ✅ COMPLETADO
 Rediseño completo de la página de bundle con UX correcto por tipo:
 
@@ -20,7 +32,6 @@ Rediseño completo de la página de bundle con UX correcto por tipo:
 - Permite seleccionar múltiples unidades del mismo producto
 - Progress bar en hero + sección picker con progreso repetido
 - Sticky mobile bar
-- **Fix crítico:** `filterProductsByVariant` ahora tiene fallback — si no hay variantes que coincidan, muestra todos los productos de la colección (soluciona el botón desactivado)
 
 **`mix_match` / `mix_match_variant`** — El usuario elige N productos distintos
 - Tarjetas toggle (seleccionar/deseleccionar)
@@ -29,12 +40,7 @@ Rediseño completo de la página de bundle con UX correcto por tipo:
 - Progress bar en hero + sección picker
 - Sticky mobile bar
 
-**Cambios técnicos:**
-- `filterProductsByVariant`: fallback a todos los productos si ninguna variante coincide
-- Estado separado: `mmSelected[]` para mix_match, `cfCounts{}` para collection_fixed
-- Botón CTA unificado con lógica condicional
-- Sticky mobile bar compartida para ambos tipos picker
-- `getItemKey(product, variant)` — función helper para keys consistentes
+**`filterProductsByVariant`**: fallback a todos los productos si ninguna variante coincide
 
 ## Preferencias del Usuario
 - Idioma: Español
@@ -43,8 +49,9 @@ Rediseño completo de la página de bundle con UX correcto por tipo:
 - Sin hardcode de datos — siempre desde DB
 
 ## Archivos Clave
-- `src/pages/ui/BundlePageUI.tsx` — UI completa de página de bundle (recién reescrita)
+- `src/pages/ui/BundlePageUI.tsx` — UI completa de página de bundle
 - `src/pages/Bundle.tsx` — Route component (no tocar)
 - `src/hooks/useBundles.ts` — Fetch bundle by slug
-- `src/hooks/useCollectionProducts.ts` — Fetch products from collection
+- `src/hooks/useCollectionProducts.ts` — Fetch products from collection (fix: 2-step query)
 - `src/contexts/CartContext.tsx` — addBundle, CartItem types
+- `src/templates/EcommerceTemplate.tsx` — Layout global con WhatsApp hide logic
