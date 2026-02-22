@@ -15,6 +15,7 @@ import { STORE_ID } from '@/lib/config';
 import { useBundles } from '@/hooks/useBundles';
 import { BundleCard } from '@/components/ui/BundleCard';
 import { MixMatchBundleCard } from '@/components/MixMatchBundleCard';
+import { NewsletterSection } from '@/components/NewsletterSection';
 
 type ProductWithCollection = Product & { collectionType?: 'espacio' | 'acordeon' }
 
@@ -360,6 +361,9 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
 
       {/* Inspiration Section */}
       <InspirationCarousel />
+
+      {/* Newsletter Club Plieggo */}
+      <NewsletterSection />
 
       <FloatingCart />
 

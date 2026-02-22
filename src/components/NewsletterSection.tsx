@@ -23,20 +23,20 @@ export const NewsletterSection = () => {
                   </div>
                 </div>
                 <h3 className="font-heading text-3xl font-bold text-foreground">
-                  ¡Gracias por suscribirte!
+                  ¡Bienvenido al Club Plieggo!
                 </h3>
                 <p className="font-body text-lg text-muted-foreground">
-                  Pronto recibirás nuestras mejores ofertas y novedades.
+                  Serás el primero en conocer nuevas piezas.
                 </p>
               </div>
             ) : (
               <div className="space-y-8">
                 <div className="space-y-3">
                   <h3 className="font-heading text-3xl md:text-4xl font-bold text-foreground">
-                    ¿Quieres estar al día?
+                    Sé el primero en ver nuevas piezas
                   </h3>
                   <p className="font-body text-xl text-muted-foreground">
-                    Suscríbete y recibe ofertas exclusivas y nuevas colecciones
+                    Acceso exclusivo a nuevas colecciones antes de que salgan al público. Solo para miembros del Club Plieggo.
                   </p>
                 </div>
                 
@@ -61,7 +61,7 @@ export const NewsletterSection = () => {
                     disabled={logic.isSubmitting}
                     className="btn-hero sm:w-auto"
                   >
-                    {logic.isSubmitting ? 'Enviando...' : 'Suscribirse'}
+                    {logic.isSubmitting ? 'Enviando...' : 'Unirme al Club'}
                   </Button>
                 </form>
                 
@@ -70,6 +70,10 @@ export const NewsletterSection = () => {
                     {logic.error}
                   </p>
                 )}
+
+                <p className="font-body text-xs text-muted-foreground/60 tracking-widest uppercase">
+                  Sin spam. Solo arte.
+                </p>
               </div>
             )}
           </div>
