@@ -3,24 +3,6 @@
   // Solo ejecutar si estamos dentro de un iframe
   if (window.self === window.top) return;
   
-  // Headers sensibles que no queremos enviar
-  const SENSITIVE_HEADERS = ['authorization', 'apikey', 'api-key', 'x-api-key', 'cookie', 'set-cookie'];
-  
-  // Función para filtrar headers sensibles
-  function filterHeaders(headers) {
-    const filtered = {};
-    if (headers) {
-      Object.keys(headers).forEach(key => {
-        if (!SENSITIVE_HEADERS.includes(key.toLowerCase())) {
-          filtered[key] = headers[key];
-        } else {
-          filtered[key] = '[REDACTED]';
-        }
-      });
-    }
-    return filtered;
-  }
-  
   // Función para enviar datos de red al parent window
   function sendNetworkToParent(data) {
     try {
@@ -43,27 +25,29 @@
     const options = args[1] || {};
     const method = options.method || 'GET';
     
-    // Capturar headers de la petición
-    const requestHeaders = {};
-    if (options.headers) {
-      if (options.headers instanceof Headers) {
-        options.headers.forEach((value, key) => {
-          requestHeaders[key] = value;
-        });
-      } else {
-        Object.assign(requestHeaders, options.headers);
-      }
+    // Capturar request body (truncado a 1000 chars)
+    let requestBody = null;
+    if (options.body) {
+      try {
+        requestBody = typeof options.body === 'string' 
+          ? options.body.substring(0, 1000)
+          : JSON.stringify(options.body).substring(0, 1000);
+      } catch {}
     }
     
     return originalFetch.apply(this, args)
-      .then(response => {
+      .then(async response => {
         const duration = Date.now() - startTime;
         
-        // Capturar headers de la respuesta
-        const responseHeaders = {};
-        response.headers.forEach((value, key) => {
-          responseHeaders[key] = value;
-        });
+        // Capturar response body SOLO para errores (4xx/5xx) - clonar para no consumir el stream
+        let responseBody = null;
+        if (!response.ok) {
+          try {
+            const cloned = response.clone();
+            const text = await cloned.text();
+            responseBody = text.substring(0, 2000);
+          } catch {}
+        }
         
         sendNetworkToParent({
           type: 'fetch',
@@ -72,9 +56,9 @@
           status: response.status,
           statusText: response.statusText,
           duration: duration,
-          requestHeaders: filterHeaders(requestHeaders),
-          responseHeaders: filterHeaders(responseHeaders),
-          success: response.ok
+          success: response.ok,
+          requestBody: requestBody,
+          responseBody: responseBody
         });
         
         return response;
@@ -89,9 +73,9 @@
           status: 0,
           statusText: 'Network Error',
           duration: duration,
-          requestHeaders: filterHeaders(requestHeaders),
           error: error.message,
-          success: false
+          success: false,
+          requestBody: requestBody
         });
         
         throw error;
@@ -106,7 +90,6 @@
       type: 'xhr',
       url: '',
       method: 'GET',
-      requestHeaders: {},
       startTime: 0
     };
     
@@ -119,30 +102,30 @@
       return originalOpen.apply(this, [method, url, ...rest]);
     };
     
-    // Interceptar setRequestHeader
-    const originalSetRequestHeader = xhr.setRequestHeader;
-    xhr.setRequestHeader = function(header, value) {
-      requestData.requestHeaders[header] = value;
-      return originalSetRequestHeader.apply(this, [header, value]);
-    };
-    
     // Interceptar send
     const originalSend = xhr.send;
     xhr.send = function(...args) {
+      // Capturar request body (truncado a 1000 chars)
+      let requestBody = null;
+      if (args[0]) {
+        try {
+          requestBody = typeof args[0] === 'string'
+            ? args[0].substring(0, 1000)
+            : JSON.stringify(args[0]).substring(0, 1000);
+        } catch {}
+      }
+      
       // Listener para cuando se complete la petición
       xhr.addEventListener('loadend', function() {
         const duration = Date.now() - requestData.startTime;
+        const isError = xhr.status < 200 || xhr.status >= 300;
         
-        // Capturar headers de la respuesta
-        const responseHeaders = {};
-        const headersString = xhr.getAllResponseHeaders();
-        if (headersString) {
-          headersString.split('\r\n').forEach(line => {
-            const parts = line.split(': ');
-            if (parts.length === 2) {
-              responseHeaders[parts[0]] = parts[1];
-            }
-          });
+        // Capturar response body SOLO para errores
+        let responseBody = null;
+        if (isError) {
+          try {
+            responseBody = (xhr.responseText || '').substring(0, 2000);
+          } catch {}
         }
         
         sendNetworkToParent({
@@ -152,9 +135,9 @@
           status: xhr.status,
           statusText: xhr.statusText,
           duration: duration,
-          requestHeaders: filterHeaders(requestData.requestHeaders),
-          responseHeaders: filterHeaders(responseHeaders),
-          success: xhr.status >= 200 && xhr.status < 300
+          success: !isError,
+          requestBody: requestBody,
+          responseBody: responseBody
         });
       });
       
