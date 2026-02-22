@@ -9,11 +9,14 @@
 
 ### ✅ COMPLETADO: Newsletter en home
 - Activado `NewsletterSection` en `IndexUI.tsx` después de `InspirationCarousel`
-- Copy actualizado a "Club Plieggo" (exclusividad, sin descuento):
+- Rediseñada visualmente: fondo Azul Medianoche (`bg-foreground`), texto Crema (`text-background`), acento Terracota (`text-primary`/`bg-primary`)
+- Elementos decorativos: brackets de esquina (origami feel), líneas terracota arriba y abajo, eyebrow con separadores
+- Copy "Club Plieggo" (exclusividad, sin descuento):
+  - Eyebrow: "CLUB PLIEGGO"
   - Título: "Sé el primero en ver nuevas piezas"
-  - Subtítulo: "Acceso exclusivo a nuevas colecciones antes de que salgan al público. Solo para miembros del Club Plieggo."
+  - Subtítulo: "Acceso exclusivo a nuevas colecciones antes de que salgan al público. Solo para miembros del Club."
   - Botón: "Unirme al Club"
-  - Estado de éxito: "¡Bienvenido al Club Plieggo! Serás el primero en conocer nuevas piezas."
+  - Estado de éxito: "¡Bienvenido al Club Plieggo! Serás el primero en conocer nuevas piezas." + CheckCircle icon
   - Tagline: "Sin spam. Solo arte."
 
 ### ✅ COMPLETADO: Upsell post-compra en ThankYou page
