@@ -1,54 +1,77 @@
-# Plieggo — Plan de Proyecto
+# Rediseño del Hover en ProductCardUI
 
-## Estado Actual
-Tienda de cuadros de papel plegado (origami/acordeón). React + Supabase.
-Diseño: colores primario (terracota), secundario "Vino Burdeos", crema de fondo.
+## Problema
+El overlay de hover cubre toda la imagen (`inset-0`) con `justify-between`, lo que pone las variantes en el CENTRO de la foto, tapando el arte. Además el label "Tamaño" es innecesario y el fondo del overlay es muy claro.
 
-## Cambios Recientes
+## Solución
+Anclar todos los elementos interactivos al FONDO de la imagen. El gradiente cubre solo la parte inferior. El arte queda visible en la parte superior.
 
-### Fix imágenes de variante en bundle picker ✅
-**Bug:** En `BundlePageUI.tsx` y `BundlePicker.tsx`, la imagen del picker usaba `variant?.image || product.images?.[0]`. El campo `variant.image` suele estar vacío; las imágenes reales de la variante están en `variant.image_urls[]`.
+## Cambios en `src/components/ui/ProductCardUI.tsx`
 
-**Fix:**
-1. Agregados dos helpers en `BundlePageUI.tsx`:
-   - `resolveImage(product, variant)` → prioridad: `image_urls[0]` → `image` → `product.images[0]`
-   - `resolveBundleItemImage(item)` → para bundles `fixed`, busca el variant por `variant_id` y usa `resolveImage`
-2. Aplicado `resolveImage` en: picker de `collection_fixed`, picker de `mix_match`, mini-lista "Incluye", grid "Qué incluye este paquete".
-3. `BundlePicker.tsx` → actualizado a `variant?.image_urls?.[0] || variant?.image || product.images?.[0]`
+### 1. Rediseño del overlay completo
+Cambiar de `justify-between` (distribuye de arriba a abajo) a `justify-end` (todo al fondo).
 
-### Fix descuento de bundle en checkout ✅
-**Bug:** `CheckoutAdapter.tsx` no importaba `backendDiscountAmount` ni `appliedRules` de `useCheckout`, por lo que el `finalTotal` no descontaba los descuentos automáticos del backend.
+**Gradiente actual:** `bg-gradient-to-t from-background/30 via-background/10 to-transparent`  
+**Gradiente nuevo:** `bg-gradient-to-t from-black/80 via-black/40 to-transparent`  
+→ Más oscuro en el fondo, invisible en la parte superior. Preserva la imagen arriba.
 
-**Fix:**
-1. `CheckoutAdapter.tsx` → desestructura `appliedRules` y `backendDiscountAmount` de `useCheckout()`, los incluye en `finalTotal`.
-2. `CheckoutUI.tsx` → muestra cada `appliedRule` como línea de descuento verde en el resumen.
+### 2. Eliminar el bloque "Top: Badges de descuento" del overlay
+Los badges de descuento y "Agotado" ya existen en otros lugares (badge top-right, precio con tachado). Eliminar este bloque duplicado del overlay.
 
-### Fix `useCollectionProducts.ts` ✅
-**Bug raíz:** El hook usaba un join PostgREST que fallaba con `PGRST200`.
-**Fix:** Consulta en dos pasos: `collection_products` → `product_id[]`, luego `products.in('id', productIds)`.
+### 3. Eliminar el label de opción (`{opt.name}`)
+Quitar la línea:
+```tsx
+<div className="font-body text-xs font-medium text-foreground mb-1">{opt.name}</div>
+```
+Los botones de tamaño son auto-explicativos.
 
-### Fix WhatsApp en bundle page ✅
-WhatsApp tapaba el sticky CTA de compra en móvil.
-Fix: `hideOnMobile={isProductPage || isBundlePage}` en EcommerceTemplate.tsx
+### 4. Rediseño de los botones de variante
+**Actual:** `border-2 rounded-sm px-2 py-1 text-xs bg-background text-foreground`  
+**Nuevo:** Pills con backdrop-blur y fondo semi-transparente para look premium:
+- Estado normal: `bg-white/20 backdrop-blur-sm border border-white/40 text-white text-xs px-2 py-1 rounded-full`
+- Estado seleccionado: `bg-white text-foreground border-white`
+→ Look más elegante y acorde al arte mexicano de la marca
 
-### Sistema de Bundles — BundlePageUI.tsx ✅ COMPLETADO
-Rediseño completo de la página de bundle con UX correcto por tipo:
-- **`fixed`** — Paquete cerrado con productos predefinidos
-- **`collection_fixed`** — El usuario elige N productos de una colección (picker con contadores +/−)
-- **`mix_match` / `mix_match_variant`** — Tarjetas toggle, máximo 1 de cada producto
+### 5. Nueva estructura del overlay (de arriba a abajo):
+```
+[imagen del producto — visible y sin obstrucción]
+[gradiente solo en la parte inferior]
+  → [fila de variante pills — justo arriba del botón]
+  → [botón "Agregar al carrito" — pegado al fondo]
+```
 
-## Preferencias del Usuario
-- Idioma: Español
-- Diseño: crema, terracota (primary), vino burdeos (secondary)
-- Componentes limpios, bien organizados
-- Sin hardcode de datos — siempre desde DB
+### 6. Ajuste de padding y spacing
+- Reducir padding del overlay de `p-6` a `p-4`
+- `gap-2` entre las variantes y el botón
+- `mb-2` entre pills para que queden compactas
 
-## Archivos Clave
-- `src/pages/ui/BundlePageUI.tsx` — UI completa de página de bundle (helpers resolveImage, resolveBundleItemImage)
-- `src/components/BundlePicker.tsx` — Dialog alternativo de bundle picker
-- `src/adapters/CheckoutAdapter.tsx` — Lógica del checkout (adapter/headless)
-- `src/hooks/useCheckout.ts` — Hook de checkout; exporta `appliedRules` y `backendDiscountAmount`
-- `src/hooks/useOrderItems.ts` — Items del orden + totales
-- `src/pages/ui/CheckoutUI.tsx` — UI del checkout
-- `src/hooks/useCollectionProducts.ts` — Fetch products from collection (fix: 2-step query)
-- `src/templates/EcommerceTemplate.tsx` — Layout global con WhatsApp hide logic
+## Estructura final del overlay
+```tsx
+<div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-4 gap-2 translate-y-4 group-hover:translate-y-0">
+  
+  {/* Variantes — solo si las hay, sin label */}
+  {logic.hasVariants && logic.options && (
+    <div className="flex flex-col gap-2">
+      {logic.options.map((opt) => (
+        <div key={opt.id} className="flex flex-wrap gap-1.5">
+          {opt.values.filter(...).map((val) => {
+            // Color swatches: círculos pequeños con ring blanco cuando seleccionado
+            // Texto (tallas): pills con bg blanco translúcido
+          })}
+        </div>
+      ))}
+    </div>
+  )}
+
+  {/* Botón */}
+  <Button ... className="btn-hero w-full">
+    {logic.inStock ? 'Agregar al carrito' : 'Agotado'}
+  </Button>
+</div>
+```
+
+## Resultado esperado
+- Top de la imagen: completamente limpio, sin overlay (arte visible)
+- Bottom de la imagen: gradiente oscuro elegante con pills de variante + botón CTA
+- Las dos cards (Espacio cuadrada y Acordeón rectangular) se benefician igual
+- Look premium similar a tiendas de arte/diseño de alto nivel
