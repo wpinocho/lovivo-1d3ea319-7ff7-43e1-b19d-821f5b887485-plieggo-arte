@@ -16,27 +16,13 @@
   - Estado de éxito: "¡Bienvenido al Club Plieggo! Serás el primero en conocer nuevas piezas."
   - Tagline: "Sin spam. Solo arte."
 
----
-
-## Feature pendiente: Upsell post-compra en ThankYou page
-
-### Qué hace
-Después del resumen del pedido en `/thank-you/:orderId`, agregar una sección "Piezas que podrían interesarte" con 3-4 productos. El cliente acaba de comprar → está en su momento de mayor confianza y apertura.
-
-### Estado actual
-`src/pages/ThankYou.tsx` — solo tiene un botón "Seguir Comprando" al final. Sin ninguna recomendación de producto.
-
-### Implementación
-1. En `ThankYou.tsx`, importar `supabase` y `STORE_ID`
-2. Agregar un `useEffect` que haga fetch de productos activos (excluir los que ya compró en la orden)
-3. Renderizar una sección debajo del grid de "Detalles del Pedido" y "Información de Entrega", antes de los botones de acción
-4. Usar el componente `ProductCard` ya existente para mostrar los cuadros
-5. Título de la sección: "Otras piezas que podrían interesarte"
-6. Mostrar máximo 4 productos en grid responsive (2 cols móvil, 4 cols desktop)
-7. Excluir del listado los productos que ya compraron (filtrar por `order.order_items`)
-
-### Archivos a modificar
-- `src/pages/ThankYou.tsx` — agregar fetch de productos + sección de upsell
+### ✅ COMPLETADO: Upsell post-compra en ThankYou page
+- Sección "Otras piezas que te podrían interesar" agregada en `src/pages/ThankYou.tsx`
+- Fetch de hasta 4 productos activos del store, excluyendo los ya comprados
+- Grid responsive: 2 columnas en móvil, 4 columnas en desktop
+- Cards: imagen aspect-square, título, precio, "Ver pieza →" link al producto
+- Silent fail si el fetch falla (no rompe la página)
+- Aparece entre los detalles del pedido y el botón "Seguir Comprando"
 
 ---
 

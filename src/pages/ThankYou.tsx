@@ -4,10 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { CheckCircle, Package, Mail, ArrowLeft, ShoppingBag } from 'lucide-react'
+import { CheckCircle, Package, Mail, ArrowLeft, ShoppingBag, ArrowRight } from 'lucide-react'
 import { formatMoney } from '@/lib/money'
 import { useToast } from '@/hooks/use-toast'
 import { EcommerceTemplate } from '@/templates/EcommerceTemplate'
+import { supabase } from '@/lib/supabase'
+import { STORE_ID } from '@/lib/config'
+import type { Product } from '@/lib/supabase'
 
 interface OrderDetails {
   id: string
@@ -28,6 +31,7 @@ const ThankYou = () => {
   const { orderId } = useParams()
   const [order, setOrder] = useState<OrderDetails | null>(null)
   const [loading, setLoading] = useState(true)
+  const [upsellProducts, setUpsellProducts] = useState<Product[]>([])
 
   useEffect(() => {
     if (!orderId) {
@@ -69,6 +73,40 @@ const ThankYou = () => {
 
     loadOrder()
   }, [orderId])
+
+  // Fetch upsell products after order is loaded
+  useEffect(() => {
+    if (!order) return
+
+    const loadUpsell = async () => {
+      try {
+        // Get IDs of products already purchased to exclude them
+        const purchasedIds = order.order_items
+          .map(item => item.product_id)
+          .filter(Boolean)
+
+        let query = supabase
+          .from('products')
+          .select('*')
+          .eq('store_id', STORE_ID)
+          .eq('status', 'active')
+          .limit(4)
+
+        if (purchasedIds.length > 0) {
+          query = query.not('id', 'in', `(${purchasedIds.join(',')})`)
+        }
+
+        const { data, error } = await query
+        if (!error && data) {
+          setUpsellProducts(data)
+        }
+      } catch (e) {
+        // Silent fail — upsell is non-critical
+      }
+    }
+
+    loadUpsell()
+  }, [order])
 
   if (loading) {
     return (
@@ -247,8 +285,61 @@ const ThankYou = () => {
           </Card>
         </div>
 
+        {/* Upsell Section */}
+        {upsellProducts.length > 0 && (
+          <div className="mt-12">
+            <div className="text-center mb-8">
+              <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-2">Mientras esperas tu pedido</p>
+              <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground">
+                Otras piezas que te podrían interesar
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              {upsellProducts.map((product) => (
+                <Link
+                  key={product.id}
+                  to={`/products/${product.slug}`}
+                  className="group block"
+                  onClick={() => window.scrollTo(0, 0)}
+                >
+                  {/* Image */}
+                  <div className="aspect-square rounded-lg overflow-hidden bg-muted mb-3 group-hover:ring-2 group-hover:ring-primary/30 transition-all duration-300">
+                    {product.images && product.images.length > 0 ? (
+                      <img
+                        src={product.images[0]}
+                        alt={product.title}
+                        loading="lazy"
+                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Package className="h-8 w-8 text-muted-foreground/40" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Info */}
+                  <h3 className="font-heading font-semibold text-sm md:text-base leading-tight group-hover:text-primary transition-colors line-clamp-2 mb-1">
+                    {product.title}
+                  </h3>
+                  <p className="font-bold text-base md:text-lg">
+                    {formatMoney(product.price || 0, order!.currency_code)}
+                  </p>
+
+                  {/* CTA */}
+                  <span className="inline-flex items-center gap-1 text-xs text-primary font-medium mt-2 group-hover:gap-2 transition-all">
+                    Ver pieza
+                    <ArrowRight className="h-3 w-3" />
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-10">
           <Button asChild variant="outline">
             <Link to="/" className="flex items-center gap-2">
               <ArrowLeft className="w-4 h-4" />
