@@ -90,55 +90,37 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [] }
                 </div>
               )}
 
-              {/* Overlay con variantes - aparece en hover (solo para quick-add) */}
-              <div className="absolute inset-0 bg-gradient-to-t from-background/30 via-background/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-between p-6 translate-y-4 group-hover:translate-y-0">
-                {/* Top: Badges de descuento */}
-                <div className="flex flex-col gap-2 items-start">
-                  {logic.discountPercentage && (
-                    <span className="bg-secondary text-secondary-foreground text-xs px-2 py-1 rounded-sm font-medium">
-                      -{logic.discountPercentage}%
-                    </span>
-                  )}
-                  {!logic.inStock && (
-                    <span className="bg-muted text-muted-foreground text-xs px-2 py-1 rounded-sm font-medium">
-                      Agotado
-                    </span>
-                  )}
-                </div>
+              {/* Badges siempre visibles: descuento / agotado */}
+              <div className="absolute top-3 left-3 z-10 flex flex-col gap-1 items-start">
+                {logic.discountPercentage && (
+                  <span className="bg-secondary text-secondary-foreground text-xs px-2 py-1 rounded-sm font-medium shadow-sm">
+                    -{logic.discountPercentage}%
+                  </span>
+                )}
+                {!logic.inStock && (
+                  <span className="bg-muted/90 text-muted-foreground text-xs px-2 py-1 rounded-sm font-medium shadow-sm backdrop-blur-sm">
+                    Agotado
+                  </span>
+                )}
+              </div>
 
-                {/* Middle: Variantes para quick-add */}
-                <div className="flex-1 flex flex-col justify-center">
+              {/* Overlay hover — gradiente anclado al fondo, arte visible en la parte superior */}
+              <div className="absolute inset-x-0 bottom-0 opacity-0 group-hover:opacity-100 transition-all duration-400 ease-out translate-y-2 group-hover:translate-y-0">
+                {/* Gradiente decorativo */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none" />
+
+                {/* Contenido: variantes + botón al fondo */}
+                <div className="relative z-10 flex flex-col gap-2.5 p-3.5">
+                  {/* Variantes para quick-add — sin label de nombre */}
                   {logic.hasVariants && logic.options && (
-                    <div className="space-y-3">
+                    <div className="flex flex-col gap-1.5">
                       {logic.options.map((opt) => (
-                        <div key={opt.id}>
-                          <div className="font-body text-xs font-medium text-foreground mb-1">{opt.name}</div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {opt.values.filter(val => logic.isOptionValueAvailable(opt.name, val)).map((val) => {
-                              const isSelected = logic.selected[opt.name] === val
-                              const swatch = opt.name.toLowerCase() === 'color' ? opt.swatches?.[val] : undefined
+                        <div key={opt.id} className="flex flex-wrap gap-1.5">
+                          {opt.values.filter(val => logic.isOptionValueAvailable(opt.name, val)).map((val) => {
+                            const isSelected = logic.selected[opt.name] === val
+                            const swatch = opt.name.toLowerCase() === 'color' ? opt.swatches?.[val] : undefined
 
-                              if (swatch) {
-                                return (
-                                  <button
-                                    key={val}
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      logic.handleOptionChange(opt.name, val)
-                                    }}
-                                    title={`${opt.name}: ${val}`}
-                                    className={`h-7 w-7 rounded-full border-2 transition-all ${
-                                      isSelected ? 'border-foreground scale-110 ring-2 ring-primary' : 'border-border'
-                                    } ${logic.selected[opt.name] && !isSelected ? 'opacity-70' : ''}`}
-                                    style={{ 
-                                      backgroundColor: swatch
-                                    }}
-                                    aria-label={`${opt.name}: ${val}`}
-                                  />
-                                )
-                              }
-
+                            if (swatch) {
                               return (
                                 <button
                                   key={val}
@@ -147,41 +129,57 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [] }
                                     e.stopPropagation()
                                     logic.handleOptionChange(opt.name, val)
                                   }}
-                                  className={`border-2 rounded-sm px-2 py-1 text-xs font-medium transition-all ${
-                                    isSelected 
-                                      ? 'border-foreground bg-foreground text-background' 
-                                      : logic.selected[opt.name] && !isSelected
-                                        ? 'border-border bg-background text-muted-foreground opacity-70'
-                                        : 'border-border bg-background text-foreground hover:border-foreground'
-                                  }`}
-                                  aria-pressed={isSelected}
-                                  aria-label={`${opt.name}: ${val}`}
                                   title={`${opt.name}: ${val}`}
-                                >
-                                  {val}
-                                </button>
+                                  className={`h-6 w-6 rounded-full border-2 transition-all ${
+                                    isSelected
+                                      ? 'border-white scale-110 ring-2 ring-white/50 shadow-lg'
+                                      : 'border-white/50 hover:border-white'
+                                  }`}
+                                  style={{ backgroundColor: swatch }}
+                                  aria-label={`${opt.name}: ${val}`}
+                                />
                               )
-                            })}
-                          </div>
+                            }
+
+                            return (
+                              <button
+                                key={val}
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  logic.handleOptionChange(opt.name, val)
+                                }}
+                                className={`rounded px-2 py-0.5 text-xs font-medium backdrop-blur-sm transition-all border ${
+                                  isSelected
+                                    ? 'bg-white text-foreground border-white shadow-md'
+                                    : 'bg-white/15 text-white border-white/30 hover:bg-white/30 hover:border-white/60'
+                                }`}
+                                aria-pressed={isSelected}
+                                aria-label={`${opt.name}: ${val}`}
+                              >
+                                {val}
+                              </button>
+                            )
+                          })}
                         </div>
                       ))}
                     </div>
                   )}
-                </div>
 
-                {/* Bottom: Botón agregar al carrito en hover */}
-                <Button
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    logic.onAddToCartSuccess()
-                    logic.handleAddToCart()
-                  }}
-                  disabled={!logic.canAddToCart}
-                  className="btn-hero w-full"
-                >
-                  {logic.inStock ? 'Agregar al carrito' : 'Agotado'}
-                </Button>
+                  {/* Botón agregar al carrito */}
+                  <Button
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      logic.onAddToCartSuccess()
+                      logic.handleAddToCart()
+                    }}
+                    disabled={!logic.canAddToCart}
+                    className="btn-hero w-full"
+                  >
+                    {logic.inStock ? 'Agregar al carrito' : 'Agotado'}
+                  </Button>
+                </div>
               </div>
             </div>
 
