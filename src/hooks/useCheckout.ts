@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { useCart } from '@/contexts/CartContext'
+import { useCart, type CartItem } from '@/contexts/CartContext'
 import { useSettings } from '@/contexts/SettingsContext'
 import { createCheckoutFromCart, createSampleOrder, updateCheckout, type CheckoutUpdatePayload } from '@/lib/checkout'
 import { cartToApiItems } from '@/lib/cart-utils'
@@ -46,11 +46,12 @@ export const useCheckout = () => {
   const notesTimerRef = useRef<NodeJS.Timeout | null>(null)
   const itemsTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-  const checkout = async (options: CheckoutOptions = {}): Promise<CheckoutResponse> => {
+  const checkout = async (options: CheckoutOptions = {}, overrideItems?: CartItem[]): Promise<CheckoutResponse> => {
     setIsLoading(true)
+    const itemsToCheckout = (overrideItems && overrideItems.length > 0) ? overrideItems : cart.items
     try {
       const order = await createCheckoutFromCart(
-        cart.items,
+        itemsToCheckout,
         options.customerInfo,
         options.discountCode,
         options.shippingAddress,

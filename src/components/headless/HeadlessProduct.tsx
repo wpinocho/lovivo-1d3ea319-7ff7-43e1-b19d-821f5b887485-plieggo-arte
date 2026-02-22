@@ -272,12 +272,15 @@ export const useProductLogic = (slugProp?: string) => {
       return
     }
     
-    // BEST PRACTICE (Shopify): Agregar al carrito primero
-    // Esto permite aplicar descuentos, mantener inventario consistente
-    for (let i = 0; i < quantity; i++) {
-      addItem(product, variantToAdd)
-    }
-    
+    // Build items array directly — no depender del cart state (React async)
+    const itemsForCheckout = [{
+      type: 'product' as const,
+      key: `${product.id}${variantToAdd ? `:${variantToAdd.id}` : ''}`,
+      product: product,
+      variant: variantToAdd,
+      quantity: quantity
+    }]
+
     // Track AddToCart event
     const currentPrice = getCurrentPrice()
     trackAddToCart({
@@ -292,23 +295,10 @@ export const useProductLogic = (slugProp?: string) => {
       currency: tracking.getCurrencyFromSettings(currencyCode),
       num_items: quantity
     })
-    
-    // Create checkout directly - skip cart UI (Shopify Buy Now pattern)
+
     try {
-      // Build items array manually for checkout (bypass cart state dependency)
-      const itemsForCheckout = [{
-        key: `${product.id}${variantToAdd ? `:${variantToAdd.id}` : ''}`,
-        product: product,
-        variant: variantToAdd,
-        quantity: quantity // Use the selected quantity
-      }]
-      
-      // Create order passing items directly (doesn't depend on cart context state)
-      const order = await checkout({
-        currencyCode: currencyCode
-      }, itemsForCheckout) // Pass items directly to bypass cart state
-      
-      // Navigate directly to checkout (bypass cart UI)
+      // Pasar los items directamente — checkout NO lee cart.items
+      await checkout({ currencyCode }, itemsForCheckout)
       navigate('/checkout')
     } catch (error) {
       console.error('Error in handleBuyNow:', error)
