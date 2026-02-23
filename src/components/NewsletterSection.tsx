@@ -71,7 +71,7 @@ export const NewsletterSection = () => {
                     onChange={(e) => logic.setEmail(e.target.value)}
                     disabled={logic.isSubmitting}
                     required
-                    className="flex-1 font-body bg-background/8 border-background/20 text-background placeholder:text-background/35 focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary/40 rounded-lg"
+                    className="flex-1 font-body bg-background/8 border-background/20 text-foreground placeholder:text-background/35 focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary/40 rounded-lg"
                   />
                   <Button
                     type="submit"
