@@ -11,21 +11,19 @@
 - Activado `NewsletterSection` en `IndexUI.tsx` después de `InspirationCarousel`
 - Rediseñada visualmente: fondo Azul Medianoche (`bg-foreground`), texto Crema (`text-background`), acento Terracota (`text-primary`/`bg-primary`)
 - Elementos decorativos: brackets de esquina (origami feel), líneas terracota arriba y abajo, eyebrow con separadores
-- Copy "Club Plieggo" (exclusividad, sin descuento):
-  - Eyebrow: "CLUB PLIEGGO"
-  - Título: "Sé el primero en ver nuevas piezas"
-  - Subtítulo: "Acceso exclusivo a nuevas colecciones antes de que salgan al público. Solo para miembros del Club."
-  - Botón: "Unirme al Club"
-  - Estado de éxito: "¡Bienvenido al Club Plieggo! Serás el primero en conocer nuevas piezas." + CheckCircle icon
-  - Tagline: "Sin spam. Solo arte."
+- Fix: color de texto del input corregido (`text-foreground` en vez de `text-background`)
+- Copy "Club Plieggo" (exclusividad, sin descuento)
 
 ### ✅ COMPLETADO: Upsell post-compra en ThankYou page
-- Sección "Otras piezas que te podrían interesar" agregada en `src/pages/ThankYou.tsx`
+- Sección "Mientras esperas tu pedido" agregada en `src/pages/ThankYou.tsx`
 - Fetch de hasta 4 productos activos del store, excluyendo los ya comprados
 - Grid responsive: 2 columnas en móvil, 4 columnas en desktop
-- Cards: imagen aspect-square, título, precio, "Ver pieza →" link al producto
-- Silent fail si el fetch falla (no rompe la página)
-- Aparece entre los detalles del pedido y el botón "Seguir Comprando"
+- Silent fail si el fetch falla
+
+### ✅ COMPLETADO: Luna Beige — reseñas e imagen de inspiración
+- 8 reseñas con rating 4.9★ agregadas en `product-reviews.ts` y `product-reviews-content.ts`
+- Imagen de inspiración (sala escandinava con sofá beige) agregada en `product-inspiration.ts`
+- La imagen aparece al lado de la Guía de Tamaños en la página de producto
 
 ---
 

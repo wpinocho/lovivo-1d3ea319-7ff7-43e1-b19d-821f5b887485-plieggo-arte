@@ -94,6 +94,12 @@ export const productReviews: Record<string, ProductReview> = {
   'estrellas': {
     rating: 4.8,
     reviewCount: 5
+  },
+
+  // EDICIÓN LIMITADA — Luna Beige
+  'luna-beige': {
+    rating: 4.9,
+    reviewCount: 8
   }
 }
 

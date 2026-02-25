@@ -247,6 +247,18 @@ export const productReviews: Record<string, Review[]> = {
     { id: '1', author: 'Natalia Zavala', rating: 5, comment: 'El morado elegante hace honor a su nombre. Hermoso tono y excelente calidad. Muy contenta con mi compra.', date: '2026-02-10', verified: true, variant: '50x50cm' },
   ],
 
+  // EDICIÓN LIMITADA — 8 reseñas, 4.9★
+  'luna-beige': [
+    { id: '1', author: 'Claudia Fuentes', rating: 5, comment: 'El beige de la luna es delicado y sofisticado. Los pliegues crean un relieve increíble que cambia con la luz del día. Quedó perfecto en mi sala.', date: '2026-02-12', verified: true, variant: 'Única' },
+    { id: '2', author: 'Tomás Aguirre', rating: 5, comment: 'Lo compré para mi sala y se convirtió en el centro de atención. El tono beige es cálido y elegante. Arte artesanal de primer nivel.', date: '2026-02-03', verified: true, variant: 'Única' },
+    { id: '3', author: 'Renata Solís', rating: 5, comment: 'Una pieza única y hermosa. Los pliegues que forman la luna son hipnóticos. Se ve increíble con luz natural.', date: '2026-01-20', verified: true, variant: 'Única' },
+    { id: '4', author: 'Pablo Ibáñez', rating: 4, comment: 'Muy buena calidad. El beige es exactamente como en las fotos. El efecto tridimensional de la luna es espectacular.', date: '2026-01-10', verified: true, variant: 'Única' },
+    { id: '5', author: 'Mariana Estrada', rating: 5, comment: 'Me enamoré desde que la vi. En persona supera por mucho a las fotos. El beige tiene profundidad y calidez. Totalmente recomendada.', date: '2025-12-30', verified: true, variant: 'Única' },
+    { id: '6', author: 'Felipe Carrasco', rating: 5, comment: 'Regalo perfecto. Mi esposa lloró de emoción cuando lo vio. La luna en beige es etérea y delicada. Arte mexicano en su máxima expresión.', date: '2025-12-20', verified: true, variant: 'Única' },
+    { id: '7', author: 'Lucía Navarro', rating: 5, comment: 'El beige neutro hace que combine con cualquier decoración. Los pliegues de la luna crean sombras hermosas. Mi favorita de toda la colección.', date: '2025-12-05', verified: true, variant: 'Única' },
+    { id: '8', author: 'Héctor Villanueva', rating: 5, comment: 'Pieza de colección. El trabajo artesanal es impecable y el diseño de la luna en beige es elegante y atemporal. Llegó en perfectas condiciones.', date: '2025-11-22', verified: true, variant: 'Única' },
+  ],
+
   // EDICIÓN LIMITADA — 5 reseñas, 4.8★
   'estrellas': [
     { id: '1', author: 'Camila Estrella', rating: 5, comment: 'El cuadro Estrellas es mágico! Los pliegues crean un efecto de profundidad increíble, como si estuvieras mirando un cielo estrellado. Impresionante.', date: '2026-02-10', verified: true, variant: 'Única' },

@@ -148,6 +148,14 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
     }
   ],
   
+  'luna-beige': [
+    {
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1772039134777-cilpxgb2je7.webp',
+      alt: 'Cuadro Luna Beige enmarcado en madera natural sobre pared crema en sala escandinava con sofá beige, cojines azules, mesa de madera y plantas verdes',
+      context: 'Sala de estar'
+    }
+  ],
+
   // Otros productos se pueden agregar aquí con el mismo formato
   // 'slug-del-producto': [{ src: 'url', alt: 'descripción', context: 'contexto' }]
 }
