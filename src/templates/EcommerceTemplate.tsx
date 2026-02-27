@@ -78,6 +78,8 @@ export const EcommerceTemplate = ({
   const isBundlePage = location.pathname.startsWith('/bundles/')
 
   const header = (
+    <>
+    <AnnouncementBar />
     <div className={`py-4 transition-all duration-300 ${scrolled ? 'bg-background/95 backdrop-blur border-b border-border' : 'bg-transparent border-b border-transparent'} ${headerClassName}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-4 md:gap-8">
@@ -198,6 +200,7 @@ export const EcommerceTemplate = ({
         )}
       </div>
     </div>
+    </>
   )
 
   const footer = (
@@ -278,8 +281,6 @@ export const EcommerceTemplate = ({
 
   return (
     <>
-      {/* AnnouncementBar solo en páginas que no son home — en home el hero cubre el viewport */}
-      {!isHome && <AnnouncementBar />}
       <PageTemplate 
         header={header}
         footer={footer}
