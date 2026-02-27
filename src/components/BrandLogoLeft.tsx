@@ -1,4 +1,8 @@
-export const BrandLogoLeft = () => {
+interface BrandLogoLeftProps {
+  transparent?: boolean
+}
+
+export const BrandLogoLeft = ({ transparent = false }: BrandLogoLeftProps) => {
   return (
     <a href="/" aria-label="Home" className="ml-2 flex items-center gap-2 md:gap-3">
       <img 
@@ -6,7 +10,7 @@ export const BrandLogoLeft = () => {
         alt="Plieggo Logo" 
         className="w-[40px] h-[40px] md:w-[60px] md:h-[60px] object-contain"
       />
-      <span className="text-xl md:text-2xl font-heading font-bold tracking-tight text-foreground">
+      <span className={`text-xl md:text-2xl font-heading font-bold tracking-tight transition-colors duration-300 ${transparent ? 'text-white' : 'text-foreground'}`}>
         Plieggo
       </span>
     </a>

@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react'
+import { ReactNode, useState, useEffect } from 'react'
 import { PageTemplate } from './PageTemplate'
 import { BrandLogoLeft } from '@/components/BrandLogoLeft'
 import { SocialLinks } from '@/components/SocialLinks'
@@ -54,6 +54,23 @@ export const EcommerceTemplate = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const location = useLocation()
   
+  // Transparent navbar: solo en home page
+  const isHome = location.pathname === '/'
+  const [scrolled, setScrolled] = useState(!isHome)
+
+  useEffect(() => {
+    // En páginas que no son home, siempre sólido
+    if (!isHome) {
+      setScrolled(true)
+      return
+    }
+    // En home, transparente al top y sólido al hacer scroll
+    const handleScroll = () => setScrolled(window.scrollY > 20)
+    handleScroll() // Inicializar con posición actual
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [isHome])
+
   // No mostrar WhatsApp en checkout
   const showWhatsApp = !location.pathname.includes('/checkout')
   // En página de producto o bundle (móvil), ocultar WhatsApp para no tapar el CTA de compra
@@ -61,7 +78,7 @@ export const EcommerceTemplate = ({
   const isBundlePage = location.pathname.startsWith('/bundles/')
 
   const header = (
-    <div className={`py-4 bg-background/95 backdrop-blur ${headerClassName}`}>
+    <div className={`py-4 transition-all duration-300 ${scrolled ? 'bg-background/95 backdrop-blur border-b border-border' : 'bg-transparent border-b border-transparent'} ${headerClassName}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-4 md:gap-8">
           {/* Mobile Menu Toggle */}
@@ -70,7 +87,7 @@ export const EcommerceTemplate = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden h-10 w-10"
+                className={`md:hidden h-10 w-10 transition-colors duration-300 ${!scrolled ? 'text-white hover:text-white hover:bg-white/10' : ''}`}
                 aria-label="Abrir menú"
               >
                 <Menu className="h-6 w-6" />
@@ -121,40 +138,29 @@ export const EcommerceTemplate = ({
           </Sheet>
 
           {/* Logo */}
-          <BrandLogoLeft />
+          <BrandLogoLeft transparent={!scrolled} />
 
           {/* Navigation - Desktop */}
           <nav className="hidden md:flex items-center gap-1">
-            <Link 
-              to="/all-products" 
-              className="font-body text-lg text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-1.5 rounded-sm whitespace-nowrap"
-            >
-              Todos los Cuadros
-            </Link>
-            <Link 
-              to="/top-sellers" 
-              className="font-body text-lg text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-1.5 rounded-sm whitespace-nowrap"
-            >
-              Más Vendidos
-            </Link>
-            <Link 
-              to="/coleccion-acordeon" 
-              className="font-body text-lg text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-1.5 rounded-sm whitespace-nowrap"
-            >
-              Acordeón
-            </Link>
-            <Link 
-              to="/coleccion-espacio" 
-              className="font-body text-lg text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-1.5 rounded-sm whitespace-nowrap"
-            >
-              Espacio
-            </Link>
-            <Link 
-              to="/about" 
-              className="font-body text-lg text-muted-foreground hover:text-secondary-foreground hover:bg-secondary transition-all duration-300 px-2 py-1.5 rounded-sm whitespace-nowrap"
-            >
-              Nosotros
-            </Link>
+            {[
+              { to: '/all-products', label: 'Todos los Cuadros' },
+              { to: '/top-sellers', label: 'Más Vendidos' },
+              { to: '/coleccion-acordeon', label: 'Acordeón' },
+              { to: '/coleccion-espacio', label: 'Espacio' },
+              { to: '/about', label: 'Nosotros' },
+            ].map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                className={`font-body text-lg transition-all duration-300 px-2 py-1.5 rounded-sm whitespace-nowrap ${
+                  scrolled
+                    ? 'text-muted-foreground hover:text-secondary-foreground hover:bg-secondary'
+                    : 'text-white/90 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
           </nav>
 
           {/* Cart */}
@@ -164,7 +170,11 @@ export const EcommerceTemplate = ({
                 variant="ghost"
                 size="icon"
                 onClick={openCart}
-                className="relative hover:bg-primary/10 h-10 w-10 md:h-14 md:w-14"
+                className={`relative h-10 w-10 md:h-14 md:w-14 transition-colors duration-300 ${
+                  !scrolled
+                    ? 'text-white hover:text-white hover:bg-white/10'
+                    : 'hover:bg-primary/10'
+                }`}
                 aria-label="Ver carrito"
               >
                 <ShoppingCart className="h-6 w-6 md:h-10 md:w-10" />
