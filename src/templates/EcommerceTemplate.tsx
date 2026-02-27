@@ -80,7 +80,10 @@ export const EcommerceTemplate = ({
   const header = (
     <>
     <AnnouncementBar />
-    <div className={`py-4 transition-all duration-300 ${scrolled ? 'bg-background/95 backdrop-blur border-b border-border' : 'bg-transparent border-b border-transparent'} ${headerClassName}`}>
+    <div 
+      className={`py-4 transition-all duration-300 ${scrolled ? 'backdrop-blur-md border-b border-border/50' : 'bg-transparent border-b border-transparent'} ${headerClassName}`}
+      style={scrolled ? { background: 'linear-gradient(180deg, rgba(247,244,234,0.97) 0%, rgba(242,239,228,0.95) 100%)' } : undefined}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-4 md:gap-8">
           {/* Mobile Menu Toggle */}
@@ -204,7 +207,10 @@ export const EcommerceTemplate = ({
   )
 
   const footer = (
-    <div className={`bg-secondary text-secondary-foreground py-16 ${footerClassName}`}>
+    <div 
+      className={`text-secondary-foreground py-16 ${footerClassName}`}
+      style={{ background: 'linear-gradient(160deg, #3d1a27 0%, #5D2A38 40%, #6b2f41 70%, #4a2232 100%)' }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Brand */}

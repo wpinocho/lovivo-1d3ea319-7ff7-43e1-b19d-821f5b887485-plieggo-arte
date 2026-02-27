@@ -42,7 +42,8 @@ export const AnnouncementBar = () => {
 
   return (
     <div 
-      className="relative bg-secondary text-secondary-foreground h-10 flex items-center justify-center overflow-hidden"
+      className="relative text-secondary-foreground h-10 flex items-center justify-center overflow-hidden"
+      style={{ background: 'linear-gradient(135deg, #3d1a27 0%, #5D2A38 45%, #7a3a4f 100%)' }}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
