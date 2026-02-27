@@ -16,6 +16,7 @@ interface PageTemplateProps {
   className?: string
   contentClassName?: string
   layout?: 'default' | 'full-width' | 'sidebar-left' | 'sidebar-right' | 'centered'
+  headerFixed?: boolean
 }
 
 export const PageTemplate = ({ 
@@ -25,7 +26,8 @@ export const PageTemplate = ({
   footer, 
   className,
   contentClassName,
-  layout = 'default'
+  layout = 'default',
+  headerFixed = false
 }: PageTemplateProps) => {
   const layoutClasses = {
     'default': 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8',
@@ -78,7 +80,7 @@ export const PageTemplate = ({
   return (
     <div className={cn("min-h-screen bg-background", className)}>
       {header && (
-        <header className="sticky top-0 z-40">
+        <header className={headerFixed ? "fixed top-0 left-0 right-0 z-40" : "sticky top-0 z-40"}>
           {header}
         </header>
       )}

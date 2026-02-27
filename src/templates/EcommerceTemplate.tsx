@@ -278,12 +278,14 @@ export const EcommerceTemplate = ({
 
   return (
     <>
-      <AnnouncementBar />
+      {/* AnnouncementBar solo en páginas que no son home — en home el hero cubre el viewport */}
+      {!isHome && <AnnouncementBar />}
       <PageTemplate 
         header={header}
         footer={footer}
         className={className}
         layout={layout}
+        headerFixed={isHome}
       >
         {children}
       </PageTemplate>

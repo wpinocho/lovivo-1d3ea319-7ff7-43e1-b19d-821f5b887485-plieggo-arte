@@ -129,7 +129,7 @@ export const HeroCarousel = ({
 
   return (
     <section 
-      className="relative w-full h-[100dvh] overflow-hidden bg-background"
+      className="relative w-full h-[85dvh] overflow-hidden bg-background"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >

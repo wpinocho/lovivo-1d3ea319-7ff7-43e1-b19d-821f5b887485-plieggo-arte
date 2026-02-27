@@ -1,13 +1,19 @@
 # Plan de Plieggo Store
 
 ## Estado actual
-Hero section actualizada con experiencia fullscreen premium. Todos los cambios implementados y funcionando.
+Hero section con navbar transparente fullscreen funcionando correctamente.
 
 ## Cambios recientes implementados
 
-### Hero Fullscreen + Navbar Transparente
-- **HeroCarousel.tsx**: Altura cambiada de `h-[70vh] md:aspect-video md:max-h-[85vh]` → `h-[100dvh]`
-- **PageTemplate.tsx**: Removido `bg-background/95 backdrop-blur border-b` del `<header>` wrapper (ahora solo `sticky top-0 z-40`)
+### Fix Navbar Transparente (sesión actual)
+**Problema raíz:** El header `sticky` empujaba el hero hacia abajo, así que el fondo transparente quedaba sobre el `bg-background` claro (crema), no sobre la imagen oscura del hero → texto blanco invisible.
+
+**Solución implementada:**
+- **PageTemplate.tsx**: Añadido prop `headerFixed?: boolean`. Cuando true → `fixed top-0 left-0 right-0 z-40`; cuando false (default) → `sticky top-0 z-40`
+- **EcommerceTemplate.tsx**: Pasa `headerFixed={isHome}` a PageTemplate. No renderiza `<AnnouncementBar />` cuando `isHome` (el hero cubre el viewport completo)
+- **HeroCarousel.tsx**: Altura reducida de `h-[100dvh]` → `h-[85dvh]` (usuario pidió 85dvh para que no se corten las imágenes)
+
+### Hero Fullscreen + Navbar Transparente (sesión anterior)
 - **EcommerceTemplate.tsx**: 
   - Añadido `useEffect` con scroll listener
   - `isHome = location.pathname === '/'`
