@@ -10,6 +10,8 @@ Tienda ecommerce de arte en papel (cuadros de origami) con diseño premium imple
 - Tipografías: DM Sans (headings) + Crimson Pro (body)
 
 ## Recent Changes
+- **Bug fix: gradiente de body oculto** — El `PageTemplate` tenía `bg-background` (sólido) en el div raíz, tapando completamente el gradiente radial del `body`. Quitado para que el fondo sea transparente.
+- **Secciones transparentes** — Removido `bg-background` sólido de secciones en IndexUI y AllProducts para que el gradiente del body sea visible.
 - **Textura de grano de papel** subida a `opacity: 0.07` (era 0.04) — ahora visible
 - **Degradado radial en body** intensificado: `#FBF8EE 0%` → `#F2EFE4 45%` → `#D8D3BC 100%` — más contraste entre centro cálido y bordes apagados
 - **Navbar scrolled** gradient actualizado: `rgba(251,248,238,0.99) 0%` → `rgba(216,211,188,0.97) 100%` — diferencia clara entre la parte alta y baja

@@ -78,7 +78,7 @@ export const PageTemplate = ({
   }
 
   return (
-    <div className={cn("min-h-screen bg-background", className)}>
+    <div className={cn("min-h-screen", className)}>
       {header && (
         <header className={headerFixed ? "fixed top-0 left-0 right-0 z-40" : "sticky top-0 z-40"}>
           {header}
@@ -90,7 +90,7 @@ export const PageTemplate = ({
       </div>
 
       {footer && (
-        <footer className="border-t bg-muted/30">
+        <footer className="border-t border-border/30">
           {footer}
         </footer>
       )}
