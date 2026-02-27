@@ -107,12 +107,12 @@ const CollectionEspacio = () => {
         </div>
 
         {/* Right: Text on solid color */}
-        <div className="bg-accent flex items-center justify-center px-8 py-16 lg:px-16">
+        <div className="flex items-center justify-center px-8 py-16 lg:px-16">
           <div className="max-w-lg">
-            <h2 className="font-heading text-3xl lg:text-4xl font-bold text-accent-foreground mb-6 tracking-tight">
+            <h2 className="font-heading text-3xl lg:text-4xl font-bold text-foreground mb-6 tracking-tight">
               Universos de color
             </h2>
-            <p className="font-body text-lg lg:text-xl text-accent-foreground/80 leading-relaxed">
+            <p className="font-body text-lg lg:text-xl text-muted-foreground leading-relaxed">
               Profundidad tridimensional capturada en papel: pliegues que crean ilusiones ópticas 
               y juegan con la luz natural. Esta colección explora la arquitectura del vacío y el volumen, 
               perfecta para espacios minimalistas que buscan un punto focal escultural.

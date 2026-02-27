@@ -131,7 +131,7 @@ const AllProducts = () => {
         </div>
 
         {/* Right: Text on solid color */}
-        <div className="bg-muted flex items-center justify-center px-8 py-16 lg:px-16">
+        <div className="flex items-center justify-center px-8 py-16 lg:px-16">
           <div className="max-w-lg">
             <h2 className="font-heading text-3xl lg:text-4xl font-bold text-foreground mb-6 tracking-tight">
               Arte hecho a mano

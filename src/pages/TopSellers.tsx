@@ -155,12 +155,12 @@ const TopSellers = () => {
         </div>
 
         {/* Right: Text on solid color */}
-        <div className="bg-primary flex items-center justify-center px-8 py-16 lg:px-16">
+        <div className="flex items-center justify-center px-8 py-16 lg:px-16">
           <div className="max-w-lg">
-            <h2 className="font-heading text-3xl lg:text-4xl font-bold text-primary-foreground mb-6 tracking-tight">
+            <h2 className="font-heading text-3xl lg:text-4xl font-bold text-foreground mb-6 tracking-tight">
               Piezas que enamoran
             </h2>
-            <p className="font-body text-lg lg:text-xl text-primary-foreground/80 leading-relaxed">
+            <p className="font-body text-lg lg:text-xl text-muted-foreground leading-relaxed">
               Nuestras piezas más queridas por los amantes del arte en papel. 
               Estos cuadros han conquistado espacios en hogares, oficinas y galerías por su 
               capacidad única de transformar ambientes con geometría pura y elegancia arquitectónica. 

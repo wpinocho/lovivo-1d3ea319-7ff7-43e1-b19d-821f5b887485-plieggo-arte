@@ -166,7 +166,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
       <HeroCarousel slides={heroSlides} />
 
       {/* Navegación Visual / Carrusel de Colecciones */}
-      <section className="py-8 bg-muted/30 overflow-hidden px-4 sm:px-6 lg:px-8">
+      <section className="py-8 overflow-hidden px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Título de sección */}
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-6 text-center tracking-tight">
@@ -303,7 +303,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
 
       {/* Bundles Section — solo visible si hay paquetes activos */}
       {(loadingBundles || bundles.length > 0) && (
-        <section className="py-16 bg-muted/30">
+        <section className="py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="font-heading text-4xl font-bold text-foreground tracking-tight mb-2">
               Paquetes especiales

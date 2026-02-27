@@ -107,12 +107,12 @@ const CollectionAcordeon = () => {
         </div>
 
         {/* Right: Text on solid color */}
-        <div className="bg-secondary flex items-center justify-center px-8 py-16 lg:px-16">
+        <div className="flex items-center justify-center px-8 py-16 lg:px-16">
           <div className="max-w-lg">
-            <h2 className="font-heading text-3xl lg:text-4xl font-bold text-secondary-foreground mb-6 tracking-tight">
+            <h2 className="font-heading text-3xl lg:text-4xl font-bold text-foreground mb-6 tracking-tight">
               Diseño en movimiento
             </h2>
-            <p className="font-body text-lg lg:text-xl text-secondary-foreground/80 leading-relaxed">
+            <p className="font-body text-lg lg:text-xl text-muted-foreground leading-relaxed">
               Geometría en movimiento: pliegues que se expanden y contraen como un acordeón musical. 
               Esta colección celebra la repetición rítmica y la simetría arquitectónica del papel doblado. 
               Perfecta para espacios que buscan dinamismo visual y carácter contemporáneo.
