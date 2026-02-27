@@ -1,11 +1,14 @@
 # Plan de Plieggo Store
 
 ## Estado actual
-Hero section con navbar transparente fullscreen funcionando correctamente. AnnouncementBar visible en todas las páginas incluyendo home.
+Hero section con navbar transparente fullscreen funcionando correctamente. AnnouncementBar visible en todas las páginas incluyendo home (dentro del header fijo).
 
 ## Cambios recientes implementados
 
-### AnnouncementBar siempre visible + Hero 92dvh (sesión actual)
+### Hero 100dvh (sesión actual)
+- **HeroCarousel.tsx**: Altura ajustada de `92dvh` → `100dvh`.
+
+### AnnouncementBar siempre visible + Hero 92dvh (sesión anterior)
 - **EcommerceTemplate.tsx**: AnnouncementBar movida DENTRO del `header` JSX (antes del nav div), por lo que ahora es parte del elemento `fixed` en home y `sticky` en otras páginas. Eliminada la condición `!isHome`.
 - **HeroCarousel.tsx**: Altura ajustada de `85dvh` → `92dvh`.
 
@@ -15,7 +18,7 @@ Hero section con navbar transparente fullscreen funcionando correctamente. Annou
 **Solución implementada:**
 - **PageTemplate.tsx**: Añadido prop `headerFixed?: boolean`. Cuando true → `fixed top-0 left-0 right-0 z-40`; cuando false (default) → `sticky top-0 z-40`
 - **EcommerceTemplate.tsx**: Pasa `headerFixed={isHome}` a PageTemplate.
-- **HeroCarousel.tsx**: Altura era `100dvh` → `85dvh` → ahora `92dvh`
+- **HeroCarousel.tsx**: Altura era `100dvh` → `85dvh` → `92dvh` → ahora `100dvh`
 
 ### Hero Fullscreen + Navbar Transparente (sesión anterior)
 - **EcommerceTemplate.tsx**: 
