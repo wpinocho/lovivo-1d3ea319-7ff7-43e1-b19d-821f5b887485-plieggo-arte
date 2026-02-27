@@ -82,7 +82,7 @@ export const EcommerceTemplate = ({
     <AnnouncementBar />
     <div 
       className={`py-4 transition-all duration-300 ${scrolled ? 'backdrop-blur-md border-b border-border/50' : 'bg-transparent border-b border-transparent'} ${headerClassName}`}
-      style={scrolled ? { background: 'linear-gradient(180deg, rgba(251,248,238,0.99) 0%, rgba(216,211,188,0.97) 100%)' } : undefined}
+      style={scrolled ? { background: 'linear-gradient(180deg, rgba(255,252,245,0.98) 0%, rgba(242,239,228,0.95) 100%)' } : undefined}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-4 md:gap-8">
