@@ -11,11 +11,16 @@ Tienda ecommerce de arte en papel (cuadros de origami) con diseño premium imple
 - Fondo continuo sin bandas de color entre secciones
 
 ## Recent Changes
-- **Navbar scrolled gradient suavizado** — Cambiado de `rgba(251,248,238,0.99) → rgba(216,211,188,0.97)` (muy café) a `rgba(255,252,245,0.98) → rgba(242,239,228,0.95)` (blanco cálido a crema suave). Fluye de arriba hacia abajo sin el tono marrón pronunciado.
-- **Secciones completamente transparentes** — Removidos todos los `bg-muted/30`, `bg-muted`, `bg-accent`, `bg-secondary` y `bg-primary` de los paneles de texto en secciones split de IndexUI, AllProducts, CollectionEspacio, CollectionAcordeon y TopSellers.
-- **Colores de texto ajustados** — En secciones que usaban fondos oscuros, se cambió el texto de `text-*-foreground` a `text-foreground` / `text-muted-foreground`.
-- **Bug fix: gradiente de body oculto** — El `PageTemplate` tenía `bg-background` (sólido) tapando el gradiente radial del `body`. Quitado.
-- **Degradado radial en body** intensificado: `#FBF8EE 0%` → `#F2EFE4 45%` → `#D8D3BC 100%`
+- **Tiempos de envío actualizados a 10-15 días hábiles** — Cambiado en 3 lugares:
+  1. `AnnouncementBar.tsx` → "Entrega 10-15 días hábiles"
+  2. `ProductFAQ.tsx` → CDMX y Nacional: "10-15 días hábiles" + nota "Cada pieza se elabora especialmente para ti"
+  3. `StripePayment.tsx` → `estimated_days: "10-15"`
+  - Motivo: el usuario necesita más tiempo para cumplir los envíos sin estrés
+  - Pendiente: el usuario mencionó que podría querer regresar a los tiempos anteriores (CDMX: 2-3, Nacional: 5-7)
+- **Navbar scrolled gradient suavizado** — Cambiado a `rgba(255,252,245,0.98) → rgba(242,239,228,0.95)` (blanco cálido a crema suave).
+- **Secciones completamente transparentes** — Removidos todos los bg-muted/30, bg-muted, etc.
+- **Bug fix: gradiente de body oculto** — El PageTemplate tenía bg-background tapando el gradiente radial del body. Quitado.
+- **Degradado radial en body** intensificado
 - **AnnouncementBar** — `linear-gradient(135deg, #3d1a27 0%, #5D2A38 45%, #7a3a4f 100%)`
 - **Footer** — `linear-gradient(160deg, #3d1a27 0%, #5D2A38 40%, #6b2f41 70%, #4a2232 100%)`
 

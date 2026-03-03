@@ -215,7 +215,7 @@ function PaymentForm({
           delivery_expectations: deliveryExpectations.map((exp: any) => ({
             type: exp.type || "standard_delivery",
             description: exp.description || "",
-            ...(exp.price !== undefined ? { estimated_days: "3-5" } : {})
+            ...(exp.price !== undefined ? { estimated_days: "10-15" } : {})
           }))
           // No pickup_locations for delivery
         } : {})
