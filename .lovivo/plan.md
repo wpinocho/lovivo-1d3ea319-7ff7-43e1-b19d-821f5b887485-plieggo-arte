@@ -1,46 +1,65 @@
 # Plieggo — Estado del Proyecto
 
-## Current State
-Tienda ecommerce de arte en papel (cuadros de origami) con diseño premium implementado. Layout: AnnouncementBar fijo en header, hero section 100dvh, diseño tipo Zara Home / Muji.
+## 1. Brand & Context
+Tienda de arte en papel (cuadros de origami hechos a mano). Marca premium, sutil y artesanal. Vende a coleccionistas y amantes del diseño en México.
 
-## User Preferences
-- Diseño premium, sutil y profesional — nada genérico
-- On-brand con arte en papel / origami
+## 2. Design System
 - Paleta: crema mantequilla (#F2EFE4), vino burdeos (#5D2A38), terracota (#C16648), azul medianoche (#1B2A41)
 - Tipografías: DM Sans (headings) + Crimson Pro (body)
 - Fondo continuo sin bandas de color entre secciones
+- Estilo Zara Home / Muji — nada genérico
 
-## Active Plan — Migración Checkout Stripe (3 rondas)
-**Estado:** Ronda 2 completada ✅ | Pendiente: Ronda 3
+## 3. Active Plan — Migración Checkout Stripe ✅ COMPLETA
+Todas las rondas completadas.
 
-### Ronda 1 ✅ — Contextos y utilidades base
-- `src/contexts/SettingsContext.tsx` — actualizado
-- `src/lib/country-codes.ts` — actualizado
+### Ronda 1 ✅
+- `SettingsContext.tsx` — stripeAccountId, chargeType, paymentMethods, shippingCoverageV2
+- `country-codes.ts` — countryNameToCode / countryCodeToName
 
-### Ronda 2 ✅ — Componentes Stripe
-- `src/components/StripePayment.tsx` — reemplazado (PaymentElement + LinkAuth + AddressElement + ExpressCheckoutElement)
-- `src/components/ProductExpressCheckout.tsx` — nuevo (PaymentRequestButton para PDP)
-- `src/lib/stripe-appearance.ts` — nuevo (appearance tokens desde CSS vars)
-- `src/lib/phone-utils.ts` — nuevo (isValidPhone)
-- `src/components/MissingPhoneDialog.tsx` — nuevo (fallback dialog cuando Google Pay no retorna teléfono)
+### Ronda 2 ✅
+- `StripePayment.tsx` — PaymentElement + LinkAuth + AddressElement + ExpressCheckoutElement
+- `ProductExpressCheckout.tsx` — lazy-mount con IntersectionObserver
+- `stripe-appearance.ts` — tokens CSS → Stripe Elements
+- `phone-utils.ts` — isValidPhone
+- `MissingPhoneDialog.tsx` — fallback cuando Google Pay no retorna teléfono
 
-### Ronda 3 🔜 — UI pages
-- `src/pages/ui/CheckoutUI.tsx` — integrar con nuevos props de StripePayment
-- `src/pages/ui/ProductPageUI.tsx` — agregar ProductExpressCheckout en PDP
+### Ronda 3 ✅
+- `CheckoutUI.tsx` — integrado con nuevos props de StripePayment
+- `ProductPageUI.tsx` — ProductExpressCheckout + SEO + ProductFAQ + InspirationCarousel + CrossSellSection
 
-## Recent Changes
+### Archivos de apoyo creados en Ronda 3
+- `src/lib/subscription-utils.ts` — intervalLabel()
+- `src/lib/seo/jsonld.ts` — productJsonLd, breadcrumbJsonLd, plainText
+- `src/components/SEO.tsx` — meta/OG/canonical/JSON-LD dinámico
+- `src/components/ui/CartAppliedRules.tsx` — descuentos automáticos en checkout
+- `src/components/ui/VolumeBadge.tsx` — badge de descuento por volumen
+- `src/components/ui/BOGOLabel.tsx` — badge BOGO/2×1
+
+## 4. Recent Changes
+- **Ronda 3 completa** — CheckoutUI y ProductPageUI integrados con nueva arquitectura Stripe
+- **ProductPageUI** — secciones Plieggo restauradas (FAQ, Inspiración, CrossSell), tiempos 10-15 días hábiles
+- **SEO component** — JSON-LD schema.org/Product + BreadcrumbList en PDP
+- **6 archivos de apoyo nuevos** — subscription-utils, seo/jsonld, SEO, CartAppliedRules, VolumeBadge, BOGOLabel
+- **react-intersection-observer** — instalado para useInView en ProductPageUI
 - **Ronda 2 completa** — 5 archivos creados/actualizados para migración Stripe
-- **stripe-appearance.ts** — lee CSS variables en runtime para mantener sync con design system
+- **stripe-appearance.ts** — lee CSS variables en runtime
 - **MissingPhoneDialog** — fallback Shopify-style cuando Google Pay no entrega teléfono
-- **ProductExpressCheckout** — lazy-mount con IntersectionObserver, solo botón si hay wallet real (no Link guest)
+- **ProductExpressCheckout** — lazy-mount con IntersectionObserver
 - **StripePayment** — ExpressCheckoutElement + LinkAuthElement + AddressElement modo deferred
 - **Tiempos de envío actualizados a 10-15 días hábiles** — AnnouncementBar, ProductFAQ, StripePayment
-- **Navbar scrolled gradient suavizado** — rgba(255,252,245,0.98) → rgba(242,239,228,0.95)
-- **Secciones completamente transparentes** — Removidos todos los bg-muted/30
-- **Bug fix: gradiente de body oculto** — PageTemplate tenía bg-background tapando el gradiente
+- **Navbar scrolled gradient suavizado**
 - **AnnouncementBar** — linear-gradient(135deg, #3d1a27 0%, #5D2A38 45%, #7a3a4f 100%)
 - **Footer** — linear-gradient(160deg, #3d1a27 0%, #5D2A38 40%, #6b2f41 70%, #4a2232 100%)
 
-## Known Issues
+## 5. Image Inventory
+- Hero video: `/public/videos/hero-paper-folding.mp4`
+- Logo: `/public/logo.svg`
+
+## 6. Known Issues
 - Video play error recurrente en hero (play/pause race condition) — no afecta funcionalidad
-- Ronda 3 pendiente: CheckoutUI.tsx y ProductPageUI.tsx necesitan integrarse con los nuevos componentes
+- `react-intersection-observer` recién instalado — verificar que el build pase correctamente
+
+## 7. Pending / Future Sessions
+- Verificar que el build compile sin errores tras la migración completa
+- Revisar comportamiento de ExpressCheckout en Safari/iOS (Apple Pay)
+- Considerar añadir reseñas/reviews section en ProductPageUI si se requiere

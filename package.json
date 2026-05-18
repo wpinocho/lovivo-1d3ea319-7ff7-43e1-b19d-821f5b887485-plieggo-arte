@@ -65,7 +65,8 @@
     "vaul": "^0.9.3",
     "zod": "^3.23.8",
     "framer-motion": "latest",
-    "terser": "latest"
+    "terser": "latest",
+    "react-intersection-observer": "latest"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

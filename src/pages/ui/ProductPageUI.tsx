@@ -1,103 +1,111 @@
 import { useEffect, useState } from "react"
+import { useInView } from "react-intersection-observer"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { EcommerceTemplate } from "@/templates/EcommerceTemplate"
-import { ShoppingCart, ArrowLeft, Plus, Minus, Package, Shield, Award, MapPin, Sparkles, Ruler, Palette, Frame, Zap, Clock, HeartHandshake } from "lucide-react"
+import {
+  ShoppingCart,
+  ArrowLeft,
+  Plus,
+  Minus,
+  Truck,
+  ShieldCheck,
+  RotateCcw,
+  Lock,
+  ChevronRight,
+} from "lucide-react"
 import { Link } from "react-router-dom"
 import { cn } from "@/lib/utils"
-import { ProductBadge, type BadgeType } from "@/components/ProductBadge"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+
+import type { SellingPlan } from "@/lib/supabase"
+import { VolumeBadge } from "@/components/ui/VolumeBadge"
+import { BOGOLabel } from "@/components/ui/BOGOLabel"
+import { intervalLabel } from "@/lib/subscription-utils"
+import ProductExpressCheckout from "@/components/ProductExpressCheckout"
+import { SEO } from "@/components/SEO"
+import { useSettings } from "@/contexts/SettingsContext"
+import { productJsonLd, breadcrumbJsonLd, plainText } from "@/lib/seo/jsonld"
 import { ProductFAQ } from "@/components/ProductFAQ"
 import { CrossSellSection } from "@/components/CrossSellSection"
-import { ProductRating } from "@/components/ProductRating"
-import { getProductReview } from "@/data/product-reviews"
-import { ReviewsModal } from "@/components/ReviewsModal"
-import { ProductInspirationGallery } from "@/components/ProductInspirationGallery"
-
-import type { Product, ProductVariant } from "@/lib/supabase"
+import { InspirationCarousel } from "@/components/InspirationCarousel"
 
 /**
- * EDITABLE UI COMPONENT - ProductPageUI
- * 
- * Este componente solo maneja la presentación de la página de producto.
- * Recibe toda la lógica como props del HeadlessProduct.
- * 
- * PUEDES MODIFICAR LIBREMENTE:
- * - Colores, temas, estilos
- * - Textos e idioma
- * - Layout y estructura visual
- * - Header y navegación
- * - Animaciones y efectos
- * - Agregar features visuales (zoom de imagen, etc.)
+ * EDITABLE UI COMPONENT - ProductPageUI (Premium — Plieggo Arte)
+ *
+ * Layout asimétrico 7/5, galería con thumbnails horizontales (desktop),
+ * tipografía editorial, secciones Plieggo (FAQ, inspiración, cross-sell).
+ * Lógica intacta — solo presentación.
  */
 
 interface ProductPageUIProps {
   logic: {
-    // Product data
     product: any
     loading: boolean
     notFound: boolean
-    
-    // Selection state
     selected: Record<string, string>
     quantity: number
-    
-    // Calculated values
     matchingVariant: any
     currentPrice: number
     currentCompareAt: number | null
     currentImage: string | null
     inStock: boolean
-    displayImages: string[]
-    
-    // Handlers
-    setSelectedImage: (image: string) => void
     handleOptionSelect: (optionName: string, value: string) => void
     handleQuantityChange: (quantity: number) => void
     handleAddToCart: () => void
-    handleBuyNow: () => void
     handleNavigateBack: () => void
     isOptionValueAvailable: (optionName: string, value: string) => boolean
-    
-    // Any other properties that might come from HeadlessProduct
     [key: string]: any
   }
-  // Modal mode: No renderizar EcommerceTemplate (sin header/navegación)
-  noTemplate?: boolean
 }
 
-export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps) => {
-  // Estado del modal de reviews
-  const [isReviewsModalOpen, setIsReviewsModalOpen] = useState(false)
-  
-  // Scroll to top when component mounts (solo si no es modal)
-  useEffect(() => {
-    if (!noTemplate) {
-      window.scrollTo(0, 0);
-    }
-  }, [noTemplate]);
+export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [expressAvailable, setExpressAvailable] = useState(false)
+  const [isZoomed, setIsZoomed] = useState(false)
+  const { ref: ctaRef, inView: ctaInView } = useInView({ threshold: 0 })
 
-  // Reset selected image when variant changes
+  const displayImage =
+    selectedImage ||
+    logic.displayImages?.[0] ||
+    logic.currentImage ||
+    "/placeholder.svg"
+
   useEffect(() => {
-    if (logic.displayImages && logic.displayImages.length > 0) {
-      logic.setSelectedImage(logic.displayImages[0]);
-    }
-  }, [logic.matchingVariant]);
+    setSelectedImage(null)
+  }, [logic.matchingVariant])
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   if (logic.loading) {
     return (
       <EcommerceTemplate>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Skeleton className="aspect-square rounded-lg" />
-          <div className="space-y-4">
-            <Skeleton className="h-8 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-20 w-full" />
-            <Skeleton className="h-10 w-32" />
+        <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+          <Skeleton className="aspect-[4/5] rounded-lg lg:col-span-7" />
+          <div className="space-y-4 lg:col-span-5">
+            <Skeleton className="h-3 w-32" />
+            <Skeleton className="h-12 w-3/4" />
+            <Skeleton className="h-8 w-32" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-14 w-full" />
+            <Skeleton className="h-14 w-full" />
           </div>
         </div>
       </EcommerceTemplate>
@@ -108,14 +116,16 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
     return (
       <EcommerceTemplate>
         <div className="text-center py-16">
-            <h1 className="text-4xl font-bold mb-4">Producto no encontrado</h1>
-            <p className="text-muted-foreground mb-8">El producto que buscas no existe o ha sido eliminado.</p>
-            <Button asChild>
-              <Link to="/">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Volver al inicio
-              </Link>
-            </Button>
+          <h1 className="text-4xl font-bold mb-4">Producto no encontrado</h1>
+          <p className="text-muted-foreground mb-8">
+            El producto que buscas no existe o ha sido eliminado.
+          </p>
+          <Button asChild>
+            <Link to="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Volver al inicio
+            </Link>
+          </Button>
         </div>
       </EcommerceTemplate>
     )
@@ -123,429 +133,581 @@ export const ProductPageUI = ({ logic, noTemplate = false }: ProductPageUIProps)
 
   if (!logic.product) return null
 
-  // Main product content
-  const productContent = (
-    <>
-      {/* Add padding-bottom on mobile for sticky CTA bar */}
-      <div className="space-y-8 pb-24 lg:pb-0">
-        {/* Mobile-optimized flex layout with order control */}
-        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-6 lg:gap-8">
-          
-          {/* 1. IMAGEN PRINCIPAL - Order 1 mobile, left column desktop */}
-          <div className="order-1 lg:order-none aspect-square rounded-lg overflow-hidden bg-muted">
-            <img
-              src={logic.currentImage || "/placeholder.svg"}
-              alt={logic.product.title}
-              loading="eager"
-              fetchPriority="high"
-              className="w-full h-full object-contain"
-            />
-          </div>
+  const discountPct =
+    logic.currentCompareAt && logic.currentCompareAt > logic.currentPrice
+      ? Math.round(
+          ((logic.currentCompareAt - logic.currentPrice) /
+            logic.currentCompareAt) *
+            100,
+        )
+      : 0
 
-          {/* 2. THUMBNAILS - Order 2 mobile (right after main image), stays in left column desktop */}
-          {logic.displayImages && logic.displayImages.length > 1 && (
-            <div className="order-2 lg:order-none lg:col-start-1 flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
-              {logic.displayImages.map((img: string, index: number) => (
-                <button
-                  key={index}
-                  onClick={() => logic.setSelectedImage(img)}
-                  className={cn(
-                    "flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 transition-all snap-center",
-                    logic.selectedImage === img || (index === 0 && !logic.selectedImage)
-                      ? "border-primary ring-2 ring-primary/20" 
-                      : "border-border hover:border-secondary"
-                  )}
+  const vendor = logic.product.vendor || logic.product.product_type
+
+  const { storeName, currencyCode } = useSettings()
+  const product = logic.product
+  const seoTitle = product.title
+  const seoDescription =
+    plainText(product.description, 160) ||
+    `Compra ${product.title} en ${storeName}.`
+  const seoImage = product.images?.[0]
+  const productSchema = productJsonLd(product, {
+    storeName,
+    currencyCode,
+    inStock: !!logic.inStock,
+    price: logic.currentPrice,
+  })
+  const breadcrumbs = breadcrumbJsonLd([
+    { name: "Inicio", path: "/" },
+    { name: "Productos", path: "/" },
+    { name: product.title, path: `/productos/${product.slug}` },
+  ])
+
+  return (
+    <>
+      <SEO
+        title={seoTitle}
+        description={seoDescription}
+        canonicalPath={`/productos/${product.slug}`}
+        ogImage={seoImage}
+        ogType="product"
+        storeName={storeName}
+        jsonLd={[productSchema, breadcrumbs]}
+      />
+      <EcommerceTemplate hideFloatingCartOnMobile>
+        <div className="max-w-[1400px] mx-auto">
+          {/* Breadcrumbs */}
+          <nav
+            aria-label="Migas de pan"
+            className="mb-6 hidden md:flex items-center gap-1.5 text-xs text-muted-foreground"
+          >
+            <Link to="/" className="hover:text-foreground transition-colors">
+              Inicio
+            </Link>
+            <ChevronRight className="h-3 w-3" />
+            <Link to="/" className="hover:text-foreground transition-colors">
+              Productos
+            </Link>
+            <ChevronRight className="h-3 w-3" />
+            <span className="text-foreground/80 truncate max-w-[280px]">
+              {logic.product.title}
+            </span>
+          </nav>
+
+          {/* Mobile back link */}
+          <button
+            type="button"
+            onClick={logic.handleNavigateBack}
+            className="md:hidden mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Seguir comprando
+          </button>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+            {/* ── GALLERY (lg:col-span-7) ── */}
+            <div className="lg:col-span-7 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-7rem)]">
+              {/* Desktop */}
+              <div className="hidden md:block">
+                <div
+                  className="relative w-full aspect-[4/5] lg:max-h-[75vh] rounded-lg overflow-hidden bg-muted/30 cursor-zoom-in group"
+                  onMouseEnter={() => setIsZoomed(true)}
+                  onMouseLeave={() => setIsZoomed(false)}
                 >
                   <img
-                    src={img}
-                    alt={`${logic.product.title} - imagen ${index + 1}`}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover"
+                    src={displayImage}
+                    alt={logic.product.title}
+                    className={cn(
+                      "w-full h-full object-contain transition-transform duration-500 ease-out",
+                      isZoomed ? "scale-110" : "scale-100",
+                    )}
                   />
-                </button>
-              ))}
-            </div>
-          )}
+                  {discountPct > 0 && (
+                    <Badge className="absolute top-4 left-4 bg-foreground text-background hover:bg-foreground/90">
+                      -{discountPct}%
+                    </Badge>
+                  )}
+                </div>
 
-          {/* 3. PRODUCT INFO (Title, Price, Options, CTAs) - Order 3 mobile, right column desktop */}
-          <div className={`order-3 lg:order-none lg:col-start-2 lg:row-start-1 space-y-6 ${logic.displayImages && logic.displayImages.length > 1 ? 'lg:row-span-2' : ''}`}>
-            {/* Badge */}
-            {logic.product.badge && (
-              <ProductBadge type={logic.product.badge as BadgeType} />
-            )}
-            
-            <div>
-              <h1 className="text-3xl font-bold">{logic.product.title}</h1>
-              
-              {/* Rating Summary - Dinámico por producto */}
-              {(() => {
-                const review = getProductReview(logic.product.slug)
-                return review.reviewCount > 0 ? (
-                  <div className="mt-3">
-                    <ProductRating 
-                      rating={review.rating} 
-                      reviewCount={review.reviewCount}
-                      onClick={() => setIsReviewsModalOpen(true)}
-                    />
+                {/* Horizontal thumbnails */}
+                {logic.displayImages && logic.displayImages.length > 1 && (
+                  <div className="flex gap-3 mt-4">
+                    {logic.displayImages.map((img: string, index: number) => {
+                      const isActive =
+                        selectedImage === img ||
+                        (!selectedImage && logic.currentImage === img) ||
+                        (!selectedImage && !logic.currentImage && index === 0)
+                      return (
+                        <button
+                          key={index}
+                          onClick={() => setSelectedImage(img)}
+                          className={cn(
+                            "shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 transition-all bg-muted/30",
+                            isActive
+                              ? "border-foreground"
+                              : "border-transparent hover:border-muted-foreground/40",
+                          )}
+                          aria-label={`Ver imagen ${index + 1}`}
+                        >
+                          <img
+                            src={img}
+                            alt={`${logic.product.title} miniatura ${index + 1}`}
+                            loading="lazy"
+                            decoding="async"
+                            className="w-full h-full object-contain"
+                          />
+                        </button>
+                      )
+                    })}
                   </div>
-                ) : null
-              })()}
-            
-            <div className="flex items-center gap-4 mt-4">
-              <span className="text-2xl font-bold">
-                {logic.formatMoney(logic.currentPrice)}
-              </span>
-              {logic.currentCompareAt && logic.currentCompareAt > logic.currentPrice && (
-                <span className="text-lg text-muted-foreground line-through">
-                  {logic.formatMoney(logic.currentCompareAt)}
-                </span>
+                )}
+              </div>
+
+              {/* Mobile: carousel */}
+              {logic.displayImages && logic.displayImages.length > 1 ? (
+                <div className="md:hidden">
+                  <Carousel className="w-full">
+                    <CarouselContent>
+                      {logic.displayImages.map((img: string, index: number) => (
+                        <CarouselItem key={index}>
+                          <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-muted/30">
+                            <img
+                              src={img}
+                              alt={`${logic.product.title} ${index + 1}`}
+                              loading="lazy"
+                              decoding="async"
+                              className="w-full h-full object-contain"
+                            />
+                            {discountPct > 0 && index === 0 && (
+                              <Badge className="absolute top-3 left-3 bg-foreground text-background">
+                                -{discountPct}%
+                              </Badge>
+                            )}
+                          </div>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="left-2" />
+                    <CarouselNext className="right-2" />
+                  </Carousel>
+                </div>
+              ) : (
+                <div className="md:hidden relative aspect-[4/5] rounded-lg overflow-hidden bg-muted/30">
+                  <img
+                    src={displayImage}
+                    alt={logic.product.title}
+                    className="w-full h-full object-contain"
+                  />
+                  {discountPct > 0 && (
+                    <Badge className="absolute top-3 left-3 bg-foreground text-background">
+                      -{discountPct}%
+                    </Badge>
+                  )}
+                </div>
               )}
             </div>
-          </div>
 
-          {/* Product Options - Moved below price */}
-          {logic.product.options && logic.product.options.length > 0 && (
-            <div className="space-y-4">
-              {logic.product.options.map((option) => (
-                <div key={option.name}>
-                  <Label className="text-base font-medium">{option.name}</Label>
-                  <div className="flex flex-wrap gap-3 mt-2">
-                    {option.values.map((value) => {
-                      const isSelected = logic.selected[option.name] === value
-                      const isAvailable = logic.isOptionValueAvailable(option.name, value)
-                      
-                      // Get inventory info for urgency/scarcity
-                      const variant = logic.product.variants?.find((v: any) => 
-                        v.title === value || Object.values(v.option_values || {}).includes(value)
-                      )
-                      const inventory = variant?.inventory_quantity || 0
-                      const trackInventory = variant?.track_inventory !== false
-                      const showUrgency = isAvailable && trackInventory && inventory > 0 && inventory <= 5
-                      const showBackorder = isAvailable && (!trackInventory || inventory === 0)
-                      
+            {/* ── INFO COLUMN (lg:col-span-5) ── */}
+            <div className="lg:col-span-5 space-y-8">
+              {/* Title block */}
+              <div className="space-y-3">
+                {vendor && (
+                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-medium">
+                    {vendor}
+                  </p>
+                )}
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight leading-[1.1]">
+                  {logic.product.title}
+                </h1>
+
+                {/* Price block */}
+                <div className="flex items-baseline gap-3 pt-2">
+                  <span className="text-3xl font-semibold tracking-tight">
+                    {logic.formatMoney(logic.currentPrice)}
+                  </span>
+                  {logic.currentCompareAt &&
+                    logic.currentCompareAt > logic.currentPrice && (
+                      <>
+                        <span className="text-base text-muted-foreground line-through">
+                          {logic.formatMoney(logic.currentCompareAt)}
+                        </span>
+                        {discountPct > 0 && (
+                          <span className="text-sm font-medium text-primary">
+                            Ahorra {discountPct}%
+                          </span>
+                        )}
+                      </>
+                    )}
+                </div>
+
+                {/* Promo badges */}
+                {logic.product?.id && (
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    <VolumeBadge productId={logic.product.id} />
+                    <BOGOLabel productId={logic.product.id} />
+                  </div>
+                )}
+              </div>
+
+              {/* Highlights row */}
+              <div className="grid grid-cols-2 gap-3 py-4 border-y border-border/60">
+                <div className="flex items-center gap-2.5 text-xs">
+                  <Truck className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-foreground/80">Envío a todo México</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-xs">
+                  <ShieldCheck className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-foreground/80">Hecho a mano</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-xs">
+                  <RotateCcw className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-foreground/80">Devolución 30 días</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-xs">
+                  <Lock className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-foreground/80">Pago seguro</span>
+                </div>
+              </div>
+
+              {/* Selling Plan Selector */}
+              {logic.sellingPlans && logic.sellingPlans.length > 0 && (
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium uppercase tracking-wider">
+                    Tipo de compra
+                  </Label>
+                  <div className="space-y-2">
+                    <label
+                      className={cn(
+                        "flex items-center justify-between p-4 rounded-lg border-2 cursor-pointer transition-all",
+                        !logic.selectedPlan
+                          ? "border-foreground bg-foreground/5"
+                          : "border-border hover:border-muted-foreground/40",
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="radio"
+                          name="selling-plan"
+                          checked={!logic.selectedPlan}
+                          onChange={() => logic.setSelectedPlan(null)}
+                          className="w-4 h-4"
+                        />
+                        <span className="font-medium">Compra única</span>
+                      </div>
+                      <span className="font-semibold">
+                        {logic.formatMoney(logic.currentPrice)}
+                      </span>
+                    </label>
+
+                    {logic.sellingPlans.map((plan: SellingPlan) => {
+                      const subPrice =
+                        logic.subscriptionPrice &&
+                        logic.selectedPlan?.id === plan.id
+                          ? logic.subscriptionPrice
+                          : plan.discount_type === "percentage" &&
+                              plan.discount_value
+                            ? logic.currentPrice * (1 - plan.discount_value / 100)
+                            : plan.discount_type === "fixed" && plan.discount_value
+                              ? Math.max(0, logic.currentPrice - plan.discount_value)
+                              : logic.currentPrice
+
                       return (
-                        <div key={value} className="flex flex-col gap-1.5">
-                          <Button
-                            variant={isSelected ? "default" : "outline"}
-                            size="sm"
-                            disabled={!isAvailable}
-                            onClick={() => logic.handleOptionSelect(option.name, value)}
-                            className={!isAvailable ? "opacity-50 cursor-not-allowed" : ""}
-                          >
-                            {value}
-                            {!isAvailable && (
-                              <span className="ml-1 text-xs">(Agotado)</span>
-                            )}
-                          </Button>
-                          {isSelected && showUrgency && (
-                            <span className="text-xs text-amber-600 font-medium flex items-center gap-1">
-                              <Zap className="h-3 w-3" />
-                              {inventory === 1 ? '¡Solo 1 disponible!' : `Últimas ${inventory} unidades`}
-                            </span>
+                        <label
+                          key={plan.id}
+                          className={cn(
+                            "flex items-center justify-between p-4 rounded-lg border-2 cursor-pointer transition-all",
+                            logic.selectedPlan?.id === plan.id
+                              ? "border-foreground bg-foreground/5"
+                              : "border-border hover:border-muted-foreground/40",
                           )}
-                        </div>
+                        >
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="radio"
+                              name="selling-plan"
+                              checked={logic.selectedPlan?.id === plan.id}
+                              onChange={() => logic.setSelectedPlan(plan)}
+                              className="w-4 h-4"
+                            />
+                            <div>
+                              <span className="font-medium">{plan.name}</span>
+                              {plan.discount_value && plan.discount_value > 0 && (
+                                <span className="ml-2 text-xs text-primary font-medium">
+                                  -{plan.discount_value}
+                                  {plan.discount_type === "percentage" ? "%" : ""}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <span className="font-semibold">
+                            {logic.formatMoney(subPrice)}/
+                            {intervalLabel(plan.interval, plan.interval_count)}
+                          </span>
+                        </label>
                       )
                     })}
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
+              )}
 
-          {/* Quantity and Add to Cart - Moved below price */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-4">
-              <Label htmlFor="quantity" className="text-base font-medium">
-                Cantidad
-              </Label>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => logic.handleQuantityChange(Math.max(1, logic.quantity - 1))}
-                  disabled={logic.quantity <= 1}
-                >
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <Input
-                  id="quantity"
-                  type="number"
-                  min="1"
-                  value={logic.quantity}
-                  onChange={(e) => logic.handleQuantityChange(parseInt(e.target.value) || 1)}
-                  className="w-20 text-center"
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => logic.handleQuantityChange(logic.quantity + 1)}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+              {/* Product Options */}
+              {logic.product.options && logic.product.options.length > 0 && (
+                <div className="space-y-5">
+                  {logic.product.options.map((option: any) => (
+                    <div key={option.name} className="space-y-2.5">
+                      <div className="flex items-baseline justify-between">
+                        <Label className="text-sm font-medium uppercase tracking-wider">
+                          {option.name}
+                        </Label>
+                        {logic.selected[option.name] && (
+                          <span className="text-sm text-muted-foreground">
+                            {logic.selected[option.name]}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {option.values.map((value: string) => {
+                          const isSelected = logic.selected[option.name] === value
+                          const isAvailable = logic.isOptionValueAvailable(
+                            option.name,
+                            value,
+                          )
+                          return (
+                            <button
+                              key={value}
+                              type="button"
+                              disabled={!isAvailable}
+                              onClick={() => logic.handleOptionSelect(option.name, value)}
+                              className={cn(
+                                "min-w-[3rem] px-4 h-11 rounded-md border text-sm font-medium transition-all",
+                                isSelected
+                                  ? "border-foreground bg-foreground text-background"
+                                  : "border-border bg-background hover:border-foreground/60",
+                                !isAvailable && "opacity-40 cursor-not-allowed line-through",
+                              )}
+                            >
+                              {value}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
-            <div className="space-y-3">
-              {/* Comprar ahora - Botón primario */}
-              <Button
-                onClick={logic.handleBuyNow}
-                disabled={!logic.inStock || logic.isCheckingOut}
-                className="w-full"
-                size="lg"
-              >
-                <ShoppingCart className="mr-2 h-5 w-5" />
-                {logic.isCheckingOut ? 'Procesando...' : (logic.inStock ? 'Comprar ahora' : 'Agotado')}
-              </Button>
-
-              {/* Agregar al carrito - Botón secundario */}
-              <Button
-                onClick={logic.handleAddToCart}
-                disabled={!logic.inStock}
-                variant="outline"
-                className="w-full"
-                size="lg"
-              >
-                {logic.inStock ? 'Agregar al carrito' : 'Agotado'}
-              </Button>
-              
-              {/* Trust Badges */}
-              <Card className="border-secondary/20 bg-secondary/5">
-                <CardContent className="pt-4 pb-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-sm">
-                      <Package className="h-5 w-5 text-secondary flex-shrink-0" />
-                      <span className="text-foreground"><span className="font-medium">Envío gratis</span> en CDMX</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm">
-                      <HeartHandshake className="h-5 w-5 text-secondary flex-shrink-0" />
-                      <span className="text-foreground"><span className="font-medium">Pieza única</span> hecha a mano</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm">
-                      <Shield className="h-5 w-5 text-secondary flex-shrink-0" />
-                      <span className="text-foreground"><span className="font-medium">Garantía</span> de satisfacción 30 días</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm">
-                      <MapPin className="h-5 w-5 text-secondary flex-shrink-0" />
-                      <span className="text-foreground"><span className="font-medium">Diseño 100% mexicano</span></span>
-                    </div>
+              {/* Quantity stepper */}
+              <div className="space-y-2.5">
+                <Label className="text-sm font-medium uppercase tracking-wider">
+                  Cantidad
+                </Label>
+                <div className="inline-flex items-center border border-border rounded-md overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => logic.handleQuantityChange(Math.max(1, logic.quantity - 1))}
+                    disabled={logic.quantity <= 1}
+                    className="w-11 h-11 flex items-center justify-center hover:bg-muted/60 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    aria-label="Disminuir cantidad"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </button>
+                  <div className="w-12 h-11 flex items-center justify-center font-medium tabular-nums border-x border-border">
+                    {logic.quantity}
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          </div>
-
-          {/* 4-13. REMAINING SECTIONS - Order 4+ mobile, span full width */}
-          <div className="order-4 lg:order-none lg:col-span-2 space-y-8">
-            
-            {/* Description Section */}
-            {logic.product.description && (
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-heading text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
-                    <Package className="h-5 w-5 text-primary" />
-                    Descripción de la Pieza
-                  </h3>
-                  <div 
-                    className="text-muted-foreground prose prose-sm max-w-none leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: logic.product.description }}
-                  />
+                  <button
+                    type="button"
+                    onClick={() => logic.handleQuantityChange(logic.quantity + 1)}
+                    className="w-11 h-11 flex items-center justify-center hover:bg-muted/60 transition-colors"
+                    aria-label="Aumentar cantidad"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
+
+              {/* CTAs */}
+              <div ref={ctaRef} className="flex flex-col gap-3">
+                {logic.inStock && logic.canAddToCart && !logic.selectedPlan && (
+                  <>
+                    <ProductExpressCheckout
+                      product={logic.product}
+                      variant={logic.matchingVariant}
+                      sellingPlan={logic.selectedPlan}
+                      quantity={logic.quantity}
+                      unitPrice={logic.currentPrice}
+                      onAvailabilityChange={setExpressAvailable}
+                    />
+                    {expressAvailable && (
+                      <div className="flex items-center gap-3 py-1">
+                        <Separator className="flex-1" />
+                        <span className="text-xs text-muted-foreground uppercase tracking-widest">
+                          o
+                        </span>
+                        <Separator className="flex-1" />
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {logic.inStock && (
+                  <Button
+                    onClick={logic.handleBuyNow}
+                    className="w-full h-14 text-base tracking-wide rounded-md"
+                    size="lg"
+                  >
+                    Comprar ahora
+                  </Button>
+                )}
+
+                <Button
+                  onClick={logic.handleAddToCart}
+                  disabled={!logic.inStock}
+                  variant={logic.inStock ? "outline" : "default"}
+                  className="w-full h-14 text-base tracking-wide rounded-md"
+                  size="lg"
+                >
+                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  {logic.inStock
+                    ? logic.selectedPlan
+                      ? `Suscribirse — ${logic.formatMoney(
+                          logic.subscriptionPrice || logic.currentPrice,
+                        )}/${intervalLabel(
+                          logic.selectedPlan.interval,
+                          logic.selectedPlan.interval_count,
+                        )}`
+                      : "Agregar al carrito"
+                    : "Agotado"}
+                </Button>
+
+                {!logic.inStock && (
+                  <Badge variant="secondary" className="w-fit">
+                    Agotado
+                  </Badge>
+                )}
+              </div>
+
+              {/* Detail accordions */}
+              <Accordion
+                type="single"
+                collapsible
+                defaultValue="description"
+                className="border-t border-border/60"
+              >
+                {logic.product.description && (
+                  <AccordionItem value="description">
+                    <AccordionTrigger className="text-sm font-medium uppercase tracking-wider">
+                      Descripción
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div
+                        className="text-muted-foreground prose prose-sm max-w-none"
+                        dangerouslySetInnerHTML={{ __html: logic.product.description }}
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
+
+                <AccordionItem value="shipping">
+                  <AccordionTrigger className="text-sm font-medium uppercase tracking-wider">
+                    Envío y devoluciones
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground space-y-2">
+                    <p>
+                      Envío a todo México. Tiempo estimado de entrega:{" "}
+                      <strong>10–15 días hábiles</strong> después de confirmado tu pedido.
+                    </p>
+                    <p>
+                      Cuentas con 30 días para solicitar tu devolución sin costo adicional.
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="care">
+                  <AccordionTrigger className="text-sm font-medium uppercase tracking-wider">
+                    Cuidado de tu obra
+                  </AccordionTrigger>
+                  <AccordionContent className="text-sm text-muted-foreground">
+                    <p>
+                      Conserva en lugar fresco y seco, alejado de la luz solar directa y
+                      la humedad. Maneja con cuidado para preservar los pliegues y
+                      texturas del papel.
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
+          </div>
+
+          {/* ── Plieggo sections ── */}
+          <div className="mt-16 space-y-16">
+            <ProductFAQ productId={logic.product?.id} />
+            <InspirationCarousel productId={logic.product?.id} />
+            <CrossSellSection
+              currentProductId={logic.product?.id}
+              currentCollectionIds={logic.product?.collection_ids}
+            />
+          </div>
+        </div>
+
+        {/* Sticky Add-to-Cart Bar */}
+        {logic.inStock && (
+          <div
+            className={cn(
+              "fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-t shadow-lg transition-transform duration-300 ease-out pb-[env(safe-area-inset-bottom)]",
+              ctaInView ? "translate-y-full" : "translate-y-0",
             )}
-
-            {/* Storytelling Section - Historia de Inspiración */}
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-heading text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  La Historia Detrás de Esta Pieza
-                </h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Inspirada en el arte milenario del origami japonés y la elegancia de los abanicos plegables, 
-                  esta pieza celebra la geometría orgánica y el movimiento contenido. Cada pliegue es una expresión 
-                  de simetría perfecta, relieve táctil y delicadeza visual. La técnica de doblado arquitectónico 
-                  busca traer balance y sofisticación contemporánea, donde la luz y la sombra danzan entre los pliegues 
-                  para crear profundidad escultural. Es un homenaje a la paciencia artesanal y la belleza de lo simple.
-                </p>
-                
-                {/* Creation Details */}
-                <div className="flex flex-wrap gap-4 text-sm mt-4">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Clock className="h-4 w-4 text-primary" />
-                    <span>8-12 horas de creación</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Palette className="h-4 w-4 text-primary" />
-                    <span>Origami arquitectónico</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Award className="h-4 w-4 text-primary" />
-                    <span>Cada pliegue hecho a mano</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Specifications Table */}
-            <Card className="border-border/50">
-              <CardContent className="pt-6">
-                <h3 className="font-heading text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Ruler className="h-5 w-5 text-primary" />
-                  Especificaciones
-                </h3>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="flex items-start gap-2">
-                    <Ruler className="h-4 w-4 text-muted-foreground mt-0.5" />
-                    <div>
-                      <span className="font-medium block">Dimensiones</span>
-                      <span className="text-muted-foreground">
-                        {logic.matchingVariant?.title?.split('/')[0]?.trim() || 'Variable'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Palette className="h-4 w-4 text-muted-foreground mt-0.5" />
-                    <div>
-                      <span className="font-medium block">Material</span>
-                      <span className="text-muted-foreground">Papel Canson 300g</span>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Frame className="h-4 w-4 text-muted-foreground mt-0.5" />
-                    <div>
-                      <span className="font-medium block">Marco</span>
-                      <span className="text-muted-foreground">Madera natural</span>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-2">
-                    <Shield className="h-4 w-4 text-muted-foreground mt-0.5" />
-                    <div>
-                      <span className="font-medium block">Protección</span>
-                      <span className="text-muted-foreground">Acrílico 3mm</span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Why Choose Plieggo */}
-            <Card className="border-primary/20 bg-primary/5">
-              <CardContent className="pt-6">
-                <h3 className="font-heading text-lg font-semibold mb-4 text-primary">Por Qué Elegir Plieggo</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <HeartHandshake className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <span className="font-medium block text-sm">Único</span>
-                      <span className="text-xs text-muted-foreground">Cada pieza es única</span>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <Award className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <span className="font-medium block text-sm">Premium</span>
-                      <span className="text-xs text-muted-foreground">Materiales de alta calidad</span>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <MapPin className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <span className="font-medium block text-sm">Mexicano</span>
-                      <span className="text-xs text-muted-foreground">100% diseño nacional</span>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <Frame className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <span className="font-medium block text-sm">Listo para colgar</span>
-                      <span className="text-xs text-muted-foreground">Marco incluido</span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Inspiration Gallery + Size Guide - Side by Side en Desktop */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Inspiration Gallery - Muestra el producto en contextos reales */}
-              <div>
-                <ProductInspirationGallery productSlug={logic.product.slug} />
-              </div>
-
-              {/* Size Guide - Visual */}
-              <Card className="border-border/50 overflow-hidden">
-              <CardContent className="p-0">
-                <div className="bg-muted/30 p-6">
-                  <h3 className="font-heading text-lg font-semibold mb-2 flex items-center gap-2">
-                    <Ruler className="h-5 w-5 text-primary" />
-                    Guía de Tamaños
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Encuentra el tamaño perfecto para tu espacio
-                  </p>
-                </div>
-                <img
-                  src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1768866178168-84itdh4fyv.png"
-                  alt="Guía de tamaños - 20x20cm, 50x50cm, 30x90cm con persona de referencia"
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-auto object-cover lg:max-h-[400px]"
-                />
-              </CardContent>
-            </Card>
-            </div>
-
-
-          </div>
-        </div>
-
-        {/* FAQ Section */}
-        <ProductFAQ />
-
-        {/* Cross-sell Section */}
-        <CrossSellSection currentProduct={logic.product} />
-      </div>
-
-      {/* Reviews Modal */}
-      <ReviewsModal
-        isOpen={isReviewsModalOpen}
-        onClose={() => setIsReviewsModalOpen(false)}
-        productSlug={logic.product.slug}
-        productTitle={logic.product.title}
-      />
-
-      {/* Sticky CTA Bar - Mobile Only (Best Practice for Conversion) */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border shadow-lg z-40 p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex-1">
-            <p className="text-xs text-muted-foreground">Precio</p>
-            <p className="text-xl font-bold">{logic.formatMoney(logic.currentPrice)}</p>
-          </div>
-          <Button
-            onClick={logic.handleBuyNow}
-            disabled={!logic.inStock || logic.isCheckingOut}
-            size="lg"
-            className="flex-1"
           >
-            <ShoppingCart className="mr-2 h-4 w-4" />
-            {logic.isCheckingOut ? 'Procesando...' : (logic.inStock ? 'Comprar' : 'Agotado')}
-          </Button>
-        </div>
-      </div>
+            <div className="max-w-7xl mx-auto px-4 py-3">
+              {/* Desktop */}
+              <div className="hidden md:flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-12 h-12 rounded-md overflow-hidden bg-muted/30 shrink-0">
+                    <img src={displayImage} alt="" className="w-full h-full object-contain" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-medium truncate text-sm">{logic.product.title}</h3>
+                    <span className="font-semibold text-base">
+                      {logic.formatMoney(logic.currentPrice)}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <Button onClick={logic.handleBuyNow} size="default">
+                    Comprar ahora
+                  </Button>
+                  <Button onClick={logic.handleAddToCart} variant="outline" size="default">
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    Agregar al carrito
+                  </Button>
+                </div>
+              </div>
+              {/* Mobile */}
+              <div className="md:hidden space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-md overflow-hidden bg-muted/30 shrink-0">
+                    <img src={displayImage} alt="" className="w-full h-full object-contain" />
+                  </div>
+                  <div className="flex items-center justify-between gap-2 flex-1 min-w-0">
+                    <h3 className="font-medium text-sm truncate">{logic.product.title}</h3>
+                    <span className="font-semibold shrink-0 text-sm">
+                      {logic.formatMoney(logic.currentPrice)}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={logic.handleBuyNow} size="sm" className="flex-1">
+                    Comprar ahora
+                  </Button>
+                  <Button onClick={logic.handleAddToCart} variant="outline" size="sm" className="flex-1">
+                    <ShoppingCart className="mr-1 h-3.5 w-3.5" />
+                    Agregar
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </EcommerceTemplate>
     </>
   )
-
-  // Render con o sin template según el modo
-  return noTemplate ? productContent : <EcommerceTemplate>{productContent}</EcommerceTemplate>
 }
