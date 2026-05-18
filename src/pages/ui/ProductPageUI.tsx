@@ -134,6 +134,8 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
 
   if (!logic.product) return null
 
+  const product = logic.product
+
   const discountPct =
     logic.currentCompareAt && logic.currentCompareAt > logic.currentPrice
       ? Math.round(
@@ -143,7 +145,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
         )
       : 0
 
-  const vendor = logic.product.vendor || logic.product.product_type
+  const vendor = product.vendor || product.product_type
 
   // Detect edición limitada
   const isEdicionLimitada =
@@ -154,8 +156,6 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
 
   // Inline star rating data
   const productReview = getProductReview(product.slug)
-
-  const product = logic.product
   const seoTitle = product.title
   const seoDescription =
     plainText(product.description, 160) ||
