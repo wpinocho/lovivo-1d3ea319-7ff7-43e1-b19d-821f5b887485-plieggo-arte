@@ -1,68 +1,130 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 /**
- * InspirationCarousel
- * Carrusel automático lento de imágenes de inspiración
+ * InspirationCarousel — "Así luce en tu espacio"
+ * Manual navigation, no autoplay, object-cover for full visual impact.
  */
 
 const inspirationImages = [
-  { src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/green-office.webp', alt: 'Cuadro Plieggo verde en oficina minimalista con escritorio' },
-  { src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/black-dining.webp', alt: 'Cuadro Plieggo negro en comedor con ventanal luminoso' },
-  { src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/purple-office.webp', alt: 'Cuadro Plieggo morado vertical en oficina con silla terracota' },
-  { src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/burgundy-kitchen.webp', alt: 'Cuadro Plieggo burdeos en repisa de cocina' },
-  { src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/large-dining.webp', alt: 'Cuadro Plieggo grande en comedor familiar con perro' },
+  {
+    src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/green-office.webp',
+    alt: 'Cuadro Plieggo verde en oficina minimalista con escritorio',
+    caption: 'Oficina minimalista',
+  },
+  {
+    src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/black-dining.webp',
+    alt: 'Cuadro Plieggo negro en comedor con ventanal luminoso',
+    caption: 'Comedor con luz natural',
+  },
+  {
+    src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/purple-office.webp',
+    alt: 'Cuadro Plieggo morado vertical en oficina con silla terracota',
+    caption: 'Estudio en tonos cálidos',
+  },
+  {
+    src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/burgundy-kitchen.webp',
+    alt: 'Cuadro Plieggo burdeos en repisa de cocina',
+    caption: 'Cocina contemporánea',
+  },
+  {
+    src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/large-dining.webp',
+    alt: 'Cuadro Plieggo grande en comedor familiar con perro',
+    caption: 'Sala familiar',
+  },
 ]
 
 export const InspirationCarousel = () => {
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const [current, setCurrent] = useState(0)
+  const total = inspirationImages.length
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % inspirationImages.length)
-    }, 4000) // Cambia cada 4 segundos
-
-    return () => clearInterval(interval)
-  }, [])
+  const prev = () => setCurrent((i) => (i - 1 + total) % total)
+  const next = () => setCurrent((i) => (i + 1) % total)
 
   return (
-    <section className="py-20 bg-muted/30">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="font-heading text-4xl md:text-5xl font-bold text-foreground text-center mb-12 tracking-tight">
-          Inspiración
+    <section className="py-16">
+      {/* Header */}
+      <div className="text-center mb-10">
+        <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-2">
+          Galería de ambientes
+        </p>
+        <h2 className="font-heading text-3xl md:text-4xl font-light tracking-tight">
+          Así luce en tu espacio
         </h2>
+        <p className="text-sm text-muted-foreground mt-2">
+          Cada pieza transforma el ambiente que la rodea
+        </p>
+      </div>
 
-        <div className="relative overflow-hidden rounded-sm aspect-[16/9] md:aspect-[21/9] bg-muted">
-          {inspirationImages.map((image, index) => (
+      {/* Imagen principal */}
+      <div className="relative group overflow-hidden rounded-sm">
+        {/* Slides */}
+        <div className="relative aspect-[16/9] md:aspect-[21/8] bg-muted overflow-hidden">
+          {inspirationImages.map((img, idx) => (
             <div
-              key={index}
-              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                index === currentIndex ? 'opacity-100' : 'opacity-0'
-              }`}
+              key={idx}
+              className={cn(
+                'absolute inset-0 transition-opacity duration-700 ease-in-out',
+                idx === current ? 'opacity-100' : 'opacity-0 pointer-events-none',
+              )}
             >
               <img
-                src={image.src}
-                alt={image.alt}
-                className="w-full h-full object-contain"
+                src={img.src}
+                alt={img.alt}
+                className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
+              {/* Caption overlay */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent px-6 py-5">
+                <p className="text-white/90 text-sm font-light tracking-wide">
+                  {img.caption}
+                </p>
+              </div>
             </div>
           ))}
         </div>
 
-        {/* Indicadores */}
-        <div className="flex justify-center gap-2 mt-6">
-          {inspirationImages.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                index === currentIndex 
-                  ? 'bg-primary w-8' 
-                  : 'bg-border hover:bg-primary/50'
-              }`}
-              aria-label={`Ver imagen ${index + 1}`}
+        {/* Flechas */}
+        <button
+          onClick={prev}
+          aria-label="Imagen anterior"
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm border border-border/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-background"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <button
+          onClick={next}
+          aria-label="Imagen siguiente"
+          className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm border border-border/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-background"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+      </div>
+
+      {/* Thumbnails navegables */}
+      <div className="flex gap-2 mt-4 overflow-x-auto pb-1 snap-x">
+        {inspirationImages.map((img, idx) => (
+          <button
+            key={idx}
+            onClick={() => setCurrent(idx)}
+            aria-label={`Ver ${img.caption}`}
+            className={cn(
+              'shrink-0 snap-start w-20 h-14 md:w-28 md:h-20 rounded-sm overflow-hidden border-2 transition-all duration-200',
+              idx === current
+                ? 'border-foreground'
+                : 'border-transparent opacity-60 hover:opacity-90',
+            )}
+          >
+            <img
+              src={img.src}
+              alt={img.caption}
+              className="w-full h-full object-cover"
+              loading="lazy"
             />
-          ))}
-        </div>
+          </button>
+        ))}
       </div>
     </section>
   )

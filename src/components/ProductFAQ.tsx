@@ -95,6 +95,20 @@ export const ProductFAQ = () => {
           Por ahora solo enviamos dentro de México. Contáctanos para casos especiales.
         </p>
       )
+    },
+    {
+      question: "¿Cómo cuido mi obra?",
+      answer: (
+        <div className="space-y-2 text-muted-foreground">
+          <p>Tu pieza está hecha para durar décadas con cuidados simples:</p>
+          <ul className="list-disc list-inside space-y-1 ml-2">
+            <li>Colócala en un lugar fresco y seco</li>
+            <li>Evita la luz solar directa y la humedad</li>
+            <li>Limpia con un paño seco suave — sin productos químicos ni humedad</li>
+            <li>Maneja con cuidado para preservar los pliegues y texturas del papel</li>
+          </ul>
+        </div>
+      )
     }
   ]
 

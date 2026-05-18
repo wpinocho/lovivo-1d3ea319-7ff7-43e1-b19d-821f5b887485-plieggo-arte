@@ -22,12 +22,6 @@ import {
   CarouselPrevious,
   CarouselNext,
 } from "@/components/ui/carousel"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
 
 import type { SellingPlan } from "@/lib/supabase"
 import { VolumeBadge } from "@/components/ui/VolumeBadge"
@@ -599,6 +593,31 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                 </div>
               </div>
 
+              {/* Trust strip — visible antes del CTA */}
+              <div className="flex flex-col sm:flex-row gap-3 py-3 border-y border-border/40 text-xs text-muted-foreground">
+                <div className="flex items-center gap-2 flex-1">
+                  <span className="text-base">🚚</span>
+                  <div>
+                    <p className="font-semibold text-foreground/80">Envío gratis CDMX</p>
+                    <p>$200 MXN al resto de México</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-1">
+                  <span className="text-base">📅</span>
+                  <div>
+                    <p className="font-semibold text-foreground/80">10–15 días hábiles</p>
+                    <p>Hecha a mano para ti</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-1">
+                  <span className="text-base">↩️</span>
+                  <div>
+                    <p className="font-semibold text-foreground/80">Garantía 30 días</p>
+                    <p>Si no te encanta, te devolvemos</p>
+                  </div>
+                </div>
+              </div>
+
               {/* CTAs */}
               <div ref={ctaRef} className="flex flex-col gap-3">
                 {logic.inStock && logic.canAddToCart && !logic.selectedPlan && (
@@ -660,63 +679,22 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                 )}
               </div>
 
-              {/* Detail accordions */}
-              <Accordion
-                type="single"
-                collapsible
-                defaultValue="description"
-                className="border-t border-border/60"
-              >
-                {logic.product.description && (
-                  <AccordionItem value="description">
-                    <AccordionTrigger className="text-sm font-medium uppercase tracking-wider">
-                      Descripción
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div
-                        className="text-muted-foreground prose prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{ __html: logic.product.description }}
-                      />
-                    </AccordionContent>
-                  </AccordionItem>
-                )}
-
-                <AccordionItem value="shipping">
-                  <AccordionTrigger className="text-sm font-medium uppercase tracking-wider">
-                    Envío y devoluciones
-                  </AccordionTrigger>
-                  <AccordionContent className="text-sm text-muted-foreground space-y-2">
-                    <p>
-                      Envío a todo México. Tiempo estimado de entrega:{" "}
-                      <strong>10–15 días hábiles</strong> después de confirmado tu pedido.
-                    </p>
-                    <p>
-                      Cuentas con 30 días para solicitar tu devolución sin costo adicional.
-                    </p>
-                  </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="care">
-                  <AccordionTrigger className="text-sm font-medium uppercase tracking-wider">
-                    Cuidado de tu obra
-                  </AccordionTrigger>
-                  <AccordionContent className="text-sm text-muted-foreground">
-                    <p>
-                      Conserva en lugar fresco y seco, alejado de la luz solar directa y
-                      la humedad. Maneja con cuidado para preservar los pliegues y
-                      texturas del papel.
-                    </p>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
+              {/* Descripción visible — no oculta en accordion */}
+              {logic.product.description && (
+                <div
+                  className="text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none border-t border-border/40 pt-5"
+                  dangerouslySetInnerHTML={{ __html: logic.product.description }}
+                />
+              )}
             </div>
           </div>
 
           {/* ── Plieggo sections ── */}
+          {/* Orden: Inspiración (deseo) → Reviews (confianza) → FAQ (objeciones) → CrossSell (upsell) */}
           <div className="mt-16 space-y-16">
+            <InspirationCarousel />
             <ProductReviews productSlug={product.slug} />
             <ProductFAQ />
-            <InspirationCarousel />
             <CrossSellSection currentProduct={logic.product} />
           </div>
         </div>

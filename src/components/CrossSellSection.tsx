@@ -1,8 +1,14 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
-import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ShoppingCart, ArrowRight } from "lucide-react"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel"
 import { supabase } from "@/lib/supabase"
 import { STORE_ID } from "@/lib/config"
 import { useCart } from "@/contexts/CartContext"
@@ -12,9 +18,8 @@ import type { Product } from "@/lib/supabase"
 
 /**
  * EDITABLE UI COMPONENT - CrossSellSection
- * 
- * Sección de productos relacionados (cross-sell)
- * Muestra productos de la misma colección
+ * Carrusel editorial de productos relacionados.
+ * Mobile: scroll horizontal con snap. Desktop: 3 columnas visibles.
  */
 
 interface CrossSellSectionProps {
@@ -34,161 +39,160 @@ export const CrossSellSection = ({ currentProduct }: CrossSellSectionProps) => {
   const loadRelatedProducts = async () => {
     try {
       setLoading(true)
-      
-      // 1. Intentar obtener la colección del producto actual
       let products: Product[] = []
-      
-      // Primero, obtener las colecciones del producto
+
       const { data: productCollections, error: collError } = await supabase
-        .from('collection_products')
-        .select('collection_id')
-        .eq('product_id', currentProduct.id)
-      
+        .from("collection_products")
+        .select("collection_id")
+        .eq("product_id", currentProduct.id)
+
       if (!collError && productCollections && productCollections.length > 0) {
-        // El producto pertenece a una colección
         const collectionId = productCollections[0].collection_id
-        
-        // Obtener otros productos de la misma colección
+
         const { data: collectionProductIds, error: cpError } = await supabase
-          .from('collection_products')
-          .select('product_id')
-          .eq('collection_id', collectionId)
-          .neq('product_id', currentProduct.id)
-        
+          .from("collection_products")
+          .select("product_id")
+          .eq("collection_id", collectionId)
+          .neq("product_id", currentProduct.id)
+
         if (!cpError && collectionProductIds && collectionProductIds.length > 0) {
-          const productIds = collectionProductIds.map(cp => cp.product_id)
-          
-          // Obtener los productos completos
+          const productIds = collectionProductIds.map((cp) => cp.product_id)
+
           const { data, error } = await supabase
-            .from('products')
-            .select('*')
-            .eq('status', 'active')
-            .eq('store_id', STORE_ID)
-            .in('id', productIds)
-            .limit(3)
-          
+            .from("products")
+            .select("*")
+            .eq("status", "active")
+            .eq("store_id", STORE_ID)
+            .in("id", productIds)
+            .limit(6)
+
           if (error) throw error
           products = data || []
         }
       }
-      
-      // 2. Si no hay suficientes productos de la colección, completar con aleatorios del mismo store
+
       if (products.length < 3) {
         const { data, error } = await supabase
-          .from('products')
-          .select('*')
-          .eq('status', 'active')
-          .eq('store_id', STORE_ID)
-          .neq('id', currentProduct.id)
-          .limit(3 - products.length)
-        
+          .from("products")
+          .select("*")
+          .eq("status", "active")
+          .eq("store_id", STORE_ID)
+          .neq("id", currentProduct.id)
+          .limit(6 - products.length)
+
         if (error) throw error
         products = [...products, ...(data || [])]
       }
-      
-      setRelatedProducts(products.slice(0, 3))
+
+      setRelatedProducts(products.slice(0, 6))
     } catch (error) {
-      console.error('Error loading related products:', error)
+      console.error("Error loading related products:", error)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleQuickAdd = (product: Product) => {
-    // Agregar producto base sin variante específica
-    // El usuario puede ajustar opciones desde el carrito
-    addItem(product, undefined)
-  }
-
-  if (loading) {
-    return (
-      <Card className="border-border/50">
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  if (relatedProducts.length === 0) {
-    return null
-  }
+  if (loading || relatedProducts.length === 0) return null
 
   return (
-    <Card className="border-border/50">
-      <CardContent className="pt-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="font-heading text-2xl font-semibold flex items-center gap-2">
-            Combina Bien Con...
-          </h3>
-          <Link 
-            to="/all-products"
-            className="text-sm text-primary hover:text-primary/80 flex items-center gap-1 font-medium"
-          >
-            Ver todos
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+    <section className="py-4">
+      {/* Header */}
+      <div className="flex items-end justify-between mb-8">
+        <div>
+          <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-1.5">
+            Colección
+          </p>
+          <h2 className="font-heading text-2xl md:text-3xl font-light tracking-tight">
+            Combina bien con
+          </h2>
         </div>
+        <Link
+          to="/all-products"
+          className="hidden sm:inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+        >
+          Ver todos
+          <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+        </Link>
+      </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Carrusel */}
+      <Carousel
+        opts={{ align: "start", loop: false, dragFree: true }}
+        className="w-full"
+      >
+        <CarouselContent className="-ml-4">
           {relatedProducts.map((product) => {
             const displayPrice = product.price || 0
+            const img = product.images?.[0]
 
             return (
-              <div 
-                key={product.id} 
-                className="group relative"
+              <CarouselItem
+                key={product.id}
+                className="pl-4 basis-[78%] sm:basis-1/2 lg:basis-1/3"
               >
-                <Link 
-                  to={`/products/${product.slug}`}
-                  className="block"
-                  onClick={() => window.scrollTo(0, 0)}
-                >
+                <div className="group flex flex-col h-full">
                   {/* Image */}
-                  <div className="aspect-square rounded-lg overflow-hidden bg-muted mb-3 group-hover:ring-2 group-hover:ring-primary/20 transition-all">
-                    {product.images && product.images.length > 0 ? (
-                      <img
-                        src={product.images[0]}
-                        alt={product.title}
-                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
-                        Sin imagen
-                      </div>
-                    )}
-                  </div>
+                  <Link
+                    to={`/products/${product.slug}`}
+                    onClick={() => window.scrollTo(0, 0)}
+                    className="block flex-1"
+                  >
+                    <div className="aspect-[4/5] rounded-sm overflow-hidden bg-muted/40 mb-3">
+                      {img ? (
+                        <img
+                          src={img}
+                          alt={product.title}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
+                          Sin imagen
+                        </div>
+                      )}
+                    </div>
+                    <div className="space-y-0.5 mb-3">
+                      <h4 className="text-sm font-medium leading-snug line-clamp-2 group-hover:text-primary/80 transition-colors">
+                        {product.title}
+                      </h4>
+                      <p className="text-base font-semibold">
+                        {formatMoney(displayPrice, currencyCode)}
+                      </p>
+                    </div>
+                  </Link>
 
-                  {/* Info */}
-                  <div className="space-y-2">
-                    <h4 className="font-heading font-semibold text-base group-hover:text-primary transition-colors line-clamp-2">
-                      {product.title}
-                    </h4>
-                    <p className="font-heading text-lg font-bold">
-                      {formatMoney(displayPrice, currencyCode)}
-                    </p>
-                  </div>
-                </Link>
-
-                {/* Quick Add Button */}
-                <Button
-                  size="sm"
-                  className="w-full mt-3"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    handleQuickAdd(product)
-                  }}
-                >
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  Agregar
-                </Button>
-              </div>
+                  {/* Quick add */}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => addItem(product, undefined)}
+                  >
+                    <ShoppingCart className="h-3.5 w-3.5 mr-1.5" />
+                    Agregar
+                  </Button>
+                </div>
+              </CarouselItem>
             )
           })}
-        </div>
-      </CardContent>
-    </Card>
+        </CarouselContent>
+
+        {/* Flechas solo en desktop */}
+        <CarouselPrevious className="hidden lg:flex -left-5" />
+        <CarouselNext className="hidden lg:flex -right-5" />
+      </Carousel>
+
+      {/* Ver todos — mobile */}
+      <div className="sm:hidden mt-6 text-center">
+        <Link
+          to="/all-products"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Ver toda la colección
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
+    </section>
   )
 }
