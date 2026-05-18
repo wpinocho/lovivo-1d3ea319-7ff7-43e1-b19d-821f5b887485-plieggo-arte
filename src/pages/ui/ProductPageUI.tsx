@@ -11,10 +11,6 @@ import {
   ArrowLeft,
   Plus,
   Minus,
-  Truck,
-  ShieldCheck,
-  RotateCcw,
-  Lock,
   ChevronRight,
 } from "lucide-react"
 import { Link } from "react-router-dom"
@@ -44,6 +40,8 @@ import { productJsonLd, breadcrumbJsonLd, plainText } from "@/lib/seo/jsonld"
 import { ProductFAQ } from "@/components/ProductFAQ"
 import { CrossSellSection } from "@/components/CrossSellSection"
 import { InspirationCarousel } from "@/components/InspirationCarousel"
+import { ProductReviews } from "@/components/ProductReviews"
+import { getProductReview } from "@/data/product-reviews"
 
 /**
  * EDITABLE UI COMPONENT - ProductPageUI (Premium — Plieggo Arte)
@@ -146,6 +144,16 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
       : 0
 
   const vendor = logic.product.vendor || logic.product.product_type
+
+  // Detect edición limitada
+  const isEdicionLimitada =
+    product.tags?.includes('edicion-limitada') ||
+    product.product_type === 'Edición Limitada' ||
+    product.title?.toLowerCase().includes('luna') ||
+    product.title?.toLowerCase().includes('estrella')
+
+  // Inline star rating data
+  const productReview = getProductReview(product.slug)
 
   const product = logic.product
   const seoTitle = product.title
@@ -318,6 +326,19 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                     {vendor}
                   </p>
                 )}
+                {/* Urgency badge — Edición Limitada */}
+                {isEdicionLimitada && (
+                  <div className="flex items-center gap-2 py-0.5">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500" />
+                    </span>
+                    <span className="text-xs font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400">
+                      Edición Limitada · Pocas piezas disponibles
+                    </span>
+                  </div>
+                )}
+
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight leading-[1.1]">
                   {logic.product.title}
                 </h1>
@@ -349,25 +370,76 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                     <BOGOLabel productId={logic.product.id} />
                   </div>
                 )}
+
+                {/* Inline star rating → links to reviews section */}
+                {productReview.reviewCount > 0 && (
+                  <a
+                    href="#reviews"
+                    className="inline-flex items-center gap-2 pt-1 group"
+                  >
+                    <div className="flex items-center gap-0.5">
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <svg
+                          key={s}
+                          className={cn(
+                            "h-4 w-4 transition-opacity",
+                            s <= Math.round(productReview.rating)
+                              ? "text-amber-500"
+                              : "text-muted-foreground/25",
+                          )}
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      ))}
+                    </div>
+                    <span className="text-sm font-semibold tabular-nums">
+                      {productReview.rating.toFixed(1)}
+                    </span>
+                    <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
+                      · {productReview.reviewCount} reseñas verificadas
+                    </span>
+                  </a>
+                )}
               </div>
 
-              {/* Highlights row */}
-              <div className="grid grid-cols-2 gap-3 py-4 border-y border-border/60">
-                <div className="flex items-center gap-2.5 text-xs">
-                  <Truck className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <span className="text-foreground/80">Envío a todo México</span>
-                </div>
-                <div className="flex items-center gap-2.5 text-xs">
-                  <ShieldCheck className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <span className="text-foreground/80">Hecho a mano</span>
-                </div>
-                <div className="flex items-center gap-2.5 text-xs">
-                  <RotateCcw className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <span className="text-foreground/80">Devolución 30 días</span>
-                </div>
-                <div className="flex items-center gap-2.5 text-xs">
-                  <Lock className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <span className="text-foreground/80">Pago seguro</span>
+              {/* Craftsmanship story */}
+              <div className="py-5 border-y border-border/60">
+                <div className="flex flex-col sm:flex-row gap-5">
+                  <div className="flex items-start gap-3 flex-1">
+                    <span className="text-xl leading-none mt-0.5 shrink-0">🤲</span>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/90">
+                        Hecho a mano
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                        Cada pieza tarda 3–5 días en crearse
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 flex-1">
+                    <span className="text-xl leading-none mt-0.5 shrink-0">📐</span>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/90">
+                        Papel de calidad
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                        Libre de ácidos, dura décadas sin desvanecer
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 flex-1">
+                    <span className="text-xl leading-none mt-0.5 shrink-0">📦</span>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/90">
+                        Empaque seguro
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                        Protección especial para que llegue perfecta
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -642,6 +714,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
 
           {/* ── Plieggo sections ── */}
           <div className="mt-16 space-y-16">
+            <ProductReviews productSlug={product.slug} />
             <ProductFAQ />
             <InspirationCarousel />
             <CrossSellSection currentProduct={logic.product} />

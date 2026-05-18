@@ -9,88 +9,28 @@ Tienda de arte en papel (cuadros de origami hechos a mano). Marca premium, sutil
 - Fondo continuo sin bandas de color entre secciones
 - Estilo Zara Home / Muji — nada genérico
 
-## 3. Active Plan — PDP CRO Upgrade 🔴 PENDIENTE
+## 3. Active Plan — ✅ PDP CRO Upgrade IMPLEMENTADO
 
-### Objetivo
-Mejorar la tasa de conversión de la PDP. Se identificaron múltiples gaps de CRO críticos mediante revisión visual + análisis de código.
+### Qué se construyó (2026-05-19)
+1. **`src/components/ProductReviews.tsx`** — componente nuevo completo:
+   - Rating hero (número grande + estrellas)
+   - Barras de distribución 5★ → 1★
+   - Grid de reviews (3 visibles, botón "Ver todas")
+   - Cards con: autor, fecha, estrellas, texto en itálica, badge "Compra verificada", variante
+   - Oculto automáticamente si reviewCount === 0
 
-### Hallazgos clave
-- `product-reviews.ts` y `product-reviews-content.ts` tienen datos ricos (Luna Beige: 4.9★, 8 reseñas) pero **CERO se muestran en la PDP** — este es el mayor gap
-- No hay rating de estrellas visible bajo el título/precio
-- No hay señales de urgencia/escasez para ediciones limitadas
-- El selector de cantidad es estándar pero para arte de $5k resulta genérico
-- No hay dimensiones destacadas visualmente (solo en el selector de variante)
-- Sección de "proceso artesanal" ausente
+2. **`src/pages/ui/ProductPageUI.tsx`** — 4 mejoras:
+   - **Badge urgencia** "🔴 Edición Limitada · Pocas piezas disponibles" (detección por título/tags/product_type)
+   - **Star rating inline** bajo precio → link a #reviews
+   - **Craftsmanship story** (3 columnas: 🤲 Hecho a mano / 📐 Papel de calidad / 📦 Empaque seguro) reemplazó el grid 2×2
+   - **`<ProductReviews productSlug={product.slug} />`** agregado antes de FAQ en secciones Plieggo
 
-### Plan de implementación en ProductPageUI.tsx
-
-#### PRIORIDAD 1 — Social Proof (impacto más alto)
-**A) Star rating inline bajo el precio**
-- Justo debajo del bloque de precio, antes de los trust badges
-- Usar `getProductReview(product.slug)` → mostrar estrellas (★ rellenas/vacías) + rating numérico + conteo
-- Solo mostrar si `reviewCount > 0`
-- Ejemplo: `★★★★★ 4.9 · 8 reseñas verificadas` — con anchor link `#reviews`
-- Estilo: texto pequeño, color muted, estrellas en terracota (#C16648)
-
-**B) Sección de reseñas completa (nuevo bloque en `mt-16 space-y-16`)**
-- Crear componente `ProductReviews` en `src/components/ProductReviews.tsx`
-- Props: `productSlug: string`
-- Usa `getProductReview(slug)` para rating/count resumen
-- Usa `getProductReviewsContent(slug)` para las reviews individuales
-- Estructura:
-  - Header: rating grande (4.9), estrellas, "X reseñas verificadas"
-  - Barra de distribución (5★, 4★, etc.) — calcular del array
-  - Grid de 2 columnas (desktop) / 1 columna (mobile) con máximo 3 reviews visibles
-  - Botón "Ver todas las reseñas" si hay más de 3
-  - Cada review card: nombre, fecha formateada, rating en estrellas, texto, badge "Compra verificada", variante (si tiene)
-- Insertar ANTES de `CrossSellSection` en el bloque de secciones Plieggo
-- NO mostrar sección si `reviewCount === 0`
-
-#### PRIORIDAD 2 — Urgencia / Escasez
-**C) Badge de edición limitada + urgencia**
-- Detectar si el producto es "edición limitada" por: product.tags?.includes('edicion-limitada') || product.product_type === 'Edición Limitada' || product.title.includes('Luna') || product.title.includes('Estrella')
-- Si es edición limitada, mostrar bajo el título (antes del precio):
-  ```
-  🔴 Edición Limitada · Pocas piezas disponibles
-  ```
-  Estilo: badge pequeño, color vino burdeos, texto blanco, dot animado (pulse)
-- Esta señal va DESPUÉS del vendor label, ANTES del precio
-
-#### PRIORIDAD 3 — Craftsmanship Story
-**D) Bloque editorial "Hecho a mano"**
-- Reemplazar los 4 trust badges actuales (grid 2x2 muy pequeño) con un bloque más visual
-- Nuevo diseño: 3 columnas horizontales (desktop), scroll horizontal (mobile)
-  - 🤲 **Hecho a mano** — "Cada pieza tarda 3–5 días en crearse"
-  - 📐 **Papel de alta calidad** — "Papel libre de ácidos, dura décadas"
-  - 📦 **Empaque seguro** — "Protección especial para que llegue perfecta"
-- Mantener el border-y, mismo spacing
-- Esto va en el mismo lugar que el grid actual (entre precio y CTAs)
-
-#### PRIORIDAD 4 — Dimensiones destacadas
-**E) Mostrar dimensiones prominentemente**
-- Si el producto tiene la opción "Talla" o "Tamaño", mostrar el valor seleccionado como:
-  `Tamaño: **60 × 60 cm**` en una línea visual cerca del title block
-- Si no hay variante de tamaño, buscar en product.description o tags las dimensiones
-- Mostrar como dato visual, no solo en el selector
-
-#### PRIORIDAD 5 — Layout mobile
-**F) Mejorar layout mobile**
-- Ocultar el selector de cantidad en mobile para productos de $3,000+ (arte de colección)
-- La sticky bar de mobile es buena, dejarla igual
-- El carousel de mobile funciona bien si hay múltiples fotos
-
-### Archivos a crear/modificar
-- `src/components/ProductReviews.tsx` — CREAR (nuevo componente)
-- `src/pages/ui/ProductPageUI.tsx` — MODIFICAR:
-  - Añadir star rating inline bajo precio (líneas ~326-352)
-  - Añadir badge urgencia bajo vendor label (línea ~316)
-  - Reemplazar trust badges con craftsmanship story (líneas ~354-372)
-  - Añadir `<ProductReviews productSlug={product.slug} />` en secciones Plieggo (línea ~644)
-
-### Después de implementar
-Crear `.lovivo/cro-log.md` con baseline y este cambio documentado.
+### Pendiente / próxima sesión
+- Más fotos de producto (Luna Beige tiene solo 1 imagen)
+- Revisar layout mobile post-cambios
 
 ## 4. Recent Changes
+- **2026-05-19 CRO PDP** — Implementadas 4 mejoras: badge urgencia, star rating inline, craftsmanship story, sección de reseñas completa (ProductReviews.tsx)
 - **2026-05-18 ANÁLISIS** — PDP CRO audit completo. Reviews existen en data files pero NO se muestran. Plan guardado.
 - **2026-05-18 BUG FIX** — `useSettings()` movido al top de ProductPageUI (antes de early returns); violaba Rules of Hooks → pantalla en blanco
 - **2026-05-18 BUG FIX** — `CrossSellSection` recibía props incorrectos (`currentProductId`/`currentCollectionIds`); componente espera `currentProduct: Product` → error `Cannot read properties of undefined (reading 'id')`
@@ -111,6 +51,6 @@ Crear `.lovivo/cro-log.md` con baseline y este cambio documentado.
 - Luna Beige tiene solo 1 imagen en galería — necesita fotos de detalle y lifestyle para mejorar conversión
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** Implementar plan CRO PDP (reseñas, urgencia, craftsmanship story) — ver sección 3
+- **[ALTA]** Añadir más fotos a Luna Beige (detalle, textura, en sala)
 - Revisar comportamiento de ExpressCheckout en Safari/iOS (Apple Pay)
-- Considerar añadir reseñas/reviews section en ProductPageUI si se requiere ← YA INVESTIGADO, plan listo
+- Evaluar A/B test del badge de urgencia vs. sin badge (cuando haya volumen suficiente)
