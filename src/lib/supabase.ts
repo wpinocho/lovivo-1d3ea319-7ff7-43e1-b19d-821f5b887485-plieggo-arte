@@ -215,17 +215,26 @@ export type PriceRule = {
   store_id?: string
 }
 
+export type PaymentMethods = {
+  card: boolean
+  oxxo: boolean
+  spei: boolean
+}
+
 export type StoreSettings = {
   id: string
   store_id: string
   currency_code: string
+  store_name?: string
   social_links?: any
   logos?: any
   store_language?: string
   date_format?: string
   shipping_coverage?: any
+  shipping_coverage_v2?: any
   pickup_locations?: any
   delivery_expectations?: any
   meta_pixel_id?: string
+  payment_methods?: PaymentMethods
   updated_at?: string
 }
