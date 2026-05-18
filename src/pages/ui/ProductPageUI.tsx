@@ -80,6 +80,9 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
   const [isZoomed, setIsZoomed] = useState(false)
   const { ref: ctaRef, inView: ctaInView } = useInView({ threshold: 0 })
 
+  // ⚠️ Hooks must be called unconditionally — BEFORE any early returns
+  const { storeName, currencyCode } = useSettings()
+
   const displayImage =
     selectedImage ||
     logic.displayImages?.[0] ||
@@ -144,7 +147,6 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
 
   const vendor = logic.product.vendor || logic.product.product_type
 
-  const { storeName, currencyCode } = useSettings()
   const product = logic.product
   const seoTitle = product.title
   const seoDescription =
@@ -640,12 +642,9 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
 
           {/* ── Plieggo sections ── */}
           <div className="mt-16 space-y-16">
-            <ProductFAQ productId={logic.product?.id} />
-            <InspirationCarousel productId={logic.product?.id} />
-            <CrossSellSection
-              currentProductId={logic.product?.id}
-              currentCollectionIds={logic.product?.collection_ids}
-            />
+            <ProductFAQ />
+            <InspirationCarousel />
+            <CrossSellSection currentProduct={logic.product} />
           </div>
         </div>
 
