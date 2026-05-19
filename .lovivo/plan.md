@@ -12,17 +12,17 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - CTAs: NUNCA usar glow/sombra naranja gigante. Botones limpios, elegantes.
 
 ## 3. Active Plan
-**Homepage CRO Redesign — COMPLETADO (2026-05-19)**
+**ProductCard Cleanup — COMPLETADO (2026-05-19)**
 
-Todos los 6 issues implementados:
-1. ✅ Gift Ideas section → editorial banner con imagen black-dining.webp, heading "Arte que nunca falla como regalo", 3 bullets + 2 CTAs limpios
-2. ✅ Products grid → `grid-cols-2` desde móvil (`gap-4 sm:gap-8`)
-3. ✅ Hero → `h-[80dvh] md:h-[100dvh]` — contenido visible en fold
-4. ✅ Trust strip → 4 iconos (Hand, Sparkles, Truck, RotateCcw) entre colecciones y productos
-5. ✅ Collections desktop → `flex md:grid md:grid-cols-4` (carousel en móvil, grid en desktop)
-6. ✅ InspirationCarousel flechas → `opacity-100 md:opacity-0 md:group-hover:opacity-100` (siempre visibles en móvil)
+- ✅ Badge "EDICIÓN LIMITADA" compacto en móvil (text-[8px], padding mínimo, ícono h-2.5)
+- ✅ Eliminadas las reseñas/estrellas de la tarjeta (evita overflow y cortes)
+- ✅ Precio reducido a text-base en móvil (era text-xl)
+- ✅ "Ver detalle →" → "Ver más" ghost button discreto, sin overflow
+- ✅ Título reducido a text-sm en móvil para más espacio
+- ✅ Imports limpios (Link y ProductRating eliminados)
 
 ## 4. Recent Changes
+- **2026-05-19 ProductCard cleanup** — Badge compacto móvil, quitadas reseñas, precio más chico, CTA "Ver más" discreto
 - **2026-05-19 Homepage Redesign COMPLETO** — 6 cambios CRO en IndexUI.tsx, HeroCarousel.tsx, InspirationCarousel.tsx
 - **2026-05-19 AUDIT Homepage** — 6 issues identificados, plan de rediseño completo
 - **2026-05-19 CRO Round 6** — SizeGuide proporcional, doble sección reviews (específicas + Plieggo general), Arte vivo en craftsmanship

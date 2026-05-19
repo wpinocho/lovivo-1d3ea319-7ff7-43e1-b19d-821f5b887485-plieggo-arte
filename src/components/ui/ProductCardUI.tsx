@@ -1,12 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Link, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { HeadlessProductCard } from "@/components/headless/HeadlessProductCard"
 import { ProductBadge, type BadgeType } from "@/components/ProductBadge"
-import { ProductRating } from "@/components/ProductRating"
 import type { Product, PriceRule } from "@/lib/supabase"
 import { getBadgeForProduct } from "@/lib/product-badges"
-import { getProductReview } from "@/data/product-reviews"
 import { PriceRuleBadge } from "@/components/ui/PriceRuleBadge"
 
 /**
@@ -32,7 +30,6 @@ interface ProductCardUIProps {
 export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [] }: ProductCardUIProps) => {
   const navigate = useNavigate()
   const badge = getBadgeForProduct(product)
-  const review = getProductReview(product.slug)
   
   // Determine aspect ratio class - MOBILE: always square, DESKTOP: use real ratio
   const aspectRatioClass = aspectRatio === 'square' 
@@ -51,8 +48,11 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [] }
           <CardContent className="p-0 relative">
             {/* Badge arriba de la imagen - Posición top-right más prominente */}
             {badge && (
-              <div className="absolute top-3 right-3 z-10 transition-transform duration-300 group-hover:scale-110">
-                <ProductBadge type={badge as BadgeType} />
+              <div className="absolute top-2 right-2 z-10">
+                <ProductBadge 
+                  type={badge as BadgeType}
+                  className="text-[8px] md:text-[10px] px-1.5 md:px-2.5 py-0.5 md:py-1 gap-0.5 md:gap-1 shadow-md"
+                />
               </div>
             )}
             
@@ -187,14 +187,9 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [] }
             <div className="p-4 space-y-3">
               {/* Título y descripción */}
               <div>
-                <h3 className="font-heading font-semibold text-foreground text-base md:text-lg mb-1 line-clamp-2 leading-tight">
+                <h3 className="font-heading font-semibold text-foreground text-sm md:text-base mb-1 line-clamp-2 leading-tight">
                   {logic.product.title}
                 </h3>
-                {review && (
-                  <div className="mb-2">
-                    <ProductRating rating={review.rating} count={review.count} size="sm" />
-                  </div>
-                )}
                 {/* Price rule badges */}
                 {priceRules.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-1">
@@ -205,14 +200,14 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [] }
                 )}
               </div>
 
-              {/* Precio y CTA - Siempre visible */}
-              <div className="flex items-center justify-between gap-2">
+              {/* Precio y CTA */}
+              <div className="flex items-end justify-between gap-1">
                 <div className="flex flex-col">
-                  <span className="font-heading text-foreground font-bold text-xl md:text-2xl">
+                  <span className="font-heading text-foreground font-bold text-base md:text-lg leading-none">
                     {logic.formatMoney(logic.currentPrice)}
                   </span>
                   {logic.currentCompareAt && logic.currentCompareAt > logic.currentPrice && (
-                    <span className="font-body text-muted-foreground text-xs line-through">
+                    <span className="font-body text-muted-foreground text-xs line-through mt-0.5">
                       {logic.formatMoney(logic.currentCompareAt)}
                     </span>
                   )}
@@ -220,14 +215,14 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [] }
                 
                 <Button
                   size="sm"
-                  variant="outline"
-                  className="shrink-0 font-medium text-xs md:text-sm"
+                  variant="ghost"
+                  className="shrink-0 text-accent hover:text-accent/80 text-xs md:text-sm font-medium px-0 h-auto pb-0.5 underline underline-offset-2"
                   onClick={(e) => {
                     e.stopPropagation()
                     navigate(`/products/${logic.product.slug}`)
                   }}
                 >
-                  Ver detalle →
+                  Ver más
                 </Button>
               </div>
 

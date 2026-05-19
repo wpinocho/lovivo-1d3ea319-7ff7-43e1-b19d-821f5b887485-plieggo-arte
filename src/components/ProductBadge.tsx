@@ -51,7 +51,7 @@ export const ProductBadge = ({ type, className }: ProductBadgeProps) => {
         className
       )}
     >
-      {Icon && <Icon className="h-3.5 w-3.5 md:h-4 md:w-4" />}
+      {Icon && <Icon className="h-2.5 w-2.5 md:h-3.5 md:w-3.5" />}
       {config.label}
     </Badge>
   )
