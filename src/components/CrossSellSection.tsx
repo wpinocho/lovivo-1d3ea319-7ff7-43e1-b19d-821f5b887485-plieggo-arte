@@ -144,7 +144,7 @@ export const CrossSellSection = ({ currentProduct }: CrossSellSectionProps) => {
                           alt={product.title}
                           loading="lazy"
                           decoding="async"
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500 ease-out"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">

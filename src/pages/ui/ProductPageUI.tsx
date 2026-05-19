@@ -12,6 +12,12 @@ import {
   Plus,
   Minus,
   ChevronRight,
+  Hand,
+  Layers,
+  Package,
+  Truck,
+  Clock,
+  RotateCcw,
 } from "lucide-react"
 import { Link } from "react-router-dom"
 import { cn } from "@/lib/utils"
@@ -312,7 +318,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
             </div>
 
             {/* ── INFO COLUMN (lg:col-span-5) ── */}
-            <div className="lg:col-span-5 space-y-8">
+            <div className="lg:col-span-5 space-y-6">
               {/* Title block */}
               <div className="space-y-3">
                 {vendor && (
@@ -337,39 +343,11 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                   {logic.product.title}
                 </h1>
 
-                {/* Price block */}
-                <div className="flex items-baseline gap-3 pt-2">
-                  <span className="text-3xl font-semibold tracking-tight">
-                    {logic.formatMoney(logic.currentPrice)}
-                  </span>
-                  {logic.currentCompareAt &&
-                    logic.currentCompareAt > logic.currentPrice && (
-                      <>
-                        <span className="text-base text-muted-foreground line-through">
-                          {logic.formatMoney(logic.currentCompareAt)}
-                        </span>
-                        {discountPct > 0 && (
-                          <span className="text-sm font-medium text-primary">
-                            Ahorra {discountPct}%
-                          </span>
-                        )}
-                      </>
-                    )}
-                </div>
-
-                {/* Promo badges */}
-                {logic.product?.id && (
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    <VolumeBadge productId={logic.product.id} />
-                    <BOGOLabel productId={logic.product.id} />
-                  </div>
-                )}
-
-                {/* Inline star rating → links to reviews section */}
+                {/* Inline star rating → ARRIBA del precio para anclar confianza */}
                 {productReview.reviewCount > 0 && (
                   <a
                     href="#reviews"
-                    className="inline-flex items-center gap-2 pt-1 group"
+                    className="inline-flex items-center gap-2 group"
                   >
                     <div className="flex items-center gap-0.5">
                       {[1, 2, 3, 4, 5].map((s) => (
@@ -396,13 +374,49 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                     </span>
                   </a>
                 )}
+
+                {/* Price block */}
+                <div className="flex items-baseline gap-3 pt-1">
+                  <span className="text-3xl font-semibold tracking-tight">
+                    {logic.formatMoney(logic.currentPrice)}
+                  </span>
+                  {logic.currentCompareAt &&
+                    logic.currentCompareAt > logic.currentPrice && (
+                      <>
+                        <span className="text-base text-muted-foreground line-through">
+                          {logic.formatMoney(logic.currentCompareAt)}
+                        </span>
+                        {discountPct > 0 && (
+                          <span className="text-sm font-medium text-primary">
+                            Ahorra {discountPct}%
+                          </span>
+                        )}
+                      </>
+                    )}
+                </div>
+
+                {/* Promo badges */}
+                {logic.product?.id && (
+                  <div className="flex flex-wrap gap-2">
+                    <VolumeBadge productId={logic.product.id} />
+                    <BOGOLabel productId={logic.product.id} />
+                  </div>
+                )}
               </div>
 
+              {/* Descripción visible — posición editorial: después del precio, antes del craftsmanship */}
+              {logic.product.description && (
+                <div
+                  className="text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: logic.product.description }}
+                />
+              )}
+
               {/* Craftsmanship story */}
-              <div className="py-5 border-y border-border/60">
-                <div className="flex flex-col sm:flex-row gap-5">
+              <div className="py-3 border-y border-border/60">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <div className="flex items-start gap-3 flex-1">
-                    <span className="text-xl leading-none mt-0.5 shrink-0">🤲</span>
+                    <Hand className="h-5 w-5 text-[#C16648] shrink-0 mt-0.5" />
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wider text-foreground/90">
                         Hecho a mano
@@ -413,7 +427,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                     </div>
                   </div>
                   <div className="flex items-start gap-3 flex-1">
-                    <span className="text-xl leading-none mt-0.5 shrink-0">📐</span>
+                    <Layers className="h-5 w-5 text-[#C16648] shrink-0 mt-0.5" />
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wider text-foreground/90">
                         Papel de calidad
@@ -424,7 +438,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                     </div>
                   </div>
                   <div className="flex items-start gap-3 flex-1">
-                    <span className="text-xl leading-none mt-0.5 shrink-0">📦</span>
+                    <Package className="h-5 w-5 text-[#C16648] shrink-0 mt-0.5" />
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wider text-foreground/90">
                         Empaque seguro
@@ -594,23 +608,23 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
               </div>
 
               {/* Trust strip — visible antes del CTA */}
-              <div className="flex flex-col sm:flex-row gap-3 py-3 border-y border-border/40 text-xs text-muted-foreground">
+              <div className="flex flex-col sm:flex-row gap-3 py-2 border-y border-border/40 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2 flex-1">
-                  <span className="text-base">🚚</span>
+                  <Truck className="h-4 w-4 text-[#C16648] shrink-0" />
                   <div>
                     <p className="font-semibold text-foreground/80">Envío gratis CDMX</p>
                     <p>$200 MXN al resto de México</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-1">
-                  <span className="text-base">📅</span>
+                  <Clock className="h-4 w-4 text-[#C16648] shrink-0" />
                   <div>
                     <p className="font-semibold text-foreground/80">10–15 días hábiles</p>
                     <p>Hecha a mano para ti</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-1">
-                  <span className="text-base">↩️</span>
+                  <RotateCcw className="h-4 w-4 text-[#C16648] shrink-0" />
                   <div>
                     <p className="font-semibold text-foreground/80">Garantía 30 días</p>
                     <p>Si no te encanta, te devolvemos</p>
@@ -678,14 +692,6 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                   </Badge>
                 )}
               </div>
-
-              {/* Descripción visible — no oculta en accordion */}
-              {logic.product.description && (
-                <div
-                  className="text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none border-t border-border/40 pt-5"
-                  dangerouslySetInnerHTML={{ __html: logic.product.description }}
-                />
-              )}
             </div>
           </div>
 

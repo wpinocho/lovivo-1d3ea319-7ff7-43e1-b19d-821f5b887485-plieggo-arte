@@ -17,16 +17,6 @@ import { HelpCircle } from "lucide-react"
 export const ProductFAQ = () => {
   const faqs = [
     {
-      question: "¿Cuánto tarda el envío?",
-      answer: (
-        <div className="space-y-2 text-muted-foreground">
-          <p><span className="font-medium text-foreground">CDMX:</span> 10-15 días hábiles (GRATIS)</p>
-          <p><span className="font-medium text-foreground">Nacional:</span> 10-15 días hábiles ($200 MXN)</p>
-          <p className="text-xs mt-1 italic">Cada pieza se elabora especialmente para ti ✦</p>
-        </div>
-      )
-    },
-    {
       question: "¿El marco viene incluido?",
       answer: (
         <div className="space-y-2 text-muted-foreground">
@@ -48,52 +38,21 @@ export const ProductFAQ = () => {
       )
     },
     {
-      question: "¿Es resistente al sol?",
+      question: "¿Cuánto tarda el envío?",
       answer: (
-        <p className="text-muted-foreground">
-          Recomendamos uso en interiores sin luz solar directa para preservar los colores originales del papel.
-        </p>
+        <div className="space-y-2 text-muted-foreground">
+          <p><span className="font-medium text-foreground">CDMX:</span> 10–15 días hábiles (GRATIS)</p>
+          <p><span className="font-medium text-foreground">Nacional:</span> 10–15 días hábiles ($200 MXN)</p>
+          <p className="text-xs mt-1 italic">Cada pieza se elabora especialmente para ti ✦</p>
+        </div>
       )
     },
     {
       question: "¿Puedo personalizarlo?",
       answer: (
         <div className="space-y-2 text-muted-foreground">
-          <p>¡Sí! Contáctanos para:</p>
-          <ul className="list-disc list-inside space-y-1 ml-2">
-            <li>Diseños personalizados</li>
-            <li>Tamaños especiales</li>
-            <li>Colores específicos</li>
-          </ul>
+          <p>¡Sí! Contáctanos para diseños a color, tamaños especiales o paletas personalizadas.</p>
         </div>
-      )
-    },
-    {
-      question: "¿Cómo se limpia?",
-      answer: (
-        <div className="space-y-2 text-muted-foreground">
-          <ul className="list-disc list-inside space-y-1">
-            <li>Pasar un paño seco suavemente</li>
-            <li>No usar productos químicos</li>
-            <li>No mojar el papel</li>
-          </ul>
-        </div>
-      )
-    },
-    {
-      question: "¿Tiene garantía?",
-      answer: (
-        <p className="text-muted-foreground">
-          30 días de garantía de satisfacción total. Si no te encanta, te devolvemos tu dinero.
-        </p>
-      )
-    },
-    {
-      question: "¿Hacen envíos internacionales?",
-      answer: (
-        <p className="text-muted-foreground">
-          Por ahora solo enviamos dentro de México. Contáctanos para casos especiales.
-        </p>
       )
     },
     {
@@ -102,8 +61,7 @@ export const ProductFAQ = () => {
         <div className="space-y-2 text-muted-foreground">
           <p>Tu pieza está hecha para durar décadas con cuidados simples:</p>
           <ul className="list-disc list-inside space-y-1 ml-2">
-            <li>Colócala en un lugar fresco y seco</li>
-            <li>Evita la luz solar directa y la humedad</li>
+            <li>Colócala en un lugar fresco y seco, lejos de luz solar directa</li>
             <li>Limpia con un paño seco suave — sin productos químicos ni humedad</li>
             <li>Maneja con cuidado para preservar los pliegues y texturas del papel</li>
           </ul>
