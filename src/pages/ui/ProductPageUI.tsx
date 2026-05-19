@@ -14,7 +14,7 @@ import {
   ChevronRight,
   Hand,
   Layers,
-  Package,
+  Sparkles,
   Truck,
   Clock,
   RotateCcw,
@@ -42,6 +42,7 @@ import { CrossSellSection } from "@/components/CrossSellSection"
 import { InspirationCarousel } from "@/components/InspirationCarousel"
 import { ProductReviews } from "@/components/ProductReviews"
 import { getProductReview } from "@/data/product-reviews"
+import { SizeGuide } from "@/components/SizeGuide"
 
 /**
  * EDITABLE UI COMPONENT - ProductPageUI (Premium — Plieggo Arte)
@@ -438,13 +439,13 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                     </div>
                   </div>
                   <div className="flex items-start gap-3 flex-1">
-                    <Package className="h-5 w-5 text-[#C16648] shrink-0 mt-0.5" />
+                    <Sparkles className="h-5 w-5 text-[#C16648] shrink-0 mt-0.5" />
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wider text-foreground/90">
-                        Empaque seguro
+                        Arte vivo
                       </p>
                       <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                        Protección especial para que llegue perfecta
+                        Los pliegues crean sombras que cambian con la luz del día
                       </p>
                     </div>
                   </div>
@@ -573,6 +574,11 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                           )
                         })}
                       </div>
+                      {/* Guía de tamaños — solo si los valores tienen formato de medida */}
+                      <SizeGuide
+                        optionValues={option.values}
+                        selectedValue={logic.selected[option.name]}
+                      />
                     </div>
                   ))}
                 </div>
