@@ -11,63 +11,13 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Estilo Zara Home / Muji — nada genérico
 - Iconos: SVG line icons en color terracota (#C16648) — NO emojis
 - CTAs: NUNCA usar glow/sombra naranja gigante. Botones limpios, elegantes.
+- Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-### Hero Redesign — Layout editorial bottom-left
-
-**Problema:** El CTA del hero tiene `shadow-[0_0_30px_rgba(193,102,72,0.4)]` (glow naranja), `py-7` (padding enorme), `text-xl font-bold` (demasiado heavy), y `hover:scale-105 hover:-translate-y-1` (movimiento exagerado). El layout centrado es genérico.
-
-**Objetivo:** Hero refinado estilo Zara Home — texto anclado abajo-izquierda, CTA pequeño y limpio, gradiente que oscurece el rincón inferior-izquierdo.
-
-**Archivo: `src/components/HeroCarousel.tsx`**
-
-Cambios en el layout del content:
-1. Cambiar `h-full flex items-center justify-center` → `h-full flex items-end justify-start`
-2. Cambiar `text-center max-w-4xl` → `text-left max-w-lg` con `pb-16 md:pb-20`
-3. Agregar `px-6 md:px-12 lg:px-16` al contenedor de texto
-
-Cambios en el headline:
-- `text-4xl md:text-7xl lg:text-8xl font-bold` → `text-3xl md:text-5xl lg:text-6xl font-semibold`
-- Quitar `textShadow` inline o reducirlo: `0 1px 8px rgba(0,0,0,0.3)`
-- `mb-4 md:mb-6` → `mb-3`
-
-Cambios en el subheadline:
-- `text-base md:text-2xl` → `text-sm md:text-base`
-- `mb-6 md:mb-10` → `mb-5 md:mb-7`
-- `max-w-2xl` → `max-w-sm`
-
-Cambios en el CTA (eliminar glow, reducir tamaño):
-```tsx
-// Reemplazar ambas instancias del Button hero
-<Button
-  size="sm"
-  className="btn-hero group bg-white/15 backdrop-blur-sm border border-white/50 hover:bg-white hover:text-[#1B2A41] text-white transition-all duration-300 px-6 py-2.5 text-sm tracking-widest uppercase font-medium h-auto rounded-none"
->
-  <span className="flex items-center gap-2">
-    {currentSlideData.cta.text}
-    <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-  </span>
-</Button>
-```
-**NO glow, NO shadow, NO scale, NO translate-y.**
-
-Cambios en el gradiente:
-- Cambiar `bg-gradient-to-b from-black/30 via-black/40 to-black/60` 
-- → `bg-gradient-to-t from-black/60 via-black/20 to-black/10` (más oscuro abajo donde está el texto)
-
-Cambios en el eyebrow:
-- `text-white/90 mb-4 tracking-wider uppercase` → `text-white/70 mb-3 tracking-[0.2em] uppercase text-xs`
-
-Dots indicator: mover a bottom-4 right-6 (alineado derecha, más discreto)
-```tsx
-// cambiar posición de dots
-className="absolute bottom-5 right-6 z-20 flex gap-2"
-// quitar left-1/2 -translate-x-1/2
-```
-
-Scroll indicator: quitar o mantener solo en desktop (ya tiene hidden md:block)
+Estado: sin tarea activa pendiente.
 
 ## 4. Recent Changes
+- **2026-05-19 Hero editorial redesign COMPLETO** — Layout bottom-left, headline sm/font-semibold, CTA limpio sin glow, gradiente reposicionado to-top, dots discretos bottom-right, scroll indicator eliminado
 - **2026-05-19 Hero redesign planeado** — Layout editorial bottom-left, CTA limpio sin glow, gradiente reposicionado
 - **2026-05-19 Tipografía global** — fontFamily registrada en tailwind.config.ts: font-sans=DM Sans, font-serif=Crimson Pro, font-heading, font-body. Ahora consistente en todo el sitio.
 - **2026-05-19 WhatsApp completo** — Número real 525531215386 en TopSellers; link inline terracota en PDP (después del trust strip, antes de Galería); botón WhatsApp en footer con ícono SVG oficial
@@ -77,7 +27,6 @@ Scroll indicator: quitar o mantener solo en desktop (ya tiene hidden md:block)
 - **2026-05-19 Homepage Redesign COMPLETO** — 6 cambios CRO en IndexUI.tsx, HeroCarousel.tsx, InspirationCarousel.tsx
 - **2026-05-19 AUDIT Homepage** — 6 issues identificados, plan de rediseño completo
 - **2026-05-19 CRO Round 6** — SizeGuide proporcional, doble sección reviews (específicas + Plieggo general), Arte vivo en craftsmanship
-- **2026-05-19 AUDIT PDP Round 5** — 6 oportunidades identificadas
 - **2026-05-19 CRO Round 4** — PDP móvil UX: "Seguir comprando" oculto en móvil, qty pill, CTAs reposicionados, trust strip debajo de CTAs
 - **2026-05-19 CRO Round 3 COMPLETO** — 6 mejoras UX/visual en 3 archivos
 - **2026-05-19 CRO Round 2** — InspirationCarousel, CrossSellSection, ProductFAQ, ProductPageUI

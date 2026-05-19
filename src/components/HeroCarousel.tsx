@@ -168,15 +168,15 @@ export const HeroCarousel = ({
               />
             )}
             
-            {/* Gradient overlay para legibilidad */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/60" />
+            {/* Gradient overlay — más oscuro abajo-izquierda donde está el texto */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-black/10" />
           </div>
         ))}
       </div>
 
       {/* Text Content */}
-      <div className="relative z-10 h-full flex items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-4xl">
+      <div className="relative z-10 h-full flex items-end justify-start px-6 md:px-12 lg:px-16 pb-16 md:pb-20">
+        <div className="text-left max-w-lg">
           {/* Eyebrow */}
           <div 
             className={`transition-all duration-600 ease-out ${
@@ -186,7 +186,7 @@ export const HeroCarousel = ({
             }`}
             style={{ transitionDelay: showText ? '0ms' : '0ms' }}
           >
-            <p className="font-body text-sm md:text-base text-white/90 mb-4 tracking-wider uppercase">
+            <p className="font-body text-xs text-white/60 mb-3 tracking-[0.2em] uppercase">
               {currentSlideData.eyebrow}
             </p>
           </div>
@@ -201,8 +201,8 @@ export const HeroCarousel = ({
             style={{ transitionDelay: showText ? '150ms' : '0ms' }}
           >
             <h1 
-              className="font-heading text-4xl md:text-7xl lg:text-8xl font-bold text-white mb-4 md:mb-6 tracking-tight leading-tight"
-              style={{ textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}
+              className="font-heading text-3xl md:text-5xl lg:text-6xl font-semibold text-white mb-3 tracking-tight leading-tight"
+              style={{ textShadow: '0 1px 8px rgba(0,0,0,0.3)' }}
             >
               {currentSlideData.headline}
             </h1>
@@ -218,8 +218,7 @@ export const HeroCarousel = ({
             style={{ transitionDelay: showText ? '300ms' : '0ms' }}
           >
             <p 
-              className="font-body text-base md:text-2xl text-white/95 mb-6 md:mb-10 max-w-2xl mx-auto leading-relaxed"
-              style={{ textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}
+              className="font-body text-sm md:text-base text-white/80 mb-5 md:mb-7 max-w-sm leading-relaxed"
             >
               {currentSlideData.subheadline}
             </p>
@@ -235,27 +234,21 @@ export const HeroCarousel = ({
             style={{ transitionDelay: showText ? '450ms' : '0ms' }}
           >
             {currentSlideData.cta.onClick ? (
-              <Button
-                size="lg"
+              <button
                 onClick={currentSlideData.cta.onClick}
-                className="btn-hero group relative overflow-hidden shadow-[0_0_30px_rgba(193,102,72,0.4)] hover:shadow-[0_0_50px_rgba(193,102,72,0.6)] transition-all duration-500 hover:scale-105 hover:-translate-y-1 text-base md:text-lg px-6 md:px-10 py-4 md:py-7 h-auto"
+                className="btn-hero group inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:border-white hover:text-[#1B2A41] text-white transition-all duration-300 px-6 py-2.5 text-xs tracking-[0.15em] uppercase font-medium rounded-none"
               >
-                <span className="relative z-10 flex items-center gap-2 md:gap-3 font-bold tracking-wide text-lg md:text-xl">
-                  {currentSlideData.cta.text}
-                  <span className="transition-transform duration-300 group-hover:translate-x-1 text-xl md:text-2xl">→</span>
-                </span>
-              </Button>
+                {currentSlideData.cta.text}
+                <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+              </button>
             ) : (
               <Link to={currentSlideData.cta.link}>
-                <Button
-                  size="lg"
-                  className="btn-hero group relative overflow-hidden shadow-[0_0_30px_rgba(193,102,72,0.4)] hover:shadow-[0_0_50px_rgba(193,102,72,0.6)] transition-all duration-500 hover:scale-105 hover:-translate-y-1 text-base md:text-lg px-6 md:px-10 py-4 md:py-7 h-auto"
+                <button
+                  className="btn-hero group inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:border-white hover:text-[#1B2A41] text-white transition-all duration-300 px-6 py-2.5 text-xs tracking-[0.15em] uppercase font-medium rounded-none"
                 >
-                  <span className="relative z-10 flex items-center gap-2 md:gap-3 font-bold tracking-wide text-lg md:text-xl">
-                    {currentSlideData.cta.text}
-                    <span className="transition-transform duration-300 group-hover:translate-x-1 text-xl md:text-2xl">→</span>
-                  </span>
-                </Button>
+                  {currentSlideData.cta.text}
+                  <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                </button>
               </Link>
             )}
           </div>
@@ -265,7 +258,7 @@ export const HeroCarousel = ({
 
 
       {/* Dots Indicator */}
-      <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2 md:gap-3">
+      <div className="absolute bottom-5 right-6 z-20 flex gap-2">
         {slides.map((_, index) => (
           <button
             key={index}
@@ -273,20 +266,15 @@ export const HeroCarousel = ({
             disabled={isTransitioning}
             className={`transition-all duration-300 rounded-full ${
               index === currentSlide
-                ? 'bg-white w-8 md:w-10 h-2.5 md:h-3'
-                : 'bg-white/50 hover:bg-white/70 w-2.5 md:w-3 h-2.5 md:h-3'
+                ? 'bg-white w-6 h-1.5'
+                : 'bg-white/40 hover:bg-white/60 w-1.5 h-1.5'
             }`}
             aria-label={`Ir a slide ${index + 1}`}
           />
         ))}
       </div>
 
-      {/* Scroll indicator */}
-      <div className="hidden md:block absolute bottom-20 left-1/2 -translate-x-1/2 z-10 animate-bounce">
-        <div className="w-6 h-10 border-2 border-white/50 rounded-full p-1">
-          <div className="w-1.5 h-2 bg-white/70 rounded-full mx-auto animate-pulse" />
-        </div>
-      </div>
+
     </section>
   )
 }
