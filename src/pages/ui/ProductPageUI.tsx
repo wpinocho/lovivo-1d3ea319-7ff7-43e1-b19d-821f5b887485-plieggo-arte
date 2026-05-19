@@ -18,6 +18,7 @@ import {
   Truck,
   Clock,
   RotateCcw,
+  MessageCircle,
 } from "lucide-react"
 import { Link } from "react-router-dom"
 import { cn } from "@/lib/utils"
@@ -698,6 +699,18 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                   </div>
                 </div>
               </div>
+
+              {/* WhatsApp inline link */}
+              <a
+                href="https://wa.me/525531215386?text=%C2%A1Hola!%20Tengo%20una%20pregunta%20sobre%20los%20cuadros%20de%20Plieggo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-70"
+                style={{ color: '#C16648' }}
+              >
+                <MessageCircle className="h-4 w-4 shrink-0" />
+                ¿Tienes dudas? Escríbenos por WhatsApp
+              </a>
             </div>
           </div>
 

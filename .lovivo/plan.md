@@ -14,7 +14,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 ## 3. Active Plan
 **Próximos pasos de alta prioridad**
 
-- **[ALTA]** Reemplazar placeholder WhatsApp en TopSellers.tsx — `https://wa.me/521XXXXXXXXXX` → número real
 - **[ALTA]** Subir fotos reales de clientes y llenar `photoUrl` en `plieggo-general-reviews.ts`
 - **[ALTA]** Añadir más fotos a Luna Beige (detalle, textura, en sala) — desde Dashboard
 - **[MEDIA]** Indicador de stock "Solo X disponibles" para Edición Limitada
@@ -23,6 +22,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Fecha estimada de entrega concreta en trust strip
 
 ## 4. Recent Changes
+- **2026-05-19 WhatsApp completo** — Número real 525531215386 en TopSellers; link inline terracota en PDP (después del trust strip, antes de Galería); botón WhatsApp en footer con ícono SVG oficial
 - **2026-05-19 TopSellers REDISEÑO COMPLETO** — Hero editorial compacto 55vh, trust strip, grid 2-cols móvil, skeleton correcto (sin "0 productos"), mini social proof 2 reviews, editorial 3 bullets, CTA final dual (WhatsApp + colección)
 - **2026-05-19 TopSellers rediseño planeado** — Plan completo para tráfico FB, 8 problemas identificados
 - **2026-05-19 ProductCard cleanup** — Badge compacto móvil, quitadas reseñas, precio más chico, CTA "Ver más" discreto
@@ -48,10 +48,8 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Video play error recurrente en hero (play/pause race condition) — no afecta funcionalidad
 - Luna Beige tiene solo 1 imagen en galería — necesita fotos de detalle y lifestyle
 - `plieggo-general-reviews.ts` tiene `photoUrl` vacío — avatares con iniciales hasta que se suban fotos reales
-- TopSellers: WhatsApp placeholder `521XXXXXXXXXX` — pendiente número real del dueño
 
 ## 7. Pending / Future Sessions
-- **[URGENTE]** Reemplazar `https://wa.me/521XXXXXXXXXX` en `src/pages/TopSellers.tsx` con número real
 - **[ALTA]** Subir fotos reales de clientes y llenar `photoUrl` en `plieggo-general-reviews.ts`
 - **[ALTA]** Añadir más fotos a Luna Beige (detalle, textura, en sala) — desde Dashboard
 - **[MEDIA]** Indicador de stock "Solo X disponibles" para Edición Limitada
