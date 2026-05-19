@@ -1,11 +1,20 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { EcommerceTemplate } from '@/templates/EcommerceTemplate'
 import { ProductCard } from '@/components/ProductCard'
 import { InspirationCarousel } from '@/components/InspirationCarousel'
 import { supabase, type Product } from '@/lib/supabase'
 import { STORE_ID } from '@/lib/config'
+import { Hand, Sparkles, Truck, RotateCcw, Star, MessageCircle, ArrowRight } from 'lucide-react'
+import { plieggoGeneralReviews, getInitials } from '@/data/plieggo-general-reviews'
 
 type ProductWithCollection = Product & { collectionType?: 'espacio' | 'acordeon' }
+
+const HERO_IMAGE = 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/top-sellers.webp'
+const EDITORIAL_IMAGE = 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/top-sellers.webp'
+
+// Las 2 reseñas más impactantes para mostrar en la sección de social proof
+const FEATURED_REVIEWS = [plieggoGeneralReviews[1], plieggoGeneralReviews[3]] // g2 y g4
 
 const TopSellers = () => {
   const [products, setProducts] = useState<ProductWithCollection[]>([])
@@ -18,7 +27,6 @@ const TopSellers = () => {
 
   const fetchCollectionProducts = async () => {
     try {
-      // Get collection ID
       const { data: collection } = await supabase
         .from('collections')
         .select('id')
@@ -28,7 +36,6 @@ const TopSellers = () => {
 
       if (!collection) return
 
-      // Get product IDs from collection
       const { data: collectionProducts } = await supabase
         .from('collection_products')
         .select('product_id')
@@ -38,7 +45,6 @@ const TopSellers = () => {
 
       const productIds = collectionProducts.map(cp => cp.product_id)
 
-      // Get products
       const { data } = await supabase
         .from('products')
         .select('*')
@@ -47,7 +53,6 @@ const TopSellers = () => {
 
       if (!data) return
 
-      // Get Espacio and Acordeon collection IDs
       const { data: collections } = await supabase
         .from('collections')
         .select('id, handle')
@@ -57,18 +62,15 @@ const TopSellers = () => {
       const espacioCollectionId = collections?.find(c => c.handle === 'coleccion-espacio')?.id
       const acordeonCollectionId = collections?.find(c => c.handle === 'coleccion-acordeon')?.id
 
-      // Get all collection_products relationships for these products
       const { data: allCollectionProducts } = await supabase
         .from('collection_products')
         .select('product_id, collection_id')
         .in('product_id', productIds)
 
-      // Map products to their collections and add collectionType, then sort: Espacio first, then Acordeon
       const productsWithCollection: ProductWithCollection[] = data.map(product => {
         const productCollections = allCollectionProducts?.filter(cp => cp.product_id === product.id).map(cp => cp.collection_id) || []
         const isEspacio = productCollections.includes(espacioCollectionId)
         const isAcordeon = productCollections.includes(acordeonCollectionId)
-        
         return {
           ...product,
           collectionType: isEspacio ? 'espacio' as const : isAcordeon ? 'acordeon' as const : undefined
@@ -91,38 +93,113 @@ const TopSellers = () => {
 
   return (
     <EcommerceTemplate>
-      {/* Products Grid Section - FIRST */}
-      <section className="py-16 md:py-20 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
-              Más Vendidos
-            </h1>
-            <p className="font-body text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              Los favoritos de nuestros clientes
-            </p>
-            <p className="font-body text-muted-foreground">
-              {products.length} {products.length === 1 ? 'producto' : 'productos'}
-            </p>
+
+      {/* ─── HERO EDITORIAL COMPACTO ─── */}
+      <section
+        className="relative flex items-end overflow-hidden"
+        style={{ height: 'clamp(340px, 55vh, 520px)' }}
+      >
+        {/* Imagen de fondo */}
+        <img
+          src={HERO_IMAGE}
+          alt="Los cuadros más queridos de Plieggo"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+          loading="eager"
+        />
+
+        {/* Overlay degradado — oscuro abajo para legibilidad */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/10" />
+
+        {/* Contenido */}
+        <div className="relative z-10 w-full px-6 sm:px-10 lg:px-16 pb-10 md:pb-14">
+          {/* Badge social proof */}
+          <div className="flex items-center gap-1.5 mb-3">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+            ))}
+            <span className="font-body text-xs text-white/90 ml-1">4.9 · +50 hogares transformados</span>
           </div>
 
-          {/* Products Grid */}
+          {/* Headline */}
+          <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight tracking-tight mb-2 max-w-lg">
+            Arte hecho a mano<br className="hidden sm:block" /> que vive en tu espacio
+          </h1>
+
+          {/* Subline */}
+          <p className="font-body text-sm sm:text-base text-white/80 mb-6 max-w-md">
+            Cada pliegue crea sombras únicas que cambian con la luz del día.
+          </p>
+
+          {/* CTA — scroll suave a productos */}
+          <a
+            href="#productos"
+            onClick={(e) => {
+              e.preventDefault()
+              document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' })
+            }}
+            className="inline-flex items-center gap-2 font-heading font-semibold text-sm px-5 py-2.5 rounded-sm bg-white text-foreground hover:bg-white/90 transition-colors"
+          >
+            Ver cuadros
+            <ArrowRight className="w-4 h-4" />
+          </a>
+        </div>
+      </section>
+
+      {/* ─── TRUST STRIP ─── */}
+      <section className="py-10 border-b border-border/40 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+            <div className="flex flex-col items-center text-center gap-2">
+              <Hand className="w-6 h-6 text-primary" />
+              <span className="font-body text-sm font-medium text-foreground">Hecho a mano en México</span>
+            </div>
+            <div className="flex flex-col items-center text-center gap-2">
+              <Sparkles className="w-6 h-6 text-primary" />
+              <span className="font-body text-sm font-medium text-foreground">Arte que cambia con la luz</span>
+            </div>
+            <div className="flex flex-col items-center text-center gap-2">
+              <Truck className="w-6 h-6 text-primary" />
+              <span className="font-body text-sm font-medium text-foreground">Envío asegurado</span>
+            </div>
+            <div className="flex flex-col items-center text-center gap-2">
+              <RotateCcw className="w-6 h-6 text-primary" />
+              <span className="font-body text-sm font-medium text-foreground">Devoluciones sin preguntas</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── PRODUCTOS GRID ─── */}
+      <section id="productos" className="py-14 md:py-20 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          {/* Título de sección */}
+          <div className="text-center mb-10">
+            <h2 className="font-heading text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+              Los favoritos de nuestros clientes
+            </h2>
+          </div>
+
+          {/* Grid */}
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="bg-muted rounded-sm h-96 animate-pulse"></div>
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-8">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="space-y-3">
+                  <div className="bg-muted rounded-sm aspect-square animate-pulse" />
+                  <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
+                  <div className="h-5 bg-muted rounded animate-pulse w-1/2" />
+                </div>
               ))}
             </div>
           ) : products.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-8">
               {products.map((product) => (
-                <ProductCard 
-                  key={product.id} 
+                <ProductCard
+                  key={product.id}
                   product={product}
                   aspectRatio={
-                    product.collectionType === 'espacio' 
-                      ? 'square' 
+                    product.collectionType === 'espacio'
+                      ? 'square'
                       : product.collectionType === 'acordeon'
                       ? 'rectangle'
                       : 'auto'
@@ -140,56 +217,152 @@ const TopSellers = () => {
         </div>
       </section>
 
-      {/* Hero Split Section - AFTER PRODUCTS */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
-        {/* Left: Image */}
-        <div className="relative bg-muted overflow-hidden">
-          <img 
-            src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/top-sellers.webp"
-            alt="Más Vendidos"
-            width={1708}
-            height={1368}
-            loading="lazy"
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        {/* Right: Text on solid color */}
-        <div className="flex items-center justify-center px-8 py-16 lg:px-16">
-          <div className="max-w-lg">
-            <h2 className="font-heading text-3xl lg:text-4xl font-bold text-foreground mb-6 tracking-tight">
-              Piezas que enamoran
-            </h2>
-            <p className="font-body text-lg lg:text-xl text-muted-foreground leading-relaxed">
-              Nuestras piezas más queridas por los amantes del arte en papel. 
-              Estos cuadros han conquistado espacios en hogares, oficinas y galerías por su 
-              capacidad única de transformar ambientes con geometría pura y elegancia arquitectónica. 
-              Las favoritas de nuestra comunidad.
+      {/* ─── MINI SOCIAL PROOF ─── */}
+      {FEATURED_REVIEWS.length > 0 && (
+        <section className="py-12 px-4 sm:px-6 lg:px-8 bg-muted/30">
+          <div className="max-w-4xl mx-auto">
+            <p className="font-body text-xs uppercase tracking-widest text-primary text-center mb-8">
+              Lo que dicen nuestros clientes
             </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              {FEATURED_REVIEWS.map((review) => (
+                <div
+                  key={review.id}
+                  className="bg-background rounded-sm border border-border/50 px-6 py-5 flex gap-4 items-start"
+                >
+                  {/* Avatar */}
+                  {review.photoUrl ? (
+                    <img
+                      src={review.photoUrl}
+                      alt={review.author}
+                      className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <span className="font-heading text-xs font-bold text-primary">
+                        {getInitials(review.author)}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Contenido */}
+                  <div className="min-w-0">
+                    {/* Estrellas */}
+                    <div className="flex gap-0.5 mb-1.5">
+                      {[...Array(review.rating)].map((_, i) => (
+                        <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                      ))}
+                    </div>
+                    {/* Cita */}
+                    <p className="font-body text-sm text-foreground leading-snug mb-2">
+                      "{review.comment}"
+                    </p>
+                    {/* Autor */}
+                    <p className="font-body text-xs text-muted-foreground">
+                      {review.author} · {review.product}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ─── EDITORIAL: ¿Por qué son los favoritos? ─── */}
+      <section className="py-16 md:py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+
+            {/* Imagen — izq en desktop, abajo en móvil */}
+            <div className="order-2 lg:order-1 rounded-sm overflow-hidden aspect-[4/3]">
+              <img
+                src={EDITORIAL_IMAGE}
+                alt="Detalle de pliegues del cuadro"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
+
+            {/* Texto — der en desktop, arriba en móvil */}
+            <div className="order-1 lg:order-2">
+              <p className="font-body text-xs uppercase tracking-widest text-primary mb-4">
+                Colección más vendida
+              </p>
+              <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground tracking-tight mb-6">
+                ¿Por qué estos son los más queridos?
+              </h2>
+
+              <ul className="space-y-5">
+                {[
+                  {
+                    title: 'Pliegues hechos a mano',
+                    desc: 'Cada cuadro es una pieza única. Ninguno es igual a otro — los pliegues se hacen uno a uno, a mano.'
+                  },
+                  {
+                    title: 'Arte vivo',
+                    desc: 'Las sombras cambian con la hora del día. En la mañana se ve diferente que en la tarde. El cuadro nunca es el mismo.'
+                  },
+                  {
+                    title: 'Pieza + marco incluido',
+                    desc: 'Llega lista para colgar. Sin compras adicionales, sin sorpresas. Solo desempácala y ponla en tu pared.'
+                  }
+                ].map((item) => (
+                  <li key={item.title} className="flex gap-3 items-start">
+                    <span className="mt-1 w-2 h-2 rounded-full bg-primary flex-shrink-0" />
+                    <div>
+                      <p className="font-heading font-semibold text-foreground text-base">
+                        {item.title}
+                      </p>
+                      <p className="font-body text-sm text-muted-foreground leading-relaxed mt-0.5">
+                        {item.desc}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Bottom CTA Section */}
-      <section className="py-20 bg-secondary">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="font-heading text-4xl font-bold text-secondary-foreground mb-4">
-            Únete a la comunidad
+      {/* ─── CTA FINAL ─── */}
+      <section className="py-14 border-t border-border/40 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-2 tracking-tight">
+            ¿Tienes alguna pregunta?
           </h2>
-          <p className="font-body text-lg text-secondary-foreground/90 mb-8">
-            Únete a nuestra comunidad de coleccionistas de arte en papel.
+          <p className="font-body text-muted-foreground mb-8 text-sm md:text-base">
+            Estamos aquí para ayudarte a encontrar la pieza perfecta para tu espacio.
           </p>
-          <a 
-            href="/#products" 
-            className="inline-block px-8 py-3 bg-background text-foreground font-heading font-semibold rounded-sm hover:bg-background/90 transition-colors"
-          >
-            Ver toda la colección
-          </a>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            {/* WhatsApp */}
+            <a
+              href="https://wa.me/521XXXXXXXXXX"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 font-heading font-semibold text-sm px-6 py-3 rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors w-full sm:w-auto justify-center"
+            >
+              <MessageCircle className="w-4 h-4" />
+              Escríbenos por WhatsApp
+            </a>
+
+            {/* Ver toda la colección */}
+            <Link
+              to="/all-products"
+              className="inline-flex items-center gap-2 font-heading font-semibold text-sm px-6 py-3 rounded-sm border border-border text-foreground hover:bg-muted/60 transition-colors w-full sm:w-auto justify-center"
+            >
+              Ver toda la colección
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* Inspiration Section */}
+      {/* ─── INSPIRATION CAROUSEL ─── */}
       <InspirationCarousel />
+
     </EcommerceTemplate>
   )
 }
