@@ -5,10 +5,11 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 
 ## 2. Design System
 - Paleta: crema mantequilla (#F2EFE4), vino burdeos (#5D2A38), terracota (#C16648), azul medianoche (#1B2A41)
-- Tipografías: DM Sans (headings) + Crimson Pro (body)
+- Tipografías: DM Sans (headings/sans) + Crimson Pro (body/serif)
+- `font-sans` = DM Sans, `font-serif` = Crimson Pro, `font-heading` = DM Sans, `font-body` = Crimson Pro (registradas en tailwind.config.ts)
 - Fondo continuo sin bandas de color entre secciones
 - Estilo Zara Home / Muji — nada genérico
-- Iconos: SVG line icons en color terracota (#C16648) — NO emojis (Hand, Layers, Sparkles, Truck, Clock, RotateCcw de lucide-react)
+- Iconos: SVG line icons en color terracota (#C16648) — NO emojis
 - CTAs: NUNCA usar glow/sombra naranja gigante. Botones limpios, elegantes.
 
 ## 3. Active Plan
@@ -22,6 +23,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Fecha estimada de entrega concreta en trust strip
 
 ## 4. Recent Changes
+- **2026-05-19 Tipografía global** — fontFamily registrada en tailwind.config.ts: font-sans=DM Sans, font-serif=Crimson Pro, font-heading, font-body. Ahora consistente en todo el sitio.
 - **2026-05-19 WhatsApp completo** — Número real 525531215386 en TopSellers; link inline terracota en PDP (después del trust strip, antes de Galería); botón WhatsApp en footer con ícono SVG oficial
 - **2026-05-19 TopSellers REDISEÑO COMPLETO** — Hero editorial compacto 55vh, trust strip, grid 2-cols móvil, skeleton correcto (sin "0 productos"), mini social proof 2 reviews, editorial 3 bullets, CTA final dual (WhatsApp + colección)
 - **2026-05-19 TopSellers rediseño planeado** — Plan completo para tráfico FB, 8 problemas identificados

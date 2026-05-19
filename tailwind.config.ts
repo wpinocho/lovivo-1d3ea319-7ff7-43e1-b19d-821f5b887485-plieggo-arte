@@ -18,6 +18,12 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['DM Sans', 'sans-serif'],
+				serif: ['Crimson Pro', 'Georgia', 'serif'],
+				heading: ['DM Sans', 'sans-serif'],
+				body: ['Crimson Pro', 'Georgia', 'serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
