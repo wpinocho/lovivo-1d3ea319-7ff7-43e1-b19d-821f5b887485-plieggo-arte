@@ -11,9 +11,14 @@ Tienda de arte en papel (cuadros de origami hechos a mano). Marca premium, sutil
 - Iconos: SVG line icons en color terracota (#C16648) — NO emojis (Hand, Layers, Package, Truck, Clock, RotateCcw de lucide-react)
 
 ## 3. Active Plan
-CRO Round 3 completado. Sin tareas activas.
+CRO Round 4 completado. Sin tareas activas.
 
 ## 4. Recent Changes
+- **2026-05-19 CRO Round 4** — PDP móvil UX:
+  1. "Seguir comprando" ocultado en móvil (solo desktop)
+  2. Selector de cantidad rediseñado — pill/rounded compacto, menos prominente
+  3. CTAs (Comprar ahora + Agregar al carrito) movidos justo después de cantidad
+  4. Trust strip reposicionada debajo de los CTAs
 - **2026-05-19 CRO Round 3 COMPLETO** — 6 mejoras UX/visual en 3 archivos:
   1. ProductPageUI: rating arriba del precio (confianza antes del precio)
   2. ProductPageUI: descripción movida encima del craftsmanship story

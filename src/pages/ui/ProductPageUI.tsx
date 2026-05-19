@@ -204,11 +204,11 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
             </span>
           </nav>
 
-          {/* Mobile back link */}
+          {/* Mobile back link — desktop only */}
           <button
             type="button"
             onClick={logic.handleNavigateBack}
-            className="md:hidden mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="hidden md:inline-flex mb-4 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Seguir comprando
@@ -579,60 +579,35 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
               )}
 
               {/* Quantity stepper */}
-              <div className="space-y-2.5">
-                <Label className="text-sm font-medium uppercase tracking-wider">
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium uppercase tracking-wider text-foreground/70">
                   Cantidad
-                </Label>
-                <div className="inline-flex items-center border border-border rounded-md overflow-hidden">
+                </span>
+                <div className="flex items-center gap-0.5 border border-border/60 rounded-full p-0.5 bg-background">
                   <button
                     type="button"
                     onClick={() => logic.handleQuantityChange(Math.max(1, logic.quantity - 1))}
                     disabled={logic.quantity <= 1}
-                    className="w-11 h-11 flex items-center justify-center hover:bg-muted/60 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted/70 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                     aria-label="Disminuir cantidad"
                   >
-                    <Minus className="h-4 w-4" />
+                    <Minus className="h-3 w-3" />
                   </button>
-                  <div className="w-12 h-11 flex items-center justify-center font-medium tabular-nums border-x border-border">
+                  <span className="w-9 text-center text-sm font-semibold tabular-nums select-none">
                     {logic.quantity}
-                  </div>
+                  </span>
                   <button
                     type="button"
                     onClick={() => logic.handleQuantityChange(logic.quantity + 1)}
-                    className="w-11 h-11 flex items-center justify-center hover:bg-muted/60 transition-colors"
+                    className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted/70 transition-colors"
                     aria-label="Aumentar cantidad"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-3 w-3" />
                   </button>
                 </div>
               </div>
 
-              {/* Trust strip — visible antes del CTA */}
-              <div className="flex flex-col sm:flex-row gap-3 py-2 border-y border-border/40 text-xs text-muted-foreground">
-                <div className="flex items-center gap-2 flex-1">
-                  <Truck className="h-4 w-4 text-[#C16648] shrink-0" />
-                  <div>
-                    <p className="font-semibold text-foreground/80">Envío gratis CDMX</p>
-                    <p>$200 MXN al resto de México</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 flex-1">
-                  <Clock className="h-4 w-4 text-[#C16648] shrink-0" />
-                  <div>
-                    <p className="font-semibold text-foreground/80">10–15 días hábiles</p>
-                    <p>Hecha a mano para ti</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 flex-1">
-                  <RotateCcw className="h-4 w-4 text-[#C16648] shrink-0" />
-                  <div>
-                    <p className="font-semibold text-foreground/80">Garantía 30 días</p>
-                    <p>Si no te encanta, te devolvemos</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* CTAs */}
+              {/* CTAs — justo después de cantidad */}
               <div ref={ctaRef} className="flex flex-col gap-3">
                 {logic.inStock && logic.canAddToCart && !logic.selectedPlan && (
                   <>
@@ -691,6 +666,31 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                     Agotado
                   </Badge>
                 )}
+              </div>
+
+              {/* Trust strip — después de los CTAs */}
+              <div className="flex flex-col sm:flex-row gap-3 py-2 border-y border-border/40 text-xs text-muted-foreground">
+                <div className="flex items-center gap-2 flex-1">
+                  <Truck className="h-4 w-4 text-[#C16648] shrink-0" />
+                  <div>
+                    <p className="font-semibold text-foreground/80">Envío gratis CDMX</p>
+                    <p>$200 MXN al resto de México</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-1">
+                  <Clock className="h-4 w-4 text-[#C16648] shrink-0" />
+                  <div>
+                    <p className="font-semibold text-foreground/80">10–15 días hábiles</p>
+                    <p>Hecha a mano para ti</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-1">
+                  <RotateCcw className="h-4 w-4 text-[#C16648] shrink-0" />
+                  <div>
+                    <p className="font-semibold text-foreground/80">Garantía 30 días</p>
+                    <p>Si no te encanta, te devolvemos</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
