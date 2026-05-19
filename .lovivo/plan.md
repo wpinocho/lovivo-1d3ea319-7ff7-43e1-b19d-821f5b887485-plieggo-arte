@@ -8,32 +8,52 @@ Tienda de arte en papel (cuadros de origami hechos a mano). Marca premium, sutil
 - Tipografías: DM Sans (headings) + Crimson Pro (body)
 - Fondo continuo sin bandas de color entre secciones
 - Estilo Zara Home / Muji — nada genérico
+- Iconos: SVG line icons en color terracota (#C16648) o vino (#5D2A38) — NO emojis
 
-## 3. Active Plan — ✅ PDP CRO Round 2 IMPLEMENTADO
+## 3. Active Plan — PDP CRO Round 3: UX/Visual Polish
 
-### Qué se construyó (2026-05-19 Round 2)
-1. **InspirationCarousel.tsx** — renombrado a "Así luce en tu espacio", manual nav con flechas+thumbnails, object-cover (cinematic), sin autoplay
-2. **CrossSellSection.tsx** — carrusel horizontal con Embla (basis-[78%] mobile, 1/3 desktop), hasta 6 productos
-3. **ProductFAQ.tsx** — agregado FAQ "¿Cómo cuido mi obra?" con los tips de cuidado
-4. **ProductPageUI.tsx** — 3 acordeones eliminados, descripción visible siempre, trust strip con 3 íconos (envío/días/garantía), secciones reordenadas: Inspiración → Reviews → FAQ → CrossSell
+### Qué se construirá (próxima sesión Craft Mode)
 
-### Orden final de secciones PDP (de arriba a abajo)
-1. Gallery + Info column (existente)
-2. Trust strip (Envío / Días / Garantía) — NUEVO, bajo CTA
-3. Descripción visible (prose block)
-4. Craftsmanship story
-5. Selling plans / opciones / CTAs
-6. --- Secciones completas ---
-7. Inspiración "Así luce en tu espacio" (object-cover, thumbnails)
-8. Reviews
-9. FAQ (incluyendo Cuidado de tu obra)
-10. CrossSell (carrusel)
+#### Archivo: `src/pages/ui/ProductPageUI.tsx`
 
-### Pendiente / próxima sesión
-- Más fotos de producto (Luna Beige tiene solo 1 imagen)
-- Revisar layout mobile post-cambios
+1. **Star rating → mover ARRIBA del precio**
+   - Actualmente: vendor > urgency > title > price > promo badges > star rating
+   - Nuevo orden: vendor > urgency > title > star rating > price > promo badges
+
+2. **Descripción → mover ARRIBA del craftsmanship story**
+   - Actualmente: descripción está debajo de los CTAs (línea 682–688) — se ve muy raro
+   - Moverla a justo DESPUÉS del star rating + precio, ANTES del craftsmanship story
+   - Solo si description existe
+
+3. **Iconos craftsmanship story → SVG line icons en terracota**
+   - Reemplazar 🤲📐📦 con SVG line icons de lucide-react o SVG inline
+   - Color: text-[#C16648] (terracota Plieggo)
+   - Sugeridos: `Hand` (lucide), `Layers` o `Square` (papel), `Package` (lucide)
+   - Reducir padding de `py-5` a `py-3` para menos espacio desperdiciado
+
+4. **Iconos trust strip → SVG line icons en terracota**
+   - Reemplazar 🚚📅↩️ con SVG line icons (Truck, Clock, RotateCcw de lucide-react)
+   - Color: text-[#C16648] (terracota Plieggo)
+   - El trust strip también tiene demasiado padding vertical — reducir
+
+#### Archivo: `src/components/ProductFAQ.tsx`
+
+5. **Reducir FAQs de 9 → 5 (las más importantes)**
+   - MANTENER: ¿El marco viene incluido?, ¿Cómo se cuelga?, ¿Cuánto tarda el envío?, ¿Puedo personalizarlo?, ¿Cómo cuido mi obra?
+   - ELIMINAR: ¿Es resistente al sol? (cubierto en Cómo cuido), ¿Cómo se limpia? (cubierto en Cómo cuido), ¿Tiene garantía? (ya en trust strip), ¿Hacen envíos internacionales?
+
+#### Archivo: `src/components/CrossSellSection.tsx`
+
+6. **Imágenes de productos → object-contain (no cortadas)**
+   - Cambiar `object-cover` → `object-contain` en la imagen de cada tarjeta
+   - Los cuadros de Plieggo son arte vertical — object-cover los recorta
+   - Mantener `bg-muted/40` para el fondo neutro
+
+### Nota para el usuario (comunicar en chat):
+- La DESCRIPCIÓN del producto ("Delicado acordeón en tonos rosa...") se edita desde el **Dashboard**, no desde código. Si quiere mejorar el texto, puede hacerlo ahí.
 
 ## 4. Recent Changes
+- **2026-05-19 CRO Round 3 PLANEADO** — 6 mejoras UX/visual: rating arriba precio, descripción posición, icons SVG, FAQs 9→5, CrossSell object-contain
 - **2026-05-19 CRO Round 2** — InspirationCarousel, CrossSellSection, ProductFAQ, ProductPageUI: 5 mejoras CRO
 - **2026-05-19 BUG FIX** — `const product = logic.product` declarada ANTES de usarse. ReferenceError corregido
 - **2026-05-19 CRO PDP** — Badge urgencia, star rating inline, craftsmanship story, ProductReviews.tsx
@@ -52,8 +72,10 @@ Tienda de arte en papel (cuadros de origami hechos a mano). Marca premium, sutil
 ## 6. Known Issues
 - Video play error recurrente en hero (play/pause race condition) — no afecta funcionalidad
 - Luna Beige tiene solo 1 imagen en galería — necesita fotos de detalle y lifestyle
+- Descripción del producto (copy) se edita desde Dashboard, no desde código
 
 ## 7. Pending / Future Sessions
+- **[ALTA]** Descripción del producto — mejorar copy desde Dashboard (no es código)
 - **[ALTA]** Añadir más fotos a Luna Beige (detalle, textura, en sala)
 - Revisar comportamiento de ExpressCheckout en Safari/iOS (Apple Pay)
 - Evaluar A/B test del badge de urgencia vs. sin badge (cuando haya volumen suficiente)
