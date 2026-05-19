@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Hand, Sparkles, Truck, RotateCcw, Check } from 'lucide-react';
 import { ProductCard } from '@/components/ProductCard';
 import { CollectionNavigationCard } from '@/components/CollectionNavigationCard';
 import { FloatingCart } from '@/components/FloatingCart';
@@ -174,15 +175,15 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
           </h2>
           
           {loadingCollections ? (
-            <div className="flex gap-6 md:gap-8 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4">
+            <div className="flex md:grid md:grid-cols-4 gap-6 overflow-x-auto md:overflow-visible snap-x md:snap-none scrollbar-hide pb-4 md:pb-0">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="min-w-[280px] sm:min-w-[320px] bg-muted rounded-sm animate-pulse aspect-square flex-shrink-0 snap-center" />
+                <div key={i} className="w-[78vw] sm:w-[320px] md:w-auto flex-shrink-0 snap-center bg-muted rounded-sm animate-pulse aspect-square" />
               ))}
             </div>
           ) : (
-            <div className="flex gap-6 md:gap-8 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4">
-              {/* Touch scrollable carousel - Peek optimizado */}
-              <div className="w-[78vw] sm:w-[320px] flex-shrink-0 snap-center">
+            <div className="flex md:grid md:grid-cols-4 gap-6 overflow-x-auto md:overflow-visible snap-x md:snap-none scrollbar-hide pb-4 md:pb-0">
+              {/* Touch scrollable carousel en móvil / Grid en desktop */}
+              <div className="w-[78vw] sm:w-[320px] md:w-auto flex-shrink-0 snap-center">
                 <CollectionNavigationCard 
                   title="Todos los cuadros"
                   image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/all-products-hero.webp"
@@ -193,7 +194,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
 
               {/* Card 2: Más Vendidos */}
               {collections.find(c => c.handle === 'top-sellers') && (
-                <div className="w-[78vw] sm:w-[320px] flex-shrink-0 snap-center">
+                <div className="w-[78vw] sm:w-[320px] md:w-auto flex-shrink-0 snap-center">
                   <CollectionNavigationCard 
                     title="Más Vendidos"
                     image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/top-sellers-hero.webp"
@@ -204,7 +205,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
 
               {/* Card 3: Colección Acordeón */}
               {collections.find(c => c.handle === 'coleccion-acordeon') && (
-                <div className="w-[78vw] sm:w-[320px] flex-shrink-0 snap-center">
+                <div className="w-[78vw] sm:w-[320px] md:w-auto flex-shrink-0 snap-center">
                   <CollectionNavigationCard 
                     title="Colección Acordeón"
                     image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acordeon-hero.webp"
@@ -215,7 +216,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
 
               {/* Card 4: Colección Espacio */}
               {collections.find(c => c.handle === 'coleccion-espacio') && (
-                <div className="w-[78vw] sm:w-[320px] flex-shrink-0 snap-center">
+                <div className="w-[78vw] sm:w-[320px] md:w-auto flex-shrink-0 snap-center">
                   <CollectionNavigationCard 
                     title="Colección Espacio"
                     image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/espacio-hero.webp"
@@ -225,6 +226,30 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
               )}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Trust Strip — 4 pilares de valor */}
+      <section className="py-10 border-y border-border/40 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+            <div className="flex flex-col items-center text-center gap-2">
+              <Hand className="w-6 h-6 text-primary" />
+              <span className="font-body text-sm font-medium text-foreground">Hecho a mano en México</span>
+            </div>
+            <div className="flex flex-col items-center text-center gap-2">
+              <Sparkles className="w-6 h-6 text-primary" />
+              <span className="font-body text-sm font-medium text-foreground">Arte que cambia con la luz</span>
+            </div>
+            <div className="flex flex-col items-center text-center gap-2">
+              <Truck className="w-6 h-6 text-primary" />
+              <span className="font-body text-sm font-medium text-foreground">Envío asegurado</span>
+            </div>
+            <div className="flex flex-col items-center text-center gap-2">
+              <RotateCcw className="w-6 h-6 text-primary" />
+              <span className="font-body text-sm font-medium text-foreground">Devoluciones sin preguntas</span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -250,7 +275,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
           </div>
           
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-8">
               {[...Array(8)].map((_, i) => (
                 <div key={i} className="space-y-3">
                   <div className="bg-muted rounded-sm aspect-square animate-pulse" />
@@ -261,7 +286,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
             </div>
           ) : productsWithCollection.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-8">
                 {displayedProducts.map((product) => (
                   <ProductCard 
                     key={product.id} 
@@ -337,24 +362,64 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
         </section>
       )}
 
-      {/* Gift Ideas Section */}
-      <section className="py-24">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="font-heading text-5xl md:text-6xl font-bold text-foreground mb-8 tracking-tight">
-            Explora ideas de regalo y accesorios de temporada
-          </h2>
-          
-          <div className="flex justify-center mb-12">
-            <Button
-              onClick={() => setIsGalleryOpen(true)}
-              size="lg"
-              className="btn-hero group relative overflow-hidden shadow-[0_0_30px_rgba(193,102,72,0.4)] hover:shadow-[0_0_50px_rgba(193,102,72,0.6)] transition-all duration-500 hover:scale-105 hover:-translate-y-1 text-lg px-10 py-7 h-auto"
-            >
-              <span className="relative z-10 flex items-center gap-3 font-bold tracking-wide text-xl">
-                Descubre regalos
-                <span className="transition-transform duration-300 group-hover:translate-x-1 text-2xl">→</span>
-              </span>
-            </Button>
+      {/* Gift Ideas Section — Editorial Banner */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 overflow-hidden rounded-sm">
+            {/* Imagen izquierda */}
+            <div className="relative aspect-[4/3] md:aspect-auto min-h-[320px]">
+              <img
+                src="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/black-dining.webp"
+                alt="Cuadro Plieggo en comedor elegante"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
+
+            {/* Texto derecha */}
+            <div className="bg-muted/50 px-8 py-12 md:px-14 md:py-16 flex flex-col justify-center">
+              <p className="font-body text-xs uppercase tracking-[0.25em] text-muted-foreground mb-4">
+                Para ti o para regalar
+              </p>
+              <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-5 tracking-tight leading-tight">
+                Arte que nunca falla como regalo
+              </h2>
+              <p className="font-body text-muted-foreground mb-8 text-base leading-relaxed">
+                Cada pieza llega lista para entregar, con empaque premium y dedicatoria personalizada.
+              </p>
+
+              {/* Bullets */}
+              <ul className="space-y-2.5 mb-8">
+                <li className="flex items-center gap-2.5 text-sm text-foreground">
+                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                  <span className="font-body">Empaque premium incluido</span>
+                </li>
+                <li className="flex items-center gap-2.5 text-sm text-foreground">
+                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                  <span className="font-body">Dedicatoria personalizada gratis</span>
+                </li>
+                <li className="flex items-center gap-2.5 text-sm text-foreground">
+                  <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                  <span className="font-body">Envío en 5-7 días hábiles</span>
+                </li>
+              </ul>
+
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link to="/all-products">
+                  <Button className="btn-hero w-full sm:w-auto">
+                    Explorar cuadros →
+                  </Button>
+                </Link>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsGalleryOpen(true)}
+                  className="btn-hero-outline w-full sm:w-auto"
+                >
+                  Ver galería de espacios
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
