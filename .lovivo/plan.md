@@ -14,9 +14,40 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-Estado: sin tarea activa pendiente.
+**Objetivo:** Filtrar imágenes de galería PDP por variante seleccionada
+
+**Qué cambiar:** `src/components/headless/HeadlessProduct.tsx` — función `getDisplayImages()` línea ~321
+
+**Cambio concreto:**
+```ts
+// ACTUAL (mezcla imágenes de variante + todas las del producto):
+if (matchingVariant?.image_urls && matchingVariant.image_urls.length > 0) {
+  const uniqueImages = new Set<string>([
+    ...matchingVariant.image_urls,
+    ...productImages
+  ])
+  return Array.from(uniqueImages)
+}
+return productImages
+
+// NUEVO (solo muestra imágenes de la variante seleccionada):
+if (matchingVariant?.image_urls && matchingVariant.image_urls.length > 0) {
+  return matchingVariant.image_urls  // SOLO las de la variante, nada más
+}
+return productImages  // Fallback: si la variante no tiene imágenes, muestra todas
+```
+
+**Archivos a modificar:**
+- `src/components/headless/HeadlessProduct.tsx` → función `getDisplayImages()` (línea ~328-335)
+
+**Resultado esperado:**
+- Variante A seleccionada → solo sus 4 imágenes
+- Variante B seleccionada → solo sus 3 imágenes
+- Sin variante / variante sin fotos → todas las del producto (fallback seguro)
+- La imagen principal se resetea al cambiar de variante (ya funciona con el useEffect en línea 92-94 de ProductPageUI.tsx)
 
 ## 4. Recent Changes
+- **2026-05-19 PLAN: Filtrar galería por variante** — Solo mostrar imágenes de la variante activa en PDP (HeadlessProduct.tsx getDisplayImages)
 - **2026-05-19 Hero editorial redesign COMPLETO** — Layout bottom-left, headline sm/font-semibold, CTA limpio sin glow, gradiente reposicionado to-top, dots discretos bottom-right, scroll indicator eliminado
 - **2026-05-19 Hero redesign planeado** — Layout editorial bottom-left, CTA limpio sin glow, gradiente reposicionado
 - **2026-05-19 Tipografía global** — fontFamily registrada en tailwind.config.ts: font-sans=DM Sans, font-serif=Crimson Pro, font-heading, font-body. Ahora consistente en todo el sitio.
