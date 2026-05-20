@@ -206,13 +206,16 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
             </span>
           </nav>
 
-          {/* Mobile back link — desktop only */}
+          {/* Back link — visible on all screens */}
           <button
             type="button"
             onClick={logic.handleNavigateBack}
-            className="hidden md:inline-flex mb-4 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="inline-flex mb-4 items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors
+              text-[11px] tracking-wide md:text-sm
+              bg-background/70 backdrop-blur-sm border border-border/50 rounded-full
+              px-3 py-1 md:px-0 md:py-0 md:bg-transparent md:backdrop-blur-none md:border-none md:rounded-none"
           >
-            <ArrowLeft className="h-3.5 w-3.5" />
+            <ArrowLeft className="h-3 w-3 md:h-3.5 md:w-3.5" />
             Seguir comprando
           </button>
 
