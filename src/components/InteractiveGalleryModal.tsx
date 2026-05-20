@@ -12,16 +12,6 @@ interface InteractiveGalleryModalProps {
   standalone?: boolean
 }
 
-/**
- * INTERACTIVE GALLERY MODAL - Lusano-Style Parallax
- * 
- * Sistema de coordenadas inverso:
- * - Grid: 280% x 380% (overflow para parallax horizontal + 5 filas con aire)
- * - Mouse en (50%, 50%) → Grid centrado en (-90%, -140%)
- * - Movimiento suave con spring physics
- * 
- * Optimizado para ~50-60 items (productos + variantes) en 5 filas asimétricas
- */
 export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }: InteractiveGalleryModalProps) => {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -29,34 +19,17 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
   const containerRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
 
-  // LUSANO-STYLE COORDINATE MAPPING
-  // Canvas: Width 280% (2.8x), Height 380% (3.8x)
-  // Mouse position directly maps to canvas position with smooth spring animation
-  // Center (50%, 50%) → Canvas at (-90%, -140%)
+  // Desktop only: spring-based parallax
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
-
-  // Smooth spring animation for grid movement (Lusano-style ~3-4s delay)
-  // Damping: 80 (very high resistance = very slow, heavy motion)
-  // Stiffness: 40 (very low stiffness = spring-like bounce)
   const gridX = useSpring(mouseX, { damping: 80, stiffness: 40 })
   const gridY = useSpring(mouseY, { damping: 80, stiffness: 40 })
 
   useEffect(() => {
     if (isOpen || standalone) {
       fetchProducts()
-      
-      // MOBILE: Empezar centrado
-      if (isMobile && containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect()
-        // Empezar mostrando la parte superior-centro del grid
-        const centerX = -(0.4 * rect.width)
-        const centerY = 0
-        mouseX.set(centerX)
-        mouseY.set(centerY)
-      }
     }
-  }, [isOpen, standalone, isMobile])
+  }, [isOpen, standalone])
 
   const fetchProducts = async () => {
     setLoading(true)
@@ -77,44 +50,17 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
     }
   }
 
-  // LUSANO-STYLE COORDINATE MAPPING
-  // Maps mouse position to fixed canvas coordinates
+  // Desktop only: mouse parallax
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isMobile) return // No procesar en mobile
-    
+    if (isMobile) return
     const rect = e.currentTarget.getBoundingClientRect()
-    
-    // Get mouse position relative to viewport (0-1)
     const mousePercentX = (e.clientX - rect.left) / rect.width
     const mousePercentY = (e.clientY - rect.top) / rect.height
-
-    // Map to canvas position
-    // Canvas X: 280% (overflow 180%) → targetX = -(mousePercent * 1.8 * viewportSize)
-    // Canvas Y: 380% (overflow 280%) → targetY = -(mousePercent * 2.8 * viewportSize)
-    // When mouse at (50%, 50%) → canvas at (-90%, -140%) [CENTERED]
-    const targetX = -(mousePercentX * 1.8 * rect.width)
-    const targetY = -(mousePercentY * 2.8 * rect.height)
-
-    // Update motion values (spring will animate smoothly)
-    mouseX.set(targetX)
-    mouseY.set(targetY)
-  }
-
-  // MOBILE: Drag constraints dinámicos
-  const getDragConstraints = () => {
-    if (!containerRef.current) return { top: 0, left: 0, right: 0, bottom: 0 }
-    
-    const rect = containerRef.current.getBoundingClientRect()
-    return {
-      top: -(1.5 * rect.height),  // -150% → alcanza fila 5 en grid mobile 250% alto
-      left: -(2.2 * rect.width),  // -220% → cubre grid mobile 320% ancho
-      right: 0,
-      bottom: 0
-    }
+    mouseX.set(-(mousePercentX * 1.8 * rect.width))
+    mouseY.set(-(mousePercentY * 2.8 * rect.height))
   }
 
   // Convertir productos + variantes en items "planos" para el grid
-  // Deduplicación: Solo URLs únicas (evita repetir 20x20 = 50x50)
   const getGalleryItems = () => {
     interface GalleryItem {
       id: string
@@ -125,10 +71,9 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
     }
 
     const items: GalleryItem[] = []
-    const seenUrls = new Set<string>()  // Track URLs únicas
-    
+    const seenUrls = new Set<string>()
+
     products.forEach((product) => {
-      // 1. Agregar imagen principal del producto (si es única)
       if (product.images && product.images.length > 0) {
         const mainImage = product.images[0]
         if (!seenUrls.has(mainImage)) {
@@ -142,8 +87,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
           })
         }
       }
-      
-      // 2. Agregar SOLO la primera imagen de cada variante (una por variante)
+
       const variants = (product as any).variants
       if (variants && Array.isArray(variants)) {
         variants.forEach((variant: any, vIndex: number) => {
@@ -163,68 +107,21 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
         })
       }
     })
-    
+
     return items
   }
 
-  // Generar posiciones dinámicas según número de items
-  // CRÍTICO: genera exactamente itemCount posiciones (sin % wrap-around = sin encimes)
-  const generateChaosPositions = (itemCount: number, mobile = false) => {
-    if (mobile) {
-      // Mobile: distribución por COLUMNAS con stagger vertical
-      // 3 columnas independientes — cada una reparte sus items de arriba a abajo
-      // con espacio garantizado sin importar cuántos items haya
-      const COLS = 3
-      const result: { top: number; left: number }[] = new Array(itemCount)
-      const colWidthPct = 100 / COLS  // ~33.3% del ancho del grid
-
-      for (let col = 0; col < COLS; col++) {
-        // Índices asignados a esta columna: 0→col0, 1→col1, 2→col2, 3→col0…
-        const colIndices: number[] = []
-        for (let i = col; i < itemCount; i += COLS) {
-          colIndices.push(i)
-        }
-        if (colIndices.length === 0) continue
-
-        // Repartir de topStart% a topStart+topSpan% del alto del grid (250%)
-        const topStart = 3
-        const topSpan = 85
-        const spacing = colIndices.length > 1 ? topSpan / (colIndices.length - 1) : 0
-
-        // Horizontal: cada item ocupa el 80% central de su zona de columna
-        const leftMin = col * colWidthPct + colWidthPct * 0.1
-        const leftMax = (col + 1) * colWidthPct - colWidthPct * 0.1
-
-        // Stagger vertical entre columnas para aspecto caótico/asimétrico
-        const staggerOffsets = [0, spacing * 0.4, spacing * 0.2]
-        const stagger = colIndices.length > 1 ? (staggerOffsets[col] ?? 0) : 0
-
-        colIndices.forEach((itemIdx, posInCol) => {
-          const topBase = topStart + stagger + posInCol * spacing
-          // Jitter acotado: nunca más del 25% del espaciado ni más de 3%
-          const maxJitter = Math.min(spacing * 0.25, 3)
-          result[itemIdx] = {
-            top: topBase + (Math.random() * maxJitter * 2 - maxJitter),
-            left: leftMin + Math.random() * (leftMax - leftMin)
-          }
-        })
-      }
-
-      return result
-    }
-
-    // Desktop: 5 filas fijas, items distribuidos entre ellas
+  // Desktop only: chaos positions
+  const generateChaosPositions = (itemCount: number) => {
     const positions: { top: number; left: number }[] = []
     const rows = 5
     const itemsPerRow = Math.ceil(itemCount / rows)
-    
+
     for (let row = 0; row < rows; row++) {
       const remainingItems = itemCount - positions.length
       const itemsInThisRow = Math.min(itemsPerRow, remainingItems)
-      
-      // Filas en 5%, 25%, 45%, 65%, 85% del grid (380% alto)
       const topBase = 5 + (row * 20)
-      
+
       for (let col = 0; col < itemsInThisRow; col++) {
         const leftBase = (col / itemsInThisRow) * 84 + 8
         positions.push({
@@ -233,7 +130,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
         })
       }
     }
-    
+
     return positions
   }
 
@@ -243,6 +140,70 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
 
   if (!isOpen && !standalone) return null
 
+  const galleryItems = getGalleryItems()
+
+  // ─────────────────────────────────────────────────────────
+  // MOBILE: CSS Grid — 3 columnas, scroll natural de página
+  // ─────────────────────────────────────────────────────────
+  if (isMobile) {
+    return (
+      <div
+        className={standalone
+          ? "relative w-full min-h-screen bg-transparent overflow-y-auto"
+          : "fixed inset-0 z-50 bg-transparent overflow-y-auto"
+        }
+      >
+        {/* Close button — fixed para que sea visible al scrollear */}
+        {!standalone && (
+          <button
+            onClick={onClose}
+            className="fixed top-4 right-4 z-50 p-3 bg-background/80 backdrop-blur-sm hover:bg-secondary/10 transition-colors rounded-sm group"
+            aria-label="Cerrar galería"
+          >
+            <X className="h-6 w-6 text-foreground group-hover:text-secondary transition-colors" strokeWidth={1.5} />
+          </button>
+        )}
+
+        {loading ? (
+          <div className="flex items-center justify-center h-screen">
+            <p className="font-heading text-sm tracking-[0.2em] uppercase text-muted-foreground">
+              Cargando Galería...
+            </p>
+          </div>
+        ) : (
+          <div className="pt-16 pb-24 px-3">
+            {/* Grid 3 columnas, espaciado fijo */}
+            <div className="grid grid-cols-3 gap-3">
+              {galleryItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleProductClick(item.slug)}
+                  className="relative overflow-hidden bg-card shadow-sm active:scale-95 transition-transform duration-150 cursor-pointer"
+                >
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-auto object-contain"
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Instructions — fixed en la parte de abajo */}
+        <div className="fixed bottom-4 left-0 right-0 text-center z-40 pointer-events-none">
+          <p className="font-heading text-xs tracking-[0.3em] uppercase text-muted-foreground">
+            Toca para ver el producto
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // DESKTOP: Chaos layout con parallax — sin cambios
+  // ─────────────────────────────────────────────────────────
   return (
     <motion.div
       ref={containerRef}
@@ -255,7 +216,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
       }
       onMouseMove={handleMouseMove}
     >
-      {/* Close Button - Solo visible en modo modal */}
+      {/* Close Button */}
       {!standalone && (
         <button
           onClick={onClose}
@@ -266,17 +227,10 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
         </button>
       )}
 
-      {/* Asymmetric Masonry Grid - Desktop: Spring animation, Mobile: Drag */}
+      {/* Parallax Grid */}
       <motion.div
-        drag={isMobile} // Solo drag en mobile
-        dragConstraints={isMobile ? getDragConstraints() : undefined}
-        dragElastic={0.1}
-        dragTransition={{ bounceStiffness: 200, bounceDamping: 20 }}
-        style={isMobile ? {} : {
-          x: gridX,
-          y: gridY,
-        }}
-        className={`absolute inset-0 relative ${isMobile ? 'w-[320%] h-[250%]' : 'w-[280%] h-[380%]'}`}
+        style={{ x: gridX, y: gridY }}
+        className="absolute inset-0 relative w-[280%] h-[380%]"
       >
         {loading ? (
           <div className="absolute inset-0 flex items-center justify-center">
@@ -287,49 +241,45 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
         ) : (
           <div className="relative w-full h-full">
             {(() => {
-              const galleryItems = getGalleryItems()
-              const chaosPositions = generateChaosPositions(galleryItems.length, isMobile)
-              
+              const chaosPositions = generateChaosPositions(galleryItems.length)
+
               return galleryItems.map((item, index) => {
                 const position = chaosPositions[index]
-              if (!position) return null
+                if (!position) return null
 
-              return (
-                <motion.button
-                  key={item.id}
-                  onClick={() => handleProductClick(item.slug)}
-                  className="group relative overflow-hidden bg-card shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer"
-                  style={{
-                    position: 'absolute',
-                    top: `${position.top}%`,
-                    left: `${position.left}%`,
-                    width: isMobile ? '160px' : '240px' // Más pequeño en mobile
-                  }}
-                  whileHover={{ scale: isMobile ? 1.2 : 1.5 }} // Menos zoom en mobile
-                  transition={{ duration: 0.4, ease: 'easeOut' }}
-                >
-                  {/* Product Image - Respeta aspect ratio */}
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-auto object-contain"
-                  />
-                </motion.button>
-              )
-            })
+                return (
+                  <motion.button
+                    key={item.id}
+                    onClick={() => handleProductClick(item.slug)}
+                    className="group relative overflow-hidden bg-card shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+                    style={{
+                      position: 'absolute',
+                      top: `${position.top}%`,
+                      left: `${position.left}%`,
+                      width: '240px'
+                    }}
+                    whileHover={{ scale: 1.5 }}
+                    transition={{ duration: 0.4, ease: 'easeOut' }}
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-auto object-contain"
+                    />
+                  </motion.button>
+                )
+              })
             })()}
           </div>
         )}
       </motion.div>
 
-      {/* Instructions at bottom - Dinámicas según dispositivo */}
+      {/* Instructions */}
       <div className="absolute bottom-4 sm:bottom-8 left-0 right-0 text-center z-10 pointer-events-none">
         <p className="font-heading text-xs tracking-[0.3em] uppercase text-muted-foreground">
-          {isMobile ? 'Arrastra para explorar' : 'Mueve el cursor para explorar'}
+          Mueve el cursor para explorar
         </p>
       </div>
-
-
     </motion.div>
   )
 }
