@@ -324,14 +324,9 @@ export const useProductLogic = (slugProp?: string) => {
     const productImages = product.images || []
     const matchingVariant = getMatchingVariant()
     
-    // BEST PRACTICE: Si hay variante con image_urls, mostrarlas primero + todas las del producto
+    // Si la variante tiene imágenes propias, mostrar SOLO las de esa variante
     if (matchingVariant?.image_urls && matchingVariant.image_urls.length > 0) {
-      // Crear Set para evitar duplicados
-      const uniqueImages = new Set<string>([
-        ...matchingVariant.image_urls, // Imágenes de la variante primero
-        ...productImages // Luego todas las del producto
-      ])
-      return Array.from(uniqueImages)
+      return matchingVariant.image_urls
     }
     
     // Sin variante o variante sin image_urls: mostrar todas las imágenes del producto
