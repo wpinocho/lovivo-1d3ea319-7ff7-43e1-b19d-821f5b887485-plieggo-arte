@@ -130,13 +130,13 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
     },
     {
       type: 'image',
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1770920004212-kmwss797mgr.jpg',
-      eyebrow: 'Bestseller',
-      headline: 'Colección Espacio',
-      subheadline: 'Geometría tridimensional que desafía tu percepción del espacio',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779296069343-2ifge8n87sv.webp',
+      eyebrow: 'Toda la colección',
+      headline: 'Encuentra tu pieza perfecta',
+      subheadline: 'Explora cada formato, color y tamaño — hecho a mano en México',
       cta: {
-        text: 'Explorar Espacio',
-        link: '/coleccion-espacio'
+        text: 'Ver todos los cuadros',
+        link: '/all-products'
       }
     },
     {

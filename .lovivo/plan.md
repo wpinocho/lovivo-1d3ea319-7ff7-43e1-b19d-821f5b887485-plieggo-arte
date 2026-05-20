@@ -14,16 +14,16 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-**COMPLETADO ✅**: Hero carousel slide 1 y TopSellers hero actualizados con nueva imagen lifestyle.
+**COMPLETADO ✅**: Hero slide 2 actualizado → apunta a /all-products con imagen de esa página.
 
 **Próximo objetivo**: Subir fotos reales de clientes / mejorar UX de producto individual
 
 ## 4. Recent Changes
+- **2026-05-20 Hero slide 2 → /all-products** — Slide 2 del hero carousel ahora usa imagen HERO_IMAGE de AllProducts (1779296069343-2ifge8n87sv.webp), copy "Toda la colección / Encuentra tu pieza perfecta", CTA → /all-products
 - **2026-05-20 Hero slide 1 + TopSellers hero** — Nueva imagen lifestyle (7 cuadros en pared cálida) reemplaza slide 1 del hero carousel en Index. Copy actualizado a "Arte hecho a mano que transforma tu espacio" + CTA → /top-sellers. TopSellers HERO_IMAGE y EDITORIAL_IMAGE también actualizadas con la misma imagen.
 - **2026-05-20 Galería de ambientes actualizada** — InspirationCarousel ahora tiene 6 imágenes: Espacio 1 (estudio verde), Espacio 2 (comedor negro, igual), Espacio 3 (recámara escandinava), Espacio 4 (cocina burdeos, igual), Espacio 5 (comedor mediterráneo), Espacio 6 (oficina dark, nueva)
 - **2026-05-20 ProductCard botón mobile oculto** — Botón "Agregar al carrito" en hover solo visible en desktop (md:). Móvil queda limpio.
 - **2026-05-20 Páginas colección editorial COMPLETO** — AllProducts, CollectionAcordeon, CollectionEspacio reescritas con esquema editorial igual a TopSellers: hero compacto, trust strip, grid 2-cols móvil, social proof, editorial split bullets, CTA final WhatsApp
-- **2026-05-20 Plan: páginas colección editorial** — Plan para replicar esquema TopSellers en AllProducts, CollectionAcordeon, CollectionEspacio
 - **2026-05-20 Product card aspect-ratio** — Cambiado `aspect-square md:aspect-[1/2]` a `aspect-[24/43]` en ProductCardUI.tsx para que coincida exactamente con imágenes 768×1376 px de Acordeón. Aplica igual en móvil y desktop.
 - **2026-05-20 Collection cards rediseño** — Nuevo orden Más Vendidos→Acordeón→Espacio→Todos. Nuevas imágenes editoriales lifestyle. Aspecto cambiado a `aspect-[3/4]` (más premium). Cards más angostas en móvil (65vw). Eyebrow text añadido.
 - **2026-05-20 hoverImageIndex global** — AllProducts, TopSellers, IndexUI ahora pasan `hoverImageIndex={product.collectionType === 'espacio' ? 1 : 2}` a ProductCard. Espacio → imagen 2, todo lo demás → imagen 3, en TODAS las rutas.
@@ -34,16 +34,15 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-05-19 Hero editorial redesign COMPLETO** — Layout bottom-left, headline sm/font-semibold, CTA limpio sin glow, gradiente reposicionado to-top, dots discretos bottom-right, scroll indicator eliminado
 
 ## 5. Image Inventory
-- **Hero slide 1 (nuevo 2026-05-20)**: `https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
-- Hero slide 2: `...1770920004212-kmwss797mgr.jpg` (Colección Espacio)
+- **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
+- **Hero slide 2 (nuevo)**: `...1779296069343-2ifge8n87sv.webp` (toda la colección → CTA /all-products)
 - Hero slide 3: video hero-paper-folding.mp4
-- TopSellers HERO_IMAGE + EDITORIAL_IMAGE: misma imagen que hero slide 1 (nuevo)
+- TopSellers HERO_IMAGE + EDITORIAL_IMAGE: misma imagen que hero slide 1
 - Collections hero (nuevas, 2026-05-20):
   - Más Vendidos: `...1779296069342-nd9nl70mgv.webp`
   - Colección Acordeón: `...1779296069343-1i4gabj0it4.webp`
   - Colección Espacio: `...1779296069343-1ra0u85wh3j.webp`
   - Todos los cuadros: `...1779296069343-2ifge8n87sv.webp`
-- Top-sellers hero (OLD): `...product-images/.../top-sellers.webp` — REEMPLAZADO
 - Inspiration carousel (2026-05-20):
   - Espacio 1: `...1779301248170-7zdmlt3v6x9.webp` (estudio verde)
   - Espacio 2: `...product-images/.../black-dining.webp` (comedor negro) — sin cambio
