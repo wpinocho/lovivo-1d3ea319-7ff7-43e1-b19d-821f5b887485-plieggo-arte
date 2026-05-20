@@ -14,7 +14,29 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-**COMPLETADO** — Collection cards actualizadas con nuevas imágenes y orden correcto
+**PENDIENTE** — Ajustar proporción de product cards tipo 'rectangle' (Acordeón) de `aspect-[1/2]` a `aspect-[24/43]` para que coincida exactamente con las imágenes 768×1376 px.
+
+### Cambio a realizar:
+**Archivo:** `src/components/ui/ProductCardUI.tsx`
+
+Línea ~39, cambiar:
+```
+: aspectRatio === 'rectangle'
+? 'aspect-square md:aspect-[1/2]'  // Mobile: square, Desktop: rectangle
+```
+Por:
+```
+: aspectRatio === 'rectangle'
+? 'aspect-[24/43]'  // Proporción exacta 768×1376 px — aplica igual en móvil y desktop
+```
+
+**Razón:** 768/1376 simplifica a 24/43. Con `object-contain` actual, esto hace que la imagen llene perfectamente el contenedor sin recorte ni letterbox.
+
+**Archivos que usan `aspectRatio='rectangle'`** (no requieren cambios, solo el UI):
+- src/pages/AllProducts.tsx (línea 106)
+- src/pages/CollectionAcordeon.tsx (línea 85)
+- src/pages/TopSellers.tsx (línea 130)
+- src/pages/ui/IndexUI.tsx (línea 276)
 
 ## 4. Recent Changes
 - **2026-05-20 Collection cards rediseño** — Nuevo orden Más Vendidos→Acordeón→Espacio→Todos. Nuevas imágenes editoriales lifestyle. Aspecto cambiado a `aspect-[3/4]` (más premium). Cards más angostas en móvil (65vw). Eyebrow text añadido.
