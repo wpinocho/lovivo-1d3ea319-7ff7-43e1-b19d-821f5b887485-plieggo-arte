@@ -14,9 +14,66 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-Sin trabajo activo pendiente.
+**Galería mobile: reemplazar chaos layout por CSS grid estructurado**
+
+### Problema
+El sistema de `position: absolute` con porcentajes aleatorios en mobile causa encimamientos inevitables. Los ítems portrait (verticales) invaden las filas siguientes sin importar cuánto se ajuste el algoritmo.
+
+### Solución
+En mobile, ABANDONAR el chaos layout y renderizar un **CSS grid de 3 columnas** con scroll natural de página. Desktop queda intacto.
+
+### Implementación en `src/components/InteractiveGalleryModal.tsx`
+
+**Cambio 1 — Outer container:** Cuando `isMobile`, el contenedor debe ser scrollable:
+```
+// isMobile:
+className="relative w-full min-h-screen bg-transparent overflow-y-auto"
+// desktop (sin cambio):
+className="fixed inset-0 z-50 bg-transparent overflow-hidden"
+```
+
+**Cambio 2 — Inner grid motion.div:** Cuando `isMobile`, NO usar drag ni absolute positioning. Renderizar div normal:
+```jsx
+// MOBILE: div normal, no motion.div con drag
+<div className="w-full pt-16 pb-24 px-3">
+  <div className="grid grid-cols-3 gap-3">
+    {galleryItems.map((item) => (
+      <button
+        key={item.id}
+        onClick={() => handleProductClick(item.slug)}
+        className="relative overflow-hidden bg-card shadow-sm active:scale-95 transition-transform duration-150 cursor-pointer"
+      >
+        <img
+          src={item.image}
+          alt={item.title}
+          className="w-full h-auto object-contain"
+        />
+      </button>
+    ))}
+  </div>
+</div>
+```
+
+**Cambio 3 — Lógica de posicionamiento:** El `generateChaosPositions` solo se llama en desktop. En mobile no se llama.
+
+**Cambio 4 — Close button:** Asegurarse que el botón X sea `position: fixed` (no absolute) en mobile para que permanezca visible durante scroll.
+
+**Cambio 5 — Instructions bar:** También `position: fixed` en mobile.
+
+### Detalles de tamaño en mobile
+- 3 columnas con `gap-3` (12px) y `px-3` (12px cada lado)
+- En iPhone 390px: (390 - 24 - 24) / 3 ≈ 114px por card
+- Imágenes portrait ≈ 150–170px alto (aspect ratio natural del artwork)
+- 20 items = 7 filas (última con 2), alto total ≈ 7 × 170px + 6 × 12px ≈ 1262px — perfectamente scrollable
+
+### Desktop: SIN NINGÚN CAMBIO
+Todo el bloque de `!isMobile` queda exactamente igual.
+
+### Archivos a modificar
+- `src/components/InteractiveGalleryModal.tsx` — solo el bloque condicional mobile
 
 ## 4. Recent Changes
+- **2026-05-20 Plan: galería mobile → CSS grid 3 cols (pendiente Craft Mode)** — reemplazar chaos layout por grid estructurado; desktop sin cambios
 - **2026-05-20 Fix galería mobile: distribución por columnas (COMPLETO)** — `generateChaosPositions` en mobile ahora usa 3 columnas independientes con stagger vertical. Cada columna reparte sus items de 3% a 88% del grid con espaciado garantizado (`topSpan/n`). Jitter acotado a `min(spacing*0.25, 3%)`. Stagger por columna: col1 +40%, col2 +20% del spacing. Fix también: eliminado `chaosPositions[index % chaosPositions.length]` → guard `if (!position) return null` — InteractiveGalleryModal.tsx
 - **2026-05-20 Fix galería mobile: distribución columnas** — PENDIENTE Craft Mode
 - **2026-05-20 Fix galería mobile: encimes** — `generateChaosPositions` ahora genera filas dinámicas para mobile (Math.ceil(itemCount/3) filas, no 5 fijas). Espaciado 5%→85% adaptativo. Se eliminó el `% chaosPositions.length` en línea 253 → cada item tiene su propia posición única — InteractiveGalleryModal.tsx
@@ -31,7 +88,6 @@ Sin trabajo activo pendiente.
 - **2026-05-20 ProductCard botón mobile oculto** — Botón "Agregar al carrito" en hover solo visible en desktop (md:).
 - **2026-05-20 Páginas colección editorial COMPLETO** — AllProducts, CollectionAcordeon, CollectionEspacio reescritas con esquema editorial igual a TopSellers
 - **2026-05-20 Product card aspect-ratio** — Cambiado a `aspect-[24/43]` en ProductCardUI.tsx
-- **2026-05-20 Collection cards rediseño** — Nuevo orden, nuevas imágenes editoriales, aspecto `aspect-[3/4]`
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
