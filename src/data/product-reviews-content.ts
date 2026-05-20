@@ -270,7 +270,7 @@ export const productReviews: Record<string, Review[]> = {
   ],
 
   // NUEVO — 4 reseñas, 4.8★
-  'prisma-azul-coral': [
+  'acordeon-prisma-azul-coral': [
     { id: '1', author: 'Sebastián Mora', rating: 5, comment: 'El Prisma Azul Coral colgado en la sala quedó espectacular. El azul tiene una profundidad que cambia con la luz natural. Es la pieza de la que todos hablan cuando visitan mi casa.', date: '2026-02-05', verified: true, variant: 'Única', photoUrl: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779313645107-8wspbgkbhm7.webp' },
     { id: '2', author: 'Andrea Villanueva', rating: 5, comment: 'La combinación azul y coral en los pliegues es impresionante. Cada ángulo revela algo diferente. Arte vivo que transforma el espacio.', date: '2026-01-18', verified: true, variant: 'Única' },
     { id: '3', author: 'Diego Lara', rating: 5, comment: 'Una pieza realmente única. El prisma azul coral tiene una personalidad propia. Llegó muy bien protegido y en perfectas condiciones.', date: '2026-01-05', verified: true, variant: 'Única' },

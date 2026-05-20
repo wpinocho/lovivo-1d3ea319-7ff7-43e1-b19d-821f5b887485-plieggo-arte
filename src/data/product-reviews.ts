@@ -106,6 +106,14 @@ export const productReviews: Record<string, ProductReview> = {
   'acorden-prisma-onyx-opal': {
     rating: 4.9,
     reviewCount: 5
+  },
+  'acordeon-prisma-azul-coral': {
+    rating: 4.8,
+    reviewCount: 4
+  },
+  'acordeon-prisma-beige-blanco': {
+    rating: 4.8,
+    reviewCount: 0
   }
 }
 
