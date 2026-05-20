@@ -71,7 +71,7 @@ export const plieggoGeneralReviews: GeneralReview[] = [
       "Arte vivo que cambia con la luz del día. En la mañana se ve diferente que en la tarde. Mi mejor compra del año.",
     date: "2025-08-22",
     product: "Acordeón Verde Salvia",
-    productSlug: "acorden-verde-salvia",
+    productSlug: "acorden-rosa-morado",
     collectionSlug: "acordeon",
     variant: "80x80cm",
     photoUrl: "https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779311693322-9f4ruvw5mpq.webp",

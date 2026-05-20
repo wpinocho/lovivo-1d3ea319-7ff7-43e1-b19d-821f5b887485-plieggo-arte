@@ -14,17 +14,14 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-**COMPLETADO**: Sección "Más experiencias Plieggo" — lógica inteligente de selección implementada.
+**COMPLETADO**: Fix slug g4 (Verde Salvia) en `plieggo-general-reviews.ts`.
 
-### Qué hace ahora
-- Solo muestra 5 reviews con foto
-- Excluye el cuadro actual (no se repite si ya aparece arriba en "Lo que dicen de este cuadro")
-- Prioriza reviews de la misma colección (acordeon / luna)
-- Rellena con otras colecciones si no hay suficientes de la misma
-- `GeneralReviewCard` rediseñado: foto full-width prominente (aspect-[3/4]) en lugar de avatar circular
-- Grid: `md:grid-cols-3 lg:grid-cols-5`
+### Estado
+- `productSlug` de g4 (Mónica A.) corregido a `"acorden-rosa-morado"` (slug real en DB)
+- Ahora la sección "Más experiencias" excluye correctamente el Verde Salvia cuando se está en esa PDP
 
 ## 4. Recent Changes
+- **2026-05-20 Fix slug g4 Verde Salvia en general reviews** — `acorden-verde-salvia` → `acorden-rosa-morado` para que el filtro de exclusión funcione correctamente en la PDP.
 - **2026-05-20 Sección "Más experiencias" — cuadro actual excluido** — `productSlug` añadido a `GeneralReview`, lógica de exclusión + priorización de colección + solo con foto implementada en `ProductReviews.tsx`.
 - **2026-05-20 GeneralReviewCard rediseñado** — foto full-width aspect-[3/4], sin avatar circular. Todas las cards en esta sección tienen foto.
 - **2026-05-20 Sección "Más experiencias" con fotos + colección** — filtro a 5 reviews con foto, priorizando misma colección del producto actual.
@@ -57,7 +54,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Video play error recurrente en hero (play/pause race condition) — no afecta funcionalidad
 - Luna Beige tiene solo 1 imagen en galería — necesita fotos de detalle y lifestyle
 - `plieggo-general-reviews.ts` tiene `photoUrl` vacío en g1, g2, g3, g5, g6, g7, g8 — pendiente
-- **DB slug mismatch**: Producto activo titulado "Acordón Verde Salvia" tiene slug `acorden-rosa-morado` en DB
+- **DB slug mismatch**: Producto activo titulado "Acordón Verde Salvia" tiene slug `acorden-rosa-morado` en DB — `productSlug` de g4 actualizado para coincidir
 - Slugs en code sin producto activo en DB: `acorden-terracota-vibrante`, `acorden-crema-natural`, `acorden-morado-lavanda`, `acorden-morado-elegante`, `estrellas`
 - En PDPs de luna: solo 1 review con foto es de luna (g12), se rellena con 4 de acordeón — aceptable por ahora
 
