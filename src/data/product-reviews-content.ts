@@ -277,6 +277,14 @@ export const productReviews: Record<string, Review[]> = {
     { id: '4', author: 'Fernanda Castañeda', rating: 4, comment: 'Hermosa pieza artesanal. El azul coral es una combinación que no esperaba que funcionara tan bien. Me encantó el resultado.', date: '2025-12-15', verified: true, variant: 'Única' },
   ],
 
+  // NUEVO — 4 reseñas, 4.8★
+  'acordeon-prisma-beige-blanco': [
+    { id: '1', author: 'Lucía Fernández', rating: 5, comment: 'Lo colgamos el mismo día que llegó y fue inmediato el "wow". El beige con los pliegues en blanco es muy elegante, no grita pero tampoco pasa desapercibido. Le da exactamente el carácter que buscábamos para la sala.', date: '2026-02-14', verified: true, variant: 'Única', photoUrl: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779316065818-wtuxxi83zxr.webp' },
+    { id: '2', author: 'Andrés Montiel', rating: 5, comment: 'El prisma beige blanco tiene una sutileza que no ves en fotos. En persona los pliegues crean sombras delicadas que cambian con la luz natural. Es una pieza viva. Compra sin dudarlo.', date: '2026-01-30', verified: true, variant: 'Única' },
+    { id: '3', author: 'Carolina Peña', rating: 5, comment: 'Lo elegí para combinarlo con muebles de madera clara y el resultado es de revista. El beige es cálido sin ser aburrido. Empaque perfecto, llegó intacto.', date: '2026-01-12', verified: true, variant: 'Única' },
+    { id: '4', author: 'Javier Orozco', rating: 4, comment: 'Muy buena calidad. El tono beige-blanco es más cálido de lo que esperaba (para mí mejor). Los pliegues están perfectamente ejecutados. Lo recomiendo para espacios neutros.', date: '2025-12-28', verified: true, variant: 'Única' },
+  ],
+
   // EDICIÓN LIMITADA — 5 reseñas, 4.8★
   'estrellas': [
     { id: '1', author: 'Camila Estrella', rating: 5, comment: 'El cuadro Estrellas es mágico! Los pliegues crean un efecto de profundidad increíble, como si estuvieras mirando un cielo estrellado. Impresionante.', date: '2026-02-10', verified: true, variant: 'Única' },
