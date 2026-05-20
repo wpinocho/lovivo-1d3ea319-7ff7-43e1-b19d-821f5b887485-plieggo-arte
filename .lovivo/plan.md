@@ -14,18 +14,55 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-**COMPLETADO**: Fotos de review asignadas a Acordeón Beige Sutil (María González) y Luna Llena (Alejandra Romero).
+**EN PROGRESO**: Sección "Más experiencias Plieggo" — solo 5 reviews con foto, priorizando misma colección.
+
+### Cambios a realizar
+
+#### `src/data/plieggo-general-reviews.ts`
+1. Agregar campo `collectionSlug?: string` a la interfaz `GeneralReview`
+2. Asignar `collectionSlug` a cada review:
+   - g1, g2, g3, g6 (Acordeón Beige Sutil) → `"acordeon"`
+   - g4 (Verde Salvia) → `"acordeon"`
+   - g5, g7 (Luna Beige) → `"luna"`
+   - g8 (Terracota Vibrante) → `"acordeon"`
+   - g9 (Prisma Onyx Opal) → `"acordeon"`
+   - g10 (Prisma Azul Coral) → `"acordeon"`
+   - g11 (Burdeos Intenso) → `"acordeon"`
+   - g12 (Luna Negra) → `"luna"`
+
+#### `src/components/ProductReviews.tsx`
+1. Agregar helper `getCollectionFromSlug(slug: string): string`:
+   - si empieza con `"acorden"` o `"acordeon"` → `"acordeon"`
+   - si empieza con `"luna"` → `"luna"`
+   - else → `"other"`
+2. Reemplazar `plieggoGeneralReviews.map(...)` por lógica de selección:
+   ```ts
+   const withPhotos = plieggoGeneralReviews.filter(r => r.photoUrl)
+   const currentCollection = getCollectionFromSlug(productSlug)
+   const sameCollection = withPhotos.filter(r => r.collectionSlug === currentCollection)
+   const otherCollection = withPhotos.filter(r => r.collectionSlug !== currentCollection)
+   const experiencesShown = [...sameCollection, ...otherCollection].slice(0, 5)
+   ```
+3. Usar `experiencesShown` en lugar de `plieggoGeneralReviews` en el `.map()`
+4. Ajustar el grid: con 5 cards fijas, cambiar a `md:grid-cols-3 lg:grid-cols-5` para que se vean bien en desktop, mantener scroll horizontal en mobile.
+
+### Notas
+- Reviews actuales con foto: g4 (acordeon), g9 (acordeon), g10 (acordeon), g11 (acordeon), g12 (luna) — total 5
+- En una PDP de acordeón se verán 4 de acordeón + 1 de luna
+- En una PDP de luna se verá 1 de luna + 4 de acordeón (hay pocas luna con foto)
+- Pendiente: agregar más fotos a g1-g3, g5-g8 para ampliar el pool
 
 ## 4. Recent Changes
-- **2026-05-20 Fotos review Beige Sutil + Luna Llena** — `photoUrl` añadido a primera review de `acorden-beige-sutil` (María González, foto instalación nocturna) y `luna-llena` (Alejandra Romero, foto lifestyle sala).
-- **2026-05-20 Reviews acordeon-prisma-beige-blanco** — 4 reseñas creadas en `product-reviews-content.ts`. Primera review (Lucía Fernández) con foto de cliente instalando el cuadro. reviewCount actualizado 0→4 en `product-reviews.ts`.
-- **2026-05-20 Fix slug acordeon-prisma-azul-coral** — `prisma-azul-coral` → `acordeon-prisma-azul-coral` en `product-reviews-content.ts`. Añadida entrada `acordeon-prisma-azul-coral` (4.8★, 4 reviews) y `acordeon-prisma-beige-blanco` (0 reviews) en `product-reviews.ts`.
-- **2026-05-20 Fix slug Prisma Onyx Opal** — `prisma-onyx-opal` → `acorden-prisma-onyx-opal` en `product-reviews-content.ts` y `product-reviews.ts`. Nueva foto de review (imagen del cliente con cuadro negro en empaque) asignada a Valentina Solano.
-- **2026-05-20 Foto review acorden-rosa-morado (Mariana León)** — `photoUrl` añadido a primera review de `acorden-rosa-morado` en `product-reviews-content.ts`.
+- **2026-05-20 Sección "Más experiencias" con fotos + colección** — filtro a 5 reviews con foto, priorizando misma colección del producto actual.
+- **2026-05-20 Fotos review Beige Sutil + Luna Llena** — `photoUrl` añadido a primera review de `acorden-beige-sutil` (María González) y `luna-llena` (Alejandra Romero).
+- **2026-05-20 Reviews acordeon-prisma-beige-blanco** — 4 reseñas creadas en `product-reviews-content.ts`. Primera review (Lucía Fernández) con foto.
+- **2026-05-20 Fix slug acordeon-prisma-azul-coral** — corregido en `product-reviews-content.ts` y `product-reviews.ts`.
+- **2026-05-20 Fix slug Prisma Onyx Opal** — `prisma-onyx-opal` → `acorden-prisma-onyx-opal`.
+- **2026-05-20 Foto review acorden-rosa-morado (Mariana León)** — `photoUrl` añadido.
 - **2026-05-20 Fotos reviews: Verde Salvia, Luna Azul, Blanco Puro + nuevas entradas Prisma Onyx Opal, Prisma Azul Coral** — `product-reviews-content.ts` actualizado.
-- **2026-05-20 Reviews PDP con foto** — `photoUrl` añadido a interfaz `Review`. `ReviewCard` actualizado con foto full-width aspect-[4/3]. `sortedReviews` ordena fotos primero.
+- **2026-05-20 Reviews PDP con foto** — `photoUrl` añadido a interfaz `Review`. `ReviewCard` con foto full-width aspect-[3/4]. `sortedReviews` ordena fotos primero.
 - **2026-05-20 Fotos de reviews reales** — `photoUrl` añadido en g4 (Verde Salvia) + 4 nuevas reseñas g9-g12 en `plieggo-general-reviews.ts`
-- **2026-05-20 Fix galería mobile solapamiento** — `rows` dinámico, `topBase` distribuido uniformemente — InteractiveGalleryModal.tsx
+- **2026-05-20 Fix galería mobile solapamiento** — `rows` dinámico, `topBase` distribuido — InteractiveGalleryModal.tsx
 - **2026-05-20 Fix galería mobile COMPLETO** — Grid 320×250%, cards 160px, máx 3 por fila — InteractiveGalleryModal.tsx
 
 ## 5. Image Inventory
@@ -35,8 +72,8 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - TopSellers HERO_IMAGE + EDITORIAL_IMAGE: misma imagen que hero slide 1
 - Logo: `/public/logo.svg`
 - **Review photos PDP (product-reviews-content.ts)**:
-  - Beige Sutil (María González): `...1779316513173-t94ygqmypsh.webp` ✅ (instalación nocturna)
-  - Luna Llena (Alejandra Romero): `...1779316513173-2bakbmoaanh.webp` ✅ (lifestyle sala beige)
+  - Beige Sutil (María González): `...1779316513173-t94ygqmypsh.webp` ✅
+  - Luna Llena (Alejandra Romero): `...1779316513173-2bakbmoaanh.webp` ✅
   - Prisma Beige Blanco (Lucía Fernández): `...1779316065818-wtuxxi83zxr.webp` ✅
   - Verde Salvia (Mónica Aguilar): `...1779313645107-25fm4pmckj4.webp` ✅
   - Luna Negra (Camila Vargas): `...1779311693322-8vbqa3p7c55.webp`
@@ -58,11 +95,11 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Video play error recurrente en hero (play/pause race condition) — no afecta funcionalidad
 - Luna Beige tiene solo 1 imagen en galería — necesita fotos de detalle y lifestyle
 - `plieggo-general-reviews.ts` tiene `photoUrl` vacío en g1, g2, g3, g5, g6, g7, g8 — pendiente
-- **DB slug mismatch**: Producto activo titulado "Acordón Verde Salvia" tiene slug `acorden-rosa-morado` en DB — el código usa `acorden-rosa-morado` correctamente para este producto activo
-- Slugs en code sin producto activo en DB: `acorden-terracota-vibrante`, `acorden-crema-natural`, `acorden-morado-lavanda`, `acorden-morado-elegante`, `estrellas` — probablemente productos futuros o archivados
+- **DB slug mismatch**: Producto activo titulado "Acordón Verde Salvia" tiene slug `acorden-rosa-morado` en DB
+- Slugs en code sin producto activo en DB: `acorden-terracota-vibrante`, `acorden-crema-natural`, `acorden-morado-lavanda`, `acorden-morado-elegante`, `estrellas`
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** Subir fotos reales para reseñas g1-g3, g5-g8 en sección general
+- **[ALTA]** Subir fotos reales para reseñas g1-g3, g5-g8 (ampliar pool de "Más experiencias")
 - **[MEDIA]** Agregar fotos a más reviews específicas en PDP (Rosa Sereno, Terracota, Luna Beige, etc.)
 - **[MEDIA]** Añadir más fotos a Luna Beige (detalle, textura, en sala) — desde Dashboard
 - **[MEDIA]** Indicador de stock "Solo X disponibles" para Edición Limitada
