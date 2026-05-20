@@ -144,8 +144,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
       subheadline: 'Cada pieza es única, cada pliegue cuenta una historia',
       cta: {
         text: 'Descubre regalos',
-        link: '/about',
-        onClick: () => setIsGalleryOpen(true)
+        link: '/galeria'
       }
     }
   ];

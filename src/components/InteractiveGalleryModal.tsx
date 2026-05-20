@@ -1,11 +1,9 @@
-import { motion, useMotionValue, useSpring, AnimatePresence } from 'framer-motion'
+import { motion, useMotionValue, useSpring } from 'framer-motion'
 import { X } from 'lucide-react'
 import { useEffect, useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase, type Product } from '@/lib/supabase'
 import { STORE_ID } from '@/lib/config'
-import { useSettings } from '@/contexts/SettingsContext'
-import { HeadlessProduct } from '@/components/headless/HeadlessProduct'
-import { ProductPageUI } from '@/pages/ui/ProductPageUI'
 import { useIsMobile } from '@/hooks/use-mobile'
 
 interface InteractiveGalleryModalProps {
@@ -27,10 +25,9 @@ interface InteractiveGalleryModalProps {
 export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }: InteractiveGalleryModalProps) => {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedProductSlug, setSelectedProductSlug] = useState<string | null>(null)
-  const { formatMoney } = useSettings()
   const isMobile = useIsMobile()
   const containerRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
 
   // LUSANO-STYLE COORDINATE MAPPING
   // Canvas: Width 240% (2.4x), Height 220% (2.2x)
@@ -199,11 +196,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
   }
 
   const handleProductClick = (slug: string) => {
-    setSelectedProductSlug(slug)
-  }
-
-  const handleCloseProductPopup = () => {
-    setSelectedProductSlug(null)
+    navigate(`/products/${slug}`)
   }
 
   if (!isOpen && !standalone) return null
@@ -215,7 +208,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className={standalone
-        ? "relative w-full h-[calc(100vh-80px)] bg-background overflow-hidden"
+        ? "relative w-full h-screen bg-background overflow-hidden"
         : "fixed inset-0 z-50 bg-background overflow-hidden"
       }
       onMouseMove={handleMouseMove}
@@ -293,45 +286,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
         </p>
       </div>
 
-      {/* Product Popup Modal */}
-      <AnimatePresence>
-        {selectedProductSlug && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 z-20 bg-background/95 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8"
-            onClick={handleCloseProductPopup}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="relative bg-card rounded-sm shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Close button - Sticky para que siempre sea visible */}
-              <div className="sticky top-0 right-0 z-20 flex justify-end p-4 sm:p-6 bg-card">
-                <button
-                  onClick={handleCloseProductPopup}
-                  className="p-2 hover:bg-secondary/10 transition-colors rounded-sm group"
-                  aria-label="Cerrar producto"
-                >
-                  <X className="h-6 w-6 text-foreground group-hover:text-secondary transition-colors" strokeWidth={1.5} />
-                </button>
-              </div>
 
-              {/* Product content - Sin template (sin header/menú) */}
-              <div className="px-4 pb-4 sm:px-8 sm:pb-8 -mt-2">
-                <HeadlessProduct slug={selectedProductSlug}>
-                  {(logic) => <ProductPageUI logic={logic} noTemplate />}
-                </HeadlessProduct>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.div>
   )
 }
