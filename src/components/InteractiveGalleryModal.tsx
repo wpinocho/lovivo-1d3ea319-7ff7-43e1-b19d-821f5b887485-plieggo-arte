@@ -170,47 +170,67 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
   // Generar posiciones dinámicas según número de items
   // CRÍTICO: genera exactamente itemCount posiciones (sin % wrap-around = sin encimes)
   const generateChaosPositions = (itemCount: number, mobile = false) => {
-    const positions: { top: number; left: number }[] = []
-    
     if (mobile) {
-      // Mobile: filas dinámicas según itemCount, máx 3 por fila
-      const itemsPerRow = 3
-      const rows = Math.ceil(itemCount / itemsPerRow)
-      
-      for (let row = 0; row < rows; row++) {
-        const remainingItems = itemCount - positions.length
-        const itemsInThisRow = Math.min(itemsPerRow, remainingItems)
-        
-        // Espaciado dinámico de 5% a 85%, adaptado al número real de filas
-        const topBase = rows <= 1 ? 45 : 5 + row * (80 / (rows - 1))
-        
-        for (let col = 0; col < itemsInThisRow; col++) {
-          const leftBase = (col / itemsPerRow) * 84 + 8
-          positions.push({
-            top: topBase + (Math.random() * 4 - 2),
-            left: leftBase + (Math.random() * 3 - 1.5)
-          })
+      // Mobile: distribución por COLUMNAS con stagger vertical
+      // 3 columnas independientes — cada una reparte sus items de arriba a abajo
+      // con espacio garantizado sin importar cuántos items haya
+      const COLS = 3
+      const result: { top: number; left: number }[] = new Array(itemCount)
+      const colWidthPct = 100 / COLS  // ~33.3% del ancho del grid
+
+      for (let col = 0; col < COLS; col++) {
+        // Índices asignados a esta columna: 0→col0, 1→col1, 2→col2, 3→col0…
+        const colIndices: number[] = []
+        for (let i = col; i < itemCount; i += COLS) {
+          colIndices.push(i)
         }
+        if (colIndices.length === 0) continue
+
+        // Repartir de topStart% a topStart+topSpan% del alto del grid (250%)
+        const topStart = 3
+        const topSpan = 85
+        const spacing = colIndices.length > 1 ? topSpan / (colIndices.length - 1) : 0
+
+        // Horizontal: cada item ocupa el 80% central de su zona de columna
+        const leftMin = col * colWidthPct + colWidthPct * 0.1
+        const leftMax = (col + 1) * colWidthPct - colWidthPct * 0.1
+
+        // Stagger vertical entre columnas para aspecto caótico/asimétrico
+        const staggerOffsets = [0, spacing * 0.4, spacing * 0.2]
+        const stagger = colIndices.length > 1 ? (staggerOffsets[col] ?? 0) : 0
+
+        colIndices.forEach((itemIdx, posInCol) => {
+          const topBase = topStart + stagger + posInCol * spacing
+          // Jitter acotado: nunca más del 25% del espaciado ni más de 3%
+          const maxJitter = Math.min(spacing * 0.25, 3)
+          result[itemIdx] = {
+            top: topBase + (Math.random() * maxJitter * 2 - maxJitter),
+            left: leftMin + Math.random() * (leftMax - leftMin)
+          }
+        })
       }
-    } else {
-      // Desktop: 5 filas fijas, items distribuidos entre ellas
-      const rows = 5
-      const itemsPerRow = Math.ceil(itemCount / rows)
+
+      return result
+    }
+
+    // Desktop: 5 filas fijas, items distribuidos entre ellas
+    const positions: { top: number; left: number }[] = []
+    const rows = 5
+    const itemsPerRow = Math.ceil(itemCount / rows)
+    
+    for (let row = 0; row < rows; row++) {
+      const remainingItems = itemCount - positions.length
+      const itemsInThisRow = Math.min(itemsPerRow, remainingItems)
       
-      for (let row = 0; row < rows; row++) {
-        const remainingItems = itemCount - positions.length
-        const itemsInThisRow = Math.min(itemsPerRow, remainingItems)
-        
-        // Filas en 5%, 25%, 45%, 65%, 85% del grid (380% alto)
-        const topBase = 5 + (row * 20)
-        
-        for (let col = 0; col < itemsInThisRow; col++) {
-          const leftBase = (col / itemsInThisRow) * 84 + 8
-          positions.push({
-            top: topBase + (Math.random() * 4 - 2),
-            left: leftBase + (Math.random() * 3 - 1.5)
-          })
-        }
+      // Filas en 5%, 25%, 45%, 65%, 85% del grid (380% alto)
+      const topBase = 5 + (row * 20)
+      
+      for (let col = 0; col < itemsInThisRow; col++) {
+        const leftBase = (col / itemsInThisRow) * 84 + 8
+        positions.push({
+          top: topBase + (Math.random() * 4 - 2),
+          left: leftBase + (Math.random() * 3 - 1.5)
+        })
       }
     }
     
@@ -271,7 +291,8 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
               const chaosPositions = generateChaosPositions(galleryItems.length, isMobile)
               
               return galleryItems.map((item, index) => {
-                const position = chaosPositions[index] ?? chaosPositions[index % chaosPositions.length]
+                const position = chaosPositions[index]
+              if (!position) return null
 
               return (
                 <motion.button
