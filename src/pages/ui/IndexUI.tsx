@@ -18,7 +18,7 @@ import { BundleCard } from '@/components/ui/BundleCard';
 import { MixMatchBundleCard } from '@/components/MixMatchBundleCard';
 import { NewsletterSection } from '@/components/NewsletterSection';
 
-type ProductWithCollection = Product & { collectionType?: 'espacio' | 'acordeon' }
+type ProductWithCollection = Product & { collectionType?: 'espacio' | 'acordeon' | 'prisma' }
 
 /**
  * EDITABLE UI - IndexUI (Plieggo)
@@ -71,10 +71,11 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
           .from('collections')
           .select('id, handle')
           .eq('store_id', STORE_ID)
-          .in('handle', ['coleccion-espacio', 'coleccion-acordeon']);
+          .in('handle', ['coleccion-espacio', 'coleccin-acorden', 'acordeon-prisma']);
 
         const espacioCollectionId = collectionData?.find(c => c.handle === 'coleccion-espacio')?.id;
-        const acordeonCollectionId = collectionData?.find(c => c.handle === 'coleccion-acordeon')?.id;
+        const acordeonCollectionId = collectionData?.find(c => c.handle === 'coleccin-acorden')?.id;
+        const prismaCollectionId = collectionData?.find(c => c.handle === 'acordeon-prisma')?.id;
 
         // Get all collection_products relationships
         const { data: allCollectionProducts } = await supabase
@@ -87,12 +88,17 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
           const productCollections = allCollectionProducts?.filter(cp => cp.product_id === product.id).map(cp => cp.collection_id) || [];
           const isEspacio = productCollections.includes(espacioCollectionId);
           const isAcordeon = productCollections.includes(acordeonCollectionId);
+          const isPrisma = productCollections.includes(prismaCollectionId);
           
           return {
             ...product,
-            collectionType: isEspacio ? 'espacio' as const : isAcordeon ? 'acordeon' as const : undefined
+            collectionType: isEspacio ? 'espacio' as const : isAcordeon ? 'acordeon' as const : isPrisma ? 'prisma' as const : undefined
           };
         });
+
+        // Ordenar: Espacio → Acordeón → Prisma → otros
+        const ORDER: Record<string, number> = { espacio: 1, acordeon: 2, prisma: 3 };
+        enhanced.sort((a, b) => (ORDER[a.collectionType ?? ''] ?? 4) - (ORDER[b.collectionType ?? ''] ?? 4));
 
         setProductsWithCollection(enhanced);
       } catch (error) {
@@ -294,7 +300,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
                     aspectRatio={
                       product.collectionType === 'espacio' 
                         ? 'square' 
-                        : product.collectionType === 'acordeon'
+                        : product.collectionType === 'acordeon' || product.collectionType === 'prisma'
                         ? 'rectangle'
                         : 'auto'
                     }

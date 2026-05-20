@@ -8,7 +8,7 @@ import { STORE_ID } from '@/lib/config'
 import { Hand, Sparkles, Truck, RotateCcw, Star, MessageCircle, ArrowRight } from 'lucide-react'
 import { plieggoGeneralReviews, getInitials } from '@/data/plieggo-general-reviews'
 
-type ProductWithCollection = Product & { collectionType?: 'espacio' | 'acordeon' }
+type ProductWithCollection = Product & { collectionType?: 'espacio' | 'acordeon' | 'prisma' }
 
 const HERO_IMAGE = 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/top-sellers.webp'
 const EDITORIAL_IMAGE = 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/top-sellers.webp'
@@ -57,10 +57,11 @@ const TopSellers = () => {
         .from('collections')
         .select('id, handle')
         .eq('store_id', STORE_ID)
-        .in('handle', ['coleccion-espacio', 'coleccion-acordeon'])
+        .in('handle', ['coleccion-espacio', 'coleccin-acorden', 'acordeon-prisma'])
 
       const espacioCollectionId = collections?.find(c => c.handle === 'coleccion-espacio')?.id
-      const acordeonCollectionId = collections?.find(c => c.handle === 'coleccion-acordeon')?.id
+      const acordeonCollectionId = collections?.find(c => c.handle === 'coleccin-acorden')?.id
+      const prismaCollectionId = collections?.find(c => c.handle === 'acordeon-prisma')?.id
 
       const { data: allCollectionProducts } = await supabase
         .from('collection_products')
@@ -71,17 +72,16 @@ const TopSellers = () => {
         const productCollections = allCollectionProducts?.filter(cp => cp.product_id === product.id).map(cp => cp.collection_id) || []
         const isEspacio = productCollections.includes(espacioCollectionId)
         const isAcordeon = productCollections.includes(acordeonCollectionId)
+        const isPrisma = productCollections.includes(prismaCollectionId)
         return {
           ...product,
-          collectionType: isEspacio ? 'espacio' as const : isAcordeon ? 'acordeon' as const : undefined
+          collectionType: isEspacio ? 'espacio' as const : isAcordeon ? 'acordeon' as const : isPrisma ? 'prisma' as const : undefined
         }
       })
 
-      const sortedProducts = productsWithCollection.sort((a, b) => {
-        if (a.collectionType === 'espacio' && b.collectionType !== 'espacio') return -1
-        if (a.collectionType !== 'espacio' && b.collectionType === 'espacio') return 1
-        return 0
-      })
+      // Ordenar: Espacio → Acordeón → Prisma → otros
+      const ORDER: Record<string, number> = { espacio: 1, acordeon: 2, prisma: 3 }
+      const sortedProducts = productsWithCollection.sort((a, b) => (ORDER[a.collectionType ?? ''] ?? 4) - (ORDER[b.collectionType ?? ''] ?? 4))
 
       setProducts(sortedProducts)
     } catch (error) {
@@ -200,7 +200,7 @@ const TopSellers = () => {
                   aspectRatio={
                     product.collectionType === 'espacio'
                       ? 'square'
-                      : product.collectionType === 'acordeon'
+                      : product.collectionType === 'acordeon' || product.collectionType === 'prisma'
                       ? 'rectangle'
                       : 'auto'
                   }

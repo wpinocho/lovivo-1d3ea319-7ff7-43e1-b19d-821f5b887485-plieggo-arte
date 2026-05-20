@@ -5,7 +5,7 @@ import { InspirationCarousel } from '@/components/InspirationCarousel'
 import { supabase, type Product } from '@/lib/supabase'
 import { STORE_ID } from '@/lib/config'
 
-type ProductWithCollection = Product & { collectionType?: 'espacio' | 'acordeon' }
+type ProductWithCollection = Product & { collectionType?: 'espacio' | 'acordeon' | 'prisma' }
 
 const AllProducts = () => {
   const [products, setProducts] = useState<ProductWithCollection[]>([])
@@ -34,10 +34,11 @@ const AllProducts = () => {
         .from('collections')
         .select('id, handle')
         .eq('store_id', STORE_ID)
-        .in('handle', ['coleccion-espacio', 'coleccion-acordeon'])
+        .in('handle', ['coleccion-espacio', 'coleccin-acorden', 'acordeon-prisma'])
 
       const espacioCollectionId = collections?.find(c => c.handle === 'coleccion-espacio')?.id
-      const acordeonCollectionId = collections?.find(c => c.handle === 'coleccion-acordeon')?.id
+      const acordeonCollectionId = collections?.find(c => c.handle === 'coleccin-acorden')?.id
+      const prismaCollectionId = collections?.find(c => c.handle === 'acordeon-prisma')?.id
 
       // Get all collection_products relationships
       const { data: allCollectionProducts } = await supabase
@@ -50,12 +51,17 @@ const AllProducts = () => {
         const productCollections = allCollectionProducts?.filter(cp => cp.product_id === product.id).map(cp => cp.collection_id) || []
         const isEspacio = productCollections.includes(espacioCollectionId)
         const isAcordeon = productCollections.includes(acordeonCollectionId)
+        const isPrisma = productCollections.includes(prismaCollectionId)
         
         return {
           ...product,
-          collectionType: isEspacio ? 'espacio' as const : isAcordeon ? 'acordeon' as const : undefined
+          collectionType: isEspacio ? 'espacio' as const : isAcordeon ? 'acordeon' as const : isPrisma ? 'prisma' as const : undefined
         }
       })
+
+      // Ordenar: Espacio → Acordeón → Prisma → otros
+      const ORDER: Record<string, number> = { espacio: 1, acordeon: 2, prisma: 3 }
+      productsWithCollection.sort((a, b) => (ORDER[a.collectionType ?? ''] ?? 4) - (ORDER[b.collectionType ?? ''] ?? 4))
 
       setProducts(productsWithCollection)
     } catch (error) {
@@ -99,7 +105,7 @@ const AllProducts = () => {
                   aspectRatio={
                     product.collectionType === 'espacio' 
                       ? 'square' 
-                      : product.collectionType === 'acordeon'
+                      : product.collectionType === 'acordeon' || product.collectionType === 'prisma'
                       ? 'rectangle'
                       : 'auto'
                   }
