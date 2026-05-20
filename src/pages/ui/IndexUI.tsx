@@ -119,13 +119,13 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
   const heroSlides: HeroSlide[] = [
     {
       type: 'image',
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1770920004212-qzo0zur4y1s.jpg',
-      eyebrow: 'Nueva Colección 2026',
-      headline: 'Colección Acordeón',
-      subheadline: 'Pliegues rítmicos que transforman paredes en esculturas de luz',
+      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779301620051-88tz4z58bt7.webp',
+      eyebrow: 'Los favoritos de nuestros clientes',
+      headline: 'Arte hecho a mano que transforma tu espacio',
+      subheadline: 'Cada pliegue crea sombras únicas que cambian con la luz del día',
       cta: {
-        text: 'Ver Colección',
-        link: '/coleccion-acordeon'
+        text: 'Ver más vendidos',
+        link: '/top-sellers'
       }
     },
     {

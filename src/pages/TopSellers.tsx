@@ -10,8 +10,8 @@ import { plieggoGeneralReviews, getInitials } from '@/data/plieggo-general-revie
 
 type ProductWithCollection = Product & { collectionType?: 'espacio' | 'acordeon' | 'prisma' }
 
-const HERO_IMAGE = 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/top-sellers.webp'
-const EDITORIAL_IMAGE = 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/top-sellers.webp'
+const HERO_IMAGE = 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779301620051-88tz4z58bt7.webp'
+const EDITORIAL_IMAGE = 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779301620051-88tz4z58bt7.webp'
 
 // Las 2 reseñas más impactantes para mostrar en la sección de social proof
 const FEATURED_REVIEWS = [plieggoGeneralReviews[1], plieggoGeneralReviews[3]] // g2 y g4
