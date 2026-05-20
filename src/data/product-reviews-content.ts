@@ -13,6 +13,7 @@ export interface Review {
   date: string // YYYY-MM-DD
   verified: boolean
   variant?: string
+  photoUrl?: string // URL de foto real del cliente
 }
 
 export const productReviews: Record<string, Review[]> = {
@@ -73,6 +74,7 @@ export const productReviews: Record<string, Review[]> = {
 
   // BESTSELLER — 20 reseñas, 4.9★
   'acorden-verde-salvia': [
+    { id: '17', author: 'Mónica Aguilar', rating: 5, comment: 'El verde salvia tiene una magia especial. Cambia con la luz del día. Una obra viva en tu pared.', date: '2025-08-22', verified: true, variant: '80x80cm', photoUrl: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779311693322-9f4ruvw5mpq.webp' },
     { id: '1', author: 'Patricia Flores', rating: 5, comment: 'El color verde es precioso! Combina perfecto con mi decoración. La calidad del papel es excelente y se nota el trabajo artesanal.', date: '2026-02-10', verified: true, variant: '80x80cm' },
     { id: '2', author: 'Miguel Ángel Castro', rating: 5, comment: 'Impresionante. Es mi segunda compra de Plieggo y no decepciona. El efecto de luz y sombra es espectacular.', date: '2026-01-28', verified: true, variant: '50x50cm' },
     { id: '3', author: 'Laura Jiménez', rating: 5, comment: 'Me encanta cómo transforma el espacio. Es una pieza única que siempre genera conversación con las visitas.', date: '2026-01-15', verified: true, variant: '80x80cm' },
@@ -89,7 +91,6 @@ export const productReviews: Record<string, Review[]> = {
     { id: '14', author: 'Ernesto Vázquez', rating: 5, comment: 'Cada vez que veo el cuadro me alegra el día. Los pliegues y el color verde hacen algo muy especial.', date: '2025-09-15', verified: true, variant: '50x50cm' },
     { id: '15', author: 'Silvia Pedroza', rating: 5, comment: 'Lo recomendé a tres amigas y todas lo compraron. Es simplemente un cuadro excepcional.', date: '2025-09-05', verified: true, variant: '80x80cm' },
     { id: '16', author: 'Rafael Domínguez', rating: 5, comment: 'Arte artesanal que supera cualquier cosa comprada en tienda grande. Únicamente en Plieggo.', date: '2025-08-28', verified: true, variant: '50x50cm' },
-    { id: '17', author: 'Mónica Aguilar', rating: 5, comment: 'El verde salvia tiene una magia especial. Cambia con la luz del día. Una obra viva en tu pared.', date: '2025-08-22', verified: true, variant: '80x80cm' },
     { id: '18', author: 'Andrés Maldonado', rating: 4, comment: 'Muy buen cuadro. Llegó bien empaquetado. El verde es bonito aunque yo esperaba un tono más oscuro.', date: '2026-02-05', verified: true, variant: '50x50cm' },
     { id: '19', author: 'Teresa Olvera', rating: 5, comment: 'Me regalé este cuadro para mi cumpleaños y no me arrepiento. El verde salvia es absolutamente hermoso.', date: '2026-01-22', verified: true, variant: '80x80cm' },
     { id: '20', author: 'Salvador Reyes', rating: 5, comment: 'Pieza única que le da vida a cualquier espacio. El trabajo artesanal es de primer nivel. Muy contento.', date: '2025-12-22', verified: true, variant: '50x50cm' },
@@ -168,7 +169,7 @@ export const productReviews: Record<string, Review[]> = {
 
   // EDICIÓN LIMITADA — 9 reseñas, 4.8★
   'luna-negra': [
-    { id: '1', author: 'Camila Vargas', rating: 5, comment: 'Elegante y minimalista. El negro mate con los pliegues crea un efecto dramático espectacular.', date: '2026-02-10', verified: true, variant: 'Única' },
+    { id: '1', author: 'Camila Vargas', rating: 5, comment: 'Elegante y minimalista. El negro mate con los pliegues crea un efecto dramático espectacular.', date: '2026-02-10', verified: true, variant: 'Única', photoUrl: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779311693322-8vbqa3p7c55.webp' },
     { id: '2', author: 'Diego Mendoza', rating: 4, comment: 'Muy bonita. Perfecta para espacios modernos. La calidad del papel es excelente.', date: '2026-01-28', verified: true, variant: 'Única' },
     { id: '3', author: 'Valeria Ríos', rating: 5, comment: 'La luna negra es dramática y elegante. Los pliegues con el color negro crean algo verdaderamente único.', date: '2026-01-15', verified: true, variant: 'Única' },
     { id: '4', author: 'Rodrigo Castillo', rating: 5, comment: 'Arte de edición limitada que merece estar en cualquier colección. El negro mate es sofisticado.', date: '2025-12-28', verified: true, variant: 'Única' },
@@ -238,7 +239,7 @@ export const productReviews: Record<string, Review[]> = {
 
   // NUEVO — 2 reseñas, 5.0★
   'acorden-burdeos-intenso': [
-    { id: '1', author: 'Adriana Ríos', rating: 5, comment: 'El color burdeos es espectacular! Muy elegante y sofisticado. Una pieza que llama la atención sin ser exagerada.', date: '2026-02-10', verified: true, variant: '80x80cm' },
+    { id: '1', author: 'Adriana Ríos', rating: 5, comment: 'El color burdeos es espectacular! Muy elegante y sofisticado. Una pieza que llama la atención sin ser exagerada.', date: '2026-02-10', verified: true, variant: '80x80cm', photoUrl: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779311693322-4f7n3rqv0pj.webp' },
     { id: '2', author: 'Raúl Montoya', rating: 5, comment: 'Perfecto para mi despacho. El tono vino es profundo y elegante. Excelente trabajo artesanal.', date: '2026-01-28', verified: true, variant: '50x50cm' },
   ],
 

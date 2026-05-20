@@ -50,32 +50,45 @@ function formatDate(dateStr: string): string {
 
 function ReviewCard({ review }: { review: Review }) {
   return (
-    <div className="flex flex-col gap-4 p-5 rounded-xl border border-border/50 bg-muted/20 hover:bg-muted/35 transition-colors">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-sm font-medium leading-tight">{review.author}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">{formatDate(review.date)}</p>
+    <div className="flex flex-col rounded-xl border border-border/50 bg-muted/20 hover:bg-muted/35 transition-colors overflow-hidden">
+      {/* Foto del cliente — ocupa todo el ancho, buen tamaño */}
+      {review.photoUrl && (
+        <div className="w-full aspect-[4/3] overflow-hidden">
+          <img
+            src={review.photoUrl}
+            alt={`Foto de ${review.author}`}
+            className="w-full h-full object-cover"
+          />
         </div>
-        <StarRating rating={review.rating} size="sm" />
-      </div>
+      )}
 
-      {/* Comment */}
-      <p className="text-sm text-muted-foreground leading-relaxed flex-1 italic">
-        "{review.comment}"
-      </p>
-
-      {/* Footer */}
-      <div className="flex items-center justify-between pt-2 border-t border-border/40">
-        {review.verified && (
-          <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
-            <CheckCircle className="h-3.5 w-3.5 shrink-0" />
-            <span>Compra verificada</span>
+      <div className="flex flex-col gap-4 p-5">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-sm font-medium leading-tight">{review.author}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{formatDate(review.date)}</p>
           </div>
-        )}
-        {review.variant && (
-          <span className="text-xs text-muted-foreground ml-auto">{review.variant}</span>
-        )}
+          <StarRating rating={review.rating} size="sm" />
+        </div>
+
+        {/* Comment */}
+        <p className="text-sm text-muted-foreground leading-relaxed flex-1 italic">
+          "{review.comment}"
+        </p>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between pt-2 border-t border-border/40">
+          {review.verified && (
+            <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+              <CheckCircle className="h-3.5 w-3.5 shrink-0" />
+              <span>Compra verificada</span>
+            </div>
+          )}
+          {review.variant && (
+            <span className="text-xs text-muted-foreground ml-auto">{review.variant}</span>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -150,7 +163,13 @@ export function ProductReviews({ productSlug }: ProductReviewsProps) {
       })
     : []
 
-  const visibleReviews = showAll ? reviews : reviews.slice(0, 3)
+  // Ordenar: reviews con foto primero
+  const sortedReviews = [...reviews].sort((a, b) => {
+    if (a.photoUrl && !b.photoUrl) return -1
+    if (!a.photoUrl && b.photoUrl) return 1
+    return 0
+  })
+  const visibleReviews = showAll ? sortedReviews : sortedReviews.slice(0, 3)
 
   return (
     <section id="reviews" className="border-t border-border/60 pt-16 space-y-16">
