@@ -5,8 +5,10 @@ import { InspirationCarousel } from '@/components/InspirationCarousel'
 import { supabase, type Product } from '@/lib/supabase'
 import { STORE_ID } from '@/lib/config'
 
+type ProductWithCollection = Product & { collectionType?: 'acordeon' | 'prisma' }
+
 const CollectionAcordeon = () => {
-  const [products, setProducts] = useState<Product[]>([])
+  const [products, setProducts] = useState<ProductWithCollection[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -16,25 +18,28 @@ const CollectionAcordeon = () => {
 
   const fetchCollectionProducts = async () => {
     try {
-      // Get collection ID
-      const { data: collection } = await supabase
+      // Get both Acordeón and Acordeón Prisma collection IDs
+      const { data: collections } = await supabase
         .from('collections')
-        .select('id')
-        .eq('handle', 'coleccin-acorden')
+        .select('id, handle')
         .eq('store_id', STORE_ID)
-        .single()
+        .in('handle', ['coleccin-acorden', 'acordeon-prisma'])
 
-      if (!collection) return
+      const acordeonId = collections?.find(c => c.handle === 'coleccin-acorden')?.id
+      const prismaId = collections?.find(c => c.handle === 'acordeon-prisma')?.id
 
-      // Get product IDs from collection
+      const collectionIds = [acordeonId, prismaId].filter(Boolean) as string[]
+      if (collectionIds.length === 0) return
+
+      // Get all product IDs from both collections
       const { data: collectionProducts } = await supabase
         .from('collection_products')
-        .select('product_id')
-        .eq('collection_id', collection.id)
+        .select('product_id, collection_id')
+        .in('collection_id', collectionIds)
 
       if (!collectionProducts || collectionProducts.length === 0) return
 
-      const productIds = collectionProducts.map(cp => cp.product_id)
+      const productIds = [...new Set(collectionProducts.map(cp => cp.product_id))]
 
       // Get products
       const { data } = await supabase
@@ -43,7 +48,26 @@ const CollectionAcordeon = () => {
         .eq('status', 'active')
         .in('id', productIds)
 
-      setProducts(data || [])
+      if (!data) return
+
+      // Tag each product with its collection type
+      const productsWithCollection: ProductWithCollection[] = data.map(product => {
+        const productCollections = collectionProducts
+          .filter(cp => cp.product_id === product.id)
+          .map(cp => cp.collection_id)
+        const isAcordeon = productCollections.includes(acordeonId)
+        const isPrisma = productCollections.includes(prismaId)
+        return {
+          ...product,
+          collectionType: isAcordeon ? 'acordeon' as const : isPrisma ? 'prisma' as const : undefined
+        }
+      })
+
+      // Sort: Acordeón → Prisma
+      const ORDER: Record<string, number> = { acordeon: 1, prisma: 2 }
+      productsWithCollection.sort((a, b) => (ORDER[a.collectionType ?? ''] ?? 3) - (ORDER[b.collectionType ?? ''] ?? 3))
+
+      setProducts(productsWithCollection)
     } catch (error) {
       console.error('Error fetching products:', error)
     } finally {
@@ -79,7 +103,7 @@ const CollectionAcordeon = () => {
           ) : products.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {products.map((product) => (
-                <ProductCard key={product.id} product={product} aspectRatio="rectangle" />
+                <ProductCard key={product.id} product={product} aspectRatio="rectangle" hoverImageIndex={2} />
               ))}
             </div>
           ) : (
