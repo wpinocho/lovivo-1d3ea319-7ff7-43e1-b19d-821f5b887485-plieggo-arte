@@ -14,7 +14,88 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-**COMPLETADO**: Fix galería mobile — grid 320×250%, cards 160px, 3 items/fila, drag ajustado
+**FIX PENDIENTE**: Galería mobile — cuadros encimados por bug matemático en `generateChaosPositions`
+
+### El bug
+En `src/components/InteractiveGalleryModal.tsx`, línea 253:
+```js
+const position = chaosPositions[index % chaosPositions.length]
+```
+
+`generateChaosPositions` en mobile genera máximo `5 filas × 3 items/fila = 15 posiciones`.
+Si hay más de 15 items (o si `rawItemsPerRow` resulta en menos de 3), el `% chaosPositions.length`
+hace que items extras reutilicen las mismas coordenadas → encimados.
+
+### Fix en `generateChaosPositions` (solo mobile path):
+
+```typescript
+const generateChaosPositions = (itemCount: number, mobile = false) => {
+  const positions: { top: number; left: number }[] = []
+  
+  if (mobile) {
+    // Mobile: filas dinámicas según itemCount, máx 3 por fila
+    const itemsPerRow = 3
+    const rows = Math.ceil(itemCount / itemsPerRow)
+    
+    for (let row = 0; row < rows; row++) {
+      const remainingItems = itemCount - positions.length
+      const itemsInThisRow = Math.min(itemsPerRow, remainingItems)
+      
+      // Espaciado dinámico: siempre de 5% a 85% del grid
+      const topBase = rows <= 1 ? 45 : 5 + row * (80 / (rows - 1))
+      
+      for (let col = 0; col < itemsInThisRow; col++) {
+        const leftBase = (col / itemsPerRow) * 84 + 8
+        positions.push({
+          top: topBase + (Math.random() * 4 - 2),
+          left: leftBase + (Math.random() * 3 - 1.5)
+        })
+      }
+    }
+  } else {
+    // Desktop: lógica original sin cambios
+    const rows = 5
+    const itemsPerRow = Math.ceil(itemCount / rows)
+    
+    for (let row = 0; row < rows; row++) {
+      const remainingItems = itemCount - positions.length
+      const itemsInThisRow = Math.min(itemsPerRow, remainingItems)
+      const topBase = 5 + (row * 20)
+      
+      for (let col = 0; col < itemsInThisRow; col++) {
+        const leftBase = (col / itemsInThisRow) * 84 + 8
+        positions.push({
+          top: topBase + (Math.random() * 4 - 2),
+          left: leftBase + (Math.random() * 3 - 1.5)
+        })
+      }
+    }
+  }
+  
+  return positions
+}
+```
+
+### Fix en el render (línea 253):
+Cambiar:
+```js
+const position = chaosPositions[index % chaosPositions.length]
+```
+Por:
+```js
+const position = chaosPositions[index] ?? chaosPositions[index % chaosPositions.length]
+```
+(el fallback `??` es seguridad extra, pero con el fix de arriba nunca debería usarse)
+
+### Archivos a modificar
+- `src/components/InteractiveGalleryModal.tsx` — solo la función `generateChaosPositions` y la línea 253 del render
+
+### Notas adicionales
+- Desktop: NO tocar nada del desktop path. Ya está perfecto.
+- La grid mobile sigue siendo `w-[320%] h-[250%]`
+- Cards mobile siguen siendo `160px`
+- Drag constraints sin cambios: top -150%, left -220%
+- El espaciado dinámico (5% a 85%) garantiza que siempre caben en el grid de 250% con el constraint actual de -150%
 
 ## 4. Recent Changes
 - **2026-05-20 Fix galería mobile COMPLETO** — Grid 320×250% (vs 280×380% desktop), cards 160px, máx 3 por fila, drag top:-150% left:-220% — InteractiveGalleryModal.tsx
