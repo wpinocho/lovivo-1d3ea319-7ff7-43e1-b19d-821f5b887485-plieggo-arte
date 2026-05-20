@@ -52,7 +52,7 @@ function ReviewCard({ review }: { review: Review }) {
     <div className="flex flex-col rounded-xl border border-border/50 bg-muted/20 hover:bg-muted/35 transition-colors overflow-hidden">
       {/* Foto del cliente — ocupa todo el ancho, buen tamaño */}
       {review.photoUrl && (
-        <div className="w-full aspect-[3/4] overflow-hidden">
+        <div className="w-full aspect-[4/5] overflow-hidden">
           <img
             src={review.photoUrl}
             alt={`Foto de ${review.author}`}
@@ -99,7 +99,7 @@ function GeneralReviewCard({ review }: { review: GeneralReview }) {
   return (
     <div className="flex flex-col rounded-xl border border-border/40 bg-background hover:bg-muted/20 transition-colors overflow-hidden min-w-[220px] max-w-[280px] shrink-0">
       {/* Foto full-width */}
-      <div className="w-full aspect-[3/4] overflow-hidden">
+      <div className="w-full aspect-[4/5] overflow-hidden">
         <img
           src={review.photoUrl!}
           alt={`${review.author} — ${review.product}`}

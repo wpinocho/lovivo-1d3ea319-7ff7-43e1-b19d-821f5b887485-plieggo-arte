@@ -12,21 +12,13 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Iconos: SVG line icons en color terracota (#C16648) — NO emojis
 - CTAs: NUNCA usar glow/sombra naranja gigante. Botones limpios, elegantes.
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
+- Review photos: `aspect-[4/5]` (ReviewCard y GeneralReviewCard) — menos alto que 3/4
 
 ## 3. Active Plan
-**COMPLETADO**: Limpieza total de referencias a `acorden-rosa-morado` en código.
-
-### Resumen de la corrección
-- El producto "Acordón Verde Salvia" en DB tenía slug `acorden-rosa-morado` (typo). El usuario lo corrigió a `acorden-verde-salvia`.
-- En código se añadieron **alias de slug** en los 3 archivos de data para que si la DB devuelve el slug viejo, siga funcionando:
-  - `product-reviews-content.ts` → alias + función normalizada
-  - `product-reviews.ts` → alias + función normalizada  
-  - `product-inspiration.ts` → alias + función normalizada
-- Se eliminaron las entradas duplicadas bajo `acorden-rosa-morado` (reviews y datos de inspiración de rosa-morado que eran incorrectos para Verde Salvia)
-- `g4` en `plieggo-general-reviews.ts` corregido: `productSlug` → `acorden-verde-salvia`
-- Las 20 reseñas reales de Verde Salvia ya estaban bajo `acorden-verde-salvia` en `product-reviews-content.ts` ✓
+**COMPLETADO**: Reducción de altura de imágenes en review cards (3/4 → 4/5).
 
 ## 4. Recent Changes
+- **2026-05-20 Review card photos aspect ratio** — `aspect-[3/4]` → `aspect-[4/5]` en ReviewCard y GeneralReviewCard (ProductReviews.tsx)
 - **2026-05-20 Limpieza completa acorden-rosa-morado** — aliases en los 3 archivos data, g4 productSlug corregido a `acorden-verde-salvia`, entradas de rosa-morado eliminadas.
 - **2026-05-20 Fix slug g4 Verde Salvia en general reviews** — `acorden-verde-salvia` para exclusión correcta en PDP.
 - **2026-05-20 Sección "Más experiencias" — cuadro actual excluido** — `productSlug` añadido a `GeneralReview`, lógica de exclusión + priorización de colección + solo con foto implementada en `ProductReviews.tsx`.
@@ -34,7 +26,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-05-20 Sección "Más experiencias" con fotos + colección** — filtro a 5 reviews con foto, priorizando misma colección del producto actual.
 - **2026-05-20 Fotos review Beige Sutil + Luna Llena** — `photoUrl` añadido a primera review de `acorden-beige-sutil` y `luna-llena`.
 - **2026-05-20 Reviews acordeon-prisma-beige-blanco** — 4 reseñas creadas. Primera con foto.
-- **2026-05-20 Foto review acorden-rosa-morado (Mariana León)** — ya obsoleta (producto eliminado).
 - **2026-05-20 Reviews PDP con foto** — `photoUrl` añadido a interfaz `Review`. `ReviewCard` con foto full-width aspect-[3/4].
 - **2026-05-20 Fix galería mobile solapamiento** — `rows` dinámico, `topBase` distribuido — InteractiveGalleryModal.tsx
 
