@@ -14,23 +14,24 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-**COMPLETADO — Galería mobile: spacing y scroll discovery**
-
-Grid mobile tiene ahora `gap-x-3 gap-y-10`, padding `pt-20 pb-32`, y stagger vertical leve por columna (col 2: +2rem, col 3: +0.75rem) para dar sensación de descubrimiento al scrollear.
+**COMPLETADO**: Fix galería mobile — grid 320×250%, cards 160px, 3 items/fila, drag ajustado
 
 ## 4. Recent Changes
-- **2026-05-20 Galería mobile: gap-y-10 + stagger columnas** — `gap-3` → `gap-x-3 gap-y-10`, padding `pt-20 pb-32`, stagger: col 2 +2rem, col 3 +0.75rem — InteractiveGalleryModal.tsx
-- **2026-05-20 Galería mobile: CSS grid 3 cols COMPLETO** — Mobile usa grid 3 columnas, gap-3, scroll natural. Botón X y barra inferior son fixed. Desktop sin cambios. InteractiveGalleryModal.tsx
-- **2026-05-20 Plan: galería mobile → CSS grid 3 cols (pendiente Craft Mode)** — reemplazar chaos layout por grid estructurado; desktop sin cambios
-- **2026-05-20 Fix galería mobile: distribución por columnas (COMPLETO)** — `generateChaosPositions` en mobile ahora usa 3 columnas independientes con stagger vertical. Cada columna reparte sus items de 3% a 88% del grid con espaciado garantizado (`topSpan/n`). Jitter acotado a `min(spacing*0.25, 3%)`. Stagger por columna: col1 +40%, col2 +20% del spacing. Fix también: eliminado `chaosPositions[index % chaosPositions.length]` → guard `if (!position) return null` — InteractiveGalleryModal.tsx
-- **2026-05-20 Fix galería mobile: distribución columnas** — PENDIENTE Craft Mode
-- **2026-05-20 Fix galería mobile: encimes** — `generateChaosPositions` ahora genera filas dinámicas para mobile (Math.ceil(itemCount/3) filas, no 5 fijas). Espaciado 5%→85% adaptativo. Se eliminó el `% chaosPositions.length` en línea 253 → cada item tiene su propia posición única — InteractiveGalleryModal.tsx
 - **2026-05-20 Fix galería mobile COMPLETO** — Grid 320×250% (vs 280×380% desktop), cards 160px, máx 3 por fila, drag top:-150% left:-220% — InteractiveGalleryModal.tsx
 - **2026-05-20 Fix galería: grid 280×380%, filas re-espaciadas, drag/mouse ampliados** — InteractiveGalleryModal.tsx
 - **2026-05-20 Galería: degradado + cuadros 2x** — bg-transparent en Galeria.tsx e InteractiveGalleryModal para mostrar radial-gradient del body. Card width 120→240px desktop, 100→200px mobile.
 - **2026-05-20 Galería fullscreen + fix hero slide 3** — Galeria.tsx sin template, X → /, clic en cuadro → PDP real, "Seguir comprando" regresa a /galeria, fix CTA "Descubre regalos" → /galeria
 - **2026-05-20 Galería como ruta /galeria** — Nueva página standalone con header/footer, ruta en App.tsx, link en menú desktop+mobile, botón Index → Link a /galeria. Fix: solo 1ª imagen por variante en galería.
 - **2026-05-20 Hero slide 2 → /all-products** — Slide 2 del hero carousel ahora usa imagen HERO_IMAGE de AllProducts, copy "Toda la colección / Encuentra tu pieza perfecta", CTA → /all-products
+- **2026-05-20 Hero slide 1 + TopSellers hero** — Nueva imagen lifestyle (7 cuadros en pared cálida) reemplaza slide 1 del hero carousel en Index. Copy actualizado a "Arte hecho a mano que transforma tu espacio" + CTA → /top-sellers. TopSellers HERO_IMAGE y EDITORIAL_IMAGE también actualizadas.
+- **2026-05-20 Galería de ambientes actualizada** — InspirationCarousel ahora tiene 6 imágenes
+- **2026-05-20 ProductCard botón mobile oculto** — Botón "Agregar al carrito" en hover solo visible en desktop (md:).
+- **2026-05-20 Páginas colección editorial COMPLETO** — AllProducts, CollectionAcordeon, CollectionEspacio reescritas con esquema editorial igual a TopSellers
+- **2026-05-20 Product card aspect-ratio** — Cambiado a `aspect-[24/43]` en ProductCardUI.tsx
+- **2026-05-20 Collection cards rediseño** — Nuevo orden, nuevas imágenes editoriales, aspecto `aspect-[3/4]`
+- **2026-05-20 hoverImageIndex global** — Espacio → imagen 2, todo lo demás → imagen 3
+- **2026-05-20 Fix CollectionAcordeon handle** — Corregido handle typo en DB
+- **2026-05-19 Hero editorial redesign COMPLETO** — Layout bottom-left, headline sm/font-semibold, CTA limpio
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
