@@ -62,7 +62,7 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [] }
                 <>
                   {/* Imagen principal - solo se oculta si hay segunda imagen */}
                   {(() => {
-                    const hasSecondImage = !logic.matchingVariant?.image && logic.product.images && logic.product.images.length > 1
+                    const hasSecondImage = !logic.matchingVariant?.image && logic.product.images && logic.product.images.length > 2
                     return (
                       <img
                         src={(logic.matchingVariant?.image as any) || logic.product.images![0]}
@@ -73,14 +73,14 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [] }
                       />
                     )
                   })()}
-                  {/* Segunda imagen al hover (solo si existe) */}
-                  {!logic.matchingVariant?.image && logic.product.images && logic.product.images.length > 1 && (
+                  {/* Tercera imagen al hover (solo si existe) */}
+                  {!logic.matchingVariant?.image && logic.product.images && logic.product.images.length > 2 && (
                     <img
-                      src={logic.product.images[1]}
+                      src={logic.product.images[2]}
                       alt={`${logic.product.title} - vista alternativa`}
                       loading="lazy"
                       decoding="async"
-                      className="absolute inset-0 w-full h-full object-contain opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:scale-105"
+                      className="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-500 group-hover:opacity-100"
                     />
                   )}
                 </>

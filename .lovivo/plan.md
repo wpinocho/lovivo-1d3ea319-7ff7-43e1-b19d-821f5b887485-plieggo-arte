@@ -14,9 +14,11 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-**COMPLETADO** — Orden de productos por colección en 3 páginas
+**COMPLETADO** — Fix handle Acordeón en CollectionAcordeon.tsx + hover imagen 3 en ProductCardUI
 
 ## 4. Recent Changes
+- **2026-05-20 Fix CollectionAcordeon handle** — Corregido handle `coleccion-acordeon` → `coleccin-acorden` para que los productos aparezcan en /coleccion-acordeon
+- **2026-05-20 ProductCard hover imagen 3** — Hover muestra images[2] (3ª imagen) con object-cover para llenar el alto completo. Condición actualizada a length > 2.
 - **2026-05-20 Orden por colección COMPLETO** — AllProducts, TopSellers e IndexUI ordenan Espacio→Acordeón→Prisma. Fix bug handle `coleccin-acorden` (typo real en DB). Prisma usa aspectRatio='rectangle'.
 - **2026-05-20 PLAN: Ordenar productos por colección** — Espacio→Acordeón→Prisma en AllProducts, TopSellers, IndexUI. Fix handle typo `coleccin-acorden`
 - **2026-05-20 Galería por variante** — `getDisplayImages()` en HeadlessProduct.tsx ahora devuelve SOLO las imágenes de la variante activa (antes mezclaba variante + todas). Fallback seguro a imágenes del producto si la variante no tiene fotos.
@@ -30,8 +32,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-05-19 ProductCard cleanup** — Badge compacto móvil, quitadas reseñas, precio más chico, CTA "Ver más" discreto
 - **2026-05-19 Homepage Redesign COMPLETO** — 6 cambios CRO en IndexUI.tsx, HeroCarousel.tsx, InspirationCarousel.tsx
 - **2026-05-19 AUDIT Homepage** — 6 issues identificados, plan de rediseño completo
-- **2026-05-19 CRO Round 6** — SizeGuide proporcional, doble sección reviews (específicas + Plieggo general), Arte vivo en craftsmanship
-- **2026-05-19 CRO Round 4** — PDP móvil UX: "Seguir comprando" oculto en móvil, qty pill, CTAs reposicionados, trust strip debajo de CTAs
 
 ## 5. Image Inventory
 - Hero images: 2 imágenes Supabase storage (acordeon, espacio) + video
@@ -43,7 +43,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Fotos reales de clientes: PENDIENTE — llenar `photoUrl` en `src/data/plieggo-general-reviews.ts`
 
 ## 6. Known Issues
-- Handle de Colección Acordeón en DB tiene typo: `coleccin-acorden` (no `coleccion-acordeon`) — YA corregido en código
+- Handle de Colección Acordeón en DB tiene typo: `coleccin-acorden` (no `coleccion-acordeon`) — corregido en CollectionAcordeon.tsx y en ordenamiento
 - Video play error recurrente en hero (play/pause race condition) — no afecta funcionalidad
 - Luna Beige tiene solo 1 imagen en galería — necesita fotos de detalle y lifestyle
 - `plieggo-general-reviews.ts` tiene `photoUrl` vacío — avatares con iniciales hasta que se suban fotos reales

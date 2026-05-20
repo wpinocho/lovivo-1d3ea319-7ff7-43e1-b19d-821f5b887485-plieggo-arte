@@ -20,7 +20,7 @@ const CollectionAcordeon = () => {
       const { data: collection } = await supabase
         .from('collections')
         .select('id')
-        .eq('handle', 'coleccion-acordeon')
+        .eq('handle', 'coleccin-acorden')
         .eq('store_id', STORE_ID)
         .single()
 
