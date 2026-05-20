@@ -222,13 +222,7 @@ export const productReviews: Record<string, Review[]> = {
     { id: '5', author: 'Cynthia Morales', rating: 5, comment: 'Pieza llamativa que se convirtió en el punto focal de mi sala. El morado y blanco son perfectos.', date: '2025-12-18', verified: true, variant: '50x50cm' },
   ],
 
-  // FEATURED — 4 reseñas, 4.6★
-  'acorden-rosa-morado': [
-    { id: '1', author: 'Mariana León', rating: 5, comment: 'La combinación rosa-morado es preciosa! Muy femenino y elegante. Me encanta.', date: '2026-02-10', verified: true, variant: '50x50cm', photoUrl: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779315294467-25x3snw8x7r.webp' },
-    { id: '2', author: 'Daniel Figueroa', rating: 4, comment: 'Comprado como regalo y fue un éxito. Colores bonitos y buen trabajo artesanal.', date: '2026-01-28', verified: true, variant: '50x50cm' },
-    { id: '3', author: 'Valeria Hernández', rating: 5, comment: 'El rosa y morado juntos crean algo mágico. Los pliegues realzan los colores perfectamente.', date: '2026-01-15', verified: true, variant: '80x80cm' },
-    { id: '4', author: 'Guillermo Sánchez', rating: 5, comment: 'Hermosa pieza. La combinación de colores es única y el trabajo artesanal es excelente.', date: '2025-12-28', verified: true, variant: '50x50cm' },
-  ],
+
 
   // NUEVO — 3 reseñas, 4.9★
   'acorden-blanco-puro': [
@@ -298,14 +292,21 @@ export const productReviews: Record<string, Review[]> = {
 /**
  * Obtiene las reviews de un producto específico
  */
+// Mapa de slugs equivalentes (slug DB → slug canónico en data)
+const SLUG_ALIASES: Record<string, string> = {
+  'acorden-rosa-morado': 'acorden-verde-salvia',
+}
+
 export const getProductReviewsContent = (productSlug: string): Review[] => {
-  return productReviews[productSlug] || []
+  const slug = SLUG_ALIASES[productSlug] ?? productSlug
+  return productReviews[slug] || []
 }
 
 /**
  * Verifica si un producto tiene contenido de reviews
  */
 export const hasReviewsContent = (productSlug: string): boolean => {
-  const reviews = productReviews[productSlug]
+  const slug = SLUG_ALIASES[productSlug] ?? productSlug
+  const reviews = productReviews[slug]
   return reviews !== undefined && reviews.length > 0
 }

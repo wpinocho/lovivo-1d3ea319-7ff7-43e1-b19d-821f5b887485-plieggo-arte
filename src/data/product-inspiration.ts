@@ -132,13 +132,7 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
     }
   ],
 
-  'acorden-rosa-morado': [
-    {
-      src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acorden-rosa-morado.webp',
-      alt: 'Cuadro Acordeón Rosa Morado con pliegues rosa sobre fondo morado enmarcado en madera, repisas flotantes con plantas verdes, fotos familiares, libros, macramé, mesa rústica de madera con lámpara de ratán, flores secas, taza y manta beige en rincón de trabajo bohemio',
-      context: 'Oficina / Rincón de trabajo'
-    }
-  ],
+
 
   'acorden-burdeos-intenso': [
     {
@@ -163,14 +157,21 @@ export const productInspirationImages: Record<string, InspirationImage[]> = {
 /**
  * Obtiene las imágenes de inspiración de un producto
  */
+// Slugs de DB que apuntan al dato canónico correcto
+const INSPIRATION_SLUG_ALIASES: Record<string, string> = {
+  'acorden-rosa-morado': 'acorden-verde-salvia',
+}
+
 export const getProductInspiration = (productSlug: string): InspirationImage[] => {
-  return productInspirationImages[productSlug] || []
+  const slug = INSPIRATION_SLUG_ALIASES[productSlug] ?? productSlug
+  return productInspirationImages[slug] || []
 }
 
 /**
  * Verifica si un producto tiene imágenes de inspiración
  */
 export const hasProductInspiration = (productSlug: string): boolean => {
-  const images = productInspirationImages[productSlug]
+  const slug = INSPIRATION_SLUG_ALIASES[productSlug] ?? productSlug
+  const images = productInspirationImages[slug]
   return images !== undefined && images.length > 0
 }

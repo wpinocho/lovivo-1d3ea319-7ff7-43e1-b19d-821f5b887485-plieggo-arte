@@ -73,10 +73,6 @@ export const productReviews: Record<string, ProductReview> = {
     rating: 4.8,
     reviewCount: 5
   },
-  'acorden-rosa-morado': {
-    rating: 4.6,
-    reviewCount: 4
-  },
   
   // PRODUCTOS NUEVOS (0-3 reseñas, 4.7-5.0★)
   'acorden-blanco-puro': {
@@ -120,14 +116,20 @@ export const productReviews: Record<string, ProductReview> = {
 /**
  * Obtiene el rating de un producto por su slug
  */
+// Slugs de DB que apuntan al dato canónico correcto
+const REVIEW_SLUG_ALIASES: Record<string, string> = {
+  'acorden-rosa-morado': 'acorden-verde-salvia',
+}
+
 export const getProductReview = (slug: string): ProductReview => {
-  return productReviews[slug] || { rating: 0, reviewCount: 0 }
+  const normalized = REVIEW_SLUG_ALIASES[slug] ?? slug
+  return productReviews[normalized] || { rating: 0, reviewCount: 0 }
 }
 
 /**
  * Verifica si un producto tiene reseñas
  */
 export const hasReviews = (slug: string): boolean => {
-  const review = getProductReview(slug)
+  const review = getProductReview(slug) // ya normaliza internamente
   return review.reviewCount > 0
 }

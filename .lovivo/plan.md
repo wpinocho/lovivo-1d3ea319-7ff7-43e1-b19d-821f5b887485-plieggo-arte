@@ -14,27 +14,29 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-**COMPLETADO**: Fix slug g4 (Verde Salvia) en `plieggo-general-reviews.ts`.
+**COMPLETADO**: Limpieza total de referencias a `acorden-rosa-morado` en código.
 
-### Estado
-- `productSlug` de g4 (Mónica A.) corregido a `"acorden-rosa-morado"` (slug real en DB)
-- Ahora la sección "Más experiencias" excluye correctamente el Verde Salvia cuando se está en esa PDP
+### Resumen de la corrección
+- El producto "Acordón Verde Salvia" en DB tenía slug `acorden-rosa-morado` (typo). El usuario lo corrigió a `acorden-verde-salvia`.
+- En código se añadieron **alias de slug** en los 3 archivos de data para que si la DB devuelve el slug viejo, siga funcionando:
+  - `product-reviews-content.ts` → alias + función normalizada
+  - `product-reviews.ts` → alias + función normalizada  
+  - `product-inspiration.ts` → alias + función normalizada
+- Se eliminaron las entradas duplicadas bajo `acorden-rosa-morado` (reviews y datos de inspiración de rosa-morado que eran incorrectos para Verde Salvia)
+- `g4` en `plieggo-general-reviews.ts` corregido: `productSlug` → `acorden-verde-salvia`
+- Las 20 reseñas reales de Verde Salvia ya estaban bajo `acorden-verde-salvia` en `product-reviews-content.ts` ✓
 
 ## 4. Recent Changes
-- **2026-05-20 Fix slug g4 Verde Salvia en general reviews** — `acorden-verde-salvia` → `acorden-rosa-morado` para que el filtro de exclusión funcione correctamente en la PDP.
+- **2026-05-20 Limpieza completa acorden-rosa-morado** — aliases en los 3 archivos data, g4 productSlug corregido a `acorden-verde-salvia`, entradas de rosa-morado eliminadas.
+- **2026-05-20 Fix slug g4 Verde Salvia en general reviews** — `acorden-verde-salvia` para exclusión correcta en PDP.
 - **2026-05-20 Sección "Más experiencias" — cuadro actual excluido** — `productSlug` añadido a `GeneralReview`, lógica de exclusión + priorización de colección + solo con foto implementada en `ProductReviews.tsx`.
-- **2026-05-20 GeneralReviewCard rediseñado** — foto full-width aspect-[3/4], sin avatar circular. Todas las cards en esta sección tienen foto.
+- **2026-05-20 GeneralReviewCard rediseñado** — foto full-width aspect-[3/4], sin avatar circular.
 - **2026-05-20 Sección "Más experiencias" con fotos + colección** — filtro a 5 reviews con foto, priorizando misma colección del producto actual.
-- **2026-05-20 Fotos review Beige Sutil + Luna Llena** — `photoUrl` añadido a primera review de `acorden-beige-sutil` (María González) y `luna-llena` (Alejandra Romero).
-- **2026-05-20 Reviews acordeon-prisma-beige-blanco** — 4 reseñas creadas en `product-reviews-content.ts`. Primera review (Lucía Fernández) con foto.
-- **2026-05-20 Fix slug acordeon-prisma-azul-coral** — corregido en `product-reviews-content.ts` y `product-reviews.ts`.
-- **2026-05-20 Fix slug Prisma Onyx Opal** — `prisma-onyx-opal` → `acorden-prisma-onyx-opal`.
-- **2026-05-20 Foto review acorden-rosa-morado (Mariana León)** — `photoUrl` añadido.
-- **2026-05-20 Fotos reviews: Verde Salvia, Luna Azul, Blanco Puro + nuevas entradas Prisma Onyx Opal, Prisma Azul Coral** — `product-reviews-content.ts` actualizado.
-- **2026-05-20 Reviews PDP con foto** — `photoUrl` añadido a interfaz `Review`. `ReviewCard` con foto full-width aspect-[3/4]. `sortedReviews` ordena fotos primero.
-- **2026-05-20 Fotos de reviews reales** — `photoUrl` añadido en g4 (Verde Salvia) + 4 nuevas reseñas g9-g12 en `plieggo-general-reviews.ts`
+- **2026-05-20 Fotos review Beige Sutil + Luna Llena** — `photoUrl` añadido a primera review de `acorden-beige-sutil` y `luna-llena`.
+- **2026-05-20 Reviews acordeon-prisma-beige-blanco** — 4 reseñas creadas. Primera con foto.
+- **2026-05-20 Foto review acorden-rosa-morado (Mariana León)** — ya obsoleta (producto eliminado).
+- **2026-05-20 Reviews PDP con foto** — `photoUrl` añadido a interfaz `Review`. `ReviewCard` con foto full-width aspect-[3/4].
 - **2026-05-20 Fix galería mobile solapamiento** — `rows` dinámico, `topBase` distribuido — InteractiveGalleryModal.tsx
-- **2026-05-20 Fix galería mobile COMPLETO** — Grid 320×250%, cards 160px, máx 3 por fila — InteractiveGalleryModal.tsx
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
@@ -42,19 +44,18 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero slide 3: video hero-paper-folding.mp4 (CTA → /galeria)
 - TopSellers HERO_IMAGE + EDITORIAL_IMAGE: misma imagen que hero slide 1
 - Logo: `/public/logo.svg`
-- **Review photos generales (plieggo-general-reviews.ts)** — solo 5 con foto (g4, g9, g10, g11, g12):
-  - g4 Mónica A. (Verde Salvia / acordeon): `...1779311693322-9f4ruvw5mpq.webp`
-  - g9 Valentina S. (Prisma Onyx Opal / acordeon): `...1779311693322-f14snp6bxfa.webp`
-  - g10 Sebastián M. (Prisma Azul Coral / acordeon): `...1779311693322-kcwn5zoehb.webp`
-  - g11 Daniela R. (Burdeos Intenso / acordeon): `...1779311693322-4f7n3rqv0pj.webp`
-  - g12 Andrés V. (Luna Negra / luna): `...1779311693322-8vbqa3p7c55.webp`
+- **Review photos generales (plieggo-general-reviews.ts)** — 5 con foto (g4, g9, g10, g11, g12):
+  - g4 Mónica A. (Verde Salvia): `...1779311693322-9f4ruvw5mpq.webp`
+  - g9 Valentina S. (Prisma Onyx Opal): `...1779311693322-f14snp6bxfa.webp`
+  - g10 Sebastián M. (Prisma Azul Coral): `...1779311693322-kcwn5zoehb.webp`
+  - g11 Daniela R. (Burdeos Intenso): `...1779311693322-4f7n3rqv0pj.webp`
+  - g12 Andrés V. (Luna Negra): `...1779311693322-8vbqa3p7c55.webp`
 
 ## 6. Known Issues
 - Handle de Colección Acordeón en DB tiene typo: `coleccin-acorden` — corregido en código
 - Video play error recurrente en hero (play/pause race condition) — no afecta funcionalidad
 - Luna Beige tiene solo 1 imagen en galería — necesita fotos de detalle y lifestyle
 - `plieggo-general-reviews.ts` tiene `photoUrl` vacío en g1, g2, g3, g5, g6, g7, g8 — pendiente
-- **DB slug mismatch**: Producto activo titulado "Acordón Verde Salvia" tiene slug `acorden-rosa-morado` en DB — `productSlug` de g4 actualizado para coincidir
 - Slugs en code sin producto activo en DB: `acorden-terracota-vibrante`, `acorden-crema-natural`, `acorden-morado-lavanda`, `acorden-morado-elegante`, `estrellas`
 - En PDPs de luna: solo 1 review con foto es de luna (g12), se rellena con 4 de acordeón — aceptable por ahora
 
