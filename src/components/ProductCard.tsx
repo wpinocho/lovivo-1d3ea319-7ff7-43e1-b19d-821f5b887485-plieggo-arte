@@ -11,10 +11,11 @@ import { usePriceRules } from "@/hooks/usePriceRules"
 interface ProductCardProps {
   product: Product
   aspectRatio?: 'square' | 'rectangle' | 'auto'
+  hoverImageIndex?: number
 }
 
-export const ProductCard = ({ product, aspectRatio = 'auto' }: ProductCardProps) => {
+export const ProductCard = ({ product, aspectRatio = 'auto', hoverImageIndex }: ProductCardProps) => {
   const { getRulesForProduct } = usePriceRules()
   const priceRules = getRulesForProduct(product.id)
-  return <ProductCardUI product={product} aspectRatio={aspectRatio} priceRules={priceRules} />
+  return <ProductCardUI product={product} aspectRatio={aspectRatio} priceRules={priceRules} hoverImageIndex={hoverImageIndex} />
 }

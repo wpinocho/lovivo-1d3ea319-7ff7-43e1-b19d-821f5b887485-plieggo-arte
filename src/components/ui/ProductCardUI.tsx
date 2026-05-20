@@ -25,9 +25,10 @@ interface ProductCardUIProps {
   product: Product
   aspectRatio?: 'square' | 'rectangle' | 'auto'
   priceRules?: PriceRule[]
+  hoverImageIndex?: number
 }
 
-export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [] }: ProductCardUIProps) => {
+export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [], hoverImageIndex = 2 }: ProductCardUIProps) => {
   const navigate = useNavigate()
   const badge = getBadgeForProduct(product)
   
@@ -62,7 +63,7 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [] }
                 <>
                   {/* Imagen principal - solo se oculta si hay segunda imagen */}
                   {(() => {
-                    const hasSecondImage = !logic.matchingVariant?.image && logic.product.images && logic.product.images.length > 2
+                    const hasSecondImage = !logic.matchingVariant?.image && logic.product.images && logic.product.images.length > hoverImageIndex
                     return (
                       <img
                         src={(logic.matchingVariant?.image as any) || logic.product.images![0]}
@@ -74,9 +75,9 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [] }
                     )
                   })()}
                   {/* Tercera imagen al hover (solo si existe) */}
-                  {!logic.matchingVariant?.image && logic.product.images && logic.product.images.length > 2 && (
+                  {!logic.matchingVariant?.image && logic.product.images && logic.product.images.length > hoverImageIndex && (
                     <img
-                      src={logic.product.images[2]}
+                      src={logic.product.images[hoverImageIndex]}
                       alt={`${logic.product.title} - vista alternativa`}
                       loading="lazy"
                       decoding="async"

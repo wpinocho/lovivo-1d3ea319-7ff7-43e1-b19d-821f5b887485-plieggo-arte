@@ -14,9 +14,10 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-**COMPLETADO** — Fix handle Acordeón en CollectionAcordeon.tsx + hover imagen 3 en ProductCardUI
+**COMPLETADO** — Hover image por colección: Espacio→imagen 2, todo lo demás→imagen 3
 
 ## 4. Recent Changes
+- **2026-05-20 hoverImageIndex prop** — ProductCardUI/ProductCard aceptan `hoverImageIndex`. CollectionEspacio pasa `1` (imagen 2); default `2` (imagen 3) en todo lo demás.
 - **2026-05-20 Fix CollectionAcordeon handle** — Corregido handle `coleccion-acordeon` → `coleccin-acorden` para que los productos aparezcan en /coleccion-acordeon
 - **2026-05-20 ProductCard hover imagen 3** — Hover muestra images[2] (3ª imagen) con object-cover para llenar el alto completo. Condición actualizada a length > 2.
 - **2026-05-20 Orden por colección COMPLETO** — AllProducts, TopSellers e IndexUI ordenan Espacio→Acordeón→Prisma. Fix bug handle `coleccin-acorden` (typo real en DB). Prisma usa aspectRatio='rectangle'.
@@ -31,7 +32,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-05-19 TopSellers rediseño planeado** — Plan completo para tráfico FB, 8 problemas identificados
 - **2026-05-19 ProductCard cleanup** — Badge compacto móvil, quitadas reseñas, precio más chico, CTA "Ver más" discreto
 - **2026-05-19 Homepage Redesign COMPLETO** — 6 cambios CRO en IndexUI.tsx, HeroCarousel.tsx, InspirationCarousel.tsx
-- **2026-05-19 AUDIT Homepage** — 6 issues identificados, plan de rediseño completo
 
 ## 5. Image Inventory
 - Hero images: 2 imágenes Supabase storage (acordeon, espacio) + video
