@@ -171,13 +171,14 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
             </p>
           </div>
         ) : (
-          <div className="pt-16 pb-24 px-3">
-            {/* Grid 3 columnas, espaciado fijo */}
-            <div className="grid grid-cols-3 gap-3">
-              {galleryItems.map((item) => (
+          <div className="pt-20 pb-32 px-3">
+            {/* Grid 3 columnas, espaciado generoso para scroll discovery */}
+            <div className="grid grid-cols-3 gap-x-3 gap-y-10">
+              {galleryItems.map((item, index) => (
                 <button
                   key={item.id}
                   onClick={() => handleProductClick(item.slug)}
+                  style={{ marginTop: index % 3 === 1 ? '2rem' : index % 3 === 2 ? '0.75rem' : '0' }}
                   className="relative overflow-hidden bg-card shadow-sm active:scale-95 transition-transform duration-150 cursor-pointer"
                 >
                   <img
