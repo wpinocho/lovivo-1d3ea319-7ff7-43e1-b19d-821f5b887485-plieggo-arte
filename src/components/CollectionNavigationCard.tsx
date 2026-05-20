@@ -27,7 +27,7 @@ export const CollectionNavigationCard = ({
     <Link 
       to={link} 
       onClick={handleClick}
-      className="collection-card group relative block overflow-hidden rounded-sm bg-card aspect-square flex-shrink-0"
+      className="collection-card group relative block overflow-hidden rounded-sm bg-card aspect-[3/4] flex-shrink-0"
     >
       <div className="absolute inset-0">
         <img 

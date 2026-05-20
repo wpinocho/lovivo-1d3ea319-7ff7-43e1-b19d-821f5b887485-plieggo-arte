@@ -173,63 +173,63 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
       <HeroCarousel slides={heroSlides} />
 
       {/* Navegación Visual / Carrusel de Colecciones */}
-      <section className="py-8 overflow-hidden px-4 sm:px-6 lg:px-8">
+      <section className="py-12 overflow-hidden px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           {/* Título de sección */}
-          <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-6 text-center tracking-tight">
-            Explora nuestras colecciones
-          </h2>
+          <div className="text-center mb-8">
+            <p className="font-body text-xs uppercase tracking-[0.25em] text-muted-foreground mb-2">
+              Encuentra tu estilo
+            </p>
+            <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground tracking-tight">
+              Explora nuestras colecciones
+            </h2>
+          </div>
           
           {loadingCollections ? (
-            <div className="flex md:grid md:grid-cols-4 gap-6 overflow-x-auto md:overflow-visible snap-x md:snap-none scrollbar-hide pb-4 md:pb-0">
+            <div className="flex md:grid md:grid-cols-4 gap-4 md:gap-6 overflow-x-auto md:overflow-visible snap-x md:snap-none scrollbar-hide pb-4 md:pb-0">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="w-[78vw] sm:w-[320px] md:w-auto flex-shrink-0 snap-center bg-muted rounded-sm animate-pulse aspect-square" />
+                <div key={i} className="w-[65vw] sm:w-[280px] md:w-auto flex-shrink-0 snap-center bg-muted rounded-sm animate-pulse aspect-[3/4]" />
               ))}
             </div>
           ) : (
-            <div className="flex md:grid md:grid-cols-4 gap-6 overflow-x-auto md:overflow-visible snap-x md:snap-none scrollbar-hide pb-4 md:pb-0">
-              {/* Touch scrollable carousel en móvil / Grid en desktop */}
-              <div className="w-[78vw] sm:w-[320px] md:w-auto flex-shrink-0 snap-center">
+            <div className="flex md:grid md:grid-cols-4 gap-4 md:gap-6 overflow-x-auto md:overflow-visible snap-x md:snap-none scrollbar-hide pb-4 md:pb-0">
+
+              {/* Card 1: Más Vendidos */}
+              <div className="w-[65vw] sm:w-[280px] md:w-auto flex-shrink-0 snap-center">
                 <CollectionNavigationCard 
-                  title="Todos los cuadros"
-                  image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/all-products-hero.webp"
-                  link="/all-products"
+                  title="Más Vendidos"
+                  image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779296069342-nd9nl70mgv.webp"
+                  link="/top-sellers"
                   eager={true}
                 />
               </div>
 
-              {/* Card 2: Más Vendidos */}
-              {collections.find(c => c.handle === 'top-sellers') && (
-                <div className="w-[78vw] sm:w-[320px] md:w-auto flex-shrink-0 snap-center">
-                  <CollectionNavigationCard 
-                    title="Más Vendidos"
-                    image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/top-sellers-hero.webp"
-                    link="/top-sellers"
-                  />
-                </div>
-              )}
+              {/* Card 2: Colección Acordeón */}
+              <div className="w-[65vw] sm:w-[280px] md:w-auto flex-shrink-0 snap-center">
+                <CollectionNavigationCard 
+                  title="Colección Acordeón"
+                  image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779296069343-1i4gabj0it4.webp"
+                  link="/coleccion-acordeon"
+                />
+              </div>
 
-              {/* Card 3: Colección Acordeón */}
-              {collections.find(c => c.handle === 'coleccion-acordeon') && (
-                <div className="w-[78vw] sm:w-[320px] md:w-auto flex-shrink-0 snap-center">
-                  <CollectionNavigationCard 
-                    title="Colección Acordeón"
-                    image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acordeon-hero.webp"
-                    link="/coleccion-acordeon"
-                  />
-                </div>
-              )}
+              {/* Card 3: Colección Espacio */}
+              <div className="w-[65vw] sm:w-[280px] md:w-auto flex-shrink-0 snap-center">
+                <CollectionNavigationCard 
+                  title="Colección Espacio"
+                  image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779296069343-1ra0u85wh3j.webp"
+                  link="/coleccion-espacio"
+                />
+              </div>
 
-              {/* Card 4: Colección Espacio */}
-              {collections.find(c => c.handle === 'coleccion-espacio') && (
-                <div className="w-[78vw] sm:w-[320px] md:w-auto flex-shrink-0 snap-center">
-                  <CollectionNavigationCard 
-                    title="Colección Espacio"
-                    image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/espacio-hero.webp"
-                    link="/coleccion-espacio"
-                  />
-                </div>
-              )}
+              {/* Card 4: Todos los cuadros */}
+              <div className="w-[65vw] sm:w-[280px] md:w-auto flex-shrink-0 snap-center">
+                <CollectionNavigationCard 
+                  title="Todos los cuadros"
+                  image="https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779296069343-2ifge8n87sv.webp"
+                  link="/all-products"
+                />
+              </div>
             </div>
           )}
         </div>
