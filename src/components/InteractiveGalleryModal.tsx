@@ -11,6 +11,7 @@ import { useIsMobile } from '@/hooks/use-mobile'
 interface InteractiveGalleryModalProps {
   isOpen: boolean
   onClose: () => void
+  standalone?: boolean
 }
 
 /**
@@ -23,7 +24,7 @@ interface InteractiveGalleryModalProps {
  * 
  * Optimizado para ~50-60 items (productos + variantes) en 5 filas asimétricas
  */
-export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryModalProps) => {
+export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }: InteractiveGalleryModalProps) => {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedProductSlug, setSelectedProductSlug] = useState<string | null>(null)
@@ -45,7 +46,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
   const gridY = useSpring(mouseY, { damping: 80, stiffness: 40 })
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen || standalone) {
       fetchProducts()
       
       // MOBILE: Empezar centrado
@@ -58,7 +59,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
         mouseY.set(centerY)
       }
     }
-  }, [isOpen, isMobile])
+  }, [isOpen, standalone, isMobile])
 
   const fetchProducts = async () => {
     setLoading(true)
@@ -145,23 +146,22 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
         }
       }
       
-      // 2. Agregar imágenes de variantes (solo URLs únicas)
+      // 2. Agregar SOLO la primera imagen de cada variante (una por variante)
       const variants = (product as any).variants
       if (variants && Array.isArray(variants)) {
         variants.forEach((variant: any, vIndex: number) => {
-          if (variant.image_urls && Array.isArray(variant.image_urls)) {
-            variant.image_urls.forEach((imageUrl: string, imgIndex: number) => {
-              if (!seenUrls.has(imageUrl)) {  // Solo si no existe
-                seenUrls.add(imageUrl)
-                items.push({
-                  id: `${product.id}-variant-${vIndex}-${imgIndex}`,
-                  slug: product.slug,
-                  title: `${product.title}${variant.title ? ` - ${variant.title}` : ''}`,
-                  price: (variant.price || product.price) as number,
-                  image: imageUrl
-                })
-              }
-            })
+          if (variant.image_urls && Array.isArray(variant.image_urls) && variant.image_urls.length > 0) {
+            const firstImage = variant.image_urls[0]
+            if (!seenUrls.has(firstImage)) {
+              seenUrls.add(firstImage)
+              items.push({
+                id: `${product.id}-variant-${vIndex}`,
+                slug: product.slug,
+                title: `${product.title}${variant.title ? ` - ${variant.title}` : ''}`,
+                price: (variant.price || product.price) as number,
+                image: firstImage
+              })
+            }
           }
         })
       }
@@ -206,7 +206,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
     setSelectedProductSlug(null)
   }
 
-  if (!isOpen) return null
+  if (!isOpen && !standalone) return null
 
   return (
     <motion.div
@@ -214,17 +214,22 @@ export const InteractiveGalleryModal = ({ isOpen, onClose }: InteractiveGalleryM
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-background overflow-hidden"
+      className={standalone
+        ? "relative w-full h-[calc(100vh-80px)] bg-background overflow-hidden"
+        : "fixed inset-0 z-50 bg-background overflow-hidden"
+      }
       onMouseMove={handleMouseMove}
     >
-      {/* Close Button - Estilo Plieggo */}
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 sm:top-8 sm:right-8 z-10 p-3 hover:bg-secondary/10 transition-colors rounded-sm group"
-        aria-label="Cerrar galería"
-      >
-        <X className="h-6 w-6 text-foreground group-hover:text-secondary transition-colors" strokeWidth={1.5} />
-      </button>
+      {/* Close Button - Solo visible en modo modal */}
+      {!standalone && (
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 sm:top-8 sm:right-8 z-10 p-3 hover:bg-secondary/10 transition-colors rounded-sm group"
+          aria-label="Cerrar galería"
+        >
+          <X className="h-6 w-6 text-foreground group-hover:text-secondary transition-colors" strokeWidth={1.5} />
+        </button>
+      )}
 
       {/* Asymmetric Masonry Grid - Desktop: Spring animation, Mobile: Drag */}
       <motion.div

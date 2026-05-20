@@ -14,67 +14,17 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-**EN PROGRESO**: Galería Interactiva → ruta propia `/galeria` + menú + fix imágenes
+**COMPLETADO**: Galería Interactiva con ruta propia `/galeria`
 
-### Cambios a hacer:
-1. **`src/components/InteractiveGalleryModal.tsx`** — Añadir prop `standalone?: boolean`. Cuando `standalone=true`:
-   - Cambiar `className` del container de `"fixed inset-0 z-50 ..."` a `"relative w-full h-screen ..."`
-   - Ocultar el botón X de cerrar (no aplica en page mode)
-   - Quitar el `if (!isOpen) return null` guard (en standalone siempre se muestra)
-   - Fix imagen: en `getGalleryItems()`, para cada variante solo añadir `image_urls[0]` (primer imagen), NO iterar todas las imágenes de la variante. Mantener la deduplicación por seenUrls.
-
-2. **`src/pages/Galeria.tsx`** — Nueva página:
-   ```tsx
-   import { EcommerceTemplate } from '@/templates/EcommerceTemplate'
-   import { InteractiveGalleryModal } from '@/components/InteractiveGalleryModal'
-   
-   export default function Galeria() {
-     return (
-       <EcommerceTemplate>
-         <InteractiveGalleryModal isOpen={true} onClose={() => {}} standalone={true} />
-       </EcommerceTemplate>
-     )
-   }
-   ```
-   - La galería ocupa `h-screen` relativa (no fixed)
-   - EcommerceTemplate provee header y footer
-
-3. **`src/App.tsx`** — Añadir:
-   - `const Galeria = lazy(() => import('./pages/Galeria'))`
-   - `<Route path="/galeria" element={<Galeria />} />`
-
-4. **`src/templates/EcommerceTemplate.tsx`** — Añadir "Galería" en navegación:
-   - Desktop nav array: `{ to: '/galeria', label: 'Galería' }` — añadir entre Más Vendidos y Acordeón (o al final antes de Nosotros)
-   - Mobile menu: mismo link con `onClick={() => setMobileMenuOpen(false)}`
-
-5. **`src/pages/ui/IndexUI.tsx`** — El botón "Descubre regalos":
-   - Cambiar de abrir modal a navegar a `/galeria` con `<Link to="/galeria">`
-   - Simplifica la lógica (ya no necesita estado de modal en Index)
-
-### Fix imagen detallado (InteractiveGalleryModal getGalleryItems):
-```
-// ANTES (itera TODAS las imágenes de cada variante):
-variant.image_urls.forEach((imageUrl: string, imgIndex: number) => {
-  if (!seenUrls.has(imageUrl)) { ... items.push(...) }
-})
-
-// DESPUÉS (solo primera imagen de cada variante):
-if (variant.image_urls && variant.image_urls.length > 0) {
-  const firstImage = variant.image_urls[0]
-  if (!seenUrls.has(firstImage)) {
-    seenUrls.add(firstImage)
-    items.push({
-      id: `${product.id}-variant-${vIndex}`,
-      slug: product.slug,
-      title: `${product.title}${variant.title ? ` - ${variant.title}` : ''}`,
-      price: (variant.price || product.price) as number,
-      image: firstImage
-    })
-  }
-}
-```
+### Lo que se hizo:
+1. `InteractiveGalleryModal.tsx` — prop `standalone?: boolean`. Cuando standalone=true: container `relative` en vez de `fixed inset-0 z-50`, sin botón X, sin guard `if (!isOpen) return null`. Fix imagen: solo `image_urls[0]` por variante (no todas las imágenes).
+2. `src/pages/Galeria.tsx` — Nueva página que usa `<EcommerceTemplate>` + `<InteractiveGalleryModal standalone={true} />`.
+3. `src/App.tsx` — Ruta `/galeria` lazy-loaded.
+4. `src/templates/EcommerceTemplate.tsx` — "Galería" añadida en nav desktop y mobile (antes de Nosotros).
+5. `src/pages/ui/IndexUI.tsx` — Botón "Ver galería de espacios" ahora navega a `/galeria` con `<Link>`. Modal eliminado del Index.
 
 ## 4. Recent Changes
+- **2026-05-20 Galería como ruta /galeria** — Nueva página standalone con header/footer, ruta en App.tsx, link en menú desktop+mobile, botón Index → Link a /galeria. Fix: solo 1ª imagen por variante en galería.
 - **2026-05-20 Hero slide 2 → /all-products** — Slide 2 del hero carousel ahora usa imagen HERO_IMAGE de AllProducts (1779296069343-2ifge8n87sv.webp), copy "Toda la colección / Encuentra tu pieza perfecta", CTA → /all-products
 - **2026-05-20 Hero slide 1 + TopSellers hero** — Nueva imagen lifestyle (7 cuadros en pared cálida) reemplaza slide 1 del hero carousel en Index. Copy actualizado a "Arte hecho a mano que transforma tu espacio" + CTA → /top-sellers. TopSellers HERO_IMAGE y EDITORIAL_IMAGE también actualizadas con la misma imagen.
 - **2026-05-20 Galería de ambientes actualizada** — InspirationCarousel ahora tiene 6 imágenes: Espacio 1 (estudio verde), Espacio 2 (comedor negro, igual), Espacio 3 (recámara escandinava), Espacio 4 (cocina burdeos, igual), Espacio 5 (comedor mediterráneo), Espacio 6 (oficina dark, nueva)
@@ -83,10 +33,7 @@ if (variant.image_urls && variant.image_urls.length > 0) {
 - **2026-05-20 Product card aspect-ratio** — Cambiado `aspect-square md:aspect-[1/2]` a `aspect-[24/43]` en ProductCardUI.tsx para que coincida exactamente con imágenes 768×1376 px de Acordeón. Aplica igual en móvil y desktop.
 - **2026-05-20 Collection cards rediseño** — Nuevo orden Más Vendidos→Acordeón→Espacio→Todos. Nuevas imágenes editoriales lifestyle. Aspecto cambiado a `aspect-[3/4]` (más premium). Cards más angostas en móvil (65vw). Eyebrow text añadido.
 - **2026-05-20 hoverImageIndex global** — AllProducts, TopSellers, IndexUI ahora pasan `hoverImageIndex={product.collectionType === 'espacio' ? 1 : 2}` a ProductCard. Espacio → imagen 2, todo lo demás → imagen 3, en TODAS las rutas.
-- **2026-05-20 hoverImageIndex prop** — ProductCardUI/ProductCard aceptan `hoverImageIndex`. CollectionEspacio pasa `1` (imagen 2); default `2` (imagen 3) en todo lo demás.
 - **2026-05-20 Fix CollectionAcordeon handle** — Corregido handle `coleccion-acordeon` → `coleccin-acorden` para que los productos aparezcan en /coleccion-acordeon
-- **2026-05-20 ProductCard hover imagen 3** — Hover muestra images[2] (3ª imagen) con object-cover para llenar el alto completo. Condición actualizada a length > 2.
-- **2026-05-20 Orden por colección COMPLETO** — AllProducts, TopSellers e IndexUI ordenan Espacio→Acordeón→Prisma. Fix bug handle `coleccin-acorden` (typo real en DB). Prisma usa aspectRatio='rectangle'.
 - **2026-05-19 Hero editorial redesign COMPLETO** — Layout bottom-left, headline sm/font-semibold, CTA limpio sin glow, gradiente reposicionado to-top, dots discretos bottom-right, scroll indicator eliminado
 
 ## 5. Image Inventory

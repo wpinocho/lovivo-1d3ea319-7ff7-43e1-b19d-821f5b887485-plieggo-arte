@@ -8,7 +8,6 @@ import { InspirationCarousel } from '@/components/InspirationCarousel';
 import { HeroCarousel } from '@/components/HeroCarousel';
 import type { HeroSlide } from '@/components/HeroCarousel';
 import { EcommerceTemplate } from '@/templates/EcommerceTemplate';
-import { InteractiveGalleryModal } from '@/components/InteractiveGalleryModal';
 import { Link } from 'react-router-dom';
 import type { UseIndexLogicReturn } from '@/components/headless/HeadlessIndex';
 import { supabase, type Product } from '@/lib/supabase';
@@ -47,9 +46,6 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
   const PRODUCTS_PER_ROW = 4;
   const INITIAL_ROWS = 2;
   const initialProductCount = PRODUCTS_PER_ROW * INITIAL_ROWS; // 8 productos
-
-  // Estado para controlar la galería interactiva
-  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
   // Bundles
   const { bundles, loading: loadingBundles } = useBundles();
@@ -418,13 +414,14 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
                     Explorar cuadros →
                   </Button>
                 </Link>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsGalleryOpen(true)}
-                  className="btn-hero-outline w-full sm:w-auto"
-                >
-                  Ver galería de espacios
-                </Button>
+                <Link to="/galeria">
+                  <Button
+                    variant="outline"
+                    className="btn-hero-outline w-full sm:w-auto"
+                  >
+                    Ver galería de espacios
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
@@ -439,11 +436,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
 
       <FloatingCart />
 
-      {/* Interactive Gallery Modal */}
-      <InteractiveGalleryModal 
-        isOpen={isGalleryOpen}
-        onClose={() => setIsGalleryOpen(false)}
-      />
+
     </EcommerceTemplate>
   );
 };
