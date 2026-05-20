@@ -168,28 +168,49 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
   }
 
   // Generar posiciones dinámicas según número de items
+  // CRÍTICO: genera exactamente itemCount posiciones (sin % wrap-around = sin encimes)
   const generateChaosPositions = (itemCount: number, mobile = false) => {
     const positions: { top: number; left: number }[] = []
-    const rows = 5
-    const rawItemsPerRow = Math.ceil(itemCount / rows)
-    const itemsPerRow = mobile ? Math.min(rawItemsPerRow, 3) : rawItemsPerRow
     
-    for (let row = 0; row < rows; row++) {
-      // Cuántos items faltan por colocar
-      const remainingItems = itemCount - positions.length
-      const itemsInThisRow = Math.min(itemsPerRow, remainingItems)
+    if (mobile) {
+      // Mobile: filas dinámicas según itemCount, máx 3 por fila
+      const itemsPerRow = 3
+      const rows = Math.ceil(itemCount / itemsPerRow)
       
-      // Base vertical para esta fila
-      const topBase = 5 + (row * 20)  // Filas en 5%, 25%, 45%, 65%, 85% del grid (380% alto)
-      
-      for (let col = 0; col < itemsInThisRow; col++) {
-        // Distribuir horizontalmente con variación caótica
-        const leftBase = (col / itemsInThisRow) * 84 + 8
+      for (let row = 0; row < rows; row++) {
+        const remainingItems = itemCount - positions.length
+        const itemsInThisRow = Math.min(itemsPerRow, remainingItems)
         
-        positions.push({
-          top: topBase + (Math.random() * 4 - 2),  // ±2% variación vertical
-          left: leftBase + (Math.random() * 3 - 1.5)  // ±1.5% variación horizontal
-        })
+        // Espaciado dinámico de 5% a 85%, adaptado al número real de filas
+        const topBase = rows <= 1 ? 45 : 5 + row * (80 / (rows - 1))
+        
+        for (let col = 0; col < itemsInThisRow; col++) {
+          const leftBase = (col / itemsPerRow) * 84 + 8
+          positions.push({
+            top: topBase + (Math.random() * 4 - 2),
+            left: leftBase + (Math.random() * 3 - 1.5)
+          })
+        }
+      }
+    } else {
+      // Desktop: 5 filas fijas, items distribuidos entre ellas
+      const rows = 5
+      const itemsPerRow = Math.ceil(itemCount / rows)
+      
+      for (let row = 0; row < rows; row++) {
+        const remainingItems = itemCount - positions.length
+        const itemsInThisRow = Math.min(itemsPerRow, remainingItems)
+        
+        // Filas en 5%, 25%, 45%, 65%, 85% del grid (380% alto)
+        const topBase = 5 + (row * 20)
+        
+        for (let col = 0; col < itemsInThisRow; col++) {
+          const leftBase = (col / itemsInThisRow) * 84 + 8
+          positions.push({
+            top: topBase + (Math.random() * 4 - 2),
+            left: leftBase + (Math.random() * 3 - 1.5)
+          })
+        }
       }
     }
     
@@ -250,7 +271,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
               const chaosPositions = generateChaosPositions(galleryItems.length, isMobile)
               
               return galleryItems.map((item, index) => {
-                const position = chaosPositions[index % chaosPositions.length]
+                const position = chaosPositions[index] ?? chaosPositions[index % chaosPositions.length]
 
               return (
                 <motion.button
