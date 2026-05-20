@@ -167,7 +167,7 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [], 
                     </div>
                   )}
 
-                  {/* Botón agregar al carrito */}
+                  {/* Botón agregar al carrito — oculto en móvil */}
                   <Button
                     size="sm"
                     onClick={(e) => {
@@ -176,7 +176,7 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [], 
                       logic.handleAddToCart()
                     }}
                     disabled={!logic.canAddToCart}
-                    className="btn-hero w-full"
+                    className="btn-hero w-full hidden md:flex"
                   >
                     {logic.inStock ? 'Agregar al carrito' : 'Agotado'}
                   </Button>
