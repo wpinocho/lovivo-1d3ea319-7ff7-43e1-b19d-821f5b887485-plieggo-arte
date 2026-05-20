@@ -14,9 +14,57 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-Sin cambios activos pendientes.
+**Ordenar productos por colección en 3 páginas** — Espacio → Acordeón → Acordeón Prisma
+
+### Colecciones confirmadas (de DB):
+- `coleccion-espacio` → ID: e10e78c6-13bd-4dc9-99e5-f17b69e815be
+- `coleccin-acorden` → ID: 29c3654c-a90c-403c-9b54-de74140671be ⚠️ TYPO en handle (sin acento)
+- `acordeon-prisma` → ID: bc12c1ec-9f88-461b-9198-bf40066b79d2
+
+### Orden deseado: espacio (1) → acordeon (2) → prisma (3) → otros (4)
+
+### Archivos a modificar:
+
+#### 1. `src/pages/AllProducts.tsx`
+- Actualmente: ordena por `created_at DESC`, no hay sort por colección
+- Cambio: 
+  1. Añadir `acordeon-prisma` a la consulta de colecciones (línea 37): `.in('handle', ['coleccion-espacio', 'coleccin-acorden', 'acordeon-prisma'])`
+  2. Corregir handle de acordeon: `coleccin-acorden` (no `coleccion-acordeon`)
+  3. Cambiar el type: `ProductWithCollection` para incluir `'prisma'`
+  4. Mapear `prismaCollectionId`
+  5. Añadir lógica de sorting después de mapear colecciones:
+  ```
+  const ORDER = { espacio: 1, acordeon: 2, prisma: 3 }
+  productsWithCollection.sort((a, b) => (ORDER[a.collectionType] ?? 4) - (ORDER[b.collectionType] ?? 4))
+  ```
+  6. Pasar `aspectRatio` correcto para prisma (usar `'rectangle'` igual que acordeon)
+
+#### 2. `src/pages/TopSellers.tsx`
+- Actualmente: reconoce espacio/acordeon pero handle de acordeon es `coleccion-acordeon` (INCORRECTO)
+- Cambio:
+  1. Corregir handles: `coleccin-acorden` y añadir `acordeon-prisma`
+  2. Extender type a incluir `'prisma'`
+  3. Mapear los 3 collection IDs
+  4. Sorting: espacio→1, acordeon→2, prisma→3, otros→4
+  5. aspectRatio para prisma = `'rectangle'`
+
+#### 3. `src/pages/ui/IndexUI.tsx`
+- Actualmente: mapea espacio/acordeon pero handle de acordeon es `coleccion-acordeon` (INCORRECTO), y no hay sort
+- Cambio:
+  1. Corregir handle a `coleccin-acorden` y añadir `acordeon-prisma`
+  2. Extender collectionType a incluir `'prisma'`
+  3. Mapear prismaCollectionId
+  4. Después del map, añadir `.sort((a,b) => ...)` con el mismo ORDER object
+  5. `displayedProducts` ya usa `productsWithCollection` así que el sort se verá automáticamente
+  6. aspectRatio para prisma = `'rectangle'`
+
+### Notas:
+- El handle `coleccin-acorden` (con typo) es el handle REAL en la DB — no cambiarlo, solo usarlo correctamente en el código
+- Todos los cambios son frontend — no requieren cambios en la DB
+- HeadlessIndex.tsx NO necesita cambios (solo fetcha productos sin colección info)
 
 ## 4. Recent Changes
+- **2026-05-20 PLAN: Ordenar productos por colección** — Espacio→Acordeón→Prisma en AllProducts, TopSellers, IndexUI. Fix handle typo `coleccin-acorden`
 - **2026-05-20 Galería por variante** — `getDisplayImages()` en HeadlessProduct.tsx ahora devuelve SOLO las imágenes de la variante activa (antes mezclaba variante + todas). Fallback seguro a imágenes del producto si la variante no tiene fotos.
 - **2026-05-19 PLAN: Filtrar galería por variante** — Solo mostrar imágenes de la variante activa en PDP (HeadlessProduct.tsx getDisplayImages)
 - **2026-05-19 Hero editorial redesign COMPLETO** — Layout bottom-left, headline sm/font-semibold, CTA limpio sin glow, gradiente reposicionado to-top, dots discretos bottom-right, scroll indicator eliminado
@@ -31,7 +79,6 @@ Sin cambios activos pendientes.
 - **2026-05-19 CRO Round 6** — SizeGuide proporcional, doble sección reviews (específicas + Plieggo general), Arte vivo en craftsmanship
 - **2026-05-19 CRO Round 4** — PDP móvil UX: "Seguir comprando" oculto en móvil, qty pill, CTAs reposicionados, trust strip debajo de CTAs
 - **2026-05-19 CRO Round 3 COMPLETO** — 6 mejoras UX/visual en 3 archivos
-- **2026-05-19 CRO Round 2** — InspirationCarousel, CrossSellSection, ProductFAQ, ProductPageUI
 
 ## 5. Image Inventory
 - Hero images: 2 imágenes Supabase storage (acordeon, espacio) + video
@@ -43,6 +90,7 @@ Sin cambios activos pendientes.
 - Fotos reales de clientes: PENDIENTE — llenar `photoUrl` en `src/data/plieggo-general-reviews.ts`
 
 ## 6. Known Issues
+- Handle de Colección Acordeón en DB tiene typo: `coleccin-acorden` (no `coleccion-acordeon`) — el código debe usar el handle real
 - Video play error recurrente en hero (play/pause race condition) — no afecta funcionalidad
 - Luna Beige tiene solo 1 imagen en galería — necesita fotos de detalle y lifestyle
 - `plieggo-general-reviews.ts` tiene `photoUrl` vacío — avatares con iniciales hasta que se suban fotos reales
