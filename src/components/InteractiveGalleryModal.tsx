@@ -106,8 +106,8 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
     
     const rect = containerRef.current.getBoundingClientRect()
     return {
-      top: -(2.8 * rect.height), // -280% del viewport → alcanza fila 5 en grid de 380%
-      left: -(1.8 * rect.width),  // -180% del viewport → cubre grid de 280%
+      top: -(1.5 * rect.height),  // -150% → alcanza fila 5 en grid mobile 250% alto
+      left: -(2.2 * rect.width),  // -220% → cubre grid mobile 320% ancho
       right: 0,
       bottom: 0
     }
@@ -168,10 +168,11 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
   }
 
   // Generar posiciones dinámicas según número de items
-  const generateChaosPositions = (itemCount: number) => {
+  const generateChaosPositions = (itemCount: number, mobile = false) => {
     const positions: { top: number; left: number }[] = []
     const rows = 5
-    const itemsPerRow = Math.ceil(itemCount / rows)
+    const rawItemsPerRow = Math.ceil(itemCount / rows)
+    const itemsPerRow = mobile ? Math.min(rawItemsPerRow, 3) : rawItemsPerRow
     
     for (let row = 0; row < rows; row++) {
       // Cuántos items faltan por colocar
@@ -234,7 +235,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
           x: gridX,
           y: gridY,
         }}
-        className="absolute inset-0 w-[280%] h-[380%] relative"
+        className={`absolute inset-0 relative ${isMobile ? 'w-[320%] h-[250%]' : 'w-[280%] h-[380%]'}`}
       >
         {loading ? (
           <div className="absolute inset-0 flex items-center justify-center">
@@ -246,7 +247,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
           <div className="relative w-full h-full">
             {(() => {
               const galleryItems = getGalleryItems()
-              const chaosPositions = generateChaosPositions(galleryItems.length)
+              const chaosPositions = generateChaosPositions(galleryItems.length, isMobile)
               
               return galleryItems.map((item, index) => {
                 const position = chaosPositions[index % chaosPositions.length]
@@ -260,7 +261,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
                     position: 'absolute',
                     top: `${position.top}%`,
                     left: `${position.left}%`,
-                    width: isMobile ? '200px' : '240px' // Más pequeño en mobile
+                    width: isMobile ? '160px' : '240px' // Más pequeño en mobile
                   }}
                   whileHover={{ scale: isMobile ? 1.2 : 1.5 }} // Menos zoom en mobile
                   transition={{ duration: 0.4, ease: 'easeOut' }}
