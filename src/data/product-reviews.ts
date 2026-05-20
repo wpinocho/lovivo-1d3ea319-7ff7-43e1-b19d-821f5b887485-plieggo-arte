@@ -100,6 +100,12 @@ export const productReviews: Record<string, ProductReview> = {
   'luna-beige': {
     rating: 4.9,
     reviewCount: 8
+  },
+
+  // PRISMA
+  'acorden-prisma-onyx-opal': {
+    rating: 4.9,
+    reviewCount: 5
   }
 }
 

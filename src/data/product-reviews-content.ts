@@ -261,8 +261,8 @@ export const productReviews: Record<string, Review[]> = {
   ],
 
   // NUEVO — 5 reseñas, 4.9★
-  'prisma-onyx-opal': [
-    { id: '1', author: 'Valentina Solano', rating: 5, comment: 'Llegó perfectamente empaquetado y en persona es aún más impresionante. El prisma negro con esos ángulos crea sombras que no puedes dejar de ver. Vale cada peso.', date: '2026-02-08', verified: true, variant: '40x70cm', photoUrl: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779313645107-b119dzv8c9i.webp' },
+  'acorden-prisma-onyx-opal': [
+    { id: '1', author: 'Valentina Solano', rating: 5, comment: 'Llegó perfectamente empaquetado y en persona es aún más impresionante. El prisma negro con esos ángulos crea sombras que no puedes dejar de ver. Vale cada peso.', date: '2026-02-08', verified: true, variant: '40x70cm', photoUrl: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779315595739-cepimis2t5.webp' },
     { id: '2', author: 'Rodrigo Ibarra', rating: 5, comment: 'El efecto del Prisma Onyx Opal es hipnótico. Las formas geométricas con el negro mate son arte puro. Mis visitas no pueden dejar de mirarlo.', date: '2026-01-22', verified: true, variant: '40x70cm' },
     { id: '3', author: 'Camila Fuentes', rating: 5, comment: 'Pieza de edición muy especial. El negro con los pliegues angulados crea algo único. Una obra que domina cualquier pared.', date: '2026-01-10', verified: true, variant: '40x70cm' },
     { id: '4', author: 'Marco Estrada', rating: 4, comment: 'Muy buena calidad. El prisma negro es elegante y dramático. Quedó perfecto en mi oficina de home office.', date: '2025-12-20', verified: true, variant: '40x70cm' },
