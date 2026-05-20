@@ -53,11 +53,11 @@ function ReviewCard({ review }: { review: Review }) {
     <div className="flex flex-col rounded-xl border border-border/50 bg-muted/20 hover:bg-muted/35 transition-colors overflow-hidden">
       {/* Foto del cliente — ocupa todo el ancho, buen tamaño */}
       {review.photoUrl && (
-        <div className="w-full aspect-[4/3] overflow-hidden">
+        <div className="w-full aspect-[3/4] overflow-hidden">
           <img
             src={review.photoUrl}
             alt={`Foto de ${review.author}`}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-center"
           />
         </div>
       )}
