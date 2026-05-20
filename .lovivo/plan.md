@@ -14,9 +14,65 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-**COMPLETADO ✅**: Hero slide 2 actualizado → apunta a /all-products con imagen de esa página.
+**EN PROGRESO**: Galería Interactiva → ruta propia `/galeria` + menú + fix imágenes
 
-**Próximo objetivo**: Subir fotos reales de clientes / mejorar UX de producto individual
+### Cambios a hacer:
+1. **`src/components/InteractiveGalleryModal.tsx`** — Añadir prop `standalone?: boolean`. Cuando `standalone=true`:
+   - Cambiar `className` del container de `"fixed inset-0 z-50 ..."` a `"relative w-full h-screen ..."`
+   - Ocultar el botón X de cerrar (no aplica en page mode)
+   - Quitar el `if (!isOpen) return null` guard (en standalone siempre se muestra)
+   - Fix imagen: en `getGalleryItems()`, para cada variante solo añadir `image_urls[0]` (primer imagen), NO iterar todas las imágenes de la variante. Mantener la deduplicación por seenUrls.
+
+2. **`src/pages/Galeria.tsx`** — Nueva página:
+   ```tsx
+   import { EcommerceTemplate } from '@/templates/EcommerceTemplate'
+   import { InteractiveGalleryModal } from '@/components/InteractiveGalleryModal'
+   
+   export default function Galeria() {
+     return (
+       <EcommerceTemplate>
+         <InteractiveGalleryModal isOpen={true} onClose={() => {}} standalone={true} />
+       </EcommerceTemplate>
+     )
+   }
+   ```
+   - La galería ocupa `h-screen` relativa (no fixed)
+   - EcommerceTemplate provee header y footer
+
+3. **`src/App.tsx`** — Añadir:
+   - `const Galeria = lazy(() => import('./pages/Galeria'))`
+   - `<Route path="/galeria" element={<Galeria />} />`
+
+4. **`src/templates/EcommerceTemplate.tsx`** — Añadir "Galería" en navegación:
+   - Desktop nav array: `{ to: '/galeria', label: 'Galería' }` — añadir entre Más Vendidos y Acordeón (o al final antes de Nosotros)
+   - Mobile menu: mismo link con `onClick={() => setMobileMenuOpen(false)}`
+
+5. **`src/pages/ui/IndexUI.tsx`** — El botón "Descubre regalos":
+   - Cambiar de abrir modal a navegar a `/galeria` con `<Link to="/galeria">`
+   - Simplifica la lógica (ya no necesita estado de modal en Index)
+
+### Fix imagen detallado (InteractiveGalleryModal getGalleryItems):
+```
+// ANTES (itera TODAS las imágenes de cada variante):
+variant.image_urls.forEach((imageUrl: string, imgIndex: number) => {
+  if (!seenUrls.has(imageUrl)) { ... items.push(...) }
+})
+
+// DESPUÉS (solo primera imagen de cada variante):
+if (variant.image_urls && variant.image_urls.length > 0) {
+  const firstImage = variant.image_urls[0]
+  if (!seenUrls.has(firstImage)) {
+    seenUrls.add(firstImage)
+    items.push({
+      id: `${product.id}-variant-${vIndex}`,
+      slug: product.slug,
+      title: `${product.title}${variant.title ? ` - ${variant.title}` : ''}`,
+      price: (variant.price || product.price) as number,
+      image: firstImage
+    })
+  }
+}
+```
 
 ## 4. Recent Changes
 - **2026-05-20 Hero slide 2 → /all-products** — Slide 2 del hero carousel ahora usa imagen HERO_IMAGE de AllProducts (1779296069343-2ifge8n87sv.webp), copy "Toda la colección / Encuentra tu pieza perfecta", CTA → /all-products
@@ -35,7 +91,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
-- **Hero slide 2 (nuevo)**: `...1779296069343-2ifge8n87sv.webp` (toda la colección → CTA /all-products)
+- **Hero slide 2**: `...1779296069343-2ifge8n87sv.webp` (toda la colección → CTA /all-products)
 - Hero slide 3: video hero-paper-folding.mp4
 - TopSellers HERO_IMAGE + EDITORIAL_IMAGE: misma imagen que hero slide 1
 - Collections hero (nuevas, 2026-05-20):
