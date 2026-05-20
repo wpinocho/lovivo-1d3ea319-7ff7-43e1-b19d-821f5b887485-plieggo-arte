@@ -14,9 +14,10 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-**COMPLETADO**: Reviews `acordeon-prisma-beige-blanco` — 4 reseñas creadas (4.8★), primera con foto de instalación (Lucía Fernández). reviewCount actualizado de 0 → 4.
+**COMPLETADO**: Fotos de review asignadas a Acordeón Beige Sutil (María González) y Luna Llena (Alejandra Romero).
 
 ## 4. Recent Changes
+- **2026-05-20 Fotos review Beige Sutil + Luna Llena** — `photoUrl` añadido a primera review de `acorden-beige-sutil` (María González, foto instalación nocturna) y `luna-llena` (Alejandra Romero, foto lifestyle sala).
 - **2026-05-20 Reviews acordeon-prisma-beige-blanco** — 4 reseñas creadas en `product-reviews-content.ts`. Primera review (Lucía Fernández) con foto de cliente instalando el cuadro. reviewCount actualizado 0→4 en `product-reviews.ts`.
 - **2026-05-20 Fix slug acordeon-prisma-azul-coral** — `prisma-azul-coral` → `acordeon-prisma-azul-coral` en `product-reviews-content.ts`. Añadida entrada `acordeon-prisma-azul-coral` (4.8★, 4 reviews) y `acordeon-prisma-beige-blanco` (0 reviews) en `product-reviews.ts`.
 - **2026-05-20 Fix slug Prisma Onyx Opal** — `prisma-onyx-opal` → `acorden-prisma-onyx-opal` en `product-reviews-content.ts` y `product-reviews.ts`. Nueva foto de review (imagen del cliente con cuadro negro en empaque) asignada a Valentina Solano.
@@ -26,7 +27,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-05-20 Fotos de reviews reales** — `photoUrl` añadido en g4 (Verde Salvia) + 4 nuevas reseñas g9-g12 en `plieggo-general-reviews.ts`
 - **2026-05-20 Fix galería mobile solapamiento** — `rows` dinámico, `topBase` distribuido uniformemente — InteractiveGalleryModal.tsx
 - **2026-05-20 Fix galería mobile COMPLETO** — Grid 320×250%, cards 160px, máx 3 por fila — InteractiveGalleryModal.tsx
-- **2026-05-20 Galería: degradado + cuadros 2x** — bg-transparent en Galeria.tsx e InteractiveGalleryModal.
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
@@ -35,7 +35,9 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - TopSellers HERO_IMAGE + EDITORIAL_IMAGE: misma imagen que hero slide 1
 - Logo: `/public/logo.svg`
 - **Review photos PDP (product-reviews-content.ts)**:
-  - Prisma Beige Blanco (Lucía Fernández): `...1779316065818-wtuxxi83zxr.webp` ✅ (instalación en sala)
+  - Beige Sutil (María González): `...1779316513173-t94ygqmypsh.webp` ✅ (instalación nocturna)
+  - Luna Llena (Alejandra Romero): `...1779316513173-2bakbmoaanh.webp` ✅ (lifestyle sala beige)
+  - Prisma Beige Blanco (Lucía Fernández): `...1779316065818-wtuxxi83zxr.webp` ✅
   - Verde Salvia (Mónica Aguilar): `...1779313645107-25fm4pmckj4.webp` ✅
   - Luna Negra (Camila Vargas): `...1779311693322-8vbqa3p7c55.webp`
   - Burdeos Intenso (Adriana Ríos): `...1779311693322-4f7n3rqv0pj.webp`
@@ -56,12 +58,12 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Video play error recurrente en hero (play/pause race condition) — no afecta funcionalidad
 - Luna Beige tiene solo 1 imagen en galería — necesita fotos de detalle y lifestyle
 - `plieggo-general-reviews.ts` tiene `photoUrl` vacío en g1, g2, g3, g5, g6, g7, g8 — pendiente
-- **DB slug mismatch**: Producto activo titulado "Acordón Verde Salvia" tiene slug `acorden-rosa-morado` en DB — el código usa `acorden-rosa-morado` correctamente para este producto activo, pero el nombre no coincide con el slug
+- **DB slug mismatch**: Producto activo titulado "Acordón Verde Salvia" tiene slug `acorden-rosa-morado` en DB — el código usa `acorden-rosa-morado` correctamente para este producto activo
 - Slugs en code sin producto activo en DB: `acorden-terracota-vibrante`, `acorden-crema-natural`, `acorden-morado-lavanda`, `acorden-morado-elegante`, `estrellas` — probablemente productos futuros o archivados
 
 ## 7. Pending / Future Sessions
 - **[ALTA]** Subir fotos reales para reseñas g1-g3, g5-g8 en sección general
-- **[MEDIA]** Agregar fotos a más reviews específicas en PDP (Rosa Sereno, Terracota, Luna Llena, etc.)
+- **[MEDIA]** Agregar fotos a más reviews específicas en PDP (Rosa Sereno, Terracota, Luna Beige, etc.)
 - **[MEDIA]** Añadir más fotos a Luna Beige (detalle, textura, en sala) — desde Dashboard
 - **[MEDIA]** Indicador de stock "Solo X disponibles" para Edición Limitada
 - Revisar comportamiento de ExpressCheckout en Safari/iOS (Apple Pay)

@@ -20,7 +20,7 @@ export const productReviews: Record<string, Review[]> = {
 
   // BESTSELLER — 24 reseñas, 4.9★
   'acorden-beige-sutil': [
-    { id: '1', author: 'María González', rating: 5, comment: 'Hermoso cuadro! Se ve increíble en mi sala. Los colores son perfectos y la textura del papel le da un toque muy elegante. Totalmente recomendado.', date: '2026-02-10', verified: true, variant: '50x50cm' },
+    { id: '1', author: 'María González', rating: 5, comment: 'Hermoso cuadro! Se ve increíble en mi sala. Los colores son perfectos y la textura del papel le da un toque muy elegante. Totalmente recomendado.', date: '2026-02-10', verified: true, variant: '50x50cm', photoUrl: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779316513173-t94ygqmypsh.webp' },
     { id: '2', author: 'Juan Pérez', rating: 5, comment: 'Llegó en perfecto estado, muy bien empaquetado. La calidad del trabajo artesanal se nota. Es exactamente como en las fotos.', date: '2026-01-28', verified: true, variant: '80x80cm' },
     { id: '3', author: 'Ana Martínez', rating: 5, comment: 'Me encanta! Le da un aire muy sofisticado a mi oficina. Los pliegues crean sombras hermosas con la luz natural.', date: '2026-01-15', verified: true, variant: '50x50cm' },
     { id: '4', author: 'Carlos Ramírez', rating: 4, comment: 'Excelente pieza decorativa. El único detalle es que tardó un poco en llegar pero valió la pena la espera.', date: '2025-12-28', verified: true, variant: '80x80cm' },
@@ -139,7 +139,7 @@ export const productReviews: Record<string, Review[]> = {
 
   // EDICIÓN LIMITADA — 12 reseñas, 5.0★
   'luna-llena': [
-    { id: '1', author: 'Alejandra Romero', rating: 5, comment: 'Es una pieza espectacular! Los pliegues crean el efecto de la luna de forma increíble. Sin duda es el centro de atención en mi sala.', date: '2026-02-10', verified: true, variant: 'Única' },
+    { id: '1', author: 'Alejandra Romero', rating: 5, comment: 'Es una pieza espectacular! Los pliegues crean el efecto de la luna de forma increíble. Sin duda es el centro de atención en mi sala.', date: '2026-02-10', verified: true, variant: 'Única', photoUrl: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779316513173-2bakbmoaanh.webp' },
     { id: '2', author: 'Pablo Herrera', rating: 5, comment: 'Edición limitada que vale cada peso. El trabajo artesanal es impecable. Una verdadera obra de arte.', date: '2026-01-28', verified: true, variant: 'Única' },
     { id: '3', author: 'Mónica Guzmán', rating: 5, comment: 'Simplemente hermoso. El efecto tridimensional de la luna es fascinante. Llegó muy bien protegido.', date: '2026-01-15', verified: true, variant: 'Única' },
     { id: '4', author: 'Sofía Luna', rating: 5, comment: 'La luna llena capturada en papel. Es increíble cómo logran ese efecto con pliegues. Arte puro.', date: '2025-12-28', verified: true, variant: 'Única' },
