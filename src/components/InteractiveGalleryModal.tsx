@@ -208,8 +208,8 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className={standalone
-        ? "relative w-full h-screen bg-background overflow-hidden"
-        : "fixed inset-0 z-50 bg-background overflow-hidden"
+        ? "relative w-full h-screen bg-transparent overflow-hidden"
+        : "fixed inset-0 z-50 bg-transparent overflow-hidden"
       }
       onMouseMove={handleMouseMove}
     >
@@ -260,7 +260,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
                     position: 'absolute',
                     top: `${position.top}%`,
                     left: `${position.left}%`,
-                    width: isMobile ? '100px' : '120px' // Más pequeño en mobile
+                    width: isMobile ? '200px' : '240px' // Más pequeño en mobile
                   }}
                   whileHover={{ scale: isMobile ? 1.2 : 1.5 }} // Menos zoom en mobile
                   transition={{ duration: 0.4, ease: 'easeOut' }}

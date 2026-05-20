@@ -14,17 +14,18 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-**COMPLETADO**: Galería `/galeria` fullscreen sin header/footer
+**COMPLETADO**: Galería `/galeria` — degradado + cuadros 2x más grandes
 
 ### Lo que se hizo:
 1. `Galeria.tsx` — Reescrita como página fullscreen (`fixed inset-0`), sin `EcommerceTemplate`. Botón X pequeño top-right navega a `/`.
-2. `InteractiveGalleryModal.tsx` — Al hacer clic en un cuadro navega a `/products/:slug` (ya no abre popup interno). Eliminado el ProductPageUI modal embebido. Limpiados imports huérfanos (useSettings, formatMoney, AnimatePresence, HeadlessProduct, ProductPageUI).
-3. `IndexUI.tsx` — Fix slide 3 del hero: CTA "Descubre regalos" apunta a `/galeria` (quitado `setIsGalleryOpen` que rompía la app).
+2. `InteractiveGalleryModal.tsx` — Al hacer clic en un cuadro navega a `/products/:slug`. Fondo `bg-transparent` para mostrar el degradado del body. Card size: `240px` desktop, `200px` mobile (era `120px`/`100px`).
+3. `IndexUI.tsx` — Fix slide 3 del hero: CTA "Descubre regalos" apunta a `/galeria`.
 
 ### Comportamiento "Seguir comprando" desde /galeria:
-`handleNavigateBack` en HeadlessProduct usa `navigate(-1)` — regresa automáticamente a `/galeria` si el user llegó desde ahí. No requirió cambios adicionales.
+`handleNavigateBack` en HeadlessProduct usa `navigate(-1)` — regresa automáticamente a `/galeria` si el user llegó desde ahí.
 
 ## 4. Recent Changes
+- **2026-05-20 Galería: degradado + cuadros 2x** — bg-transparent en Galeria.tsx e InteractiveGalleryModal para mostrar radial-gradient del body. Card width 120→240px desktop, 100→200px mobile.
 - **2026-05-20 Galería fullscreen + fix hero slide 3** — Galeria.tsx sin template, X → /, clic en cuadro → PDP real, "Seguir comprando" regresa a /galeria, fix CTA "Descubre regalos" → /galeria
 - **2026-05-20 Galería como ruta /galeria** — Nueva página standalone con header/footer, ruta en App.tsx, link en menú desktop+mobile, botón Index → Link a /galeria. Fix: solo 1ª imagen por variante en galería.
 - **2026-05-20 Hero slide 2 → /all-products** — Slide 2 del hero carousel ahora usa imagen HERO_IMAGE de AllProducts, copy "Toda la colección / Encuentra tu pieza perfecta", CTA → /all-products

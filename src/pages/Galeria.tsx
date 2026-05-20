@@ -13,7 +13,7 @@ export default function Galeria() {
   const navigate = useNavigate()
 
   return (
-    <div className="fixed inset-0 z-40 bg-background">
+    <div className="fixed inset-0 z-40">
       {/* Close button — pequeño, top-right */}
       <button
         onClick={() => navigate('/')}
