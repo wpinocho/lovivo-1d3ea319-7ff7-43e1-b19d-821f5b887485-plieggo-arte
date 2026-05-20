@@ -36,7 +36,7 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [], 
   const aspectRatioClass = aspectRatio === 'square' 
     ? 'aspect-square' 
     : aspectRatio === 'rectangle'
-    ? 'aspect-square md:aspect-[1/2]'  // Mobile: square, Desktop: rectangle
+    ? 'aspect-[24/43]'  // Proporción exacta 768×1376 px — igual en móvil y desktop
     : 'aspect-square md:aspect-auto'   // Mobile: square, Desktop: auto
   
   return (
