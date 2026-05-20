@@ -14,18 +14,55 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-**COMPLETADO**: Fix galería /galeria — espaciado entre cuadros y acceso a fila 5
+**EN PROGRESO**: Fix galería mobile — grid dimensions + card size + items por fila
 
-### Solución implementada (2026-05-20) en `InteractiveGalleryModal.tsx`:
-- Grid: `w-[240%] h-[220%]` → `w-[280%] h-[380%]`
-- Filas: `topBase = 5 + (row * 20)` → posiciones 5%, 25%, 45%, 65%, 85% del grid
-  - Espacio físico entre filas: 0.76H ≈ 720px vs tarjeta ≈ 430px = **290px de aire** ✓
-  - Fila 5 top: 85% × 3.8H = 3.23H < 3.8H ✓
-- Drag constraints mobile: `top: -(2.8H)`, `left: -(1.8W)` (antes -1.2H, -1.4W)
-- Mouse desktop: `targetX = -(% * 1.8W)`, `targetY = -(% * 2.8H)` (antes 1.4W, 1.2H)
-- Mobile inicial: centerX=-(0.4W), centerY=0 (empieza en la parte superior-centro)
+### Problema detectado (2026-05-20):
+- Desktop: perfecto ✓
+- Mobile: demasiado espacio vertical entre filas, insuficiente espacio horizontal entre cuadros
+- Causa: grid de 280×380% está optimizado para desktop landscape, en mobile portrait queda desbalanceado
+
+### Solución a implementar en `InteractiveGalleryModal.tsx`:
+
+1. **Grid condicional** (línea ~237):
+   - Desktop: `w-[280%] h-[380%]` (sin cambios, está perfecto)
+   - Mobile: `w-[320%] h-[250%]` — más ancho, menos alto
+
+2. **Card width** (línea ~263):
+   - Desktop: `240px` (sin cambios)
+   - Mobile: `160px` (bajar de 200px → 160px)
+
+3. **Items por fila en mobile** en `generateChaosPositions`:
+   - Añadir parámetro `mobile = false`
+   - Mobile: forzar `itemsPerRow = 3` (en lugar de `Math.ceil(itemCount / rows)`)
+   - Desktop: sin cambios
+
+4. **Drag constraints** en `getDragConstraints`:
+   - `top: -(1.5 * rect.height)` — antes era -2.8, pero el grid mobile es solo 250% alto
+   - `left: -(2.2 * rect.width)` — antes era -1.8, pero el grid mobile es 320% ancho
+
+5. **Posición inicial mobile** en useEffect:
+   - `centerX = -(0.4 * rect.width)` — puede quedarse igual
+   - `centerY = 0` — sin cambios
+
+### Cálculos de validación mobile (pantalla 390×844px):
+- Grid: 320% × 250% = 1248px × 2110px
+- 3 cuadros de 160px por fila en 1248px:
+  - leftBase = 8%, 36.3%, 64.7% → posiciones: 100px, 453px, 807px
+  - Gap entre cuadros: 453-100-160 = 193px ✓ (suficiente aire)
+- 5 filas en 250% × 844px = 2110px con topBase 5%, 25%, 45%, 65%, 85%:
+  - Posiciones: 106px, 528px, 950px, 1372px, 1794px
+  - Gap entre filas: 422px, cuadro ≈200px → 222px de aire ✓ (razonable)
+- Drag top: -(1.5 × 844) = -1266px (alcanza última fila a 1794px... hmm)
+
+⚠️ Revisión del drag top: La fila 5 está a 85% de 2110px = 1793px. El viewport es 844px. 
+Para alcanzar la última fila: necesitas arrastrar 1793-844 = 949px hacia arriba.
+`-(1.5 * 844) = -1266px` > 949px ✓ — sí alcanza con margen.
+
+Para el izquierda: grid de 1248px, viewport 390px, necesitas 1248-390 = 858px.
+`-(2.2 * 390) = -858px` — exacto ✓
 
 ## 4. Recent Changes
+- **2026-05-20 Fix galería mobile: grid 320×250%, cards 160px, 3/fila, drag ajustado** — PENDIENTE
 - **2026-05-20 Fix galería: grid 280×380%, filas re-espaciadas, drag/mouse ampliados** — InteractiveGalleryModal.tsx
 - **2026-05-20 Galería: degradado + cuadros 2x** — bg-transparent en Galeria.tsx e InteractiveGalleryModal para mostrar radial-gradient del body. Card width 120→240px desktop, 100→200px mobile.
 - **2026-05-20 Galería fullscreen + fix hero slide 3** — Galeria.tsx sin template, X → /, clic en cuadro → PDP real, "Seguir comprando" regresa a /galeria, fix CTA "Descubre regalos" → /galeria
