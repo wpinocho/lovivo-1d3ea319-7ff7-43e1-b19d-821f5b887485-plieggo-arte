@@ -64,6 +64,51 @@ export const plieggoGeneralReviews: GeneralReview[] = [
     date: "2025-08-22",
     product: "Acordeón Verde Salvia",
     variant: "80x80cm",
+    photoUrl: "https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779311693322-9f4ruvw5mpq.webp",
+  },
+  {
+    id: "g9",
+    author: "Valentina S.",
+    rating: 5,
+    comment:
+      "Llegó perfectamente empacado y superó todas mis expectativas. El Prisma Onyx Opal tiene una presencia increíble.",
+    date: "2026-01-14",
+    product: "Acordeón Prisma Onyx Opal",
+    variant: "Única",
+    photoUrl: "https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779311693322-f14snp6bxfa.webp",
+  },
+  {
+    id: "g10",
+    author: "Sebastián M.",
+    rating: 5,
+    comment:
+      "Lo colgué en la sala y transformó por completo el ambiente. Los pliegues azules con coral son hipnóticos.",
+    date: "2026-02-03",
+    product: "Acordeón Prisma Azul Coral",
+    variant: "Única",
+    photoUrl: "https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779311693322-kcwn5zoehb.webp",
+  },
+  {
+    id: "g11",
+    author: "Daniela R.",
+    rating: 5,
+    comment:
+      "El color burdeos le da una elegancia impresionante. Cualquier pared donde lo pongas se convierte en el centro de atención.",
+    date: "2026-03-08",
+    product: "Acordeón Burdeos Intenso",
+    variant: "80x80cm",
+    photoUrl: "https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779311693322-4f7n3rqv0pj.webp",
+  },
+  {
+    id: "g12",
+    author: "Andrés V.",
+    rating: 5,
+    comment:
+      "La Luna Negra es pura magia. Los detalles del papel con destellos dorados y azules son increíbles en persona.",
+    date: "2026-04-21",
+    product: "Luna Negra",
+    variant: "Única",
+    photoUrl: "https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779311693322-8vbqa3p7c55.webp",
   },
   {
     id: "g5",

@@ -14,9 +14,10 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-**COMPLETADO**: Fix galería mobile — generación dinámica de filas (hasta 7×3=21 posiciones), sin reutilización de coordenadas
+**COMPLETADO**: Fotos de reviews reales añadidas para 5 cuadros en `plieggo-general-reviews.ts`
 
 ## 4. Recent Changes
+- **2026-05-20 Fotos de reviews reales** — `photoUrl` añadido en g4 (Verde Salvia) + 4 nuevas reseñas g9-g12 (Prisma Onyx Opal, Prisma Azul Coral, Burdeos Intenso, Luna Negra) en `plieggo-general-reviews.ts`
 - **2026-05-20 Fix galería mobile solapamiento** — `rows` dinámico (hasta 7 en mobile vs hardcoded 5), `topBase` distribuido uniformemente, eliminado `% chaosPositions.length` — InteractiveGalleryModal.tsx
 - **2026-05-20 Fix galería mobile COMPLETO** — Grid 320×250% (vs 280×380% desktop), cards 160px, máx 3 por fila, drag top:-150% left:-220% — InteractiveGalleryModal.tsx
 - **2026-05-20 Fix galería: grid 280×380%, filas re-espaciadas, drag/mouse ampliados** — InteractiveGalleryModal.tsx
@@ -31,7 +32,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-05-20 Product card aspect-ratio** — Cambiado a `aspect-[24/43]` en ProductCardUI.tsx
 - **2026-05-20 Collection cards rediseño** — Nuevo orden, nuevas imágenes editoriales, aspecto `aspect-[3/4]`
 - **2026-05-20 hoverImageIndex global** — Espacio → imagen 2, todo lo demás → imagen 3
-- **2026-05-20 Fix CollectionAcordeon handle** — Corregido handle typo en DB
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
@@ -45,16 +45,21 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
   - Todos los cuadros: `...1779296069343-2ifge8n87sv.webp`
 - Inspiration carousel (6 imágenes — ver plan anterior)
 - Logo: `/public/logo.svg`
-- Fotos reales de clientes: PENDIENTE — llenar `photoUrl` en `src/data/plieggo-general-reviews.ts`
+- **Review photos (2026-05-20)**:
+  - Verde Salvia (g4): `...1779311693322-9f4ruvw5mpq.webp`
+  - Prisma Onyx Opal (g9): `...1779311693322-f14snp6bxfa.webp`
+  - Prisma Azul Coral (g10): `...1779311693322-kcwn5zoehb.webp`
+  - Burdeos Intenso (g11): `...1779311693322-4f7n3rqv0pj.webp`
+  - Luna Negra (g12): `...1779311693322-8vbqa3p7c55.webp`
 
 ## 6. Known Issues
 - Handle de Colección Acordeón en DB tiene typo: `coleccin-acorden` — corregido en código
 - Video play error recurrente en hero (play/pause race condition) — no afecta funcionalidad
 - Luna Beige tiene solo 1 imagen en galería — necesita fotos de detalle y lifestyle
-- `plieggo-general-reviews.ts` tiene `photoUrl` vacío — avatares con iniciales
+- `plieggo-general-reviews.ts` tiene `photoUrl` vacío en g1, g2, g3, g5, g6, g7, g8 — pendiente
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** Subir fotos reales de clientes y llenar `photoUrl` en `plieggo-general-reviews.ts`
+- **[ALTA]** Subir fotos reales para reseñas g1-g3, g5-g8 (Beige Sutil, Luna Beige)
 - **[ALTA]** Añadir más fotos a Luna Beige (detalle, textura, en sala) — desde Dashboard
 - **[MEDIA]** Indicador de stock "Solo X disponibles" para Edición Limitada
 - Revisar comportamiento de ExpressCheckout en Safari/iOS (Apple Pay)
