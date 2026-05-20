@@ -304,6 +304,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
                         ? 'rectangle'
                         : 'auto'
                     }
+                    hoverImageIndex={product.collectionType === 'espacio' ? 1 : 2}
                   />
                 ))}
               </div>

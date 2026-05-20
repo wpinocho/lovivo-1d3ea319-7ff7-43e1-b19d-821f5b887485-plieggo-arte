@@ -204,6 +204,7 @@ const TopSellers = () => {
                       ? 'rectangle'
                       : 'auto'
                   }
+                  hoverImageIndex={product.collectionType === 'espacio' ? 1 : 2}
                 />
               ))}
             </div>
