@@ -16,8 +16,8 @@ interface InteractiveGalleryModalProps {
  * INTERACTIVE GALLERY MODAL - Lusano-Style Parallax
  * 
  * Sistema de coordenadas inverso:
- * - Grid: 240% x 220% (overflow para parallax horizontal)
- * - Mouse en (50%, 50%) → Grid centrado en (-70%, -60%)
+ * - Grid: 280% x 380% (overflow para parallax horizontal + 5 filas con aire)
+ * - Mouse en (50%, 50%) → Grid centrado en (-90%, -140%)
  * - Movimiento suave con spring physics
  * 
  * Optimizado para ~50-60 items (productos + variantes) en 5 filas asimétricas
@@ -30,9 +30,9 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
   const navigate = useNavigate()
 
   // LUSANO-STYLE COORDINATE MAPPING
-  // Canvas: Width 240% (2.4x), Height 220% (2.2x)
+  // Canvas: Width 280% (2.8x), Height 380% (3.8x)
   // Mouse position directly maps to canvas position with smooth spring animation
-  // Center (50%, 50%) → Canvas at (-70%, -60%)
+  // Center (50%, 50%) → Canvas at (-90%, -140%)
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
 
@@ -49,9 +49,9 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
       // MOBILE: Empezar centrado
       if (isMobile && containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect()
-        // Centro: mouse en (50%, 50%) → grid en (-70%, -60%)
-        const centerX = -(0.5 * 1.4 * rect.width)
-        const centerY = -(0.5 * 1.2 * rect.height)
+        // Empezar mostrando la parte superior-centro del grid
+        const centerX = -(0.4 * rect.width)
+        const centerY = 0
         mouseX.set(centerX)
         mouseY.set(centerY)
       }
@@ -89,11 +89,11 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
     const mousePercentY = (e.clientY - rect.top) / rect.height
 
     // Map to canvas position
-    // Canvas X: 240% (overflow 140%) → targetX = -(mousePercent * 1.4 * viewportSize)
-    // Canvas Y: 220% (overflow 120%) → targetY = -(mousePercent * 1.2 * viewportSize)
-    // When mouse at (50%, 50%) → canvas at (-70%, -60%) [CENTERED]
-    const targetX = -(mousePercentX * 1.4 * rect.width)
-    const targetY = -(mousePercentY * 1.2 * rect.height)
+    // Canvas X: 280% (overflow 180%) → targetX = -(mousePercent * 1.8 * viewportSize)
+    // Canvas Y: 380% (overflow 280%) → targetY = -(mousePercent * 2.8 * viewportSize)
+    // When mouse at (50%, 50%) → canvas at (-90%, -140%) [CENTERED]
+    const targetX = -(mousePercentX * 1.8 * rect.width)
+    const targetY = -(mousePercentY * 2.8 * rect.height)
 
     // Update motion values (spring will animate smoothly)
     mouseX.set(targetX)
@@ -106,8 +106,8 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
     
     const rect = containerRef.current.getBoundingClientRect()
     return {
-      top: -(1.2 * rect.height), // -120% del viewport
-      left: -(1.4 * rect.width),  // -140% del viewport
+      top: -(2.8 * rect.height), // -280% del viewport → alcanza fila 5 en grid de 380%
+      left: -(1.8 * rect.width),  // -180% del viewport → cubre grid de 280%
       right: 0,
       bottom: 0
     }
@@ -179,7 +179,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
       const itemsInThisRow = Math.min(itemsPerRow, remainingItems)
       
       // Base vertical para esta fila
-      const topBase = 10 + (row * 22)  // 22% separación entre filas
+      const topBase = 5 + (row * 20)  // Filas en 5%, 25%, 45%, 65%, 85% del grid (380% alto)
       
       for (let col = 0; col < itemsInThisRow; col++) {
         // Distribuir horizontalmente con variación caótica
@@ -234,7 +234,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
           x: gridX,
           y: gridY,
         }}
-        className="absolute inset-0 w-[240%] h-[220%] relative"
+        className="absolute inset-0 w-[280%] h-[380%] relative"
       >
         {loading ? (
           <div className="absolute inset-0 flex items-center justify-center">

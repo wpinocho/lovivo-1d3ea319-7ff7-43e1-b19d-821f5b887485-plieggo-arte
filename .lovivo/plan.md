@@ -14,17 +14,19 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-**COMPLETADO**: Galería `/galeria` — degradado + cuadros 2x más grandes
+**COMPLETADO**: Fix galería /galeria — espaciado entre cuadros y acceso a fila 5
 
-### Lo que se hizo:
-1. `Galeria.tsx` — Reescrita como página fullscreen (`fixed inset-0`), sin `EcommerceTemplate`. Botón X pequeño top-right navega a `/`.
-2. `InteractiveGalleryModal.tsx` — Al hacer clic en un cuadro navega a `/products/:slug`. Fondo `bg-transparent` para mostrar el degradado del body. Card size: `240px` desktop, `200px` mobile (era `120px`/`100px`).
-3. `IndexUI.tsx` — Fix slide 3 del hero: CTA "Descubre regalos" apunta a `/galeria`.
-
-### Comportamiento "Seguir comprando" desde /galeria:
-`handleNavigateBack` en HeadlessProduct usa `navigate(-1)` — regresa automáticamente a `/galeria` si el user llegó desde ahí.
+### Solución implementada (2026-05-20) en `InteractiveGalleryModal.tsx`:
+- Grid: `w-[240%] h-[220%]` → `w-[280%] h-[380%]`
+- Filas: `topBase = 5 + (row * 20)` → posiciones 5%, 25%, 45%, 65%, 85% del grid
+  - Espacio físico entre filas: 0.76H ≈ 720px vs tarjeta ≈ 430px = **290px de aire** ✓
+  - Fila 5 top: 85% × 3.8H = 3.23H < 3.8H ✓
+- Drag constraints mobile: `top: -(2.8H)`, `left: -(1.8W)` (antes -1.2H, -1.4W)
+- Mouse desktop: `targetX = -(% * 1.8W)`, `targetY = -(% * 2.8H)` (antes 1.4W, 1.2H)
+- Mobile inicial: centerX=-(0.4W), centerY=0 (empieza en la parte superior-centro)
 
 ## 4. Recent Changes
+- **2026-05-20 Fix galería: grid 280×380%, filas re-espaciadas, drag/mouse ampliados** — InteractiveGalleryModal.tsx
 - **2026-05-20 Galería: degradado + cuadros 2x** — bg-transparent en Galeria.tsx e InteractiveGalleryModal para mostrar radial-gradient del body. Card width 120→240px desktop, 100→200px mobile.
 - **2026-05-20 Galería fullscreen + fix hero slide 3** — Galeria.tsx sin template, X → /, clic en cuadro → PDP real, "Seguir comprando" regresa a /galeria, fix CTA "Descubre regalos" → /galeria
 - **2026-05-20 Galería como ruta /galeria** — Nueva página standalone con header/footer, ruta en App.tsx, link en menú desktop+mobile, botón Index → Link a /galeria. Fix: solo 1ª imagen por variante en galería.
