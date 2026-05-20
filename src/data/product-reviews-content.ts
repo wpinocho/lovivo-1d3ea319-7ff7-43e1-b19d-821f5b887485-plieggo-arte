@@ -74,7 +74,7 @@ export const productReviews: Record<string, Review[]> = {
 
   // BESTSELLER — 20 reseñas, 4.9★
   'acorden-verde-salvia': [
-    { id: '17', author: 'Mónica Aguilar', rating: 5, comment: 'El verde salvia tiene una magia especial. Cambia con la luz del día. Una obra viva en tu pared.', date: '2025-08-22', verified: true, variant: '80x80cm', photoUrl: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779311693322-9f4ruvw5mpq.webp' },
+    { id: '17', author: 'Mónica Aguilar', rating: 5, comment: 'El verde salvia tiene una magia especial. Cambia con la luz del día. Una obra viva en tu pared.', date: '2025-08-22', verified: true, variant: '80x80cm', photoUrl: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779313645107-25fm4pmckj4.webp' },
     { id: '1', author: 'Patricia Flores', rating: 5, comment: 'El color verde es precioso! Combina perfecto con mi decoración. La calidad del papel es excelente y se nota el trabajo artesanal.', date: '2026-02-10', verified: true, variant: '80x80cm' },
     { id: '2', author: 'Miguel Ángel Castro', rating: 5, comment: 'Impresionante. Es mi segunda compra de Plieggo y no decepciona. El efecto de luz y sombra es espectacular.', date: '2026-01-28', verified: true, variant: '50x50cm' },
     { id: '3', author: 'Laura Jiménez', rating: 5, comment: 'Me encanta cómo transforma el espacio. Es una pieza única que siempre genera conversación con las visitas.', date: '2026-01-15', verified: true, variant: '80x80cm' },
@@ -155,7 +155,7 @@ export const productReviews: Record<string, Review[]> = {
 
   // EDICIÓN LIMITADA — 10 reseñas, 4.9★
   'luna-azul': [
-    { id: '1', author: 'Eduardo Silva', rating: 5, comment: 'El tono azul es precioso. Perfecta para mi estudio. Los pliegues capturan la luz de forma mágica.', date: '2026-02-10', verified: true, variant: 'Única' },
+    { id: '1', author: 'Eduardo Silva', rating: 5, comment: 'El tono azul es precioso. Perfecta para mi estudio. Los pliegues capturan la luz de forma mágica.', date: '2026-02-10', verified: true, variant: 'Única', photoUrl: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779313645107-4vcyhpteg9.webp' },
     { id: '2', author: 'Isabella Reyes', rating: 5, comment: 'Me enamoré desde que la vi! Es una pieza única que le da mucha personalidad a mi espacio.', date: '2026-01-28', verified: true, variant: 'Única' },
     { id: '3', author: 'Sergio Navarro', rating: 4, comment: 'Hermosa pieza. El azul es un poco más intenso de lo que esperaba pero igual me encanta.', date: '2026-01-15', verified: true, variant: 'Única' },
     { id: '4', author: 'Valeria Campos', rating: 5, comment: 'La luna azul es fascinante. Los pliegues crean un efecto de profundidad increíble. Arte único.', date: '2025-12-28', verified: true, variant: 'Única' },
@@ -232,7 +232,7 @@ export const productReviews: Record<string, Review[]> = {
 
   // NUEVO — 3 reseñas, 4.9★
   'acorden-blanco-puro': [
-    { id: '1', author: 'Victoria Núñez', rating: 5, comment: 'El blanco puro es elegantísimo. Los pliegues crean un juego de sombras increíble. Perfecto para espacios minimalistas.', date: '2026-02-10', verified: true, variant: '80x80cm' },
+    { id: '1', author: 'Victoria Núñez', rating: 5, comment: 'El blanco puro es elegantísimo. Los pliegues crean un juego de sombras increíble. Perfecto para espacios minimalistas.', date: '2026-02-10', verified: true, variant: '80x80cm', photoUrl: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779313645107-gwkhzbohi7.webp' },
     { id: '2', author: 'Óscar Paredes', rating: 4, comment: 'Muy bonito. Simple pero impactante. Buena calidad del papel.', date: '2026-02-05', verified: true, variant: '50x50cm' },
     { id: '3', author: 'Brenda Morales', rating: 5, comment: 'El blanco puro con los pliegues es poesía visual. Arte minimalista en su máxima expresión.', date: '2026-01-22', verified: true, variant: '80x80cm' },
   ],
@@ -258,6 +258,23 @@ export const productReviews: Record<string, Review[]> = {
     { id: '6', author: 'Felipe Carrasco', rating: 5, comment: 'Regalo perfecto. Mi esposa lloró de emoción cuando lo vio. La luna en beige es etérea y delicada. Arte mexicano en su máxima expresión.', date: '2025-12-20', verified: true, variant: 'Única' },
     { id: '7', author: 'Lucía Navarro', rating: 5, comment: 'El beige neutro hace que combine con cualquier decoración. Los pliegues de la luna crean sombras hermosas. Mi favorita de toda la colección.', date: '2025-12-05', verified: true, variant: 'Única' },
     { id: '8', author: 'Héctor Villanueva', rating: 5, comment: 'Pieza de colección. El trabajo artesanal es impecable y el diseño de la luna en beige es elegante y atemporal. Llegó en perfectas condiciones.', date: '2025-11-22', verified: true, variant: 'Única' },
+  ],
+
+  // NUEVO — 5 reseñas, 4.9★
+  'prisma-onyx-opal': [
+    { id: '1', author: 'Valentina Solano', rating: 5, comment: 'Llegó perfectamente empaquetado y en persona es aún más impresionante. El prisma negro con esos ángulos crea sombras que no puedes dejar de ver. Vale cada peso.', date: '2026-02-08', verified: true, variant: '40x70cm', photoUrl: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779313645107-b119dzv8c9i.webp' },
+    { id: '2', author: 'Rodrigo Ibarra', rating: 5, comment: 'El efecto del Prisma Onyx Opal es hipnótico. Las formas geométricas con el negro mate son arte puro. Mis visitas no pueden dejar de mirarlo.', date: '2026-01-22', verified: true, variant: '40x70cm' },
+    { id: '3', author: 'Camila Fuentes', rating: 5, comment: 'Pieza de edición muy especial. El negro con los pliegues angulados crea algo único. Una obra que domina cualquier pared.', date: '2026-01-10', verified: true, variant: '40x70cm' },
+    { id: '4', author: 'Marco Estrada', rating: 4, comment: 'Muy buena calidad. El prisma negro es elegante y dramático. Quedó perfecto en mi oficina de home office.', date: '2025-12-20', verified: true, variant: '40x70cm' },
+    { id: '5', author: 'Paola Ríos', rating: 5, comment: 'Arte artesanal que supera cualquier cosa de tienda. El prisma onyx tiene una profundidad visual increíble. Lo recomiendo sin dudar.', date: '2025-12-05', verified: true, variant: '40x70cm' },
+  ],
+
+  // NUEVO — 4 reseñas, 4.8★
+  'prisma-azul-coral': [
+    { id: '1', author: 'Sebastián Mora', rating: 5, comment: 'El Prisma Azul Coral colgado en la sala quedó espectacular. El azul tiene una profundidad que cambia con la luz natural. Es la pieza de la que todos hablan cuando visitan mi casa.', date: '2026-02-05', verified: true, variant: 'Única', photoUrl: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779313645107-8wspbgkbhm7.webp' },
+    { id: '2', author: 'Andrea Villanueva', rating: 5, comment: 'La combinación azul y coral en los pliegues es impresionante. Cada ángulo revela algo diferente. Arte vivo que transforma el espacio.', date: '2026-01-18', verified: true, variant: 'Única' },
+    { id: '3', author: 'Diego Lara', rating: 5, comment: 'Una pieza realmente única. El prisma azul coral tiene una personalidad propia. Llegó muy bien protegido y en perfectas condiciones.', date: '2026-01-05', verified: true, variant: 'Única' },
+    { id: '4', author: 'Fernanda Castañeda', rating: 4, comment: 'Hermosa pieza artesanal. El azul coral es una combinación que no esperaba que funcionara tan bien. Me encantó el resultado.', date: '2025-12-15', verified: true, variant: 'Única' },
   ],
 
   // EDICIÓN LIMITADA — 5 reseñas, 4.8★

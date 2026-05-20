@@ -14,9 +14,10 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-**COMPLETADO**: Reviews con foto en sección "Lo que dicen de este cuadro" — foto full-width arriba de la tarjeta, reviews con foto ordenadas primero.
+**COMPLETADO**: Reviews con foto en PDP — 5 productos con foto en primera review de "Lo que dicen de este cuadro".
 
 ## 4. Recent Changes
+- **2026-05-20 Fotos reviews: Verde Salvia, Luna Azul, Blanco Puro + nuevas entradas Prisma Onyx Opal, Prisma Azul Coral** — `product-reviews-content.ts` actualizado. Verde Salvia (Mónica Aguilar id:17) → nueva foto. Luna Azul (Eduardo Silva id:1) → foto añadida. Blanco Puro (Victoria Núñez id:1) → foto añadida. Nuevas entradas `prisma-onyx-opal` (5 reviews, Valentina Solano con foto) y `prisma-azul-coral` (4 reviews, Sebastián Mora con foto).
 - **2026-05-20 Reviews PDP con foto** — `photoUrl` añadido a interfaz `Review` en `product-reviews-content.ts`. Fotos asignadas a reseñas específicas: Verde Salvia (Mónica Aguilar id:17 → primer lugar), Luna Negra (Camila Vargas id:1), Burdeos Intenso (Adriana Ríos id:1). `ReviewCard` actualizado con foto full-width aspect-[4/3]. `sortedReviews` ordena fotos primero.
 - **2026-05-20 Fotos de reviews reales** — `photoUrl` añadido en g4 (Verde Salvia) + 4 nuevas reseñas g9-g12 (Prisma Onyx Opal, Prisma Azul Coral, Burdeos Intenso, Luna Negra) en `plieggo-general-reviews.ts`
 - **2026-05-20 Fix galería mobile solapamiento** — `rows` dinámico (hasta 7 en mobile vs hardcoded 5), `topBase` distribuido uniformemente, eliminado `% chaosPositions.length` — InteractiveGalleryModal.tsx
@@ -33,14 +34,16 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Hero slide 2**: `...1779296069343-2ifge8n87sv.webp` (toda la colección → CTA /all-products)
 - Hero slide 3: video hero-paper-folding.mp4 (CTA → /galeria)
 - TopSellers HERO_IMAGE + EDITORIAL_IMAGE: misma imagen que hero slide 1
-- Collections hero (2026-05-20): ver plan anterior
-- Inspiration carousel (6 imágenes — ver plan anterior)
 - Logo: `/public/logo.svg`
-- **Review photos (en PDP "Lo que dicen de este cuadro")**:
-  - Verde Salvia (Mónica Aguilar): `...1779311693322-9f4ruvw5mpq.webp`
+- **Review photos PDP (product-reviews-content.ts)**:
+  - Verde Salvia (Mónica Aguilar): `...1779313645107-25fm4pmckj4.webp` ✅ nuevo
   - Luna Negra (Camila Vargas): `...1779311693322-8vbqa3p7c55.webp`
   - Burdeos Intenso (Adriana Ríos): `...1779311693322-4f7n3rqv0pj.webp`
-- **Review photos (en sección general "Más experiencias Plieggo")**:
+  - Luna Azul (Eduardo Silva): `...1779313645107-4vcyhpteg9.webp` ✅ nuevo
+  - Blanco Puro (Victoria Núñez): `...1779313645107-gwkhzbohi7.webp` ✅ nuevo
+  - Prisma Onyx Opal (Valentina Solano): `...1779313645107-b119dzv8c9i.webp` ✅ nuevo
+  - Prisma Azul Coral (Sebastián Mora): `...1779313645107-8wspbgkbhm7.webp` ✅ nuevo
+- **Review photos generales (plieggo-general-reviews.ts)**:
   - g4 Mónica A. (Verde Salvia): `...1779311693322-9f4ruvw5mpq.webp`
   - g9 Valentina S. (Prisma Onyx Opal): `...1779311693322-f14snp6bxfa.webp`
   - g10 Sebastián M. (Prisma Azul Coral): `...1779311693322-kcwn5zoehb.webp`
@@ -52,11 +55,13 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Video play error recurrente en hero (play/pause race condition) — no afecta funcionalidad
 - Luna Beige tiene solo 1 imagen en galería — necesita fotos de detalle y lifestyle
 - `plieggo-general-reviews.ts` tiene `photoUrl` vacío en g1, g2, g3, g5, g6, g7, g8 — pendiente
+- Slugs `prisma-onyx-opal` y `prisma-azul-coral` en product-reviews-content.ts — verificar que coincidan con slugs reales en DB
 
 ## 7. Pending / Future Sessions
+- **[ALTA]** Verificar que slugs `prisma-onyx-opal` y `prisma-azul-coral` coincidan con los handles reales en la DB
 - **[ALTA]** Subir fotos reales para reseñas g1-g3, g5-g8 (Beige Sutil, Luna Beige) en sección general
-- **[ALTA]** Agregar fotos a más reviews específicas en `product-reviews-content.ts` (Rosa Sereno, Terracota, Luna Llena, etc.)
-- **[ALTA]** Añadir más fotos a Luna Beige (detalle, textura, en sala) — desde Dashboard
+- **[MEDIA]** Agregar fotos a más reviews específicas en PDP (Rosa Sereno, Terracota, Luna Llena, etc.)
+- **[MEDIA]** Añadir más fotos a Luna Beige (detalle, textura, en sala) — desde Dashboard
 - **[MEDIA]** Indicador de stock "Solo X disponibles" para Edición Limitada
 - Revisar comportamiento de ExpressCheckout en Safari/iOS (Apple Pay)
 - Video del producto mostrando el juego de luz y sombra (requiere grabación)
