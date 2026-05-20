@@ -14,23 +14,13 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-**COMPLETADO ✅**: Esquema editorial replicado en las 3 páginas de colección:
-- `/all-products` → AllProducts.tsx ✅
-- `/coleccion-acordeon` → CollectionAcordeon.tsx ✅
-- `/coleccion-espacio` → CollectionEspacio.tsx ✅
-
-**Estructura implementada (igual que TopSellers.tsx):**
-1. Hero editorial compacto (`clamp(340px, 55vh, 520px)`) — imagen de fondo + overlay degradado + badge estrellas + H1 + subline + CTA "Ver cuadros"
-2. Trust strip — 4 íconos (Hand, Sparkles, Truck, RotateCcw)
-3. Productos grid (`id="productos"`) — título de sección centrado, grid 2 cols en móvil, skeleton correcto
-4. Mini social proof — 2 reviews `[plieggoGeneralReviews[0], plieggoGeneralReviews[2]]`
-5. Editorial split — imagen izquierda + eyebrow + H2 + 3 bullets únicos por colección
-6. CTA final — WhatsApp + link a otra sección
-7. InspirationCarousel
+**COMPLETADO ✅**: Galería de ambientes actualizada con 6 imágenes reales.
 
 **Próximo objetivo**: Subir fotos reales de clientes / mejorar UX de producto individual
 
 ## 4. Recent Changes
+- **2026-05-20 Galería de ambientes actualizada** — InspirationCarousel ahora tiene 6 imágenes: Espacio 1 (estudio verde), Espacio 2 (comedor negro, igual), Espacio 3 (recámara escandinava), Espacio 4 (cocina burdeos, igual), Espacio 5 (comedor mediterráneo), Espacio 6 (oficina dark, nueva)
+- **2026-05-20 ProductCard botón mobile oculto** — Botón "Agregar al carrito" en hover solo visible en desktop (md:). Móvil queda limpio.
 - **2026-05-20 Páginas colección editorial COMPLETO** — AllProducts, CollectionAcordeon, CollectionEspacio reescritas con esquema editorial igual a TopSellers: hero compacto, trust strip, grid 2-cols móvil, social proof, editorial split bullets, CTA final WhatsApp
 - **2026-05-20 Plan: páginas colección editorial** — Plan para replicar esquema TopSellers en AllProducts, CollectionAcordeon, CollectionEspacio
 - **2026-05-20 Product card aspect-ratio** — Cambiado `aspect-square md:aspect-[1/2]` a `aspect-[24/43]` en ProductCardUI.tsx para que coincida exactamente con imágenes 768×1376 px de Acordeón. Aplica igual en móvil y desktop.
@@ -44,8 +34,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-05-19 Hero editorial redesign COMPLETO** — Layout bottom-left, headline sm/font-semibold, CTA limpio sin glow, gradiente reposicionado to-top, dots discretos bottom-right, scroll indicator eliminado
 - **2026-05-19 Tipografía global** — fontFamily registrada en tailwind.config.ts: font-sans=DM Sans, font-serif=Crimson Pro, font-heading, font-body. Ahora consistente en todo el sitio.
 - **2026-05-19 WhatsApp completo** — Número real 525531215386 en TopSellers; link inline terracota en PDP; botón WhatsApp en footer con ícono SVG oficial
-- **2026-05-19 TopSellers REDISEÑO COMPLETO** — Hero editorial compacto 55vh, trust strip, grid 2-cols móvil, skeleton correcto, mini social proof 2 reviews, editorial 3 bullets, CTA final dual
-- **2026-05-19 ProductCard cleanup** — Badge compacto móvil, quitadas reseñas, precio más chico, CTA "Ver más" discreto
 
 ## 5. Image Inventory
 - Hero images: 2 imágenes Supabase storage (acordeon, espacio) + video
@@ -58,8 +46,13 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AllProducts editorial: `https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/all-products.webp`
 - Acordeón editorial: `https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acordeon.webp`
 - Espacio editorial: `https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/espacio.webp`
-- Inspiration: green-office.webp, black-dining.webp, purple-office.webp, burgundy-kitchen.webp, large-dining.webp
-- Gift banner: black-dining.webp ✅ (en uso)
+- Inspiration carousel (2026-05-20):
+  - Espacio 1: `...message-images/.../1779301248170-7zdmlt3v6x9.webp` (estudio verde)
+  - Espacio 2: `...product-images/.../black-dining.webp` (comedor negro) — sin cambio
+  - Espacio 3: `...message-images/.../1779301248171-1gyve5g10np.webp` (recámara escandinava)
+  - Espacio 4: `...product-images/.../burgundy-kitchen.webp` (cocina) — sin cambio
+  - Espacio 5: `...message-images/.../1779301248171-cor5cchqdk7.webp` (comedor mediterráneo)
+  - Espacio 6: `...message-images/.../1779301248171-ckv1r5njeaa.webp` (oficina dark, nueva)
 - Logo: `/public/logo.svg`
 - Fotos reales de clientes: PENDIENTE — llenar `photoUrl` en `src/data/plieggo-general-reviews.ts`
 

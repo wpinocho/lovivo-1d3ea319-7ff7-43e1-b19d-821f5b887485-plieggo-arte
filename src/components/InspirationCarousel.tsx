@@ -9,9 +9,9 @@ import { cn } from '@/lib/utils'
 
 const inspirationImages = [
   {
-    src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/green-office.webp',
-    alt: 'Cuadro Plieggo verde en oficina minimalista con escritorio',
-    caption: 'Oficina minimalista',
+    src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779301248170-7zdmlt3v6x9.webp',
+    alt: 'Cuadro Plieggo verde salvia horizontal en estudio luminoso con escritorio de madera oscura y planta tropical',
+    caption: 'Estudio con luz natural',
   },
   {
     src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/black-dining.webp',
@@ -19,9 +19,9 @@ const inspirationImages = [
     caption: 'Comedor con luz natural',
   },
   {
-    src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/purple-office.webp',
-    alt: 'Cuadro Plieggo morado vertical en oficina con silla terracota',
-    caption: 'Estudio en tonos cálidos',
+    src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779301248171-1gyve5g10np.webp',
+    alt: 'Cuadro Plieggo blanco horizontal sobre cama de madera natural con ropa de cama beige y camel en recámara escandinava',
+    caption: 'Recámara escandinava',
   },
   {
     src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/burgundy-kitchen.webp',
@@ -29,9 +29,14 @@ const inspirationImages = [
     caption: 'Cocina contemporánea',
   },
   {
-    src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/large-dining.webp',
-    alt: 'Cuadro Plieggo grande en comedor familiar con perro',
-    caption: 'Sala familiar',
+    src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779301248171-cor5cchqdk7.webp',
+    alt: 'Cuadro Plieggo cuadrado en comedor mediterráneo con sillas pastel, mesa de roble y perro golden retriever',
+    caption: 'Comedor mediterráneo',
+  },
+  {
+    src: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779301248171-ckv1r5njeaa.webp',
+    alt: 'Cuadro Plieggo azul marino vertical en oficina contemporánea oscura con escritorio de madera y laptop',
+    caption: 'Oficina contemporánea',
   },
 ]
 
