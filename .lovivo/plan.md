@@ -14,9 +14,10 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 
 ## 3. Active Plan
-**COMPLETADO**: Fix galería mobile — grid 320×250%, cards 160px, 3 items/fila, drag ajustado
+**COMPLETADO**: Fix galería mobile — generación dinámica de filas (hasta 7×3=21 posiciones), sin reutilización de coordenadas
 
 ## 4. Recent Changes
+- **2026-05-20 Fix galería mobile solapamiento** — `rows` dinámico (hasta 7 en mobile vs hardcoded 5), `topBase` distribuido uniformemente, eliminado `% chaosPositions.length` — InteractiveGalleryModal.tsx
 - **2026-05-20 Fix galería mobile COMPLETO** — Grid 320×250% (vs 280×380% desktop), cards 160px, máx 3 por fila, drag top:-150% left:-220% — InteractiveGalleryModal.tsx
 - **2026-05-20 Fix galería: grid 280×380%, filas re-espaciadas, drag/mouse ampliados** — InteractiveGalleryModal.tsx
 - **2026-05-20 Galería: degradado + cuadros 2x** — bg-transparent en Galeria.tsx e InteractiveGalleryModal para mostrar radial-gradient del body. Card width 120→240px desktop, 100→200px mobile.
@@ -31,7 +32,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-05-20 Collection cards rediseño** — Nuevo orden, nuevas imágenes editoriales, aspecto `aspect-[3/4]`
 - **2026-05-20 hoverImageIndex global** — Espacio → imagen 2, todo lo demás → imagen 3
 - **2026-05-20 Fix CollectionAcordeon handle** — Corregido handle typo en DB
-- **2026-05-19 Hero editorial redesign COMPLETO** — Layout bottom-left, headline sm/font-semibold, CTA limpio
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)

@@ -170,17 +170,22 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
   // Generar posiciones dinámicas según número de items
   const generateChaosPositions = (itemCount: number, mobile = false) => {
     const positions: { top: number; left: number }[] = []
-    const rows = 5
-    const rawItemsPerRow = Math.ceil(itemCount / rows)
-    const itemsPerRow = mobile ? Math.min(rawItemsPerRow, 3) : rawItemsPerRow
+    // Mobile: máx 7 filas × 3 = 21 posiciones (soporta hasta 20 items con última fila de 2)
+    // Desktop: 5 filas, items distribuidos uniformemente
+    const rows = mobile ? Math.min(Math.ceil(itemCount / 3), 7) : 5
+    const itemsPerRow = mobile ? 3 : Math.ceil(itemCount / rows)
     
     for (let row = 0; row < rows; row++) {
       // Cuántos items faltan por colocar
       const remainingItems = itemCount - positions.length
       const itemsInThisRow = Math.min(itemsPerRow, remainingItems)
       
-      // Base vertical para esta fila
-      const topBase = 5 + (row * 20)  // Filas en 5%, 25%, 45%, 65%, 85% del grid (380% alto)
+      // Base vertical — distribuida uniformemente en el alto del grid
+      // Mobile: 5%–88% repartido en N filas dentro del grid h-[250%]
+      // Desktop: filas fijas en 5%, 25%, 45%, 65%, 85% del grid h-[380%]
+      const topBase = mobile
+        ? 5 + (row * (83 / Math.max(rows - 1, 1)))
+        : 5 + (row * 20)
       
       for (let col = 0; col < itemsInThisRow; col++) {
         // Distribuir horizontalmente con variación caótica
@@ -250,7 +255,7 @@ export const InteractiveGalleryModal = ({ isOpen, onClose, standalone = false }:
               const chaosPositions = generateChaosPositions(galleryItems.length, isMobile)
               
               return galleryItems.map((item, index) => {
-                const position = chaosPositions[index % chaosPositions.length]
+                const position = chaosPositions[index]
 
               return (
                 <motion.button
