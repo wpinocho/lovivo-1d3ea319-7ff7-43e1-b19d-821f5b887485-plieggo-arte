@@ -15,9 +15,10 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Review photos: `aspect-[4/5]` (ReviewCard y GeneralReviewCard) — menos alto que 3/4
 
 ## 3. Active Plan
-**COMPLETADO**: Reducción de altura de imágenes en review cards (3/4 → 4/5).
+**COMPLETADO**: Reordenar secciones PDP — galería de ambientes ahora va después de las reviews.
 
 ## 4. Recent Changes
+- **2026-05-21 PDP orden secciones** — Reviews → InspirationCarousel → FAQ → CrossSell (antes era InspirationCarousel → Reviews → ...)
 - **2026-05-20 Review card photos aspect ratio** — `aspect-[3/4]` → `aspect-[4/5]` en ReviewCard y GeneralReviewCard (ProductReviews.tsx)
 - **2026-05-20 Limpieza completa acorden-rosa-morado** — aliases en los 3 archivos data, g4 productSlug corregido a `acorden-verde-salvia`, entradas de rosa-morado eliminadas.
 - **2026-05-20 Fix slug g4 Verde Salvia en general reviews** — `acorden-verde-salvia` para exclusión correcta en PDP.
@@ -27,7 +28,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-05-20 Fotos review Beige Sutil + Luna Llena** — `photoUrl` añadido a primera review de `acorden-beige-sutil` y `luna-llena`.
 - **2026-05-20 Reviews acordeon-prisma-beige-blanco** — 4 reseñas creadas. Primera con foto.
 - **2026-05-20 Reviews PDP con foto** — `photoUrl` añadido a interfaz `Review`. `ReviewCard` con foto full-width aspect-[3/4].
-- **2026-05-20 Fix galería mobile solapamiento** — `rows` dinámico, `topBase` distribuido — InteractiveGalleryModal.tsx
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)

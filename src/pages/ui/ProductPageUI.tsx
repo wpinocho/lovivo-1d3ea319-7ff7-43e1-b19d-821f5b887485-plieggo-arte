@@ -718,10 +718,10 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
           </div>
 
           {/* ── Plieggo sections ── */}
-          {/* Orden: Inspiración (deseo) → Reviews (confianza) → FAQ (objeciones) → CrossSell (upsell) */}
+          {/* Orden: Reviews (confianza) → Inspiración (deseo) → FAQ (objeciones) → CrossSell (upsell) */}
           <div className="mt-16 space-y-16">
-            <InspirationCarousel />
             <ProductReviews productSlug={product.slug} />
+            <InspirationCarousel />
             <ProductFAQ />
             <CrossSellSection currentProduct={logic.product} />
           </div>
