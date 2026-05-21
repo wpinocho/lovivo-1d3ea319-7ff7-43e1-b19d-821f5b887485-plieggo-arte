@@ -13,11 +13,13 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - CTAs: NUNCA usar glow/sombra naranja gigante. Botones limpios, elegantes.
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 - Review photos: `aspect-[4/5]` (ReviewCard y GeneralReviewCard) — menos alto que 3/4
+- AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**COMPLETADO**: Reordenar secciones PDP — galería de ambientes ahora va después de las reviews.
+**COMPLETADO**: Rediseño completo de AboutPage con layout editorial tipo Zara Home.
 
 ## 4. Recent Changes
+- **2026-05-21 AboutPage rediseño editorial** — Split hero (quote+image), visión invertida (image+text), 3 pilares tipográficos, sección proceso dark (#1B2A41), CTA limpio. Imágenes reales del taller.
 - **2026-05-21 PDP orden secciones** — Reviews → InspirationCarousel → FAQ → CrossSell (antes era InspirationCarousel → Reviews → ...)
 - **2026-05-20 Review card photos aspect ratio** — `aspect-[3/4]` → `aspect-[4/5]` en ReviewCard y GeneralReviewCard (ProductReviews.tsx)
 - **2026-05-20 Limpieza completa acorden-rosa-morado** — aliases en los 3 archivos data, g4 productSlug corregido a `acorden-verde-salvia`, entradas de rosa-morado eliminadas.
@@ -35,12 +37,9 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero slide 3: video hero-paper-folding.mp4 (CTA → /galeria)
 - TopSellers HERO_IMAGE + EDITORIAL_IMAGE: misma imagen que hero slide 1
 - Logo: `/public/logo.svg`
-- **Review photos generales (plieggo-general-reviews.ts)** — 5 con foto (g4, g9, g10, g11, g12):
-  - g4 Mónica A. (Verde Salvia): `...1779311693322-9f4ruvw5mpq.webp`
-  - g9 Valentina S. (Prisma Onyx Opal): `...1779311693322-f14snp6bxfa.webp`
-  - g10 Sebastián M. (Prisma Azul Coral): `...1779311693322-kcwn5zoehb.webp`
-  - g11 Daniela R. (Burdeos Intenso): `...1779311693322-4f7n3rqv0pj.webp`
-  - g12 Andrés V. (Luna Negra): `...1779311693322-8vbqa3p7c55.webp`
+- **About Studio 1**: `...1779325504866-5bg4llquutd.webp` (artesana con papel beige — hero split)
+- **About Studio 2**: `...1779325504867-4wurhzmqhfg.webp` (manos plegando acordeón gris oscuro — visión)
+- **Review photos generales (plieggo-general-reviews.ts)** — 5 con foto (g4, g9, g10, g11, g12)
 
 ## 6. Known Issues
 - Handle de Colección Acordeón en DB tiene typo: `coleccin-acorden` — corregido en código
