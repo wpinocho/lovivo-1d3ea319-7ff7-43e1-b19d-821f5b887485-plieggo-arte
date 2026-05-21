@@ -16,9 +16,10 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**COMPLETADO**: Rediseño completo de AboutPage con layout editorial tipo Zara Home.
+**COMPLETADO**: Fix de precios de envío en CheckoutAdapter — passthrough puro al backend.
 
 ## 4. Recent Changes
+- **2026-05-21 CheckoutAdapter shipping fix** — Pure passthrough: `country_name`/`state_name` → `country_code`/`state_code` usando `countryNameToCode()`. Handler nuevo para `response.shipping.ok === false`. `shippingError` state añadido. Billing address limpiada con `countryNameToCode`.
 - **2026-05-21 AboutPage rediseño editorial** — Split hero (quote+image), visión invertida (image+text), 3 pilares tipográficos, sección proceso dark (#1B2A41), CTA limpio. Imágenes reales del taller.
 - **2026-05-21 PDP orden secciones** — Reviews → InspirationCarousel → FAQ → CrossSell (antes era InspirationCarousel → Reviews → ...)
 - **2026-05-20 Review card photos aspect ratio** — `aspect-[3/4]` → `aspect-[4/5]` en ReviewCard y GeneralReviewCard (ProductReviews.tsx)

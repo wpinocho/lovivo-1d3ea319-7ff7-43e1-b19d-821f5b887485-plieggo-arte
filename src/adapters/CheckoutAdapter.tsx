@@ -10,6 +10,7 @@ import { calculateDiscountAmount, validateDiscount, type Discount } from "@/lib/
 import { logger } from "@/lib/logger";
 import { trackInitiateCheckout, tracking } from "@/lib/tracking-utils";
 import { formatMoney as formatMoneyUtil } from "@/lib/money";
+import { countryNameToCode } from "@/lib/country-codes";
 
 /**
  * FORBIDDEN ADAPTER - CheckoutAdapter
@@ -97,6 +98,7 @@ export const useCheckoutLogic = () => {
 
   // Keep shipping cost in sync - now from checkout-update response
   const [shippingFromCheckout, setShippingFromCheckout] = useState(0);
+  const [shippingError, setShippingError] = useState<string | null>(null);
 
   // Discount state
   const [couponCode, setCouponCode] = useState('');
@@ -275,23 +277,30 @@ export const useCheckoutLogic = () => {
     if (!hasMinimalFields) return;
 
     const formattedAddress = {
-      country_name: address.country,
-      state_name: address.state,
+      country_code: countryNameToCode(address.country) || address.country,
+      state_code: address.state,
       postal_code: address.postal_code,
-      ...(address.city && { city: address.city }),
-      ...(address.line1 && { line1: address.line1 }),
-      ...(address.line2 && { line2: address.line2 }),
-      ...(firstName.trim() && { first_name: firstName.trim() }),
-      ...(lastName.trim() && { last_name: lastName.trim() })
+      city: address.city,
+      line1: address.line1,
+      line2: address.line2 ?? undefined,
+      first_name: firstName.trim() || undefined,
+      last_name: lastName.trim() || undefined,
     };
 
-    console.log('Shipping address update triggered with:', formattedAddress);
-    updateShippingAddress(formattedAddress).then((response: any) => {
-      if (response && typeof response.shipping_amount === 'number') {
-        console.log('Received shipping_amount from checkout-update:', response.shipping_amount);
-        setShippingFromCheckout(response.shipping_amount);
-      }
-    }).catch(console.error);
+    updateShippingAddress(formattedAddress)
+      .then((response: any) => {
+        if (response?.shipping?.ok === false) {
+          setShippingFromCheckout(0);
+          setShippingError(response.shipping.message || 'No realizamos envíos a esa dirección.');
+        } else {
+          setShippingError(null);
+          setShippingFromCheckout(response?.shipping_amount ?? 0);
+        }
+      })
+      .catch((err) => {
+        console.error('Error updating shipping address:', err);
+        setShippingFromCheckout(0);
+      });
   }, [address.country, address.state, address.postal_code, address.city, address.line1, address.line2, firstName, lastName, hasActiveCheckout, orderId, updateShippingAddress]);
 
   // Auto-update billing address when it changes
@@ -303,18 +312,18 @@ export const useCheckoutLogic = () => {
     const minValid = billingAddress.country && billingAddress.postal_code && billingAddress.city && billingAddress.state && billingAddress.line1 && billingAddress.first_name && billingAddress.last_name;
     if (!minValid) return;
 
-    const formattedBillingAddress = {
+    const formattedBilling = {
+      country_code: countryNameToCode(billingAddress.country) || undefined,
+      state_code: billingAddress.state,
+      postal_code: billingAddress.postal_code,
+      city: billingAddress.city,
+      line1: billingAddress.line1,
+      line2: billingAddress.line2 ?? undefined,
       first_name: billingAddress.first_name.trim() || undefined,
       last_name: billingAddress.last_name.trim() || undefined,
-      line1: billingAddress.line1,
-      line2: billingAddress.line2 || undefined,
-      city: billingAddress.city,
-      state: billingAddress.state,
-      postal_code: billingAddress.postal_code,
-      country_code: billingAddress.country === 'México' ? 'MX' : billingAddress.country === 'Estados Unidos' ? 'US' : 'MX'
     };
 
-    updateBillingAddress(formattedBillingAddress).catch(console.error);
+    updateBillingAddress(formattedBilling).catch(console.error);
   }, [billingAddress, useSameAddress, usePickup, hasActiveCheckout, orderId, updateBillingAddress]);
 
   // Auto-update billing address to null when using same address
@@ -613,6 +622,7 @@ export const useCheckoutLogic = () => {
     useSameAddress,
     billingAddress,
     shippingFromCheckout,
+    shippingError,
     couponCode,
     discount,
     isValidatingCoupon,
