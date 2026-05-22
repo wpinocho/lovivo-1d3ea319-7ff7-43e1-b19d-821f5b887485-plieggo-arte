@@ -16,63 +16,23 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**URGENTE — Fix 2 bugs en checkout que bloquean pagos**
+**Checkout fixes implementados — pendiente testing en producción**
 
-### Bug 1: address.state se borra (causa: "estado" en error)
-**Archivo:** `src/adapters/CheckoutAdapter.tsx` líneas ~569-582
-**Problema:** Hay un `useEffect` que resetea `address.state` a `''` cuando el estado no está en `availableStates`. Stripe AddressElement emite ISO short codes (`CDMX`, `JAL`) pero `shippingCoverage.states` tiene nombres completos (`Ciudad de México`). No hace match → borra el estado → validación falla.
+Ambos bugs que bloqueaban el checkout fueron resueltos en `src/adapters/CheckoutAdapter.tsx`:
 
-**Fix:** Eliminar o desactivar el efecto que limpia el estado:
-```js
-// ELIMINAR este useEffect completo (líneas ~574-582):
-useEffect(() => {
-    if (address.country && selectedCountryData && !availableStates.includes(address.state)) {
-      setAddress(prev => ({
-        ...prev,
-        state: ''
-      }));
-    }
-  }, [address.country, availableStates, selectedCountryData, address.state]);
-```
+### Fix 1 (APLICADO): state-resetter eliminado
+El `useEffect` que limpiaba `address.state` cuando el estado no estaba en `availableStates` fue eliminado. Causa raíz: Stripe/Link emite códigos ISO cortos (`CDMX`) pero la lista tenía nombres completos (`Ciudad de México`) → no hacía match → borraba el estado → faltaba `estado` en validación.
 
-También se puede mantener la lógica pero SOLO resetear cuando cambia el PAÍS (no cuando cambia el estado), para evitar el loop:
-```js
-// REEMPLAZAR por (solo resetea al cambiar country, no al cambiar state):
-useEffect(() => {
-  setAddress(prev => ({ ...prev, state: '' }));
-}, [address.country]);
-```
+### Fix 2 (APLICADO): validateCheckoutFields simplificado  
+La función `validateCheckoutFields` ahora NO valida teléfono ni estado en modo envío (solo en pickup). Stripe AddressElement con `fields.phone:'always'` ya captura y valida esos campos internamente via `elements.submit()`.
 
-### Bug 2: logic.phone nunca se actualiza (causa: "teléfono" en error)
-**Archivos:** `src/components/StripePayment.tsx` + `src/adapters/CheckoutAdapter.tsx`
-**Problema:** StripePayment tiene un input de teléfono interno (CountryPhoneSelect local), pero NO tiene prop `onPhoneChange` que propague el valor al adaptador. `logic.phone` siempre es `''`. La validación en `validateCheckoutFields` falla aunque el usuario haya llenado el campo visualmente.
-
-**Fix opción A (recomendada, más simple):** Quitar la validación de teléfono de `validateCheckoutFields` para el flujo normal (no pickup). El teléfono es recopilado por Stripe directamente — no necesita pasar por `logic.phone` para procesar el pago:
-```js
-// En validateCheckoutFields (~línea 495), cambiar:
-if (!usePickup && (!phone.trim() || !isValidPhone(phone))) {
-  missingFields.push('teléfono');
-}
-// POR (solo validar teléfono en modo pickup):
-if (usePickup && !selectedPickupLocation && (!phone.trim() || !isValidPhone(phone))) {
-  missingFields.push('teléfono');
-}
-```
-
-**Fix opción B (más completo):** Agregar `onPhoneChange` a StripePayment y conectarlo con `logic.setPhone`. Requiere:
-1. Agregar prop `onPhoneChange?: (phone: string) => void` a `StripePaymentProps`
-2. Llamarlo cuando el usuario cambia el teléfono en el input interno
-3. En CheckoutUI, pasar `onPhoneChange={logic.setPhone}`
-
-### Archivos a modificar
-- `src/adapters/CheckoutAdapter.tsx` — Bugs 1 y 2 (opción A)
-- `src/components/StripePayment.tsx` — Bug 2 (opción B, opcional)
-- `src/pages/ui/CheckoutUI.tsx` — Bug 2 (opción B, si se agrega onPhoneChange)
-
-### Recomendación final
-Aplicar Fix 1 (eliminar state-resetter) + Fix 2 opción A (quitar phone validation para no-pickup). Esto es lo mínimo para desbloquear el checkout sin riesgo de romper otras cosas.
+### Fix 3 (APLICADO): shippingCoverageV2 + passthrough backend
+- Ahora usa `shippingCoverageV2` en lugar de `shippingCoverage` para la lista de países
+- `updateShippingAddress` pasa `country_code` y `state_code` directamente al backend (sin validación local)
+- `discountAmount` usa `backendDiscountAmount` primero, luego cálculo local como fallback
 
 ## 4. Recent Changes
+- **2026-05-22 CheckoutAdapter.tsx reescrito con template corregido** — Eliminado state-resetter useEffect, simplificado validateCheckoutFields (sin phone/state en modo envío), shippingCoverageV2, passthrough backend.
 - **2026-05-22 Checkout bugs diagnosticados** — Bug 1: useEffect limpia address.state porque ISO code (CDMX) != nombre completo en shippingCoverage. Bug 2: logic.phone nunca se actualiza desde StripePayment (sin onPhoneChange). Ambos causan "Por favor completa: teléfono, estado".
 - **2026-05-21 CheckoutAdapter shipping fix** — Pure passthrough: `country_name`/`state_name` → `country_code`/`state_code` usando `countryNameToCode()`. Handler nuevo para `response.shipping.ok === false`. `shippingError` state añadido. Billing address limpiada con `countryNameToCode`.
 - **2026-05-21 AboutPage rediseño editorial** — Split hero (quote+image), visión invertida (image+text), 3 pilares tipográficos, sección proceso dark (#1B2A41), CTA limpio. Imágenes reales del taller.
@@ -98,7 +58,6 @@ Aplicar Fix 1 (eliminar state-resetter) + Fix 2 opción A (quitar phone validati
 - **Review photos generales (plieggo-general-reviews.ts)** — 5 con foto (g4, g9, g10, g11, g12)
 
 ## 6. Known Issues
-- **[BLOQUEANTE] Checkout error "teléfono, estado"** — Ver sección 3 para el fix
 - Handle de Colección Acordeón en DB tiene typo: `coleccin-acorden` — corregido en código
 - Video play error recurrente en hero (play/pause race condition) — no afecta funcionalidad
 - Luna Beige tiene solo 1 imagen en galería — necesita fotos de detalle y lifestyle
@@ -107,6 +66,7 @@ Aplicar Fix 1 (eliminar state-resetter) + Fix 2 opción A (quitar phone validati
 - En PDPs de luna: solo 1 review con foto es de luna (g12), se rellena con 4 de acordeón — aceptable por ahora
 
 ## 7. Pending / Future Sessions
+- **[ALTA]** Probar el checkout en producción tras los fixes de hoy
 - **[ALTA]** Subir fotos reales para reseñas g1, g2, g3, g5, g6, g7, g8 (ampliar pool de "Más experiencias")
 - **[MEDIA]** Agregar fotos a más reviews específicas en PDP (Rosa Sereno, Terracota, Luna Beige, etc.)
 - **[MEDIA]** Añadir más fotos a Luna Beige (detalle, textura, en sala) — desde Dashboard

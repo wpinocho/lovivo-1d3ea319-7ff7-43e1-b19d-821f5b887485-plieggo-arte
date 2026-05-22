@@ -9,7 +9,7 @@ import { useOrderItems } from "@/hooks/useOrderItems";
 import { calculateDiscountAmount, validateDiscount, type Discount } from "@/lib/discount-utils";
 import { logger } from "@/lib/logger";
 import { trackInitiateCheckout, tracking } from "@/lib/tracking-utils";
-import { formatMoney as formatMoneyUtil } from "@/lib/money";
+import { isValidPhone, normalizePhoneNumber } from "@/lib/phone-utils";
 import { countryNameToCode } from "@/lib/country-codes";
 
 /**
@@ -24,6 +24,7 @@ export const useCheckoutLogic = () => {
   const {
     currencyCode,
     shippingCoverage,
+    shippingCoverageV2,
     pickupLocations,
     deliveryExpectations
   } = useSettings();
@@ -58,7 +59,7 @@ export const useCheckoutLogic = () => {
 
   // Contact state
   const [email, setEmail] = useState("");
-  const [subscribeNews, setSubscribeNews] = useState(false);
+  const [subscribeNews, setSubscribeNews] = useState(true);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
@@ -67,9 +68,13 @@ export const useCheckoutLogic = () => {
   const clientTimer = useRef<number | null>(null);
   const [clientSaving, setClientSaving] = useState(false);
   
+  // Shipping coverage error
+  const [shippingError, setShippingError] = useState<string | null>(null);
+
   // Address state
   const [address, setAddress] = useState({
-    country: "México",
+    country: "",
+    countryCode: "",
     postal_code: "",
     state: "",
     city: "",
@@ -88,7 +93,7 @@ export const useCheckoutLogic = () => {
   const [billingAddress, setBillingAddress] = useState({
     first_name: "",
     last_name: "",
-    country: "México",
+    country: "",
     postal_code: "",
     state: "",
     city: "",
@@ -96,9 +101,18 @@ export const useCheckoutLogic = () => {
     line2: ""
   });
 
+  // Auto-select the only country if shipping coverage has exactly one
+  useEffect(() => {
+    const countries = shippingCoverageV2?.countries || [];
+    if (countries.length === 1 && !address.country) {
+      setAddress(prev => ({ ...prev, country: countries[0].name, countryCode: countries[0].code }));
+      setBillingAddress(prev => ({ ...prev, country: countries[0].name }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shippingCoverageV2]);
+
   // Keep shipping cost in sync - now from checkout-update response
   const [shippingFromCheckout, setShippingFromCheckout] = useState(0);
-  const [shippingError, setShippingError] = useState<string | null>(null);
 
   // Discount state
   const [couponCode, setCouponCode] = useState('');
@@ -177,45 +191,20 @@ export const useCheckoutLogic = () => {
     return emailRegex.test(trimmed) && trimmed.includes('.') && !trimmed.endsWith('.');
   };
 
-  // Phone validation
-  const isValidPhone = (phoneValue: string) => {
-    if (!phoneValue.trim()) return false;
-    
-    const phoneWithoutPrefix = phoneValue.replace(/^\+\d+\s?/, '').trim();
-    const digitsOnly = phoneWithoutPrefix.replace(/[^\d]/g, '');
-    
-    return digitsOnly.length >= 4 && digitsOnly.length <= 15;
-  };
-
-  // Normalize phone number
-  const normalizePhoneNumber = (phoneValue: string) => {
-    if (!isValidPhone(phoneValue)) return null;
-    
-    if (phoneValue.startsWith('+')) {
-      const digits = phoneValue.replace(/\D/g, '');
-      const match = phoneValue.match(/^\+(\d+)\s?(.+)$/);
-      if (match) {
-        const countryCode = match[1];
-        const number = match[2].replace(/\D/g, '');
-        return `+${countryCode}${number}`;
-      }
-      return `+${digits}`;
-    } else {
-      const digits = phoneValue.replace(/\D/g, '');
-      return `+52${digits}`;
-    }
-  };
+  // Phone validation + normalization moved to src/lib/phone-utils.ts
+  // (re-exported via the adapter return for legacy consumers).
 
   // Smart client data saving
-  const saveClientData = async (immediate = false) => {
+  const saveClientData = async (immediate = false, emailOverride?: string) => {
     if (!orderId) return;
-    const trimmedEmail = email.trim();
+    const trimmedEmail = (emailOverride ?? email).trim();
     const normalizedPhone = normalizePhoneNumber(phone);
 
     const hasValidEmail = trimmedEmail && isValidEmail(trimmedEmail);
     const hasValidPhone = normalizedPhone !== null;
 
-    if (!hasValidEmail && !hasValidPhone) return;
+    // Backend requires email — skip if we don't have one yet
+    if (!hasValidEmail) return;
 
     const customerData: any = {};
     if (hasValidEmail) customerData.email = trimmedEmail;
@@ -274,34 +263,41 @@ export const useCheckoutLogic = () => {
     
     const hasMinimalFields = address.country && address.state && address.postal_code;
     
-    if (!hasMinimalFields) return;
+    if (!hasMinimalFields) {
+      setShippingError(null);
+      return;
+    }
 
+    // Passthrough payload — backend (checkout-update) is the source of truth
+    // for coverage validation and shipping calculation. No local validation.
     const formattedAddress = {
-      country_code: countryNameToCode(address.country) || address.country,
-      state_code: address.state,
+      country_code: address.countryCode || undefined,
+      state_code: address.state || undefined,
       postal_code: address.postal_code,
-      city: address.city,
-      line1: address.line1,
-      line2: address.line2 ?? undefined,
-      first_name: firstName.trim() || undefined,
-      last_name: lastName.trim() || undefined,
+      ...(address.city && { city: address.city }),
+      ...(address.line1 && { line1: address.line1 }),
+      ...(address.line2 && { line2: address.line2 }),
+      ...(firstName.trim() && { first_name: firstName.trim() }),
+      ...(lastName.trim() && { last_name: lastName.trim() })
     };
 
-    updateShippingAddress(formattedAddress)
-      .then((response: any) => {
-        if (response?.shipping?.ok === false) {
-          setShippingFromCheckout(0);
-          setShippingError(response.shipping.message || 'No realizamos envíos a esa dirección.');
-        } else {
-          setShippingError(null);
-          setShippingFromCheckout(response?.shipping_amount ?? 0);
-        }
-      })
-      .catch((err) => {
-        console.error('Error updating shipping address:', err);
+    console.log('Shipping address update triggered with:', formattedAddress);
+    updateShippingAddress(formattedAddress).then((response: any) => {
+      if (response?.shipping?.ok === false) {
         setShippingFromCheckout(0);
-      });
-  }, [address.country, address.state, address.postal_code, address.city, address.line1, address.line2, firstName, lastName, hasActiveCheckout, orderId, updateShippingAddress]);
+        setShippingError(response.shipping.message || 'No realizamos envíos a esa dirección.');
+        console.log('Shipping coverage blocked by backend:', response.shipping);
+      } else {
+        setShippingError(null);
+        const amount = typeof response?.shipping_amount === 'number' ? response.shipping_amount : 0;
+        console.log('Received shipping_amount from checkout-update:', amount);
+        setShippingFromCheckout(amount);
+      }
+    }).catch((err) => {
+      console.error('updateShippingAddress error:', err);
+    });
+  }, [address.country, address.countryCode, address.state, address.postal_code, address.city, address.line1, address.line2, firstName, lastName, hasActiveCheckout, orderId, updateShippingAddress]);
+
 
   // Auto-update billing address when it changes
   useEffect(() => {
@@ -312,28 +308,22 @@ export const useCheckoutLogic = () => {
     const minValid = billingAddress.country && billingAddress.postal_code && billingAddress.city && billingAddress.state && billingAddress.line1 && billingAddress.first_name && billingAddress.last_name;
     if (!minValid) return;
 
-    const formattedBilling = {
-      country_code: countryNameToCode(billingAddress.country) || undefined,
-      state_code: billingAddress.state,
-      postal_code: billingAddress.postal_code,
-      city: billingAddress.city,
-      line1: billingAddress.line1,
-      line2: billingAddress.line2 ?? undefined,
+    const formattedBillingAddress = {
       first_name: billingAddress.first_name.trim() || undefined,
       last_name: billingAddress.last_name.trim() || undefined,
+      line1: billingAddress.line1,
+      line2: billingAddress.line2 || undefined,
+      city: billingAddress.city,
+      state_code: billingAddress.state || undefined,
+      postal_code: billingAddress.postal_code,
+      country_code: countryNameToCode(billingAddress.country) || undefined,
     };
 
-    updateBillingAddress(formattedBilling).catch(console.error);
+    updateBillingAddress(formattedBillingAddress).catch(console.error);
   }, [billingAddress, useSameAddress, usePickup, hasActiveCheckout, orderId, updateBillingAddress]);
 
-  // Auto-update billing address to null when using same address
-  useEffect(() => {
-    if (!hasActiveCheckout || !orderId || usePickup) return;
-    
-    if (useSameAddress) {
-      updateBillingAddress(null).catch(console.error);
-    }
-  }, [useSameAddress, usePickup, hasActiveCheckout, orderId, updateBillingAddress]);
+  // Note: when useSameAddress is true, we simply don't send billing_address updates.
+  // The backend treats the absence of billing_address as "use shipping address".
 
   // Aplicar parámetros de URL (descuentos, contacto, etc.)
   const applyURLParams = (urlParams: any) => {
@@ -341,13 +331,10 @@ export const useCheckoutLogic = () => {
     
     console.log('📥 Applying URL params:', urlParams);
     
-    // Aplicar email
     if (urlParams.email && isValidEmail(urlParams.email)) {
       setEmail(urlParams.email);
       console.log('✅ Email applied from URL:', urlParams.email);
     }
-    
-    // Aplicar nombres
     if (urlParams.firstName) {
       setFirstName(urlParams.firstName);
       console.log('✅ First name applied from URL:', urlParams.firstName);
@@ -356,13 +343,31 @@ export const useCheckoutLogic = () => {
       setLastName(urlParams.lastName);
       console.log('✅ Last name applied from URL:', urlParams.lastName);
     }
-    
-    // Aplicar teléfono
     if (urlParams.phone) {
       setPhone(urlParams.phone);
       console.log('✅ Phone applied from URL:', urlParams.phone);
     }
   };
+
+  // Hidratar datos de contacto desde sessionStorage (guardados por useURLCartLoader)
+  useEffect(() => {
+    if (!hasActiveCheckout) return;
+
+    const keys = ['url_email', 'url_firstName', 'url_lastName', 'url_phone'] as const;
+    const stored: Record<string, string> = {};
+    for (const k of keys) {
+      const v = sessionStorage.getItem(k);
+      if (v) { stored[k] = v; sessionStorage.removeItem(k); }
+    }
+    if (Object.keys(stored).length === 0) return;
+
+    if (stored.url_email && isValidEmail(stored.url_email)) setEmail(stored.url_email);
+    if (stored.url_firstName) setFirstName(stored.url_firstName);
+    if (stored.url_lastName) setLastName(stored.url_lastName);
+    if (stored.url_phone) setPhone(stored.url_phone);
+
+    console.log('📥 Contact data hydrated from sessionStorage:', stored);
+  }, [hasActiveCheckout]);
 
   // Validación diferida de descuento desde sessionStorage
   useEffect(() => {
@@ -371,14 +376,11 @@ export const useCheckoutLogic = () => {
     if (pendingDiscount && !discount && hasActiveCheckout) {
       console.log('🎟️ Found pending discount in sessionStorage:', pendingDiscount);
       
-      // Aplicar el código al input
       setCouponCode(pendingDiscount);
       
-      // Validar después de un delay para permitir que el componente se monte
       const timer = setTimeout(() => {
         console.log('🔍 Validating pending discount...');
         validateCoupon();
-        // Limpiar sessionStorage después de aplicar
         sessionStorage.removeItem('pendingDiscount');
       }, 500);
       
@@ -424,9 +426,22 @@ export const useCheckoutLogic = () => {
           });
         }
       } else {
+        const errorMsg = (json.error || '').toLowerCase();
+        let description = 'El cupón no es válido o ha expirado';
+        if (errorMsg.includes('exhausted') || errorMsg.includes('limit')) {
+          description = 'Este código ya no está disponible';
+        } else if (errorMsg.includes('expired')) {
+          description = 'Este código ha expirado';
+        } else if (errorMsg.includes('minimum amount')) {
+          description = 'No cumples con el monto mínimo para usar este código';
+        } else if (errorMsg.includes('minimum quantity')) {
+          description = 'No cumples con la cantidad mínima de productos';
+        } else if (json.error) {
+          description = json.error;
+        }
         toast({
           title: 'Cupón inválido',
-          description: json.error || 'El cupón no es válido o ha expirado',
+          description,
           variant: 'destructive'
         });
       }
@@ -484,7 +499,10 @@ export const useCheckoutLogic = () => {
     return '0%';
   };
 
-  // Validation function for checkout fields
+  // Validation function for checkout fields.
+  // Address fields (line1, city, state, postal_code) are validated by Stripe
+  // AddressElement via elements.submit() — we do NOT duplicate that here.
+  // Phone is captured by AddressElement (fields.phone:'always') in shipping mode.
   const validateCheckoutFields = () => {
     const missingFields = [];
     
@@ -492,11 +510,8 @@ export const useCheckoutLogic = () => {
       missingFields.push('email válido');
     }
     
-    if (!usePickup && (!phone.trim() || !isValidPhone(phone))) {
-      missingFields.push('teléfono');
-    }
-    
     if (usePickup) {
+      // Pickup mode: billing address is custom, validate it
       if (!billingAddress.first_name.trim()) {
         missingFields.push('nombre (facturación)');
       }
@@ -518,29 +533,14 @@ export const useCheckoutLogic = () => {
       if (!billingAddress.line1.trim()) {
         missingFields.push('dirección (facturación)');
       }
+      // Pickup phone is mandatory: there's no AddressElement to capture it.
+      if (!isValidPhone(phone)) {
+        missingFields.push('teléfono de contacto');
+      }
     } else {
-      if (!firstName.trim()) {
-        missingFields.push('nombre');
-      }
-      if (!lastName.trim()) {
-        missingFields.push('apellido');
-      }
-      if (!address.country) {
-        missingFields.push('país');
-      }
-      if (!address.state) {
-        missingFields.push('estado');
-      }
-      if (!address.city.trim()) {
-        missingFields.push('ciudad');
-      }
-      if (!address.postal_code.trim()) {
-        missingFields.push('código postal');
-      }
-      if (!address.line1.trim()) {
-        missingFields.push('dirección');
-      }
-      
+      // Shipping mode: address + phone validated by Stripe AddressElement
+      // (fields.phone:'always' + validation.phone.required:'always').
+      // Only check delivery method selection here.
       if (deliveryExpectations && deliveryExpectations.length > 0) {
         if (!selectedDeliveryMethod) {
           missingFields.push('método de envío');
@@ -566,20 +566,14 @@ export const useCheckoutLogic = () => {
     document.title = 'Checkout - Contacto, Envío y Pago';
   }, []);
 
-  // Available countries and states from shipping coverage
-  const availableCountries = shippingCoverage?.countries || [];
-  const selectedCountryData = availableCountries.find((country: any) => country.name === address.country);
+  // Available countries and states from shipping coverage v2
+  const availableCountries = shippingCoverageV2?.countries || [];
+  const selectedCountryData = availableCountries.find((country: any) => country.code === address.countryCode);
   const availableStates = selectedCountryData?.states || [];
-
-  // Reset state when country changes
-  useEffect(() => {
-    if (address.country && selectedCountryData && !availableStates.includes(address.state)) {
-      setAddress(prev => ({
-        ...prev,
-        state: ''
-      }));
-    }
-  }, [address.country, availableStates, selectedCountryData, address.state]);
+  // NOTE: We intentionally do NOT reset address.state when country changes because
+  // Stripe AddressElement emits ISO short codes (e.g. 'CDMX') while shippingCoverageV2
+  // may list full names ('Ciudad de México'). Resetting would clear a valid state and
+  // break the checkout flow. State propagation is owned by the AddressElement onChange.
 
   // Summary calculations
   const summaryItems = orderItems;
@@ -591,19 +585,18 @@ export const useCheckoutLogic = () => {
     [summaryItems]
   );
 
-  const discountAmount = useMemo(() => {
+  const localDiscountAmount = useMemo(() => {
     return discount ? calculateDiscountAmount(summaryTotal, discount.discount_type, discount.value, totalQuantity, discount.volume_conditions) : 0;
   }, [discount, summaryTotal, totalQuantity]);
 
-  // finalTotal descuenta tanto cupones manuales como descuentos automáticos del backend (bundles, volumen, etc.)
-  const finalTotal = Math.max(0, summaryTotal - discountAmount - backendDiscountAmount + shippingCost);
+  // Use backend discount (applied_rules) when available, fallback to local calculation
+  const discountAmount = backendDiscountAmount > 0 ? backendDiscountAmount : localDiscountAmount;
+
+  const finalTotal = Math.max(0, summaryTotal - discountAmount + shippingCost);
 
   // Payment enablement rules
   const requiresDeliveryMethod = !selectedPickupLocation && !!(deliveryExpectations && deliveryExpectations.length > 0);
-  const canPay = !requiresDeliveryMethod || !!selectedDeliveryMethod;
-
-  // Money formatting helper
-  const formatMoney = (amount: number) => formatMoneyUtil(amount, currencyCode);
+  const canPay = !shippingError && (!requiresDeliveryMethod || !!selectedDeliveryMethod);
 
   return {
     // State
@@ -622,7 +615,6 @@ export const useCheckoutLogic = () => {
     useSameAddress,
     billingAddress,
     shippingFromCheckout,
-    shippingError,
     couponCode,
     discount,
     isValidatingCoupon,
@@ -656,13 +648,14 @@ export const useCheckoutLogic = () => {
     totalQuantity,
     itemsFingerprint,
     discountAmount,
-    backendDiscountAmount,
-    appliedRules,
     finalTotal,
+    appliedRules,
+    backendDiscountAmount,
     isCalculatingShipping,
     isCalculatingTotal,
     canPay,
     requiresDeliveryMethod,
+    shippingError,
     
     // Actions
     setEmail,
@@ -691,7 +684,6 @@ export const useCheckoutLogic = () => {
     isValidEmail,
     isValidPhone,
     applyURLParams,
-    formatMoney,
     
     // Refs
     couponInputRef,
