@@ -9,3 +9,15 @@ export function isValidPhone(phone: string | undefined | null): boolean {
   const digits = phone.replace(/\D/g, '')
   return digits.length >= 7
 }
+
+/**
+ * Normalizes a phone number by removing all non-digit characters.
+ * Returns the normalized phone number if valid, or null if invalid.
+ */
+export function normalizePhoneNumber(phone: string | undefined | null): string | null {
+  if (!phone) return null
+  // Strip all non-digit characters
+  const digits = phone.replace(/\D/g, '')
+  // Return normalized phone if it has enough digits, otherwise null
+  return digits.length >= 7 ? digits : null
+}
