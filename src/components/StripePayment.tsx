@@ -34,6 +34,16 @@ function buildPaymentMethodTypes(pm?: PaymentMethods): string[] {
   return types
 }
 
+/**
+ * Build payment_method_types for Stripe Elements initialization.
+ * Excludes 'customer_balance' (SPEI/bank_transfer) because it requires
+ * special bank_transfer configuration and causes a 400 in deferred mode.
+ * SPEI is still processed server-side via the payment intent payload.
+ */
+function buildElementsPaymentMethodTypes(pm?: PaymentMethods): string[] {
+  return buildPaymentMethodTypes(pm).filter(t => t !== 'customer_balance')
+}
+
 interface StripeAddressValue {
   name: string
   address: {
@@ -1047,7 +1057,7 @@ export default function StripePayment(props: StripePaymentProps) {
       mode: 'payment' as const,
       amount: Math.max(props.amountCents || 50, 50),
       currency: (props.currency || 'mxn').toLowerCase(),
-      paymentMethodTypes: buildPaymentMethodTypes(props.paymentMethods),
+      paymentMethodTypes: buildElementsPaymentMethodTypes(props.paymentMethods),
       appearance: getStripeAppearance(),
     }),
     [props.amountCents, props.currency, props.paymentMethods]

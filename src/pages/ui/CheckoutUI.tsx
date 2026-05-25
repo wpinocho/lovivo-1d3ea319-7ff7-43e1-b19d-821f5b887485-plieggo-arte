@@ -18,6 +18,24 @@ import { formatMoney } from "@/lib/money";
 import { countryNameToCode, countryCodeToName } from "@/lib/country-codes";
 
 /**
+ * Limpia el nombre de variante que viene de la DB en formato raw:
+ * "30cm x 90cm / 6000 / ['url1', 'url2']"  →  "30cm x 90cm"
+ */
+function cleanVariantName(name: string): string {
+  if (!name) return '';
+  const parts = name.split(' / ');
+  return parts
+    .filter(p => {
+      const t = p.trim();
+      if (/^\d+(\.\d+)?$/.test(t)) return false; // precio numérico
+      if (t.startsWith('[') || t.startsWith("'http") || t.startsWith('"http')) return false; // array de imágenes
+      return true;
+    })
+    .join(' / ')
+    .trim();
+}
+
+/**
  * EDITABLE UI COMPONENT - CheckoutUI
  *
  * Este componente solo maneja la presentación del checkout.
@@ -400,7 +418,7 @@ export default function CheckoutUI() {
                           </div>
                           <div className="flex-1">
                             <h4 className="font-medium">{item.product.name}</h4>
-                            {item.variant && <p className="text-sm text-muted-foreground">{item.variant.name}</p>}
+                            {item.variant && <p className="text-sm text-muted-foreground">{cleanVariantName(item.variant.name)}</p>}
                             {item.selling_plan_id && (
                               <div className="flex items-center gap-1 mt-0.5">
                                 <Badge variant="secondary" className="text-[10px] px-1.5 py-0">

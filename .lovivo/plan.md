@@ -19,20 +19,18 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 **Estable — mejoras incrementales en curso**
 
 ## 4. Recent Changes
-- **2026-05-25 CrossSellSection precio corregido** — Ahora usa precio mínimo de variantes en lugar de `product.price` (base). También muestra precio tachado si hay compare_at_price. Lunas y acordeones ahora muestran el precio correcto.
-- **2026-05-25 Precios Acordeón unificados** — Todas las variantes de los 8 acordeones activos actualizadas a $4,500 precio / $6,000 tachado (antes: 50cm=$3,500/$4,500, 90cm/$30x90=$4,500/$6,000).
-- **2026-05-22 CheckoutAdapter.tsx reescrito con template corregido** — Eliminado state-resetter useEffect, simplificado validateCheckoutFields (sin phone/state en modo envío), shippingCoverageV2, passthrough backend.
-- **2026-05-22 Checkout bugs diagnosticados** — Bug 1: useEffect limpia address.state porque ISO code (CDMX) != nombre completo en shippingCoverage. Bug 2: logic.phone nunca se actualiza desde StripePayment (sin onPhoneChange). Ambos causan "Por favor completa: teléfono, estado".
-- **2026-05-21 CheckoutAdapter shipping fix** — Pure passthrough: `country_name`/`state_name` → `country_code`/`state_code` usando `countryNameToCode()`. Handler nuevo para `response.shipping.ok === false`. `shippingError` state añadido. Billing address limpiada con `countryNameToCode`.
-- **2026-05-21 AboutPage rediseño editorial** — Split hero (quote+image), visión invertida (image+text), 3 pilares tipográficos, sección proceso dark (#1B2A41), CTA limpio. Imágenes reales del taller.
-- **2026-05-21 PDP orden secciones** — Reviews → InspirationCarousel → FAQ → CrossSell (antes era InspirationCarousel → Reviews → ...)
-- **2026-05-20 Review card photos aspect ratio** — `aspect-[3/4]` → `aspect-[4/5]` en ReviewCard y GeneralReviewCard (ProductReviews.tsx)
-- **2026-05-20 Limpieza completa acorden-rosa-morado** — aliases en los 3 archivos data, g4 productSlug corregido a `acorden-verde-salvia`, entradas de rosa-morado eliminadas.
-- **2026-05-20 Fix slug g4 Verde Salvia en general reviews** — `acorden-verde-salvia` para exclusión correcta en PDP.
-- **2026-05-20 Sección "Más experiencias" — cuadro actual excluido** — `productSlug` añadido a `GeneralReview`, lógica de exclusión + priorización de colección + solo con foto implementada en `ProductReviews.tsx`.
-- **2026-05-20 GeneralReviewCard rediseñado** — foto full-width aspect-[3/4], sin avatar circular.
-- **2026-05-20 Sección "Más experiencias" con fotos + colección** — filtro a 5 reviews con foto, priorizando misma colección del producto actual.
-- **2026-05-20 Fotos review Beige Sutil + Luna Llena** — `photoUrl` añadido a primera review de `acorden-beige-sutil` y `luna-llena`.
+- **2026-05-25 Checkout fix Stripe 400** — `customer_balance` (SPEI) removido de `buildElementsPaymentMethodTypes` para la init de Stripe Elements. Se mantiene en `buildPaymentMethodTypes` para el backend payload. Esto resuelve el 400 Bad Request que impedía cargar el checkout.
+- **2026-05-25 Checkout fix variante raw** — `cleanVariantName()` añadida en CheckoutUI.tsx para parsear el formato `"30cm x 90cm / 6000 / ['url']"` y mostrar solo `"30cm x 90cm"` en el resumen del pedido.
+- **2026-05-25 CrossSellSection precio corregido** — Ahora usa precio mínimo de variantes en lugar de `product.price` (base). También muestra precio tachado si hay compare_at_price.
+- **2026-05-25 Precios Acordeón unificados** — Todas las variantes de los 8 acordeones activos actualizadas a $4,500 precio / $6,000 tachado.
+- **2026-05-22 CheckoutAdapter.tsx reescrito con template corregido** — Eliminado state-resetter useEffect, simplificado validateCheckoutFields, shippingCoverageV2, passthrough backend.
+- **2026-05-21 CheckoutAdapter shipping fix** — Pure passthrough: `country_name`/`state_name` → `country_code`/`state_code`.
+- **2026-05-21 AboutPage rediseño editorial** — Split hero, visión invertida, 3 pilares tipográficos, sección proceso dark.
+- **2026-05-21 PDP orden secciones** — Reviews → InspirationCarousel → FAQ → CrossSell.
+- **2026-05-20 Review card photos aspect ratio** — `aspect-[3/4]` → `aspect-[4/5]`.
+- **2026-05-20 Limpieza completa acorden-rosa-morado** — aliases en los 3 archivos data.
+- **2026-05-20 Sección "Más experiencias" — cuadro actual excluido** — lógica de exclusión + priorización de colección.
+- **2026-05-20 GeneralReviewCard rediseñado** — foto full-width aspect-[4/5].
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
@@ -40,8 +38,8 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero slide 3: video hero-paper-folding.mp4 (CTA → /galeria)
 - TopSellers HERO_IMAGE + EDITORIAL_IMAGE: misma imagen que hero slide 1
 - Logo: `/public/logo.svg`
-- **About Studio 1**: `...1779325504866-5bg4llquutd.webp` (artesana con papel beige — hero split)
-- **About Studio 2**: `...1779325504867-4wurhzmqhfg.webp` (manos plegando acordeón gris oscuro — visión)
+- **About Studio 1**: `...1779325504866-5bg4llquutd.webp`
+- **About Studio 2**: `...1779325504867-4wurhzmqhfg.webp`
 - **Review photos generales (plieggo-general-reviews.ts)** — 5 con foto (g4, g9, g10, g11, g12)
 
 ## 6. Known Issues
@@ -50,15 +48,14 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Luna Beige tiene solo 1 imagen en galería — necesita fotos de detalle y lifestyle
 - `plieggo-general-reviews.ts` tiene `photoUrl` vacío en g1, g2, g3, g5, g6, g7, g8 — pendiente
 - Slugs en code sin producto activo en DB: `acorden-terracota-vibrante`, `acorden-crema-natural`, `acorden-morado-lavanda`, `acorden-morado-elegante`, `estrellas`
-- En PDPs de luna: solo 1 review con foto es de luna (g12), se rellena con 4 de acordeón — aceptable por ahora
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** Probar el checkout en producción tras los fixes
+- **[ALTA]** Probar el checkout en producción tras los fixes (Stripe 400 corregido)
 - **[ALTA]** Verificar precios de Lunas en DB — confirmar que sus variantes tienen el precio correcto
-- **[ALTA]** Subir fotos reales para reseñas g1, g2, g3, g5, g6, g7, g8 (ampliar pool de "Más experiencias")
-- **[MEDIA]** Agregar fotos a más reviews específicas en PDP (Rosa Sereno, Terracota, Luna Beige, etc.)
-- **[MEDIA]** Añadir más fotos a Luna Beige (detalle, textura, en sala) — desde Dashboard
+- **[ALTA]** Subir fotos reales para reseñas g1, g2, g3, g5, g6, g7, g8
+- **[MEDIA]** Agregar fotos a más reviews específicas en PDP
+- **[MEDIA]** Añadir más fotos a Luna Beige (detalle, textura, en sala)
 - **[MEDIA]** Indicador de stock "Solo X disponibles" para Edición Limitada
 - Revisar comportamiento de ExpressCheckout en Safari/iOS (Apple Pay)
-- Video del producto mostrando el juego de luz y sombra (requiere grabación)
+- Video del producto mostrando el juego de luz y sombra
 - Fecha estimada de entrega concreta en trust strip
