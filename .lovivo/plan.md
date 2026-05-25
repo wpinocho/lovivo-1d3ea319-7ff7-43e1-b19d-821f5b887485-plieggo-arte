@@ -1,7 +1,7 @@
 # Plieggo — Estado del Proyecto
 
 ## 1. Brand & Context
-Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca premium, sutil y artesanal. Vende a coleccionistas y amantes del diseño en México. Precio promedio: $1,500–$6,000 MXN. Uso frecuente como regalo (confirmado por reseñas). Producto diferenciador: el juego de luz y sombra que crean los pliegues, que cambia según la hora del día.
+Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca premium, sutil y artesanal. Vende a coleccionistas y amantes del diseño en México. Precio acordeón: $4,500 MXN (precio único para todas las variantes, tachado $6,000). Uso frecuente como regalo (confirmado por reseñas). Producto diferenciador: el juego de luz y sombra que crean los pliegues, que cambia según la hora del día.
 
 ## 2. Design System
 - Paleta: crema mantequilla (#F2EFE4), vino burdeos (#5D2A38), terracota (#C16648), azul medianoche (#1B2A41)
@@ -32,6 +32,7 @@ La función `validateCheckoutFields` ahora NO valida teléfono ni estado en modo
 - `discountAmount` usa `backendDiscountAmount` primero, luego cálculo local como fallback
 
 ## 4. Recent Changes
+- **2026-05-25 Precios Acordeón unificados** — Todas las variantes de los 8 acordeones activos actualizadas a $4,500 precio / $6,000 tachado (antes: 50cm=$3,500/$4,500, 90cm/$30x90=$4,500/$6,000).
 - **2026-05-22 CheckoutAdapter.tsx reescrito con template corregido** — Eliminado state-resetter useEffect, simplificado validateCheckoutFields (sin phone/state en modo envío), shippingCoverageV2, passthrough backend.
 - **2026-05-22 Checkout bugs diagnosticados** — Bug 1: useEffect limpia address.state porque ISO code (CDMX) != nombre completo en shippingCoverage. Bug 2: logic.phone nunca se actualiza desde StripePayment (sin onPhoneChange). Ambos causan "Por favor completa: teléfono, estado".
 - **2026-05-21 CheckoutAdapter shipping fix** — Pure passthrough: `country_name`/`state_name` → `country_code`/`state_code` usando `countryNameToCode()`. Handler nuevo para `response.shipping.ok === false`. `shippingError` state añadido. Billing address limpiada con `countryNameToCode`.
