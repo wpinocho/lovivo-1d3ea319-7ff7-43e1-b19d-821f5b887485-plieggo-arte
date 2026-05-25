@@ -36,12 +36,16 @@ function buildPaymentMethodTypes(pm?: PaymentMethods): string[] {
 
 /**
  * Build payment_method_types for Stripe Elements initialization.
- * Excludes 'customer_balance' (SPEI/bank_transfer) because it requires
- * special bank_transfer configuration and causes a 400 in deferred mode.
- * SPEI is still processed server-side via the payment intent payload.
+ * Excludes:
+ * - 'customer_balance' (SPEI) — requires special bank_transfer config, causes 400 in deferred mode.
+ * - 'link' — Stripe Link is NOT available for MXN/Mexico accounts; including it
+ *   causes a 400 on the /v1/elements/sessions endpoint which prevents Google Pay
+ *   and Apple Pay from loading in the ExpressCheckoutElement.
+ *
+ * Both are still sent server-side in buildPaymentMethodTypes() for the payment intent.
  */
 function buildElementsPaymentMethodTypes(pm?: PaymentMethods): string[] {
-  return buildPaymentMethodTypes(pm).filter(t => t !== 'customer_balance')
+  return buildPaymentMethodTypes(pm).filter(t => t !== 'customer_balance' && t !== 'link')
 }
 
 interface StripeAddressValue {
@@ -147,6 +151,8 @@ function PaymentForm({
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [linkAuthenticated, setLinkAuthenticated] = useState(false)
+  // Track whether the ExpressCheckoutElement actually has buttons to show
+  const [expressAvailable, setExpressAvailable] = useState(false)
   const navigate = useNavigate()
   const { clearCart } = useCart()
   const { updateOrderCache, getFreshOrder, getOrderSnapshot } = useCheckoutState()
@@ -833,10 +839,17 @@ function PaymentForm({
         onCancel={handlePhoneDialogCancel}
       />
 
-      {/* Express Checkout (Google Pay, Apple Pay) — only when Link is NOT authenticated */}
+      {/* Express Checkout (Google Pay, Apple Pay) — only when Link is NOT authenticated.
+           The element renders with height 0 when no wallets are available;
+           we use onReady to show/hide the separator only when buttons actually appear. */}
       {!linkAuthenticated && (
         <>
           <ExpressCheckoutElement
+            onReady={(ev) => {
+              const methods = (ev as any).availablePaymentMethods
+              const hasAny = !!methods && Object.values(methods).some(Boolean)
+              setExpressAvailable(hasAny)
+            }}
             onConfirm={handleExpressCheckoutConfirm}
             onShippingAddressChange={
               showAddressElement ? handleExpressShippingAddressChange : undefined
@@ -879,11 +892,14 @@ function PaymentForm({
               } as any
             })()}
           />
-          <div className="flex items-center gap-3">
-            <Separator className="flex-1" />
-            <span className="text-xs text-muted-foreground uppercase tracking-wider">o</span>
-            <Separator className="flex-1" />
-          </div>
+          {/* Only show the divider when wallets are actually available */}
+          {expressAvailable && (
+            <div className="flex items-center gap-3">
+              <Separator className="flex-1" />
+              <span className="text-xs text-muted-foreground uppercase tracking-wider">o</span>
+              <Separator className="flex-1" />
+            </div>
+          )}
         </>
       )}
 

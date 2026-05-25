@@ -16,10 +16,11 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**Estable — mejoras incrementales en curso**
+**Estable — checkout funcional tras fixes**
 
 ## 4. Recent Changes
-- **2026-05-25 Checkout fix Stripe 400** — `customer_balance` (SPEI) removido de `buildElementsPaymentMethodTypes` para la init de Stripe Elements. Se mantiene en `buildPaymentMethodTypes` para el backend payload. Esto resuelve el 400 Bad Request que impedía cargar el checkout.
+- **2026-05-25 ECE fix — separator oculto + sessions 400** — `link` removido de `buildElementsPaymentMethodTypes` (Stripe Link no disponible en MXN → causaba 400 en /v1/elements/sessions bloqueando Google/Apple Pay). `onReady` añadido al `ExpressCheckoutElement` para mostrar el separador "o" solo cuando hay botones disponibles.
+- **2026-05-25 Checkout fix Stripe 400** — `customer_balance` (SPEI) removido de `buildElementsPaymentMethodTypes` para la init de Stripe Elements. Se mantiene en `buildPaymentMethodTypes` para el backend payload.
 - **2026-05-25 Checkout fix variante raw** — `cleanVariantName()` añadida en CheckoutUI.tsx para parsear el formato `"30cm x 90cm / 6000 / ['url']"` y mostrar solo `"30cm x 90cm"` en el resumen del pedido.
 - **2026-05-25 CrossSellSection precio corregido** — Ahora usa precio mínimo de variantes en lugar de `product.price` (base). También muestra precio tachado si hay compare_at_price.
 - **2026-05-25 Precios Acordeón unificados** — Todas las variantes de los 8 acordeones activos actualizadas a $4,500 precio / $6,000 tachado.
@@ -48,9 +49,11 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Luna Beige tiene solo 1 imagen en galería — necesita fotos de detalle y lifestyle
 - `plieggo-general-reviews.ts` tiene `photoUrl` vacío en g1, g2, g3, g5, g6, g7, g8 — pendiente
 - Slugs en code sin producto activo en DB: `acorden-terracota-vibrante`, `acorden-crema-natural`, `acorden-morado-lavanda`, `acorden-morado-elegante`, `estrellas`
+- ECE (Apple Pay / Google Pay) no aparece en el preview (esperado: preview usa iframe sin HTTPS real). En producción debería aparecer en Chrome/Safari con tarjeta guardada.
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** Probar el checkout en producción tras los fixes (Stripe 400 corregido)
+- **[ALTA]** Probar Google Pay / Apple Pay en producción (plieggo.com) en Chrome/Safari
+- **[ALTA]** Verificar domain verification para Apple Pay en Stripe Dashboard
 - **[ALTA]** Verificar precios de Lunas en DB — confirmar que sus variantes tienen el precio correcto
 - **[ALTA]** Subir fotos reales para reseñas g1, g2, g3, g5, g6, g7, g8
 - **[MEDIA]** Agregar fotos a más reviews específicas en PDP
