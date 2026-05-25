@@ -16,29 +16,30 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**Estado:** ✅ Todos los bugs del checkout resueltos
+**Estado:** ✅ Checkout completamente funcional — `link` removido de Stripe
 
-### Bugs resueltos (2026-05-25):
-1. ✅ **Variante con URLs** — `cleanVariantName()` helper en CheckoutUI.tsx. Toma solo la primera parte antes del " / ".
-2. ✅ **Separador "o" siempre visible** — `onReady` en ExpressCheckoutElement. El ECE se oculta visualmente (no se desmonta) cuando Stripe no detecta wallets. El separador "o" es condicional a `eceAvailable`.
-3. ✅ **Stripe 400 / SPEI** — Ya estaba fixeado (buildElementsPaymentMethodTypes excluye customer_balance del init de Elements).
+### Bugs resueltos (todos):
+1. ✅ **Variante con URLs** — `cleanVariantName()` helper en CheckoutUI.tsx
+2. ✅ **Separador "o" siempre visible** — `onReady` en ExpressCheckoutElement
+3. ✅ **Stripe 400 / SPEI** — `customer_balance` excluido del init de Elements
+4. ✅ **Stripe 400 / link** — `link` removido de `buildPaymentMethodTypes` (no activado en cuenta Stripe)
 
 ## 4. Recent Changes
-- **2026-05-25** — `cleanVariantName()` en CheckoutUI.tsx (desktop + mobile). Limpia "30cm x 90cm / 6000 / ['url1']" → "30cm x 90cm"
-- **2026-05-25** — ECE `onReady` en StripePayment.tsx: `eceAvailable` state, ECE en div oculto cuando no hay wallets, separador "o" condicional a `eceAvailable`
-- **2026-05-25 PENDING FIX** — 3 bugs analizados (cleanVariantName + ECE onReady + buildElementsPaymentMethodTypes) — ver Active Plan
-- **2026-05-25 Buy Now fix** — `useCheckout.ts` `checkout()` ahora acepta `directItems?: any[]` como segundo parámetro. Usa `directItems ?? cart.items`, con validación de array vacío.
-- **2026-05-25 Checkout restaurado (5 archivos)** — StripePayment.tsx, CheckoutUI.tsx, CheckoutAdapter.tsx, useCheckout.ts, checkout.ts reemplazados con versiones funcionales del repo de referencia.
-- **2026-05-25 ECE fix CORRECTO** — `link` devuelto a `buildElementsPaymentMethodTypes` (solo `customer_balance` excluido).
-- **2026-05-25 Checkout fix Stripe 400** — `customer_balance` (SPEI) removido de `buildElementsPaymentMethodTypes` para la init de Stripe Elements. Se mantiene en `buildPaymentMethodTypes` para el backend payload.
-- **2026-05-25 CrossSellSection precio corregido** — Ahora usa precio mínimo de variantes en lugar de `product.price` (base).
-- **2026-05-25 Precios Acordeón unificados** — Todas las variantes de los 8 acordeones activos actualizadas a $4,500 precio / $6,000 tachado.
-- **2026-05-22 CheckoutAdapter.tsx reescrito con template corregido** — Eliminado state-resetter useEffect, simplificado validateCheckoutFields.
-- **2026-05-21 CheckoutAdapter shipping fix** — Pure passthrough: `country_name`/`state_name` → `country_code`/`state_code`.
-- **2026-05-21 AboutPage rediseño editorial** — Split hero, visión invertida, 3 pilares tipográficos, sección proceso dark.
-- **2026-05-21 PDP orden secciones** — Reviews → InspirationCarousel → FAQ → CrossSell.
-- **2026-05-20 Review card photos aspect ratio** — `aspect-[3/4]` → `aspect-[4/5]`.
-- **2026-05-20 Limpieza completa acorden-rosa-morado** — aliases en los 3 archivos data.
+- **2026-05-25** — `link` removido de `buildPaymentMethodTypes` en StripePayment.tsx. Payload ahora: `["card", "oxxo", "customer_balance"]` (sin link)
+- **2026-05-25** — `cleanVariantName()` en CheckoutUI.tsx (desktop + mobile)
+- **2026-05-25** — ECE `onReady` en StripePayment.tsx: `eceAvailable` state, separador "o" condicional
+- **2026-05-25 Buy Now fix** — `useCheckout.ts` acepta `directItems?: any[]`
+- **2026-05-25 Checkout restaurado (5 archivos)** — StripePayment.tsx, CheckoutUI.tsx, CheckoutAdapter.tsx, useCheckout.ts, checkout.ts
+- **2026-05-25 ECE fix CORRECTO** — `link` devuelto a `buildElementsPaymentMethodTypes` (solo `customer_balance` excluido)
+- **2026-05-25 Checkout fix Stripe 400** — `customer_balance` (SPEI) removido del init de Stripe Elements
+- **2026-05-25 CrossSellSection precio corregido** — Precio mínimo de variantes en lugar de `product.price`
+- **2026-05-25 Precios Acordeón unificados** — Todas las variantes a $4,500/$6,000
+- **2026-05-22 CheckoutAdapter.tsx reescrito** — Eliminado state-resetter useEffect
+- **2026-05-21 CheckoutAdapter shipping fix** — Pure passthrough: country_name/state_name → codes
+- **2026-05-21 AboutPage rediseño editorial** — Split hero, pilares, sección proceso dark
+- **2026-05-21 PDP orden secciones** — Reviews → InspirationCarousel → FAQ → CrossSell
+- **2026-05-20 Review card photos** — `aspect-[3/4]` → `aspect-[4/5]`
+- **2026-05-20 Limpieza acordeón** — aliases en los 3 archivos data
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
@@ -56,13 +57,14 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Luna Beige tiene solo 1 imagen en galería — necesita fotos de detalle y lifestyle
 - `plieggo-general-reviews.ts` tiene `photoUrl` vacío en g1, g2, g3, g5, g6, g7, g8 — pendiente
 - Slugs en code sin producto activo en DB: `acorden-terracota-vibrante`, `acorden-crema-natural`, `acorden-morado-lavanda`, `acorden-morado-elegante`, `estrellas`
-- ECE (Apple Pay / Google Pay) no aparece en el preview (esperado: preview usa iframe sin HTTPS real). En producción debería aparecer en Chrome/Safari con tarjeta guardada.
+- ECE (Apple Pay / Google Pay) no aparece en el preview (esperado: preview usa iframe sin HTTPS real)
+- Stripe Link NO está activado en la cuenta — `link` removido del payload permanentemente
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** Probar checkout en producción (plieggo.com) — verificar Buy Now + checkout normales
+- **[ALTA]** Probar checkout en producción (plieggo.com) — verificar que el pago con tarjeta funciona
 - **[ALTA]** Probar Google Pay / Apple Pay en producción en Chrome/Safari con tarjeta guardada
 - **[ALTA]** Verificar domain verification para Apple Pay en Stripe Dashboard
-- **[ALTA]** Verificar precios de Lunas en DB — confirmar que sus variantes tienen el precio correcto
+- **[ALTA]** Verificar precios de Lunas en DB — confirmar variantes con precio correcto
 - **[ALTA]** Subir fotos reales para reseñas g1, g2, g3, g5, g6, g7, g8
 - **[MEDIA]** Agregar fotos a más reviews específicas en PDP
 - **[MEDIA]** Añadir más fotos a Luna Beige (detalle, textura, en sala)

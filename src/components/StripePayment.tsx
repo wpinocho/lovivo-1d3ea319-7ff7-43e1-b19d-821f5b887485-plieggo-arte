@@ -19,8 +19,8 @@ import { MissingPhoneDialog } from "@/components/MissingPhoneDialog"
 
 /** Build Stripe payment_method_types array from store_settings.payment_methods */
 function buildPaymentMethodTypes(pm?: PaymentMethods): string[] {
-  const types: string[] = ['link'] // Link always enabled for autofill
-  if (!pm || pm.card !== false) types.unshift('card')
+  const types: string[] = []
+  if (!pm || pm.card !== false) types.push('card')
   if (pm?.oxxo) types.push('oxxo')
   if (pm?.spei) types.push('customer_balance')
   return types
