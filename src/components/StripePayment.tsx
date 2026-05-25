@@ -36,16 +36,12 @@ function buildPaymentMethodTypes(pm?: PaymentMethods): string[] {
 
 /**
  * Build payment_method_types for Stripe Elements initialization.
- * Excludes:
- * - 'customer_balance' (SPEI) — requires special bank_transfer config, causes 400 in deferred mode.
- * - 'link' — Stripe Link is NOT available for MXN/Mexico accounts; including it
- *   causes a 400 on the /v1/elements/sessions endpoint which prevents Google Pay
- *   and Apple Pay from loading in the ExpressCheckoutElement.
- *
- * Both are still sent server-side in buildPaymentMethodTypes() for the payment intent.
+ * Excludes only 'customer_balance' (SPEI) — requires special bank_transfer config,
+ * causes 400 in deferred mode. Link MUST stay included so the ExpressCheckoutElement
+ * (Google Pay / Apple Pay) can initialize correctly.
  */
 function buildElementsPaymentMethodTypes(pm?: PaymentMethods): string[] {
-  return buildPaymentMethodTypes(pm).filter(t => t !== 'customer_balance' && t !== 'link')
+  return buildPaymentMethodTypes(pm).filter(t => t !== 'customer_balance')
 }
 
 interface StripeAddressValue {

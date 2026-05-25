@@ -16,10 +16,11 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**Estable — checkout funcional tras fixes**
+**Estable — checkout funcional. ECE (Express Checkout) fix en progreso.**
 
 ## 4. Recent Changes
-- **2026-05-25 ECE fix — separator oculto + sessions 400** — `link` removido de `buildElementsPaymentMethodTypes` (Stripe Link no disponible en MXN → causaba 400 en /v1/elements/sessions bloqueando Google/Apple Pay). `onReady` añadido al `ExpressCheckoutElement` para mostrar el separador "o" solo cuando hay botones disponibles.
+- **2026-05-25 ECE fix CORRECTO** — `link` devuelto a `buildElementsPaymentMethodTypes` (solo `customer_balance` excluido). El error anterior de quitar `link` de Elements impedía que Google Pay / Apple Pay se inicializaran. Se mantiene `onReady` para ocultar el separator cuando no hay wallets disponibles.
+- **2026-05-25 ECE fix (INCORRECTO - revertido)** — Se había removido `link` de buildElementsPaymentMethodTypes creyendo que causaba 400, pero en realidad eso bloqueaba ECE.
 - **2026-05-25 Checkout fix Stripe 400** — `customer_balance` (SPEI) removido de `buildElementsPaymentMethodTypes` para la init de Stripe Elements. Se mantiene en `buildPaymentMethodTypes` para el backend payload.
 - **2026-05-25 Checkout fix variante raw** — `cleanVariantName()` añadida en CheckoutUI.tsx para parsear el formato `"30cm x 90cm / 6000 / ['url']"` y mostrar solo `"30cm x 90cm"` en el resumen del pedido.
 - **2026-05-25 CrossSellSection precio corregido** — Ahora usa precio mínimo de variantes en lugar de `product.price` (base). También muestra precio tachado si hay compare_at_price.
@@ -52,7 +53,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - ECE (Apple Pay / Google Pay) no aparece en el preview (esperado: preview usa iframe sin HTTPS real). En producción debería aparecer en Chrome/Safari con tarjeta guardada.
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** Probar Google Pay / Apple Pay en producción (plieggo.com) en Chrome/Safari
+- **[ALTA]** Probar Google Pay / Apple Pay en producción (plieggo.com) en Chrome/Safari con ECE fix aplicado
 - **[ALTA]** Verificar domain verification para Apple Pay en Stripe Dashboard
 - **[ALTA]** Verificar precios de Lunas en DB — confirmar que sus variantes tienen el precio correcto
 - **[ALTA]** Subir fotos reales para reseñas g1, g2, g3, g5, g6, g7, g8
