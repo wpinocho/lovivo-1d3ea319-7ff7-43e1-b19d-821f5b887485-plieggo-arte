@@ -18,6 +18,12 @@ import { useTokenCheckout } from "@/hooks/useTokenCheckout";
 import { formatMoney } from "@/lib/money";
 import { countryNameToCode, countryCodeToName } from "@/lib/country-codes";
 
+/** Strips raw variant name format "30cm x 90cm / 6000 / ['url1', ...]" → "30cm x 90cm" */
+function cleanVariantName(raw: string | undefined | null): string {
+  if (!raw) return '';
+  return raw.split(' / ')[0].trim();
+}
+
 /**
  * EDITABLE UI COMPONENT - CheckoutUI
  * 
@@ -400,7 +406,7 @@ export default function CheckoutUI() {
                         </div>
                         <div className="flex-1">
                           <h4 className="font-medium">{item.product.name}</h4>
-                          {item.variant && <p className="text-sm text-muted-foreground">{item.variant.name}</p>}
+                          {item.variant && <p className="text-sm text-muted-foreground">{cleanVariantName(item.variant.name)}</p>}
                           {item.selling_plan_id && (
                             <div className="flex items-center gap-1 mt-0.5">
                               <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
@@ -552,7 +558,7 @@ function MobileOrderSummary({ logic }: { logic: any }) {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{item.product.name}</p>
-                {item.variant && <p className="text-xs text-muted-foreground">{item.variant.name}</p>}
+                {item.variant && <p className="text-xs text-muted-foreground">{cleanVariantName(item.variant.name)}</p>}
               </div>
               <span className="text-sm font-medium">
                 {formatMoney(item.total || item.price * item.quantity, logic.currencyCode)}

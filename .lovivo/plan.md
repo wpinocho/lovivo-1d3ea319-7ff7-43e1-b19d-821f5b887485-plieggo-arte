@@ -16,97 +16,29 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**Estado:** 3 bugs activos — fix pendiente en Craft Mode (archivos buenos del usuario ya analizados)
+**Estado:** ✅ Todos los bugs del checkout resueltos
 
-### Bug 1: Nombre de variante con URLs (CheckoutUI.tsx)
-**Problema:** `item.variant.name` llega en formato raw: `"30cm x 90cm / 6000 / ['url1', 'url2', ...]"`. Se muestra crudo sin limpiar.
-
-**Fix en `src/pages/ui/CheckoutUI.tsx`:**
-1. Agregar helper al inicio del archivo (fuera de los componentes, después de los imports):
-```ts
-function cleanVariantName(raw: string | undefined | null): string {
-  if (!raw) return '';
-  return raw.split(' / ')[0].trim();
-}
-```
-2. Aplicar en resumen desktop (buscar `{item.variant && <p className="text-sm text-muted-foreground">{item.variant.name}</p>}`):
-   → Cambiar a: `{item.variant && <p className="text-sm text-muted-foreground">{cleanVariantName(item.variant.name)}</p>}`
-3. Aplicar en resumen mobile dentro de `MobileOrderSummary` (buscar `{item.variant && <p className="text-xs text-muted-foreground">{item.variant.name}</p>}`):
-   → Cambiar a: `{item.variant && <p className="text-xs text-muted-foreground">{cleanVariantName(item.variant.name)}</p>}`
-
-### Bug 2: Express Checkout separador "o" siempre visible (StripePayment.tsx)
-**Problema:** `ExpressCheckoutElement` no tiene `onReady` callback. Cuando Stripe detecta que no hay wallets disponibles, oculta los botones pero el separador "o" sigue visible (está fuera de condición).
-
-**Fix en `src/components/StripePayment.tsx` → dentro de `PaymentForm`:**
-1. Agregar estado al inicio de `PaymentForm` (junto a los otros useState):
-```tsx
-const [eceAvailable, setEceAvailable] = useState(false);
-```
-2. En el `ExpressCheckoutElement`, agregar prop `onReady`:
-```tsx
-onReady={(ev: any) => {
-  const methods = ev?.availablePaymentMethods ?? {};
-  const hasAny = Object.values(methods).some(Boolean);
-  setEceAvailable(hasAny);
-}}
-```
-3. Envolver el ECE con un div que lo oculte visualmente (NO desmontarlo — Stripe pierde el contexto del wallet):
-```tsx
-<div style={{ display: eceAvailable ? undefined : 'none' }}>
-  <ExpressCheckoutElement ... />
-</div>
-```
-4. Hacer el separador condicional:
-```tsx
-{eceAvailable && (
-  <div className="flex items-center gap-3">
-    <Separator className="flex-1" />
-    <span className="text-xs text-muted-foreground uppercase tracking-wider">o</span>
-    <Separator className="flex-1" />
-  </div>
-)}
-```
-⚠️ El bloque completo queda dentro de `{!linkAuthenticated && (...)}` igual que antes.
-
-### Bug 3: Stripe 400 — `customer_balance` en Elements init (StripePayment.tsx)
-**Problema:** La función `buildPaymentMethodTypes` incluye `customer_balance` cuando SPEI está activo. Esa misma función se usa para `elementsOptions.paymentMethodTypes`, pero Stripe Elements NO acepta `customer_balance` en su inicialización — solo en el payload del backend. Esto provoca un error 400.
-
-**Fix en `src/components/StripePayment.tsx`:**
-1. Dejar `buildPaymentMethodTypes` tal como está (para el backend payload, incluye `customer_balance`).
-2. Agregar una segunda función solo para Elements init (sin `customer_balance`):
-```ts
-function buildElementsPaymentMethodTypes(pm?: PaymentMethods): string[] {
-  const types: string[] = ['link']
-  if (!pm || pm.card !== false) types.unshift('card')
-  if (pm?.oxxo) types.push('oxxo')
-  // customer_balance (SPEI) EXCLUDED — Stripe Elements 400 if included at init
-  return types
-}
-```
-3. En `elementsOptions` (dentro del componente `StripePayment`), usar la nueva función:
-```tsx
-paymentMethodTypes: buildElementsPaymentMethodTypes(props.paymentMethods),
-```
-   (era `buildPaymentMethodTypes(props.paymentMethods)` — cambiar solo este uso)
-
-4. En `buildPayload` → `payment_method_types` → dejar usando `buildPaymentMethodTypes(paymentMethods)` (incluye SPEI para el backend).
+### Bugs resueltos (2026-05-25):
+1. ✅ **Variante con URLs** — `cleanVariantName()` helper en CheckoutUI.tsx. Toma solo la primera parte antes del " / ".
+2. ✅ **Separador "o" siempre visible** — `onReady` en ExpressCheckoutElement. El ECE se oculta visualmente (no se desmonta) cuando Stripe no detecta wallets. El separador "o" es condicional a `eceAvailable`.
+3. ✅ **Stripe 400 / SPEI** — Ya estaba fixeado (buildElementsPaymentMethodTypes excluye customer_balance del init de Elements).
 
 ## 4. Recent Changes
+- **2026-05-25** — `cleanVariantName()` en CheckoutUI.tsx (desktop + mobile). Limpia "30cm x 90cm / 6000 / ['url1']" → "30cm x 90cm"
+- **2026-05-25** — ECE `onReady` en StripePayment.tsx: `eceAvailable` state, ECE en div oculto cuando no hay wallets, separador "o" condicional a `eceAvailable`
 - **2026-05-25 PENDING FIX** — 3 bugs analizados (cleanVariantName + ECE onReady + buildElementsPaymentMethodTypes) — ver Active Plan
-- **2026-05-25 Buy Now fix** — `useCheckout.ts` `checkout()` ahora acepta `directItems?: any[]` como segundo parámetro. Usa `directItems ?? cart.items`, con validación de array vacío. Fix para el error "El carrito está vacío" al presionar "Comprar ahora" desde PDP.
-- **2026-05-25 BUY NOW BUG DETECTADO** — `useCheckout.ts` ignoraba segundo param `directItems` que pasa `HeadlessProduct.tsx`. Fix: aceptar `directItems?: any[]` y usar `directItems ?? cart.items`.
-- **2026-05-25 Checkout restaurado (5 archivos)** — StripePayment.tsx, CheckoutUI.tsx, CheckoutAdapter.tsx, useCheckout.ts, checkout.ts reemplazados con versiones funcionales del repo de referencia. Clave: `buildElementsPaymentMethodTypes` excluye `customer_balance` (SPEI) del init de Elements para evitar 400, pero lo incluye en el payload del backend.
-- **2026-05-25 ECE fix CORRECTO** — `link` devuelto a `buildElementsPaymentMethodTypes` (solo `customer_balance` excluido). El error anterior de quitar `link` de Elements impedía que Google Pay / Apple Pay se inicializaran. Se mantiene `onReady` para ocultar el separator cuando no hay wallets disponibles.
+- **2026-05-25 Buy Now fix** — `useCheckout.ts` `checkout()` ahora acepta `directItems?: any[]` como segundo parámetro. Usa `directItems ?? cart.items`, con validación de array vacío.
+- **2026-05-25 Checkout restaurado (5 archivos)** — StripePayment.tsx, CheckoutUI.tsx, CheckoutAdapter.tsx, useCheckout.ts, checkout.ts reemplazados con versiones funcionales del repo de referencia.
+- **2026-05-25 ECE fix CORRECTO** — `link` devuelto a `buildElementsPaymentMethodTypes` (solo `customer_balance` excluido).
 - **2026-05-25 Checkout fix Stripe 400** — `customer_balance` (SPEI) removido de `buildElementsPaymentMethodTypes` para la init de Stripe Elements. Se mantiene en `buildPaymentMethodTypes` para el backend payload.
-- **2026-05-25 CrossSellSection precio corregido** — Ahora usa precio mínimo de variantes en lugar de `product.price` (base). También muestra precio tachado si hay compare_at_price.
+- **2026-05-25 CrossSellSection precio corregido** — Ahora usa precio mínimo de variantes en lugar de `product.price` (base).
 - **2026-05-25 Precios Acordeón unificados** — Todas las variantes de los 8 acordeones activos actualizadas a $4,500 precio / $6,000 tachado.
-- **2026-05-22 CheckoutAdapter.tsx reescrito con template corregido** — Eliminado state-resetter useEffect, simplificado validateCheckoutFields, shippingCoverageV2, passthrough backend.
+- **2026-05-22 CheckoutAdapter.tsx reescrito con template corregido** — Eliminado state-resetter useEffect, simplificado validateCheckoutFields.
 - **2026-05-21 CheckoutAdapter shipping fix** — Pure passthrough: `country_name`/`state_name` → `country_code`/`state_code`.
 - **2026-05-21 AboutPage rediseño editorial** — Split hero, visión invertida, 3 pilares tipográficos, sección proceso dark.
 - **2026-05-21 PDP orden secciones** — Reviews → InspirationCarousel → FAQ → CrossSell.
 - **2026-05-20 Review card photos aspect ratio** — `aspect-[3/4]` → `aspect-[4/5]`.
 - **2026-05-20 Limpieza completa acorden-rosa-morado** — aliases en los 3 archivos data.
-- **2026-05-20 Sección "Más experiencias" — cuadro actual excluido** — lógica de exclusión + priorización de colección.
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
@@ -128,7 +60,7 @@ paymentMethodTypes: buildElementsPaymentMethodTypes(props.paymentMethods),
 
 ## 7. Pending / Future Sessions
 - **[ALTA]** Probar checkout en producción (plieggo.com) — verificar Buy Now + checkout normales
-- **[ALTA]** Probar Google Pay / Apple Pay en producción en Chrome/Safari
+- **[ALTA]** Probar Google Pay / Apple Pay en producción en Chrome/Safari con tarjeta guardada
 - **[ALTA]** Verificar domain verification para Apple Pay en Stripe Dashboard
 - **[ALTA]** Verificar precios de Lunas en DB — confirmar que sus variantes tienen el precio correcto
 - **[ALTA]** Subir fotos reales para reseñas g1, g2, g3, g5, g6, g7, g8

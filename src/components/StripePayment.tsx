@@ -120,6 +120,7 @@ function PaymentForm({
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [linkAuthenticated, setLinkAuthenticated] = useState(false)
+  const [eceAvailable, setEceAvailable] = useState(false)
   const navigate = useNavigate()
   const { clearCart } = useCart()
   const { updateOrderCache, getFreshOrder, getOrderSnapshot } = useCheckoutState()
@@ -768,8 +769,14 @@ function PaymentForm({
       {/* Express Checkout (Google Pay, Apple Pay) */}
       {!linkAuthenticated && (
         <>
+          <div style={{ display: eceAvailable ? undefined : 'none' }}>
           <ExpressCheckoutElement
             onConfirm={handleExpressCheckoutConfirm}
+            onReady={(ev: any) => {
+              const methods = ev?.availablePaymentMethods ?? {}
+              const hasAny = Object.values(methods).some(Boolean)
+              setEceAvailable(hasAny)
+            }}
             onShippingAddressChange={showAddressElement ? handleExpressShippingAddressChange : undefined}
             onShippingRateChange={showAddressElement ? handleExpressShippingRateChange : undefined}
             onCancel={() => {
@@ -806,11 +813,14 @@ function PaymentForm({
               } as any
             })()}
           />
-          <div className="flex items-center gap-3">
-            <Separator className="flex-1" />
-            <span className="text-xs text-muted-foreground uppercase tracking-wider">o</span>
-            <Separator className="flex-1" />
           </div>
+          {eceAvailable && (
+            <div className="flex items-center gap-3">
+              <Separator className="flex-1" />
+              <span className="text-xs text-muted-foreground uppercase tracking-wider">o</span>
+              <Separator className="flex-1" />
+            </div>
+          )}
         </>
       )}
 
