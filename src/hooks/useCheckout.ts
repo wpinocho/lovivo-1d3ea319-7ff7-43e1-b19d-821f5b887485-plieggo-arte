@@ -45,11 +45,15 @@ export const useCheckout = () => {
   const notesTimerRef = useRef<NodeJS.Timeout | null>(null)
   const itemsTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-  const checkout = async (options: CheckoutOptions = {}): Promise<CheckoutResponse> => {
+  const checkout = async (options: CheckoutOptions = {}, directItems?: any[]): Promise<CheckoutResponse> => {
     setIsLoading(true)
     try {
+      const itemsToCheckout = directItems ?? cart.items
+      if (!itemsToCheckout || itemsToCheckout.length === 0) {
+        throw new Error('El carrito está vacío')
+      }
       const order = await createCheckoutFromCart(
-        cart.items,
+        itemsToCheckout,
         options.customerInfo,
         options.discountCode,
         options.shippingAddress,

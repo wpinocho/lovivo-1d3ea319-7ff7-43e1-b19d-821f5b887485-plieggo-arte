@@ -16,45 +16,13 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**Fix "Comprar ahora" — El carrito está vacío error**
-
-### Bug identificado
-`HeadlessProduct.tsx` llama `checkout({ currencyCode }, itemsForCheckout)` pasando items como segundo argumento.
-Pero `useCheckout.ts` → `checkout(options)` solo acepta un parámetro y usa `cart.items` que está vacío.
-
-### Fix requerido — solo 1 archivo
-**`src/hooks/useCheckout.ts`** — modificar la función `checkout`:
-```ts
-// ANTES (línea 48):
-const checkout = async (options: CheckoutOptions = {}): Promise<CheckoutResponse> => {
-  ...
-  const order = await createCheckoutFromCart(
-    cart.items,   // <-- siempre usa cart (vacío en Buy Now)
-    ...
-  )
-
-// DESPUÉS:
-const checkout = async (options: CheckoutOptions = {}, directItems?: any[]): Promise<CheckoutResponse> => {
-  ...
-  const itemsToCheckout = directItems ?? cart.items
-  if (!itemsToCheckout || itemsToCheckout.length === 0) {
-    throw new Error('El carrito está vacío')
-  }
-  const order = await createCheckoutFromCart(
-    itemsToCheckout,   // <-- usa directItems cuando vienen de Buy Now
-    ...
-  )
-```
-
-El `directItems` ya viene en formato correcto de cart items (type, key, product, variant, quantity) desde `HeadlessProduct.tsx`. `createCheckoutFromCart` lo acepta via `cartToApiItems`.
-
-También: el `clearCart()` al final de checkout solo debe ejecutarse si NO se usaron directItems (o si los directItems no están en el carrito). En Buy Now, el carrito ya está vacío así que `clearCart()` es inofensivo pero correcto.
+**Estado:** Estable — sin bugs activos conocidos
 
 ## 4. Recent Changes
-- **2026-05-25 BUY NOW BUG DETECTADO** — `useCheckout.ts` ignora segundo param `directItems` que pasa `HeadlessProduct.tsx`. Fix: aceptar `directItems?: any[]` y usar `directItems ?? cart.items`.
+- **2026-05-25 Buy Now fix** — `useCheckout.ts` `checkout()` ahora acepta `directItems?: any[]` como segundo parámetro. Usa `directItems ?? cart.items`, con validación de array vacío. Fix para el error "El carrito está vacío" al presionar "Comprar ahora" desde PDP.
+- **2026-05-25 BUY NOW BUG DETECTADO** — `useCheckout.ts` ignoraba segundo param `directItems` que pasa `HeadlessProduct.tsx`. Fix: aceptar `directItems?: any[]` y usar `directItems ?? cart.items`.
 - **2026-05-25 Checkout restaurado (5 archivos)** — StripePayment.tsx, CheckoutUI.tsx, CheckoutAdapter.tsx, useCheckout.ts, checkout.ts reemplazados con versiones funcionales del repo de referencia. Clave: `buildElementsPaymentMethodTypes` excluye `customer_balance` (SPEI) del init de Elements para evitar 400, pero lo incluye en el payload del backend.
 - **2026-05-25 ECE fix CORRECTO** — `link` devuelto a `buildElementsPaymentMethodTypes` (solo `customer_balance` excluido). El error anterior de quitar `link` de Elements impedía que Google Pay / Apple Pay se inicializaran. Se mantiene `onReady` para ocultar el separator cuando no hay wallets disponibles.
-- **2026-05-25 ECE fix (INCORRECTO - revertido)** — Se había removido `link` de buildElementsPaymentMethodTypes creyendo que causaba 400, pero en realidad eso bloqueaba ECE.
 - **2026-05-25 Checkout fix Stripe 400** — `customer_balance` (SPEI) removido de `buildElementsPaymentMethodTypes` para la init de Stripe Elements. Se mantiene en `buildPaymentMethodTypes` para el backend payload.
 - **2026-05-25 Checkout fix variante raw** — `cleanVariantName()` añadida en CheckoutUI.tsx para parsear el formato `"30cm x 90cm / 6000 / ['url']"` y mostrar solo `"30cm x 90cm"` en el resumen del pedido.
 - **2026-05-25 CrossSellSection precio corregido** — Ahora usa precio mínimo de variantes en lugar de `product.price` (base). También muestra precio tachado si hay compare_at_price.
@@ -86,7 +54,7 @@ También: el `clearCart()` al final de checkout solo debe ejecutarse si NO se us
 - ECE (Apple Pay / Google Pay) no aparece en el preview (esperado: preview usa iframe sin HTTPS real). En producción debería aparecer en Chrome/Safari con tarjeta guardada.
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** Probar checkout en producción (plieggo.com) — verificar que ya carga bien tras restauración
+- **[ALTA]** Probar checkout en producción (plieggo.com) — verificar Buy Now + checkout normales
 - **[ALTA]** Probar Google Pay / Apple Pay en producción en Chrome/Safari
 - **[ALTA]** Verificar domain verification para Apple Pay en Stripe Dashboard
 - **[ALTA]** Verificar precios de Lunas en DB — confirmar que sus variantes tienen el precio correcto
