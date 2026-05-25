@@ -122,7 +122,13 @@ export const CrossSellSection = ({ currentProduct }: CrossSellSectionProps) => {
       >
         <CarouselContent className="-ml-4">
           {relatedProducts.map((product) => {
-            const displayPrice = product.price || 0
+            // Usar precio de variantes (igual que ProductCard)
+            const variants = (product.variants as any[]) || []
+            const variantPrices = variants.map((v) => Number(v.price)).filter((p) => p > 0)
+            const displayPrice = variantPrices.length > 0 ? Math.min(...variantPrices) : (product.price || 0)
+            const compareAtPrices = variants.map((v) => Number(v.compare_at_price)).filter((p) => p > 0)
+            const displayCompareAt = compareAtPrices.length > 0 ? Math.min(...compareAtPrices) : ((product as any).compare_at_price || 0)
+            const hasDiscount = displayCompareAt > displayPrice
             const img = product.images?.[0]
 
             return (
@@ -156,9 +162,16 @@ export const CrossSellSection = ({ currentProduct }: CrossSellSectionProps) => {
                       <h4 className="text-sm font-medium leading-snug line-clamp-2 group-hover:text-primary/80 transition-colors">
                         {product.title}
                       </h4>
-                      <p className="text-base font-semibold">
-                        {formatMoney(displayPrice, currencyCode)}
-                      </p>
+                      <div className="flex items-baseline gap-2">
+                        <p className="text-base font-semibold">
+                          {formatMoney(displayPrice, currencyCode)}
+                        </p>
+                        {hasDiscount && (
+                          <p className="text-sm text-muted-foreground line-through">
+                            {formatMoney(displayCompareAt, currencyCode)}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </Link>
 

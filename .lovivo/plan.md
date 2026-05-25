@@ -1,7 +1,7 @@
 # Plieggo — Estado del Proyecto
 
 ## 1. Brand & Context
-Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca premium, sutil y artesanal. Vende a coleccionistas y amantes del diseño en México. Precio acordeón: $4,500 MXN (precio único para todas las variantes, tachado $6,000). Uso frecuente como regalo (confirmado por reseñas). Producto diferenciador: el juego de luz y sombra que crean los pliegues, que cambia según la hora del día.
+Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca premium, sutil y artesanal. Vende a coleccionistas y amantes del diseño en México. Precio acordeón: $4,500 MXN (precio único para todas las variantes, tachado $6,000). Precio Luna: por variantes (revisar en DB). Uso frecuente como regalo. Producto diferenciador: juego de luz y sombra que cambia según la hora del día.
 
 ## 2. Design System
 - Paleta: crema mantequilla (#F2EFE4), vino burdeos (#5D2A38), terracota (#C16648), azul medianoche (#1B2A41)
@@ -16,22 +16,10 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**Checkout fixes implementados — pendiente testing en producción**
-
-Ambos bugs que bloqueaban el checkout fueron resueltos en `src/adapters/CheckoutAdapter.tsx`:
-
-### Fix 1 (APLICADO): state-resetter eliminado
-El `useEffect` que limpiaba `address.state` cuando el estado no estaba en `availableStates` fue eliminado. Causa raíz: Stripe/Link emite códigos ISO cortos (`CDMX`) pero la lista tenía nombres completos (`Ciudad de México`) → no hacía match → borraba el estado → faltaba `estado` en validación.
-
-### Fix 2 (APLICADO): validateCheckoutFields simplificado  
-La función `validateCheckoutFields` ahora NO valida teléfono ni estado en modo envío (solo en pickup). Stripe AddressElement con `fields.phone:'always'` ya captura y valida esos campos internamente via `elements.submit()`.
-
-### Fix 3 (APLICADO): shippingCoverageV2 + passthrough backend
-- Ahora usa `shippingCoverageV2` en lugar de `shippingCoverage` para la lista de países
-- `updateShippingAddress` pasa `country_code` y `state_code` directamente al backend (sin validación local)
-- `discountAmount` usa `backendDiscountAmount` primero, luego cálculo local como fallback
+**Estable — mejoras incrementales en curso**
 
 ## 4. Recent Changes
+- **2026-05-25 CrossSellSection precio corregido** — Ahora usa precio mínimo de variantes en lugar de `product.price` (base). También muestra precio tachado si hay compare_at_price. Lunas y acordeones ahora muestran el precio correcto.
 - **2026-05-25 Precios Acordeón unificados** — Todas las variantes de los 8 acordeones activos actualizadas a $4,500 precio / $6,000 tachado (antes: 50cm=$3,500/$4,500, 90cm/$30x90=$4,500/$6,000).
 - **2026-05-22 CheckoutAdapter.tsx reescrito con template corregido** — Eliminado state-resetter useEffect, simplificado validateCheckoutFields (sin phone/state en modo envío), shippingCoverageV2, passthrough backend.
 - **2026-05-22 Checkout bugs diagnosticados** — Bug 1: useEffect limpia address.state porque ISO code (CDMX) != nombre completo en shippingCoverage. Bug 2: logic.phone nunca se actualiza desde StripePayment (sin onPhoneChange). Ambos causan "Por favor completa: teléfono, estado".
@@ -45,8 +33,6 @@ La función `validateCheckoutFields` ahora NO valida teléfono ni estado en modo
 - **2026-05-20 GeneralReviewCard rediseñado** — foto full-width aspect-[3/4], sin avatar circular.
 - **2026-05-20 Sección "Más experiencias" con fotos + colección** — filtro a 5 reviews con foto, priorizando misma colección del producto actual.
 - **2026-05-20 Fotos review Beige Sutil + Luna Llena** — `photoUrl` añadido a primera review de `acorden-beige-sutil` y `luna-llena`.
-- **2026-05-20 Reviews acordeon-prisma-beige-blanco** — 4 reseñas creadas. Primera con foto.
-- **2026-05-20 Reviews PDP con foto** — `photoUrl` añadido a interfaz `Review`. `ReviewCard` con foto full-width aspect-[3/4].
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
@@ -67,7 +53,8 @@ La función `validateCheckoutFields` ahora NO valida teléfono ni estado en modo
 - En PDPs de luna: solo 1 review con foto es de luna (g12), se rellena con 4 de acordeón — aceptable por ahora
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** Probar el checkout en producción tras los fixes de hoy
+- **[ALTA]** Probar el checkout en producción tras los fixes
+- **[ALTA]** Verificar precios de Lunas en DB — confirmar que sus variantes tienen el precio correcto
 - **[ALTA]** Subir fotos reales para reseñas g1, g2, g3, g5, g6, g7, g8 (ampliar pool de "Más experiencias")
 - **[MEDIA]** Agregar fotos a más reviews específicas en PDP (Rosa Sereno, Terracota, Luna Beige, etc.)
 - **[MEDIA]** Añadir más fotos a Luna Beige (detalle, textura, en sala) — desde Dashboard
