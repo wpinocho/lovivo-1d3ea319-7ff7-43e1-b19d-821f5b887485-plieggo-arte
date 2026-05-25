@@ -16,15 +16,72 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**Estado:** Estable — sin bugs activos conocidos
+**Estado:** Dos bugs activos en checkout — fix pendiente en Craft Mode
+
+### Bug 1: Nombre de variante con URLs (CheckoutUI.tsx)
+**Problema:** `item.variant.name` llega en formato raw: `"30cm x 90cm / 6000 / ['url1', 'url2', ...]"`. El archivo actual NO tiene `cleanVariantName()` aplicado (el fix previo se perdió / no se guardó).
+
+**Fix:** En `src/pages/ui/CheckoutUI.tsx`:
+1. Agregar helper al inicio del archivo (fuera de los componentes):
+```ts
+function cleanVariantName(raw: string | undefined | null): string {
+  if (!raw) return '';
+  // Format: "30cm x 90cm / 6000 / ['url1', ...]"
+  // Solo la primera parte antes de " / "
+  return raw.split(' / ')[0].trim();
+}
+```
+2. Aplicar en desktop (línea ~403): `{item.variant && <p className="text-sm text-muted-foreground">{cleanVariantName(item.variant.name)}</p>}`
+3. Aplicar en mobile (línea ~555): `{item.variant && <p className="text-xs text-muted-foreground">{cleanVariantName(item.variant.name)}</p>}`
+
+### Bug 2: Express Checkout (Google Pay / Apple Pay) — separador "o" siempre visible aunque no haya billeteras
+**Problema:** El `ExpressCheckoutElement` de Stripe en `src/components/StripePayment.tsx` no tiene callback `onReady`. Cuando Stripe detecta que no hay billeteras disponibles (ej: navegador sin Google Pay / Apple Pay configurado), el ECE se oculta automáticamente pero el separador "o" **sigue visible**. También: si hay alguna configuración incorrecta, los botones no cargan.
+
+**Fix:** En `src/components/StripePayment.tsx` → dentro de `PaymentForm`:
+1. Agregar estado: `const [eceAvailable, setEceAvailable] = useState(false);`
+2. En el `ExpressCheckoutElement`, agregar prop:
+```tsx
+onReady={(ev: any) => {
+  const methods = ev?.availablePaymentMethods ?? {};
+  const hasAny = Object.values(methods).some(Boolean);
+  setEceAvailable(hasAny);
+}}
+```
+3. Cambiar la condición del bloque ECE de:
+```tsx
+{!linkAuthenticated && (
+  <>
+    <ExpressCheckoutElement ... />
+    <div ...>o</div>
+  </>
+)}
+```
+a:
+```tsx
+{!linkAuthenticated && (
+  <>
+    <div style={{ display: eceAvailable ? undefined : 'none' }}>
+      <ExpressCheckoutElement ... />
+    </div>
+    {eceAvailable && (
+      <div className="flex items-center gap-3">
+        <Separator className="flex-1" />
+        <span className="text-xs text-muted-foreground uppercase tracking-wider">o</span>
+        <Separator className="flex-1" />
+      </div>
+    )}
+  </>
+)}
+```
+⚠️ Importante: NO quitar el `ExpressCheckoutElement` del DOM — solo ocultarlo visualmente con `display:none`. Si lo desmontas, Stripe pierde el contexto del wallet. El separador "o" sí puede condicionar su render.
 
 ## 4. Recent Changes
+- **2026-05-25 PENDING FIX** — cleanVariantName + ECE onReady — ver Active Plan
 - **2026-05-25 Buy Now fix** — `useCheckout.ts` `checkout()` ahora acepta `directItems?: any[]` como segundo parámetro. Usa `directItems ?? cart.items`, con validación de array vacío. Fix para el error "El carrito está vacío" al presionar "Comprar ahora" desde PDP.
 - **2026-05-25 BUY NOW BUG DETECTADO** — `useCheckout.ts` ignoraba segundo param `directItems` que pasa `HeadlessProduct.tsx`. Fix: aceptar `directItems?: any[]` y usar `directItems ?? cart.items`.
 - **2026-05-25 Checkout restaurado (5 archivos)** — StripePayment.tsx, CheckoutUI.tsx, CheckoutAdapter.tsx, useCheckout.ts, checkout.ts reemplazados con versiones funcionales del repo de referencia. Clave: `buildElementsPaymentMethodTypes` excluye `customer_balance` (SPEI) del init de Elements para evitar 400, pero lo incluye en el payload del backend.
 - **2026-05-25 ECE fix CORRECTO** — `link` devuelto a `buildElementsPaymentMethodTypes` (solo `customer_balance` excluido). El error anterior de quitar `link` de Elements impedía que Google Pay / Apple Pay se inicializaran. Se mantiene `onReady` para ocultar el separator cuando no hay wallets disponibles.
 - **2026-05-25 Checkout fix Stripe 400** — `customer_balance` (SPEI) removido de `buildElementsPaymentMethodTypes` para la init de Stripe Elements. Se mantiene en `buildPaymentMethodTypes` para el backend payload.
-- **2026-05-25 Checkout fix variante raw** — `cleanVariantName()` añadida en CheckoutUI.tsx para parsear el formato `"30cm x 90cm / 6000 / ['url']"` y mostrar solo `"30cm x 90cm"` en el resumen del pedido.
 - **2026-05-25 CrossSellSection precio corregido** — Ahora usa precio mínimo de variantes en lugar de `product.price` (base). También muestra precio tachado si hay compare_at_price.
 - **2026-05-25 Precios Acordeón unificados** — Todas las variantes de los 8 acordeones activos actualizadas a $4,500 precio / $6,000 tachado.
 - **2026-05-22 CheckoutAdapter.tsx reescrito con template corregido** — Eliminado state-resetter useEffect, simplificado validateCheckoutFields, shippingCoverageV2, passthrough backend.
