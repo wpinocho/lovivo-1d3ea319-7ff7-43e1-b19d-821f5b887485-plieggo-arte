@@ -16,9 +16,42 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**Estable — checkout restaurado a versión buena del otro repo.**
+**Fix "Comprar ahora" — El carrito está vacío error**
+
+### Bug identificado
+`HeadlessProduct.tsx` llama `checkout({ currencyCode }, itemsForCheckout)` pasando items como segundo argumento.
+Pero `useCheckout.ts` → `checkout(options)` solo acepta un parámetro y usa `cart.items` que está vacío.
+
+### Fix requerido — solo 1 archivo
+**`src/hooks/useCheckout.ts`** — modificar la función `checkout`:
+```ts
+// ANTES (línea 48):
+const checkout = async (options: CheckoutOptions = {}): Promise<CheckoutResponse> => {
+  ...
+  const order = await createCheckoutFromCart(
+    cart.items,   // <-- siempre usa cart (vacío en Buy Now)
+    ...
+  )
+
+// DESPUÉS:
+const checkout = async (options: CheckoutOptions = {}, directItems?: any[]): Promise<CheckoutResponse> => {
+  ...
+  const itemsToCheckout = directItems ?? cart.items
+  if (!itemsToCheckout || itemsToCheckout.length === 0) {
+    throw new Error('El carrito está vacío')
+  }
+  const order = await createCheckoutFromCart(
+    itemsToCheckout,   // <-- usa directItems cuando vienen de Buy Now
+    ...
+  )
+```
+
+El `directItems` ya viene en formato correcto de cart items (type, key, product, variant, quantity) desde `HeadlessProduct.tsx`. `createCheckoutFromCart` lo acepta via `cartToApiItems`.
+
+También: el `clearCart()` al final de checkout solo debe ejecutarse si NO se usaron directItems (o si los directItems no están en el carrito). En Buy Now, el carrito ya está vacío así que `clearCart()` es inofensivo pero correcto.
 
 ## 4. Recent Changes
+- **2026-05-25 BUY NOW BUG DETECTADO** — `useCheckout.ts` ignora segundo param `directItems` que pasa `HeadlessProduct.tsx`. Fix: aceptar `directItems?: any[]` y usar `directItems ?? cart.items`.
 - **2026-05-25 Checkout restaurado (5 archivos)** — StripePayment.tsx, CheckoutUI.tsx, CheckoutAdapter.tsx, useCheckout.ts, checkout.ts reemplazados con versiones funcionales del repo de referencia. Clave: `buildElementsPaymentMethodTypes` excluye `customer_balance` (SPEI) del init de Elements para evitar 400, pero lo incluye en el payload del backend.
 - **2026-05-25 ECE fix CORRECTO** — `link` devuelto a `buildElementsPaymentMethodTypes` (solo `customer_balance` excluido). El error anterior de quitar `link` de Elements impedía que Google Pay / Apple Pay se inicializaran. Se mantiene `onReady` para ocultar el separator cuando no hay wallets disponibles.
 - **2026-05-25 ECE fix (INCORRECTO - revertido)** — Se había removido `link` de buildElementsPaymentMethodTypes creyendo que causaba 400, pero en realidad eso bloqueaba ECE.
@@ -33,7 +66,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-05-20 Review card photos aspect ratio** — `aspect-[3/4]` → `aspect-[4/5]`.
 - **2026-05-20 Limpieza completa acorden-rosa-morado** — aliases en los 3 archivos data.
 - **2026-05-20 Sección "Más experiencias" — cuadro actual excluido** — lógica de exclusión + priorización de colección.
-- **2026-05-20 GeneralReviewCard rediseñado** — foto full-width aspect-[4/5].
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
