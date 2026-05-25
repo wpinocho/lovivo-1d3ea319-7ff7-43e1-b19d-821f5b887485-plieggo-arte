@@ -16,30 +16,33 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**Estado:** Dos bugs activos en checkout — fix pendiente en Craft Mode
+**Estado:** 3 bugs activos — fix pendiente en Craft Mode (archivos buenos del usuario ya analizados)
 
 ### Bug 1: Nombre de variante con URLs (CheckoutUI.tsx)
-**Problema:** `item.variant.name` llega en formato raw: `"30cm x 90cm / 6000 / ['url1', 'url2', ...]"`. El archivo actual NO tiene `cleanVariantName()` aplicado (el fix previo se perdió / no se guardó).
+**Problema:** `item.variant.name` llega en formato raw: `"30cm x 90cm / 6000 / ['url1', 'url2', ...]"`. Se muestra crudo sin limpiar.
 
-**Fix:** En `src/pages/ui/CheckoutUI.tsx`:
-1. Agregar helper al inicio del archivo (fuera de los componentes):
+**Fix en `src/pages/ui/CheckoutUI.tsx`:**
+1. Agregar helper al inicio del archivo (fuera de los componentes, después de los imports):
 ```ts
 function cleanVariantName(raw: string | undefined | null): string {
   if (!raw) return '';
-  // Format: "30cm x 90cm / 6000 / ['url1', ...]"
-  // Solo la primera parte antes de " / "
   return raw.split(' / ')[0].trim();
 }
 ```
-2. Aplicar en desktop (línea ~403): `{item.variant && <p className="text-sm text-muted-foreground">{cleanVariantName(item.variant.name)}</p>}`
-3. Aplicar en mobile (línea ~555): `{item.variant && <p className="text-xs text-muted-foreground">{cleanVariantName(item.variant.name)}</p>}`
+2. Aplicar en resumen desktop (buscar `{item.variant && <p className="text-sm text-muted-foreground">{item.variant.name}</p>}`):
+   → Cambiar a: `{item.variant && <p className="text-sm text-muted-foreground">{cleanVariantName(item.variant.name)}</p>}`
+3. Aplicar en resumen mobile dentro de `MobileOrderSummary` (buscar `{item.variant && <p className="text-xs text-muted-foreground">{item.variant.name}</p>}`):
+   → Cambiar a: `{item.variant && <p className="text-xs text-muted-foreground">{cleanVariantName(item.variant.name)}</p>}`
 
-### Bug 2: Express Checkout (Google Pay / Apple Pay) — separador "o" siempre visible aunque no haya billeteras
-**Problema:** El `ExpressCheckoutElement` de Stripe en `src/components/StripePayment.tsx` no tiene callback `onReady`. Cuando Stripe detecta que no hay billeteras disponibles (ej: navegador sin Google Pay / Apple Pay configurado), el ECE se oculta automáticamente pero el separador "o" **sigue visible**. También: si hay alguna configuración incorrecta, los botones no cargan.
+### Bug 2: Express Checkout separador "o" siempre visible (StripePayment.tsx)
+**Problema:** `ExpressCheckoutElement` no tiene `onReady` callback. Cuando Stripe detecta que no hay wallets disponibles, oculta los botones pero el separador "o" sigue visible (está fuera de condición).
 
-**Fix:** En `src/components/StripePayment.tsx` → dentro de `PaymentForm`:
-1. Agregar estado: `const [eceAvailable, setEceAvailable] = useState(false);`
-2. En el `ExpressCheckoutElement`, agregar prop:
+**Fix en `src/components/StripePayment.tsx` → dentro de `PaymentForm`:**
+1. Agregar estado al inicio de `PaymentForm` (junto a los otros useState):
+```tsx
+const [eceAvailable, setEceAvailable] = useState(false);
+```
+2. En el `ExpressCheckoutElement`, agregar prop `onReady`:
 ```tsx
 onReady={(ev: any) => {
   const methods = ev?.availablePaymentMethods ?? {};
@@ -47,36 +50,49 @@ onReady={(ev: any) => {
   setEceAvailable(hasAny);
 }}
 ```
-3. Cambiar la condición del bloque ECE de:
+3. Envolver el ECE con un div que lo oculte visualmente (NO desmontarlo — Stripe pierde el contexto del wallet):
 ```tsx
-{!linkAuthenticated && (
-  <>
-    <ExpressCheckoutElement ... />
-    <div ...>o</div>
-  </>
+<div style={{ display: eceAvailable ? undefined : 'none' }}>
+  <ExpressCheckoutElement ... />
+</div>
+```
+4. Hacer el separador condicional:
+```tsx
+{eceAvailable && (
+  <div className="flex items-center gap-3">
+    <Separator className="flex-1" />
+    <span className="text-xs text-muted-foreground uppercase tracking-wider">o</span>
+    <Separator className="flex-1" />
+  </div>
 )}
 ```
-a:
-```tsx
-{!linkAuthenticated && (
-  <>
-    <div style={{ display: eceAvailable ? undefined : 'none' }}>
-      <ExpressCheckoutElement ... />
-    </div>
-    {eceAvailable && (
-      <div className="flex items-center gap-3">
-        <Separator className="flex-1" />
-        <span className="text-xs text-muted-foreground uppercase tracking-wider">o</span>
-        <Separator className="flex-1" />
-      </div>
-    )}
-  </>
-)}
+⚠️ El bloque completo queda dentro de `{!linkAuthenticated && (...)}` igual que antes.
+
+### Bug 3: Stripe 400 — `customer_balance` en Elements init (StripePayment.tsx)
+**Problema:** La función `buildPaymentMethodTypes` incluye `customer_balance` cuando SPEI está activo. Esa misma función se usa para `elementsOptions.paymentMethodTypes`, pero Stripe Elements NO acepta `customer_balance` en su inicialización — solo en el payload del backend. Esto provoca un error 400.
+
+**Fix en `src/components/StripePayment.tsx`:**
+1. Dejar `buildPaymentMethodTypes` tal como está (para el backend payload, incluye `customer_balance`).
+2. Agregar una segunda función solo para Elements init (sin `customer_balance`):
+```ts
+function buildElementsPaymentMethodTypes(pm?: PaymentMethods): string[] {
+  const types: string[] = ['link']
+  if (!pm || pm.card !== false) types.unshift('card')
+  if (pm?.oxxo) types.push('oxxo')
+  // customer_balance (SPEI) EXCLUDED — Stripe Elements 400 if included at init
+  return types
+}
 ```
-⚠️ Importante: NO quitar el `ExpressCheckoutElement` del DOM — solo ocultarlo visualmente con `display:none`. Si lo desmontas, Stripe pierde el contexto del wallet. El separador "o" sí puede condicionar su render.
+3. En `elementsOptions` (dentro del componente `StripePayment`), usar la nueva función:
+```tsx
+paymentMethodTypes: buildElementsPaymentMethodTypes(props.paymentMethods),
+```
+   (era `buildPaymentMethodTypes(props.paymentMethods)` — cambiar solo este uso)
+
+4. En `buildPayload` → `payment_method_types` → dejar usando `buildPaymentMethodTypes(paymentMethods)` (incluye SPEI para el backend).
 
 ## 4. Recent Changes
-- **2026-05-25 PENDING FIX** — cleanVariantName + ECE onReady — ver Active Plan
+- **2026-05-25 PENDING FIX** — 3 bugs analizados (cleanVariantName + ECE onReady + buildElementsPaymentMethodTypes) — ver Active Plan
 - **2026-05-25 Buy Now fix** — `useCheckout.ts` `checkout()` ahora acepta `directItems?: any[]` como segundo parámetro. Usa `directItems ?? cart.items`, con validación de array vacío. Fix para el error "El carrito está vacío" al presionar "Comprar ahora" desde PDP.
 - **2026-05-25 BUY NOW BUG DETECTADO** — `useCheckout.ts` ignoraba segundo param `directItems` que pasa `HeadlessProduct.tsx`. Fix: aceptar `directItems?: any[]` y usar `directItems ?? cart.items`.
 - **2026-05-25 Checkout restaurado (5 archivos)** — StripePayment.tsx, CheckoutUI.tsx, CheckoutAdapter.tsx, useCheckout.ts, checkout.ts reemplazados con versiones funcionales del repo de referencia. Clave: `buildElementsPaymentMethodTypes` excluye `customer_balance` (SPEI) del init de Elements para evitar 400, pero lo incluye en el payload del backend.
