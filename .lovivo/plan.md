@@ -16,19 +16,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**Estado:** 🔧 Fix pendiente — ruta `/gracias/:orderId` no existe en App.tsx
-
-### Bug: 404 en Thank You page
-- El checkout (StripePayment.tsx líneas 482, 774) y el express checkout (ProductExpressCheckout.tsx línea 437) navegan a `/gracias/{orderId}`
-- App.tsx solo tiene registrada `/thank-you` y `/thank-you/:orderId` (líneas 65-66)
-- Fix: agregar rutas `/gracias` y `/gracias/:orderId` en App.tsx apuntando a `<ThankYou />`
-
-### Archivos a modificar:
-- `src/App.tsx` — agregar después de línea 66:
-  ```
-  <Route path="/gracias" element={<ThankYou />} />
-  <Route path="/gracias/:orderId" element={<ThankYou />} />
-  ```
+**Estado:** ✅ Checkout completo — todos los bugs resueltos
 
 ### Bugs resueltos (todos):
 1. ✅ **Variante con URLs** — `cleanVariantName()` helper en CheckoutUI.tsx
@@ -36,10 +24,11 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 3. ✅ **Stripe 400 / SPEI** — `customer_balance` excluido del init de Elements
 4. ✅ **Stripe 400 / link** — `link` removido de `buildPaymentMethodTypes` (no activado en cuenta Stripe)
 5. ✅ **Pago funciona** — confirmado por usuario (pago exitoso toast apareció)
-6. ⏳ **404 en /gracias/:orderId** — pendiente fix en App.tsx
+6. ✅ **404 en /gracias/:orderId** — rutas `/gracias` y `/gracias/:orderId` agregadas en App.tsx
 
 ## 4. Recent Changes
-- **2026-05-25** — Bug confirmado: `/gracias/:orderId` no tiene ruta en App.tsx → 404 post-pago
+- **2026-05-25** — App.tsx: agregadas rutas `/gracias` y `/gracias/:orderId` → ThankYou (fix 404 post-pago)
+- **2026-05-25** — Bug confirmado: `/gracias/:orderId` no tenía ruta en App.tsx → 404 post-pago
 - **2026-05-25** — `link` removido de `buildPaymentMethodTypes` en StripePayment.tsx. Payload ahora: `["card", "oxxo", "customer_balance"]` (sin link)
 - **2026-05-25** — `cleanVariantName()` en CheckoutUI.tsx (desktop + mobile)
 - **2026-05-25** — ECE `onReady` en StripePayment.tsx: `eceAvailable` state, separador "o" condicional
@@ -53,7 +42,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-05-21 CheckoutAdapter shipping fix** — Pure passthrough: country_name/state_name → codes
 - **2026-05-21 AboutPage rediseño editorial** — Split hero, pilares, sección proceso dark
 - **2026-05-21 PDP orden secciones** — Reviews → InspirationCarousel → FAQ → CrossSell
-- **2026-05-20 Review card photos** — `aspect-[3/4]` → `aspect-[4/5]`
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
@@ -73,11 +61,9 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Slugs en code sin producto activo en DB: `acorden-terracota-vibrante`, `acorden-crema-natural`, `acorden-morado-lavanda`, `acorden-morado-elegante`, `estrellas`
 - ECE (Apple Pay / Google Pay) no aparece en el preview (esperado: preview usa iframe sin HTTPS real)
 - Stripe Link NO está activado en la cuenta — `link` removido del payload permanentemente
-- **404 post-pago**: ruta `/gracias/:orderId` no registrada en App.tsx (fix pendiente)
 
 ## 7. Pending / Future Sessions
-- **[URGENTE]** Fix 404: agregar rutas `/gracias` y `/gracias/:orderId` en App.tsx → ThankYou
-- **[ALTA]** Probar checkout en producción (plieggo.com) — verificar que el pago con tarjeta funciona end-to-end incluyendo thank you page
+- **[ALTA]** Probar checkout en producción (plieggo.com) — verificar thank you page carga con info de la orden
 - **[ALTA]** Probar Google Pay / Apple Pay en producción en Chrome/Safari con tarjeta guardada
 - **[ALTA]** Verificar domain verification para Apple Pay en Stripe Dashboard
 - **[ALTA]** Verificar precios de Lunas en DB — confirmar variantes con precio correcto
