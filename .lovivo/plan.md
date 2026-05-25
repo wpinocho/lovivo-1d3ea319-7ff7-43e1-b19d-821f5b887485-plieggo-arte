@@ -16,80 +16,18 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**Estado:** 🔧 Pendiente — 2 fixes en ThankYou.tsx
+**Estado:** ✅ Completado — Página de gracias funcional
 
-### Fix 1 — Nombre de variante con URLs (ThankYou.tsx)
-**Problema:** `item.variant_name` muestra el string crudo: `"30cm x 90cm / 6000 / ['url1', 'url2', ...]"`
-**Fix:** Agregar `cleanVariantName()` helper (igual al de CheckoutUI.tsx) en ThankYou.tsx y aplicarlo en línea 207 donde se renderiza `{item.variant_name}`.
+### Fix 1 — Nombre de variante con URLs (ThankYou.tsx) ✅
+`cleanVariantName()` agregado y aplicado en la línea del `variant_name`. Muestra solo "30cm x 90cm".
 
-```ts
-/** Strips raw variant name format "30cm x 90cm / 6000 / ['url1', ...]" → "30cm x 90cm" */
-function cleanVariantName(raw: string | undefined | null): string {
-  if (!raw) return '';
-  return raw.split(' / ')[0].trim();
-}
-```
-
-Aplicar en: `{cleanVariantName(item.variant_name)}`
-
-### Fix 2 — Upsell desde colección "Más vendidos" (ThankYou.tsx)
-**Problema:** La sección "Otras piezas que te podrían interesar" hace query directa a `products` (cualquier producto activo), en lugar de traer los de la colección `top-sellers`.
-**Fix:** Reemplazar el `loadUpsell` para:
-1. Buscar la colección con handle `'top-sellers'` en Supabase
-2. Traer los `collection_products` de esa colección
-3. Filtrar los que no son el producto comprado
-4. Traer máx 4 de esos product_ids
-5. Fallback: si no hay colección o <4 productos, completar con activos genéricos (opcional — mantener upsell vacío es más limpio)
-
-```ts
-const loadUpsell = async () => {
-  try {
-    const purchasedIds = order.order_items.map(item => item.product_id).filter(Boolean)
-
-    // 1. Get top-sellers collection
-    const { data: collection } = await supabase
-      .from('collections')
-      .select('id')
-      .eq('handle', 'top-sellers')
-      .eq('store_id', STORE_ID)
-      .single()
-
-    if (!collection) return
-
-    // 2. Get product IDs from collection
-    const { data: collectionProducts } = await supabase
-      .from('collection_products')
-      .select('product_id')
-      .eq('collection_id', collection.id)
-
-    if (!collectionProducts || collectionProducts.length === 0) return
-
-    const collectionProductIds = collectionProducts
-      .map(cp => cp.product_id)
-      .filter(id => !purchasedIds.includes(id))
-
-    if (collectionProductIds.length === 0) return
-
-    // 3. Fetch up to 4 products
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .eq('store_id', STORE_ID)
-      .eq('status', 'active')
-      .in('id', collectionProductIds)
-      .limit(4)
-
-    if (!error && data) {
-      setUpsellProducts(data)
-    }
-  } catch (e) {
-    // Silent fail
-  }
-}
-```
+### Fix 2 — Upsell desde colección "Más vendidos" (ThankYou.tsx) ✅
+`loadUpsell` ahora busca la colección `top-sellers`, obtiene sus `collection_products`, filtra comprados, y trae máx 4 productos de esa colección.
 
 ## 4. Recent Changes
-- **2026-05-25** — ThankYou.tsx: 2 bugs identificados — variant_name con URLs + upsell genérico (pendiente fix)
+- **2026-05-25** — ThankYou.tsx: Fix 1 variant_name con URLs → cleanVariantName() aplicado
+- **2026-05-25** — ThankYou.tsx: Fix 2 upsell → ahora usa colección top-sellers en lugar de productos genéricos
+- **2026-05-25** — ThankYou.tsx: 2 bugs identificados — variant_name con URLs + upsell genérico
 - **2026-05-25** — App.tsx: agregadas rutas `/gracias` y `/gracias/:orderId` → ThankYou (fix 404 post-pago)
 - **2026-05-25** — Bug confirmado: `/gracias/:orderId` no tenía ruta en App.tsx → 404 post-pago
 - **2026-05-25** — `link` removido de `buildPaymentMethodTypes` en StripePayment.tsx. Payload ahora: `["card", "oxxo", "customer_balance"]` (sin link)
@@ -102,8 +40,6 @@ const loadUpsell = async () => {
 - **2026-05-25 CrossSellSection precio corregido** — Precio mínimo de variantes en lugar de `product.price`
 - **2026-05-25 Precios Acordeón unificados** — Todas las variantes a $4,500/$6,000
 - **2026-05-22 CheckoutAdapter.tsx reescrito** — Eliminado state-resetter useEffect
-- **2026-05-21 CheckoutAdapter shipping fix** — Pure passthrough: country_name/state_name → codes
-- **2026-05-21 AboutPage rediseño editorial** — Split hero, pilares, sección proceso dark
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
@@ -125,8 +61,6 @@ const loadUpsell = async () => {
 - Stripe Link NO está activado en la cuenta — `link` removido del payload permanentemente
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** ThankYou.tsx: Fix variant_name con URLs (aplicar cleanVariantName)
-- **[ALTA]** ThankYou.tsx: Fix upsell — usar colección top-sellers en vez de productos genéricos
 - **[ALTA]** Probar checkout en producción (plieggo.com) — verificar thank you page carga con info de la orden
 - **[ALTA]** Probar Google Pay / Apple Pay en producción en Chrome/Safari con tarjeta guardada
 - **[ALTA]** Verificar domain verification para Apple Pay en Stripe Dashboard

@@ -27,6 +27,12 @@ interface OrderDetails {
   created_at: string
 }
 
+/** Strips raw variant name format "30cm x 90cm / 6000 / ['url1', ...]" → "30cm x 90cm" */
+function cleanVariantName(raw: string | undefined | null): string {
+  if (!raw) return ''
+  return raw.split(' / ')[0].trim()
+}
+
 const ThankYou = () => {
   const { orderId } = useParams()
   const [order, setOrder] = useState<OrderDetails | null>(null)
@@ -80,23 +86,41 @@ const ThankYou = () => {
 
     const loadUpsell = async () => {
       try {
-        // Get IDs of products already purchased to exclude them
-        const purchasedIds = order.order_items
-          .map(item => item.product_id)
-          .filter(Boolean)
+        const purchasedIds = order.order_items.map(item => item.product_id).filter(Boolean)
 
-        let query = supabase
+        // 1. Get top-sellers collection
+        const { data: collection } = await supabase
+          .from('collections')
+          .select('id')
+          .eq('handle', 'top-sellers')
+          .eq('store_id', STORE_ID)
+          .single()
+
+        if (!collection) return
+
+        // 2. Get product IDs from collection
+        const { data: collectionProducts } = await supabase
+          .from('collection_products')
+          .select('product_id')
+          .eq('collection_id', collection.id)
+
+        if (!collectionProducts || collectionProducts.length === 0) return
+
+        const collectionProductIds = collectionProducts
+          .map(cp => cp.product_id)
+          .filter(id => !purchasedIds.includes(id))
+
+        if (collectionProductIds.length === 0) return
+
+        // 3. Fetch up to 4 products from the collection
+        const { data, error } = await supabase
           .from('products')
           .select('*')
           .eq('store_id', STORE_ID)
           .eq('status', 'active')
+          .in('id', collectionProductIds)
           .limit(4)
 
-        if (purchasedIds.length > 0) {
-          query = query.not('id', 'in', `(${purchasedIds.join(',')})`)
-        }
-
-        const { data, error } = await query
         if (!error && data) {
           setUpsellProducts(data)
         }
@@ -202,9 +226,9 @@ const ThankYou = () => {
                     
                     <div className="flex-1">
                       <p className="font-medium">{item.product_name || 'Product'}</p>
-                      {item.variant_name && (
+                      {item.variant_name && cleanVariantName(item.variant_name) && (
                         <p className="text-sm text-muted-foreground">
-                          {item.variant_name}
+                          {cleanVariantName(item.variant_name)}
                         </p>
                       )}
                       <p className="text-sm text-muted-foreground">
