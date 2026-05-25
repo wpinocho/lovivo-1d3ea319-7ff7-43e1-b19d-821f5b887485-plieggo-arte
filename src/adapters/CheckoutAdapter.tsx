@@ -64,11 +64,9 @@ export const useCheckoutLogic = () => {
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
 
-  // Client data autosave with smart validation
   const clientTimer = useRef<number | null>(null);
   const [clientSaving, setClientSaving] = useState(false);
   
-  // Shipping coverage error
   const [shippingError, setShippingError] = useState<string | null>(null);
 
   // Address state
@@ -111,7 +109,6 @@ export const useCheckoutLogic = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shippingCoverageV2]);
 
-  // Keep shipping cost in sync - now from checkout-update response
   const [shippingFromCheckout, setShippingFromCheckout] = useState(0);
 
   // Discount state
@@ -120,11 +117,9 @@ export const useCheckoutLogic = () => {
   const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
   const couponInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Loading states for shipping and total calculations
   const isCalculatingShipping = updateStates.updating_address || updatingItems.size > 0;
   const isCalculatingTotal = updateStates.updating_address || updatingItems.size > 0;
 
-  // Update shipping from order items updates
   useEffect(() => {
     if (typeof itemsShippingAmount === 'number') {
       console.log('Updating shipping from order items:', itemsShippingAmount);
@@ -146,7 +141,6 @@ export const useCheckoutLogic = () => {
   }, [selectedPickupLocation, selectedDeliveryMethod, deliveryExpectations, shippingFromCheckout]);
 
   useEffect(() => {
-    // Load order from sessionStorage if available
     try {
       const raw = sessionStorage.getItem('checkout_order');
       if (raw) setOrder(JSON.parse(raw));
@@ -156,10 +150,8 @@ export const useCheckoutLogic = () => {
   const hasTrackedCheckout = useRef(false);
 
   useEffect(() => {
-    // Espera a que el estado de checkout se inicialice
     if (!isInitialized) return;
 
-    // Track InitiateCheckout ANTES de cualquier return
     if (!hasTrackedCheckout.current && orderItems.length > 0 && orderTotal > 0) {
       hasTrackedCheckout.current = true;
       trackInitiateCheckout({
@@ -176,14 +168,12 @@ export const useCheckoutLogic = () => {
       });
     }
 
-    // Fallback: si tenemos el id en sessionStorage, no redirigir
     try {
       const ssId = sessionStorage.getItem('checkout_order_id');
       if (ssId) return;
     } catch {}
   }, [isInitialized, hasActiveCheckout, navigate, toast, orderItems, orderTotal, currencyCode, orderTotalQuantity]);
 
-  // Email validation
   const isValidEmail = (emailValue: string) => {
     const trimmed = emailValue.trim();
     if (trimmed.length < 5) return false;
@@ -191,10 +181,6 @@ export const useCheckoutLogic = () => {
     return emailRegex.test(trimmed) && trimmed.includes('.') && !trimmed.endsWith('.');
   };
 
-  // Phone validation + normalization moved to src/lib/phone-utils.ts
-  // (re-exported via the adapter return for legacy consumers).
-
-  // Smart client data saving
   const saveClientData = async (immediate = false, emailOverride?: string) => {
     if (!orderId) return;
     const trimmedEmail = (emailOverride ?? email).trim();
@@ -203,7 +189,6 @@ export const useCheckoutLogic = () => {
     const hasValidEmail = trimmedEmail && isValidEmail(trimmedEmail);
     const hasValidPhone = normalizedPhone !== null;
 
-    // Backend requires email — skip if we don't have one yet
     if (!hasValidEmail) return;
 
     const customerData: any = {};
@@ -241,7 +226,6 @@ export const useCheckoutLogic = () => {
     }, delay);
   };
 
-  // Debounced autosave for client data
   useEffect(() => {
     saveClientData();
     return () => {
@@ -249,7 +233,6 @@ export const useCheckoutLogic = () => {
     };
   }, [email, firstName, lastName, phone, orderId]);
 
-  // Reset shipping from checkout when country changes but no state selected
   useEffect(() => {
     if (address.country && !address.state) {
       setShippingFromCheckout(0);
@@ -257,7 +240,6 @@ export const useCheckoutLogic = () => {
     }
   }, [address.country, address.state]);
 
-  // Auto-update shipping address when minimal fields are available
   useEffect(() => {
     if (!hasActiveCheckout || !orderId) return;
     
@@ -268,8 +250,6 @@ export const useCheckoutLogic = () => {
       return;
     }
 
-    // Passthrough payload — backend (checkout-update) is the source of truth
-    // for coverage validation and shipping calculation. No local validation.
     const formattedAddress = {
       country_code: address.countryCode || undefined,
       state_code: address.state || undefined,
@@ -298,8 +278,6 @@ export const useCheckoutLogic = () => {
     });
   }, [address.country, address.countryCode, address.state, address.postal_code, address.city, address.line1, address.line2, firstName, lastName, hasActiveCheckout, orderId, updateShippingAddress]);
 
-
-  // Auto-update billing address when it changes
   useEffect(() => {
     if (!hasActiveCheckout || !orderId) return;
     
@@ -322,10 +300,6 @@ export const useCheckoutLogic = () => {
     updateBillingAddress(formattedBillingAddress).catch(console.error);
   }, [billingAddress, useSameAddress, usePickup, hasActiveCheckout, orderId, updateBillingAddress]);
 
-  // Note: when useSameAddress is true, we simply don't send billing_address updates.
-  // The backend treats the absence of billing_address as "use shipping address".
-
-  // Aplicar parámetros de URL (descuentos, contacto, etc.)
   const applyURLParams = (urlParams: any) => {
     if (!urlParams) return;
     
@@ -335,6 +309,7 @@ export const useCheckoutLogic = () => {
       setEmail(urlParams.email);
       console.log('✅ Email applied from URL:', urlParams.email);
     }
+    
     if (urlParams.firstName) {
       setFirstName(urlParams.firstName);
       console.log('✅ First name applied from URL:', urlParams.firstName);
@@ -343,13 +318,13 @@ export const useCheckoutLogic = () => {
       setLastName(urlParams.lastName);
       console.log('✅ Last name applied from URL:', urlParams.lastName);
     }
+    
     if (urlParams.phone) {
       setPhone(urlParams.phone);
       console.log('✅ Phone applied from URL:', urlParams.phone);
     }
   };
 
-  // Hidratar datos de contacto desde sessionStorage (guardados por useURLCartLoader)
   useEffect(() => {
     if (!hasActiveCheckout) return;
 
@@ -369,7 +344,6 @@ export const useCheckoutLogic = () => {
     console.log('📥 Contact data hydrated from sessionStorage:', stored);
   }, [hasActiveCheckout]);
 
-  // Validación diferida de descuento desde sessionStorage
   useEffect(() => {
     const pendingDiscount = sessionStorage.getItem('pendingDiscount');
     
@@ -388,7 +362,6 @@ export const useCheckoutLogic = () => {
     }
   }, [hasActiveCheckout, discount]);
 
-  // Coupon validation
   const validateCoupon = async () => {
     console.log('validateCoupon called with:', { couponCode: couponCode.trim(), hasActiveCheckout, orderId });
     if (!couponCode.trim()) return;
@@ -499,10 +472,6 @@ export const useCheckoutLogic = () => {
     return '0%';
   };
 
-  // Validation function for checkout fields.
-  // Address fields (line1, city, state, postal_code) are validated by Stripe
-  // AddressElement via elements.submit() — we do NOT duplicate that here.
-  // Phone is captured by AddressElement (fields.phone:'always') in shipping mode.
   const validateCheckoutFields = () => {
     const missingFields = [];
     
@@ -511,36 +480,15 @@ export const useCheckoutLogic = () => {
     }
     
     if (usePickup) {
-      // Pickup mode: billing address is custom, validate it
-      if (!billingAddress.first_name.trim()) {
-        missingFields.push('nombre (facturación)');
-      }
-      if (!billingAddress.last_name.trim()) {
-        missingFields.push('apellido (facturación)');
-      }
-      if (!billingAddress.country) {
-        missingFields.push('país (facturación)');
-      }
-      if (!billingAddress.state) {
-        missingFields.push('estado (facturación)');
-      }
-      if (!billingAddress.city.trim()) {
-        missingFields.push('ciudad (facturación)');
-      }
-      if (!billingAddress.postal_code.trim()) {
-        missingFields.push('código postal (facturación)');
-      }
-      if (!billingAddress.line1.trim()) {
-        missingFields.push('dirección (facturación)');
-      }
-      // Pickup phone is mandatory: there's no AddressElement to capture it.
-      if (!isValidPhone(phone)) {
-        missingFields.push('teléfono de contacto');
-      }
+      if (!billingAddress.first_name.trim()) missingFields.push('nombre (facturación)');
+      if (!billingAddress.last_name.trim()) missingFields.push('apellido (facturación)');
+      if (!billingAddress.country) missingFields.push('país (facturación)');
+      if (!billingAddress.state) missingFields.push('estado (facturación)');
+      if (!billingAddress.city.trim()) missingFields.push('ciudad (facturación)');
+      if (!billingAddress.postal_code.trim()) missingFields.push('código postal (facturación)');
+      if (!billingAddress.line1.trim()) missingFields.push('dirección (facturación)');
+      if (!isValidPhone(phone)) missingFields.push('teléfono de contacto');
     } else {
-      // Shipping mode: address + phone validated by Stripe AddressElement
-      // (fields.phone:'always' + validation.phone.required:'always').
-      // Only check delivery method selection here.
       if (deliveryExpectations && deliveryExpectations.length > 0) {
         if (!selectedDeliveryMethod) {
           missingFields.push('método de envío');
@@ -561,21 +509,23 @@ export const useCheckoutLogic = () => {
     return true;
   };
 
-  // Page title (SEO)
   useEffect(() => {
     document.title = 'Checkout - Contacto, Envío y Pago';
   }, []);
 
-  // Available countries and states from shipping coverage v2
   const availableCountries = shippingCoverageV2?.countries || [];
   const selectedCountryData = availableCountries.find((country: any) => country.code === address.countryCode);
   const availableStates = selectedCountryData?.states || [];
-  // NOTE: We intentionally do NOT reset address.state when country changes because
-  // Stripe AddressElement emits ISO short codes (e.g. 'CDMX') while shippingCoverageV2
-  // may list full names ('Ciudad de México'). Resetting would clear a valid state and
-  // break the checkout flow. State propagation is owned by the AddressElement onChange.
 
-  // Summary calculations
+  useEffect(() => {
+    if (address.country && selectedCountryData && !availableStates.includes(address.state)) {
+      setAddress(prev => ({
+        ...prev,
+        state: ''
+      }));
+    }
+  }, [address.country, availableStates, selectedCountryData, address.state]);
+
   const summaryItems = orderItems;
   const summaryTotal = orderTotal;
   const totalQuantity = orderTotalQuantity;
@@ -589,17 +539,14 @@ export const useCheckoutLogic = () => {
     return discount ? calculateDiscountAmount(summaryTotal, discount.discount_type, discount.value, totalQuantity, discount.volume_conditions) : 0;
   }, [discount, summaryTotal, totalQuantity]);
 
-  // Use backend discount (applied_rules) when available, fallback to local calculation
   const discountAmount = backendDiscountAmount > 0 ? backendDiscountAmount : localDiscountAmount;
 
   const finalTotal = Math.max(0, summaryTotal - discountAmount + shippingCost);
 
-  // Payment enablement rules
   const requiresDeliveryMethod = !selectedPickupLocation && !!(deliveryExpectations && deliveryExpectations.length > 0);
   const canPay = !shippingError && (!requiresDeliveryMethod || !!selectedDeliveryMethod);
 
   return {
-    // State
     order,
     email,
     subscribeNews,
@@ -619,7 +566,6 @@ export const useCheckoutLogic = () => {
     discount,
     isValidatingCoupon,
     
-    // Order data
     orderItems,
     itemsLoading,
     orderTotal,
@@ -628,13 +574,11 @@ export const useCheckoutLogic = () => {
     isStale,
     revalidating,
     
-    // Checkout data
     hasActiveCheckout,
     isInitialized,
     orderId,
     checkoutToken,
     
-    // Settings
     currencyCode,
     shippingCoverage,
     pickupLocations,
@@ -642,7 +586,6 @@ export const useCheckoutLogic = () => {
     availableCountries,
     availableStates,
     
-    // Calculated values
     summaryItems,
     summaryTotal,
     totalQuantity,
@@ -657,7 +600,6 @@ export const useCheckoutLogic = () => {
     requiresDeliveryMethod,
     shippingError,
     
-    // Actions
     setEmail,
     setSubscribeNews,
     setFirstName,
@@ -672,7 +614,6 @@ export const useCheckoutLogic = () => {
     setBillingAddress,
     setCouponCode,
     
-    // Functions
     saveClientData,
     validateCoupon,
     removeCoupon,
@@ -685,10 +626,8 @@ export const useCheckoutLogic = () => {
     isValidPhone,
     applyURLParams,
     
-    // Refs
     couponInputRef,
     
-    // Events for additional features
     onPaymentStart: () => {
       console.log('Payment process started - ready for additional features')
     },

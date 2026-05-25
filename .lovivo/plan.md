@@ -16,9 +16,10 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**Estable — checkout funcional. ECE (Express Checkout) fix en progreso.**
+**Estable — checkout restaurado a versión buena del otro repo.**
 
 ## 4. Recent Changes
+- **2026-05-25 Checkout restaurado (5 archivos)** — StripePayment.tsx, CheckoutUI.tsx, CheckoutAdapter.tsx, useCheckout.ts, checkout.ts reemplazados con versiones funcionales del repo de referencia. Clave: `buildElementsPaymentMethodTypes` excluye `customer_balance` (SPEI) del init de Elements para evitar 400, pero lo incluye en el payload del backend.
 - **2026-05-25 ECE fix CORRECTO** — `link` devuelto a `buildElementsPaymentMethodTypes` (solo `customer_balance` excluido). El error anterior de quitar `link` de Elements impedía que Google Pay / Apple Pay se inicializaran. Se mantiene `onReady` para ocultar el separator cuando no hay wallets disponibles.
 - **2026-05-25 ECE fix (INCORRECTO - revertido)** — Se había removido `link` de buildElementsPaymentMethodTypes creyendo que causaba 400, pero en realidad eso bloqueaba ECE.
 - **2026-05-25 Checkout fix Stripe 400** — `customer_balance` (SPEI) removido de `buildElementsPaymentMethodTypes` para la init de Stripe Elements. Se mantiene en `buildPaymentMethodTypes` para el backend payload.
@@ -53,7 +54,8 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - ECE (Apple Pay / Google Pay) no aparece en el preview (esperado: preview usa iframe sin HTTPS real). En producción debería aparecer en Chrome/Safari con tarjeta guardada.
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** Probar Google Pay / Apple Pay en producción (plieggo.com) en Chrome/Safari con ECE fix aplicado
+- **[ALTA]** Probar checkout en producción (plieggo.com) — verificar que ya carga bien tras restauración
+- **[ALTA]** Probar Google Pay / Apple Pay en producción en Chrome/Safari
 - **[ALTA]** Verificar domain verification para Apple Pay en Stripe Dashboard
 - **[ALTA]** Verificar precios de Lunas en DB — confirmar que sus variantes tienen el precio correcto
 - **[ALTA]** Subir fotos reales para reseñas g1, g2, g3, g5, g6, g7, g8

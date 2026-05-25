@@ -26,14 +26,12 @@ export const createCheckoutFromCart = async (
     throw new Error('El carrito está vacío')
   }
 
-  // Convertir items del carrito al formato esperado por checkout-create
-  // Descompone bundles en productos individuales y merge duplicados
   const items: CheckoutItem[] = cartToApiItems(cartItems)
 
   const payload: CheckoutPayload = {
     store_id: STORE_ID,
     items,
-    user_id: user?.id, // Link order to authenticated user
+    user_id: user?.id,
     ...(discountCode && { discount_code: discountCode }),
     ...(customerInfo && { customer: customerInfo }),
     ...(shippingAddress && { shipping_address: shippingAddress }),
@@ -49,7 +47,6 @@ export const createCheckoutFromCart = async (
   }
 }
 
-// Función de ejemplo para testing rápido
 // Tipos para checkout-update
 export interface CheckoutUpdatePayload {
   order_id: string
@@ -60,7 +57,7 @@ export interface CheckoutUpdatePayload {
   billing_address?: any
   notes?: string | null
   currency_code?: string
-  include_product_details?: boolean // Para solicitar datos completos de productos
+  include_product_details?: boolean
 }
 
 export interface CheckoutUpdateResponse {
@@ -79,7 +76,6 @@ export interface CheckoutUpdateResponse {
   updated_fields?: string[]
 }
 
-// Función para actualizar checkout existente
 export const updateCheckout = async (payload: CheckoutUpdatePayload): Promise<CheckoutUpdateResponse> => {
   if (!payload.order_id || !payload.checkout_token) {
     throw new Error('order_id y checkout_token son requeridos')
@@ -96,13 +92,11 @@ export const createSampleOrder = async (): Promise<CheckoutResponse> => {
   const payload: CheckoutPayload = {
     store_id: STORE_ID,
     items: [
-      // Producto CON variantes → incluir variant_id
       {
         product_id: '2790e602-1f37-43b8-99b6-3d703b81a162',
         quantity: 2,
-        variant_id: '99aff621-666f-4a6f-979a-5beb7d4494e8', // Azul / s
+        variant_id: '99aff621-666f-4a6f-979a-5beb7d4494e8',
       },
-      // Producto SIN variantes → no incluir variant_id
       {
         product_id: 'f6e331c8-c0e9-40bb-b15f-c076056f3df2',
         quantity: 1,

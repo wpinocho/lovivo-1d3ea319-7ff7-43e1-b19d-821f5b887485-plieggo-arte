@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { useCart, type CartItem } from '@/contexts/CartContext'
+import { useCart } from '@/contexts/CartContext'
 import { useSettings } from '@/contexts/SettingsContext'
 import { createCheckoutFromCart, createSampleOrder, updateCheckout, type CheckoutUpdatePayload } from '@/lib/checkout'
 import { cartToApiItems } from '@/lib/cart-utils'
@@ -39,19 +39,17 @@ export const useCheckout = () => {
   })
   const [lastOrder, setLastOrder] = useState<CheckoutResponse | null>(null)
   
-  // Separate debounce timers for different update types
   const shippingTimerRef = useRef<NodeJS.Timeout | null>(null)
   const billingTimerRef = useRef<NodeJS.Timeout | null>(null)
   const discountTimerRef = useRef<NodeJS.Timeout | null>(null)
   const notesTimerRef = useRef<NodeJS.Timeout | null>(null)
   const itemsTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-  const checkout = async (options: CheckoutOptions = {}, overrideItems?: CartItem[]): Promise<CheckoutResponse> => {
+  const checkout = async (options: CheckoutOptions = {}): Promise<CheckoutResponse> => {
     setIsLoading(true)
-    const itemsToCheckout = (overrideItems && overrideItems.length > 0) ? overrideItems : cart.items
     try {
       const order = await createCheckoutFromCart(
-        itemsToCheckout,
+        cart.items,
         options.customerInfo,
         options.discountCode,
         options.shippingAddress,
@@ -60,20 +58,18 @@ export const useCheckout = () => {
         options.currencyCode || currencyCode
       )
 
-      // Guardar estado de checkout con la orden completa
       saveCheckoutState({
         order_id: order.order_id,
         checkout_token: order.checkout_token,
         store_id: STORE_ID,
         discount_code: options.discountCode,
-        order: order.order // Ahora siempre viene la orden completa
+        order: order.order
       })
 
       console.log('Checkout state saved with order:', order.order)
 
       setLastOrder(order)
       
-      // Handle unavailable items notification
       if (order.unavailable_items && order.unavailable_items.length > 0) {
         const unavailableCount = order.unavailable_items.length
         const itemText = unavailableCount === 1 ? 'item' : 'items'
@@ -83,20 +79,15 @@ export const useCheckout = () => {
           variant: "destructive",
         })
         
-        // Auto dismiss after 3 seconds
-        setTimeout(() => {
-          // Toast will auto-dismiss based on shadcn default behavior
-        }, 3000)
+        setTimeout(() => {}, 3000)
       }
 
-      // Limpiar carrito después de crear la orden
       clearCart()
       
       return order
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
       
-      // Si el error es de productos inexistentes, limpiar carrito
       if (errorMessage.includes("don't exist") || errorMessage.includes("not active")) {
         clearCart()
         toast({
@@ -116,7 +107,6 @@ export const useCheckout = () => {
     }
   }
 
-  // Función específica para actualizar items (puede recibir CartItems o items planos)
   const updateItems = useCallback(async (items: any[] = cart.items, immediate = true, includeProductDetails = true) => {
     logger.debug(`updateItems called with ${items.length} items, immediate: ${immediate}, includeProductDetails: ${includeProductDetails}`)
     logger.debug('updateItems - items data:', items)
@@ -124,14 +114,11 @@ export const useCheckout = () => {
     const updateState = { updating_items: true }
     setUpdateStates(prev => ({ ...prev, ...updateState }))
 
-    // Cancelar timer anterior específico para items
     if (itemsTimerRef.current) {
       clearTimeout(itemsTimerRef.current)
     }
 
     try {
-      // Convertir a formato de checkout dependiendo del tipo de input
-      // IMPORTANTE: Nunca enviar items con quantity <= 0 (eliminar = excluir del array)
       const sourceItems = items.filter((item: any) => (item?.quantity ?? 0) > 0)
       if (sourceItems.length !== items.length) {
         logger.debug('updateItems: filtered out zero-quantity items', {
@@ -145,7 +132,8 @@ export const useCheckout = () => {
         : sourceItems.map((item: any) => ({
             product_id: item.product_id,
             quantity: item.quantity,
-            ...(item.variant_id && { variant_id: item.variant_id })
+            ...(item.variant_id && { variant_id: item.variant_id }),
+            ...(item.selling_plan_id && { selling_plan_id: item.selling_plan_id })
           }))
 
       if (immediate) {
@@ -191,22 +179,17 @@ export const useCheckout = () => {
     } catch (error) {
       logger.error('updateItems: Error updating items:', error);
       
-      // Parse specific error message from backend
       let errorMessage = "No se pudieron actualizar los productos"
       let errorTitle = "Error al actualizar productos"
       
       if (error instanceof Error) {
         const errorText = error.message.toLowerCase()
         
-        // Check for inventory errors
         if (errorText.includes('insufficient inventory') || errorText.includes('not enough stock')) {
           errorTitle = "Insufficient Stock"
-          
-          // Extract product name from error message if possible
           const originalMessage = error.message
           const productMatch = originalMessage.match(/for (.+?)(?:\.|$|Available:)/i)
           const productName = productMatch ? productMatch[1].trim() : 'this product'
-          
           errorMessage = `Not enough stock available for ${productName}`
         } else {
           errorMessage = error.message
@@ -224,16 +207,13 @@ export const useCheckout = () => {
     }
   }, [cart.items, orderId, checkoutToken, toast])
 
-  // Mantener una referencia estable a updateItems para sincronización con el carrito
   const updateItemsRef = useRef(updateItems)
   useEffect(() => { updateItemsRef.current = updateItems }, [updateItems])
   
-  // Función específica para actualizar dirección de envío
   const updateShippingAddress = useCallback(async (shippingAddress: any, immediate = false) => {
     const updateState = { updating_address: true }
     setUpdateStates(prev => ({ ...prev, ...updateState }))
 
-    // Cancelar timer anterior específico para shipping
     if (shippingTimerRef.current) {
       clearTimeout(shippingTimerRef.current)
     }
@@ -241,12 +221,13 @@ export const useCheckout = () => {
     try {
       if (immediate) {
         console.log('Executing immediate shipping address update');
-        await updateCheckout({
+        const response = await updateCheckout({
           order_id: orderId!,
           checkout_token: checkoutToken!,
           shipping_address: shippingAddress
         })
         setUpdateStates(prev => ({ ...prev, updating_address: false }))
+        return response
       } else {
         console.log('Setting debounced shipping address update timer with 500ms delay');
         return new Promise((resolve, reject) => {
@@ -279,12 +260,10 @@ export const useCheckout = () => {
     }
   }, [orderId, checkoutToken, toast])
 
-  // Función específica para actualizar dirección de facturación
   const updateBillingAddress = useCallback(async (billingAddress: any, immediate = false) => {
     const updateState = { updating_address: true }
     setUpdateStates(prev => ({ ...prev, ...updateState }))
 
-    // Cancelar timer anterior específico para billing
     if (billingTimerRef.current) {
       clearTimeout(billingTimerRef.current)
     }
@@ -328,14 +307,12 @@ export const useCheckout = () => {
     }
   }, [orderId, checkoutToken, toast])
 
-  // Función para actualizar código de descuento
   const updateDiscountCode = useCallback(async (discountCode: string | null, immediate = false) => {
     console.log('updateDiscountCode called with:', { discountCode, immediate, orderId, checkoutToken, hasActiveCheckout });
     
     const updateState = { updating_discount: true }
     setUpdateStates(prev => ({ ...prev, ...updateState }))
 
-    // Cancelar timer anterior específico para discount
     if (discountTimerRef.current) {
       clearTimeout(discountTimerRef.current)
     }
@@ -349,7 +326,6 @@ export const useCheckout = () => {
           discount_code: discountCode
         })
         
-        // Update the discount code in local state
         updateDiscountCodeInState(discountCode)
         
         return response
@@ -365,7 +341,6 @@ export const useCheckout = () => {
                 discount_code: discountCode
               })
               
-              // Update the discount code in local state
               updateDiscountCodeInState(discountCode)
               
               resolve(response)
@@ -389,12 +364,10 @@ export const useCheckout = () => {
     }
   }, [orderId, checkoutToken, hasActiveCheckout, toast])
 
-  // Función para actualizar notas
   const updateNotes = useCallback(async (notes: string | null, immediate = false) => {
     const updateState = { updating_notes: true }
     setUpdateStates(prev => ({ ...prev, ...updateState }))
 
-    // Cancelar timer anterior específico para notes
     if (notesTimerRef.current) {
       clearTimeout(notesTimerRef.current)
     }
@@ -438,7 +411,6 @@ export const useCheckout = () => {
     }
   }, [orderId, checkoutToken, toast])
 
-  // Listen for checkout updates from other components (e.g., StripePayment)
   useEffect(() => {
     const handleCheckoutUpdate = (event: CustomEvent) => {
       console.log('🔄 Checkout updated from external component:', event.detail)
@@ -455,7 +427,6 @@ export const useCheckout = () => {
     return () => window.removeEventListener('checkout:updated', handleCheckoutUpdate as EventListener)
   }, [])
 
-  // Sync lastOrder with checkoutState.order on initialization
   useEffect(() => {
     if (checkoutState?.order && !lastOrder) {
       console.log('🔄 Syncing lastOrder with checkoutState.order')
@@ -474,13 +445,6 @@ export const useCheckout = () => {
       })
     }
   }, [checkoutState?.order, lastOrder])
-
-  // SEPARACIÓN: Ya no conectamos automáticamente con CartContext
-  // El checkout manejará sus propios productos internamente
-
-  // Extract applied_rules: prefer lastOrder (kept fresh via checkout:updated events) over checkoutState (separate hook instance, may be stale)
-  const appliedRules = lastOrder?.order?.applied_rules ?? checkoutState?.order?.applied_rules ?? []
-  const backendDiscountAmount = (appliedRules || []).reduce((sum: number, rule: any) => sum + (rule.discount || 0), 0)
 
   const createSample = async (): Promise<CheckoutResponse> => {
     setIsLoading(true)
@@ -507,35 +471,32 @@ export const useCheckout = () => {
     }
   }
 
+  const appliedRules = lastOrder?.order?.applied_rules ?? checkoutState?.order?.applied_rules ?? []
+  const backendDiscountAmount = (appliedRules || []).reduce((sum: number, rule: any) => sum + (rule.discount || 0), 0)
+
   return {
-    // Checkout inicial
     checkout,
     createSample,
     
-    // Estado del checkout
     hasActiveCheckout,
     isInitialized,
     orderId,
     checkoutToken,
     clearCheckoutState,
     
-    // Estados de loading
     isLoading,
     isUpdating,
     updateStates,
     
-    // Funciones de actualización
     updateItems,
     updateShippingAddress,
     updateBillingAddress,
     updateDiscountCode,
     updateNotes,
     
-    // Applied rules (automatic discounts from backend)
     appliedRules: appliedRules || [],
     backendDiscountAmount,
     
-    // Estado del carrito
     lastOrder,
     hasItems: cart.items.length > 0,
     totalItems: cart.items.reduce((sum, item) => sum + item.quantity, 0),

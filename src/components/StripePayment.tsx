@@ -1,14 +1,6 @@
 import React, { useMemo, useState, useCallback, useEffect } from "react"
 import { loadStripe } from "@stripe/stripe-js"
-import {
-  Elements,
-  PaymentElement,
-  LinkAuthenticationElement,
-  AddressElement,
-  ExpressCheckoutElement,
-  useElements,
-  useStripe,
-} from "@stripe/react-stripe-js"
+import { Elements, PaymentElement, LinkAuthenticationElement, AddressElement, ExpressCheckoutElement, useElements, useStripe } from "@stripe/react-stripe-js"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { callEdge } from "@/lib/edge"
@@ -34,12 +26,9 @@ function buildPaymentMethodTypes(pm?: PaymentMethods): string[] {
   return types
 }
 
-/**
- * Build payment_method_types for Stripe Elements initialization.
- * Excludes only 'customer_balance' (SPEI) — requires special bank_transfer config,
- * causes 400 in deferred mode. Link MUST stay included so the ExpressCheckoutElement
- * (Google Pay / Apple Pay) can initialize correctly.
- */
+/** Build payment_method_types for Elements init — excludes customer_balance (SPEI)
+ *  which causes a 400 from Stripe when used in deferred-mode Elements init.
+ *  SPEI is still included in the backend payload via buildPaymentMethodTypes(). */
 function buildElementsPaymentMethodTypes(pm?: PaymentMethods): string[] {
   return buildPaymentMethodTypes(pm).filter(t => t !== 'customer_balance')
 }
@@ -57,7 +46,7 @@ interface StripeAddressValue {
   phone?: string
 }
 
-export interface StripePaymentProps {
+interface StripePaymentProps {
   amountCents: number
   currency?: string
   description?: string
@@ -95,22 +84,6 @@ export interface StripePaymentProps {
   onLinkAuthChange?: (authenticated: boolean) => void
 }
 
-/** Build Stripe ExpressCheckoutElement shippingRates from store deliveryExpectations */
-function buildShippingRates(deliveryExpectations: any[] | undefined) {
-  if (!Array.isArray(deliveryExpectations) || deliveryExpectations.length === 0) return undefined
-  return deliveryExpectations
-    .filter((m: any) => m && m.type !== 'pickup')
-    .map((m: any, idx: number) => {
-      const priceNum = m.hasPrice && m.price ? parseFloat(m.price) : 0
-      const amountCents = Math.max(0, Math.round((isFinite(priceNum) ? priceNum : 0) * 100))
-      return {
-        id: `${m.type || 'shipping'}-${idx}`,
-        displayName: m.type || 'Envío',
-        amount: amountCents,
-        deliveryEstimate: m.description ? m.description.slice(0, 22) : undefined,
-      }
-    })
-}
 
 function PaymentForm({
   amountCents,
@@ -147,14 +120,12 @@ function PaymentForm({
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [linkAuthenticated, setLinkAuthenticated] = useState(false)
-  // Track whether the ExpressCheckoutElement actually has buttons to show
-  const [expressAvailable, setExpressAvailable] = useState(false)
   const navigate = useNavigate()
   const { clearCart } = useCart()
   const { updateOrderCache, getFreshOrder, getOrderSnapshot } = useCheckoutState()
   const { currencyCode } = useSettings()
 
-  // Diagnostic log
+  // Diagnostic log: confirm whether AddressElement is mounted in this render.
   useEffect(() => {
     console.log('[StripePayment] mount/update', {
       showAddressElement,
@@ -184,7 +155,8 @@ function PaymentForm({
     phoneResolverRef.current = null
   }
 
-  // Keep Elements amount in sync when total changes (deferred-mode)
+  // Per Stripe deferred-mode docs: when the amount changes, update the Elements
+  // amount in-place. Remounting <Elements> would kill open wallet sessions.
   useEffect(() => {
     if (!elements) return
     try {
@@ -210,20 +182,15 @@ function PaymentForm({
       subtotal: resp?.subtotal,
       discount_amount: resp?.discount_amount,
       total_amount: resp?.total_amount,
-      order_items: Array.isArray(resp?.order_items) ? resp.order_items : [],
+      order_items: Array.isArray(resp?.order_items) ? resp.order_items : []
     }
   }
 
   const buildPaymentItems = () => {
-    const sourceOrder =
-      (typeof getFreshOrder === 'function' ? getFreshOrder() : null) ||
-      (typeof getOrderSnapshot === 'function' ? getOrderSnapshot() : null)
-    const rawItems: any[] =
-      Array.isArray(items) && items.length > 0
-        ? items
-        : sourceOrder && Array.isArray(sourceOrder.order_items)
-        ? sourceOrder.order_items
-        : []
+    const sourceOrder = (typeof getFreshOrder === 'function' ? getFreshOrder() : null) || (typeof getOrderSnapshot === 'function' ? getOrderSnapshot() : null)
+    const rawItems: any[] = (Array.isArray(items) && items.length > 0)
+      ? items
+      : (sourceOrder && Array.isArray(sourceOrder.order_items) ? sourceOrder.order_items : [])
 
     const normalizedItems = rawItems.map((it: any) => ({
       product_id: it.product_id || it.product?.id || '',
@@ -235,14 +202,12 @@ function PaymentForm({
     }))
 
     const seen = new Set<string>()
-    return normalizedItems
-      .filter((it: any) => it.product_id && it.quantity > 0)
-      .filter((it: any) => {
-        const key = `${it.product_id}:${it.variant_id ?? ''}:${it.selling_plan_id ?? ''}`
-        if (seen.has(key)) return false
-        seen.add(key)
-        return true
-      })
+    return normalizedItems.filter((it: any) => it.product_id && it.quantity > 0).filter((it: any) => {
+      const key = `${it.product_id}:${it.variant_id ?? ''}:${it.selling_plan_id ?? ''}`
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
   }
 
   const buildPayload = (paymentItems: any[], totalCents: number) => ({
@@ -261,72 +226,58 @@ function PaymentForm({
     use_stripe_connect: true,
     payment_method_types: buildPaymentMethodTypes(paymentMethods),
     validation_data: {
-      shipping_address: shippingAddress
-        ? {
-            line1: shippingAddress.line1 || "",
-            line2: shippingAddress.line2 || "",
-            city: shippingAddress.city || "",
-            state: shippingAddress.state || "",
-            postal_code: shippingAddress.postal_code || "",
-            country: shippingAddress.country || "",
-            name: `${shippingAddress.first_name || ""} ${shippingAddress.last_name || ""}`.trim(),
-          }
-        : null,
-      billing_address: billingAddress
-        ? {
-            line1: billingAddress.line1 || "",
-            line2: billingAddress.line2 || "",
-            city: billingAddress.city || "",
-            state: billingAddress.state || "",
-            postal_code: billingAddress.postal_code || "",
-            country: billingAddress.country || "",
-            name: `${billingAddress.first_name || ""} ${billingAddress.last_name || ""}`.trim(),
-          }
-        : null,
+      shipping_address: shippingAddress ? {
+        line1: shippingAddress.line1 || "",
+        line2: shippingAddress.line2 || "",
+        city: shippingAddress.city || "",
+        state: shippingAddress.state || "",
+        postal_code: shippingAddress.postal_code || "",
+        country: shippingAddress.country || "",
+        name: `${shippingAddress.first_name || ""} ${shippingAddress.last_name || ""}`.trim()
+      } : null,
+      billing_address: billingAddress ? {
+        line1: billingAddress.line1 || "",
+        line2: billingAddress.line2 || "",
+        city: billingAddress.city || "",
+        state: billingAddress.state || "",
+        postal_code: billingAddress.postal_code || "",
+        country: billingAddress.country || "",
+        name: `${billingAddress.first_name || ""} ${billingAddress.last_name || ""}`.trim()
+      } : null,
       items: paymentItems.map((item: any) => ({
         product_id: item.product_id,
         quantity: item.quantity,
         ...(item.variant_id ? { variant_id: item.variant_id } : {}),
-        price: Math.max(0, Math.round(Number(item.price) * 100)),
+        price: Math.max(0, Math.round(Number(item.price) * 100))
       })),
-      ...(metadata?.discount_code ? { discount_code: metadata.discount_code } : {}),
+      ...(metadata?.discount_code ? { discount_code: metadata.discount_code } : {})
     },
-    ...(pickupLocations && pickupLocations.length === 1
-      ? {
-          delivery_method: "pickup",
-          pickup_locations: pickupLocations.map((loc) => ({
-            id: loc.id || loc.name,
-            name: loc.name || "",
-            address: `${loc.line1 || ""}, ${loc.city || ""}, ${loc.state || ""}, ${loc.country || ""}`,
-            hours: loc.schedule || "",
-          })),
-        }
-      : deliveryExpectations &&
-        deliveryExpectations.length > 0 &&
-        deliveryExpectations[0]?.type !== "pickup"
-      ? {
-          delivery_expectations: deliveryExpectations.map((exp: any) => ({
-            type: exp.type || "standard_delivery",
-            description: exp.description || "",
-            ...(exp.price !== undefined ? { estimated_days: "3-5" } : {}),
-          })),
-        }
-      : {}),
+    ...(pickupLocations && pickupLocations.length === 1 ? {
+      delivery_method: "pickup",
+      pickup_locations: pickupLocations.map(loc => ({
+        id: loc.id || loc.name,
+        name: loc.name || "",
+        address: `${loc.line1 || ""}, ${loc.city || ""}, ${loc.state || ""}, ${loc.country || ""}`,
+        hours: loc.schedule || ""
+      }))
+    } : deliveryExpectations && deliveryExpectations.length > 0 && deliveryExpectations[0]?.type !== "pickup" ? {
+      delivery_expectations: deliveryExpectations.map((exp: any) => ({
+        type: exp.type || "standard_delivery",
+        description: exp.description || "",
+        ...(exp.price !== undefined ? { estimated_days: "3-5" } : {})
+      }))
+    } : {})
   })
 
   const handleUnavailableItems = (data: any) => {
     if (data?.unavailable_items && data.unavailable_items.length > 0) {
-      const unavailableNames = data.unavailable_items
-        .map((item: any) =>
-          item.variant_name
-            ? `${item.product_name} (${item.variant_name})`
-            : item.product_name
-        )
-        .join(', ')
+      const unavailableNames = data.unavailable_items.map((item: any) =>
+        item.variant_name ? `${item.product_name} (${item.variant_name})` : item.product_name
+      ).join(', ')
       toast({
         title: "Productos agotados",
         description: `Los siguientes productos ya no están disponibles: ${unavailableNames}. Retíralos de tu carrito para completar tu compra.`,
-        variant: "destructive",
+        variant: "destructive"
       })
       updateOrderCache(normalizeOrderFromResponse(data))
       return true
@@ -342,15 +293,8 @@ function PaymentForm({
 
     if (onValidationRequired && !onValidationRequired()) return
 
-    if (
-      deliveryExpectations?.[0]?.type === "pickup" &&
-      (!pickupLocations || pickupLocations.length === 0)
-    ) {
-      toast({
-        title: "Punto de recogida requerido",
-        description: "Por favor selecciona un punto de recogida antes de continuar.",
-        variant: "destructive",
-      })
+    if (deliveryExpectations?.[0]?.type === "pickup" && (!pickupLocations || pickupLocations.length === 0)) {
+      toast({ title: "Punto de recogida requerido", description: "Por favor selecciona un punto de recogida antes de continuar.", variant: "destructive" })
       return
     }
 
@@ -359,11 +303,7 @@ function PaymentForm({
 
       const { error: submitError } = await elements.submit()
       if (submitError) {
-        toast({
-          title: "Error",
-          description: submitError.message || "Verifica los datos de pago",
-          variant: "destructive",
-        })
+        toast({ title: "Error", description: submitError.message || "Verifica los datos de pago", variant: "destructive" })
         return
       }
 
@@ -382,22 +322,13 @@ function PaymentForm({
           store_id: STORE_ID,
           selling_plan_id: mainItem.selling_plan_id,
           recurring_items: subscriptionItems.map((i: any) => ({
-            product_id: i.product_id,
-            variant_id: i.variant_id,
-            quantity: i.quantity,
+            product_id: i.product_id, variant_id: i.variant_id, quantity: i.quantity,
           })),
           order_id: orderId,
           customer: { email, name },
-          one_time_items:
-            oneTimeItems.length > 0
-              ? oneTimeItems.map((i: any) => ({
-                  product_id: i.product_id,
-                  variant_id: i.variant_id,
-                  quantity: i.quantity,
-                  price: i.price,
-                  title: i.product_name || '',
-                }))
-              : undefined,
+          one_time_items: oneTimeItems.length > 0 ? oneTimeItems.map((i: any) => ({
+            product_id: i.product_id, variant_id: i.variant_id, quantity: i.quantity, price: i.price, title: i.product_name || '',
+          })) : undefined,
         }
         const data = await callEdge('subscription-create', subPayload)
         if (handleUnavailableItems(data)) return
@@ -412,7 +343,9 @@ function PaymentForm({
         intentOrder = data?.order ?? null
       }
 
-      if (!client_secret) throw new Error("No se recibió client_secret del servidor")
+      if (!client_secret) {
+        throw new Error("No se recibió client_secret del servidor")
+      }
 
       const result = await stripe.confirmPayment({
         elements,
@@ -425,16 +358,14 @@ function PaymentForm({
               name: name || undefined,
               email: email || undefined,
               phone: phone || undefined,
-              address: shippingAddress
-                ? {
-                    line1: shippingAddress.line1 || '',
-                    line2: shippingAddress.line2 || '',
-                    city: shippingAddress.city || '',
-                    state: shippingAddress.state || '',
-                    postal_code: shippingAddress.postal_code || '',
-                    country: countryNameToCode(shippingAddress.country || ''),
-                  }
-                : undefined,
+              address: shippingAddress ? {
+                line1: shippingAddress.line1 || '',
+                line2: shippingAddress.line2 || '',
+                city: shippingAddress.city || '',
+                state: shippingAddress.state || '',
+                postal_code: shippingAddress.postal_code || '',
+                country: countryNameToCode(shippingAddress.country || ''),
+              } : undefined,
             },
           },
         },
@@ -442,11 +373,7 @@ function PaymentForm({
       })
 
       if (result.error) {
-        toast({
-          title: "Error de pago",
-          description: result.error.message || "No se pudo procesar el pago",
-          variant: "destructive",
-        })
+        toast({ title: "Error de pago", description: result.error.message || "No se pudo procesar el pago", variant: "destructive" })
         return
       }
 
@@ -455,36 +382,47 @@ function PaymentForm({
 
       if (pi?.status === 'succeeded') {
         trackPurchase({
-          products: paymentItems.map((item: any) =>
-            tracking.createTrackingProduct({
-              id: item.product_id,
-              title: item.product_name || item.title,
-              price: item.price / 100,
-              category: 'product',
-              variant: item.variant_id ? { id: item.variant_id } : undefined,
-            })
-          ),
-          value: totalCents / 100,
-          currency: tracking.getCurrencyFromSettings(currency),
+          products: paymentItems.map((item: any) => tracking.createTrackingProduct({
+            id: item.product_id, title: item.product_name || item.title,
+            price: item.price / 100, category: 'product',
+            variant: item.variant_id ? { id: item.variant_id } : undefined
+          })),
+          value: totalCents / 100, currency: tracking.getCurrencyFromSettings(currency),
           order_id: orderId,
-          custom_parameters: {
-            payment_method: 'stripe',
-            checkout_token: checkoutToken,
-          },
+          custom_parameters: { payment_method: 'stripe', checkout_token: checkoutToken }
         })
 
         try {
-          if (intentOrder) {
-            localStorage.setItem('completed_order', JSON.stringify(intentOrder))
-          } else {
+          let toPersist: any = intentOrder
+          if (!toPersist) {
             const checkoutData = localStorage.getItem(`checkout:${STORE_ID}`)
             if (checkoutData) {
               const parsed = JSON.parse(checkoutData)
-              if (parsed.order) {
-                localStorage.setItem('completed_order', JSON.stringify(parsed.order))
-              }
+              if (parsed?.order) toPersist = parsed.order
             }
           }
+          if (!toPersist) {
+            toPersist = {
+              id: orderId,
+              order_number: String(orderId || '').slice(0, 8),
+              total_amount: totalCents / 100,
+              currency_code: (currency || 'usd').toUpperCase(),
+              status: 'paid',
+              shipping_address: shippingAddress,
+              billing_address: billingAddress || shippingAddress,
+              order_items: paymentItems.map((i: any) => ({
+                product_id: i.product_id,
+                variant_id: i.variant_id,
+                product_name: i.product_name || i.title,
+                variant_name: i.variant_name,
+                quantity: i.quantity,
+                price: (i.price || 0) / 100,
+                product_images: i.product_images || [],
+              })),
+              created_at: new Date().toISOString(),
+            }
+          }
+          localStorage.setItem('completed_order', JSON.stringify(toPersist))
         } catch {}
 
         clearCart()
@@ -493,53 +431,39 @@ function PaymentForm({
       } else if (pi?.status === 'requires_action') {
         if (nextAction?.oxxo_display_details) {
           const details = nextAction.oxxo_display_details
-          sessionStorage.setItem(
-            'pending_payment',
-            JSON.stringify({
-              method: 'oxxo',
-              orderId,
-              voucherUrl: details.hosted_voucher_url,
-              number: details.number,
-              expiresAfter: details.expires_after,
-              amount: (amountCents || 0) / 100,
-              currency: (currency || 'mxn').toUpperCase(),
-            })
-          )
+          sessionStorage.setItem('pending_payment', JSON.stringify({
+            method: 'oxxo',
+            orderId,
+            voucherUrl: details.hosted_voucher_url,
+            number: details.number,
+            expiresAfter: details.expires_after,
+            amount: (amountCents || 0) / 100,
+            currency: (currency || 'mxn').toUpperCase(),
+          }))
           clearCart()
           navigate(`/pago-pendiente/${orderId}`)
         } else if (nextAction?.display_bank_transfer_instructions) {
           const instructions = nextAction.display_bank_transfer_instructions
-          const speiAddr = instructions.financial_addresses?.find(
-            (a: any) => a.type === 'spei'
-          )?.spei
-          sessionStorage.setItem(
-            'pending_payment',
-            JSON.stringify({
-              method: 'spei',
-              orderId,
-              hostedUrl: instructions.hosted_instructions_url,
-              clabe: speiAddr?.clabe || '',
-              bankName: speiAddr?.bank_name || '',
-              amount: (instructions.amount_remaining || amountCents || 0) / 100,
-              currency: (currency || 'mxn').toUpperCase(),
-            })
-          )
+          const speiAddr = instructions.financial_addresses?.find((a: any) => a.type === 'spei')?.spei
+          sessionStorage.setItem('pending_payment', JSON.stringify({
+            method: 'spei',
+            orderId,
+            hostedUrl: instructions.hosted_instructions_url,
+            clabe: speiAddr?.clabe || '',
+            bankName: speiAddr?.bank_name || '',
+            amount: (instructions.amount_remaining || amountCents || 0) / 100,
+            currency: (currency || 'mxn').toUpperCase(),
+          }))
           clearCart()
           navigate(`/pago-pendiente/${orderId}`)
         } else {
-          toast({
-            title: "Acción requerida",
-            description: "Por favor completa la verificación del pago.",
-          })
+          toast({ title: "Acción requerida", description: "Por favor completa la verificación del pago." })
         }
       } else if (pi?.status === 'processing') {
         clearCart()
         navigate(`/pago-pendiente/${orderId}`)
       } else {
-        toast({
-          title: "Estado del pago",
-          description: `Estado: ${pi?.status ?? "desconocido"}`,
-        })
+        toast({ title: "Estado del pago", description: `Estado: ${pi?.status ?? "desconocido"}` })
       }
     } catch (err: any) {
       console.error("Error en el proceso de pago:", err)
@@ -560,271 +484,277 @@ function PaymentForm({
       } catch {}
     }
     const lowered = (message || "").toLowerCase()
-    if (
-      lowered.includes("stripe_not_connected") ||
-      lowered.includes("stripe not connected")
-    ) {
+    if (lowered.includes("stripe_not_connected") || lowered.includes("stripe not connected")) {
       toast({
         title: "Pagos no configurados",
-        description:
-          "Esta tienda aún no ha configurado un método de pago. Ve al dashboard de Lovivo para conectar Stripe y empezar a recibir pagos.",
+        description: "Esta tienda aún no ha configurado un método de pago. Ve al dashboard de Lovivo para conectar Stripe y empezar a recibir pagos.",
       })
       return
     }
-    toast({
-      title: "Error de pago",
-      description: "No se pudo procesar el pago. Intenta de nuevo.",
-      variant: "destructive",
-    })
+    toast({ title: "Error de pago", description: "No se pudo procesar el pago. Intenta de nuevo.", variant: "destructive" })
   }
 
-  const handleExpressCheckoutConfirm = useCallback(
-    async (ev?: any) => {
-      if (!stripe || !elements) return
-      try {
-        setLoading(true)
-        const { error: submitError } = await elements.submit()
-        if (submitError) {
+  const handleExpressCheckoutConfirm = useCallback(async (ev?: any) => {
+    if (!stripe || !elements) return
+    try {
+      setLoading(true)
+      const { error: submitError } = await elements.submit()
+      if (submitError) {
+        toast({ title: "Error", description: submitError.message || "Verifica los datos de pago", variant: "destructive" })
+        return
+      }
+
+      const walletShipping = ev?.shippingAddress
+      const walletBilling = ev?.billingDetails
+      const walletEmail = walletBilling?.email || ev?.email || email
+      let walletPhone = walletBilling?.phone || ev?.phone || phone
+
+      if (!isValidPhone(walletPhone)) {
+        try {
+          console.log('[ExpressCheckout] phone missing from wallet — opening MissingPhoneDialog', {
+            walletBillingPhone: walletBilling?.phone,
+            evPhone: ev?.phone,
+            statePhone: phone,
+          })
+          walletPhone = await requestMissingPhone()
+        } catch {
           toast({
-            title: "Error",
-            description: submitError.message || "Verifica los datos de pago",
-            variant: "destructive",
+            title: 'Pago cancelado',
+            description: 'Necesitamos tu teléfono para coordinar el envío.',
+            variant: 'destructive',
           })
           return
         }
+      }
 
-        const walletShipping = ev?.shippingAddress
-        const walletBilling = ev?.billingDetails
-        const walletEmail = walletBilling?.email || ev?.email || email
-        let walletPhone = walletBilling?.phone || ev?.phone || phone
+      const walletName = walletBilling?.name || walletShipping?.name || name
+      const walletShipRate = ev?.shippingRate
 
-        if (!isValidPhone(walletPhone)) {
-          try {
-            console.log('[ExpressCheckout] phone missing from wallet — opening MissingPhoneDialog', {
-              walletBillingPhone: walletBilling?.phone,
-              evPhone: ev?.phone,
-              statePhone: phone,
-            })
-            walletPhone = await requestMissingPhone()
-          } catch {
-            toast({
-              title: 'Pago cancelado',
-              description: 'Necesitamos tu teléfono para coordinar el envío.',
-              variant: 'destructive',
-            })
-            return
-          }
-        }
+      const effectiveShippingAddress = walletShipping?.address ? {
+        first_name: (walletShipping.name || walletName || '').split(' ')[0] || '',
+        last_name: (walletShipping.name || walletName || '').split(' ').slice(1).join(' ') || '',
+        line1: walletShipping.address.line1 || '',
+        line2: walletShipping.address.line2 || '',
+        city: walletShipping.address.city || '',
+        state: walletShipping.address.state || '',
+        postal_code: walletShipping.address.postal_code || '',
+        country: walletShipping.address.country || '',
+        phone: walletPhone || '',
+      } : shippingAddress
+      const effectiveBillingAddress = walletBilling?.address ? {
+        first_name: (walletName || '').split(' ')[0] || '',
+        last_name: (walletName || '').split(' ').slice(1).join(' ') || '',
+        line1: walletBilling.address.line1 || '',
+        line2: walletBilling.address.line2 || '',
+        city: walletBilling.address.city || '',
+        state: walletBilling.address.state || '',
+        postal_code: walletBilling.address.postal_code || '',
+        country: walletBilling.address.country || '',
+        phone: walletPhone || '',
+      } : (billingAddress || effectiveShippingAddress)
 
-        const walletName = walletBilling?.name || walletShipping?.name || name
-        const walletShipRate = ev?.shippingRate
+      if (showAddressElement && (!effectiveShippingAddress || !effectiveShippingAddress.line1)) {
+        toast({
+          title: "Falta dirección de envío",
+          description: "Por favor completa tu dirección antes de pagar.",
+          variant: "destructive",
+        })
+        return
+      }
 
-        const effectiveShippingAddress = walletShipping?.address
-          ? {
-              first_name: (walletShipping.name || walletName || '').split(' ')[0] || '',
-              last_name:
-                (walletShipping.name || walletName || '').split(' ').slice(1).join(' ') || '',
-              line1: walletShipping.address.line1 || '',
-              line2: walletShipping.address.line2 || '',
-              city: walletShipping.address.city || '',
-              state: walletShipping.address.state || '',
-              postal_code: walletShipping.address.postal_code || '',
-              country: walletShipping.address.country || '',
-              phone: walletPhone || '',
-            }
-          : shippingAddress
+      const paymentItems = buildPaymentItems()
+      const walletShipCents = typeof walletShipRate?.amount === 'number' ? walletShipRate.amount : (deliveryFee || 0)
+      const totalCents = Math.max(0, Math.floor(amountCents || 0))
 
-        const effectiveBillingAddress = walletBilling?.address
-          ? {
-              first_name: (walletName || '').split(' ')[0] || '',
-              last_name: (walletName || '').split(' ').slice(1).join(' ') || '',
-              line1: walletBilling.address.line1 || '',
-              line2: walletBilling.address.line2 || '',
-              city: walletBilling.address.city || '',
-              state: walletBilling.address.state || '',
-              postal_code: walletBilling.address.postal_code || '',
-              country: walletBilling.address.country || '',
-              phone: walletPhone || '',
-            }
-          : billingAddress || effectiveShippingAddress
+      const basePayload = buildPayload(paymentItems, totalCents)
+      const payload = {
+        ...basePayload,
+        delivery_fee: walletShipCents,
+        receipt_email: walletEmail,
+        customer: { email: walletEmail, name: walletName, phone: walletPhone },
+        validation_data: {
+          ...basePayload.validation_data,
+          shipping_address: effectiveShippingAddress ? {
+            line1: effectiveShippingAddress.line1 || '',
+            line2: effectiveShippingAddress.line2 || '',
+            city: effectiveShippingAddress.city || '',
+            state: effectiveShippingAddress.state || '',
+            postal_code: effectiveShippingAddress.postal_code || '',
+            country: effectiveShippingAddress.country || '',
+            name: `${effectiveShippingAddress.first_name || ''} ${effectiveShippingAddress.last_name || ''}`.trim() || walletName || '',
+          } : null,
+          billing_address: effectiveBillingAddress ? {
+            line1: effectiveBillingAddress.line1 || '',
+            line2: effectiveBillingAddress.line2 || '',
+            city: effectiveBillingAddress.city || '',
+            state: effectiveBillingAddress.state || '',
+            postal_code: effectiveBillingAddress.postal_code || '',
+            country: effectiveBillingAddress.country || '',
+            name: `${effectiveBillingAddress.first_name || ''} ${effectiveBillingAddress.last_name || ''}`.trim() || walletName || '',
+          } : null,
+        },
+      }
 
-        if (showAddressElement && (!effectiveShippingAddress || !effectiveShippingAddress.line1)) {
-          toast({
-            title: "Falta dirección de envío",
-            description: "Por favor completa tu dirección antes de pagar.",
-            variant: "destructive",
-          })
-          return
-        }
+      const data = await callEdge("payments-create-intent", payload)
+      if (handleUnavailableItems(data)) return
+      const client_secret = data?.client_secret
+      const intentOrder = data?.order ?? null
+      if (!client_secret) throw new Error("No se recibió client_secret del servidor")
 
-        const paymentItems = buildPaymentItems()
-        const walletShipCents =
-          typeof walletShipRate?.amount === 'number'
-            ? walletShipRate.amount
-            : Math.round((deliveryFee || 0) * 100)
-        const totalCents = Math.max(0, Math.floor(amountCents || 0))
-
-        const basePayload = buildPayload(paymentItems, totalCents)
-        const payload = {
-          ...basePayload,
-          delivery_fee: walletShipCents,
-          receipt_email: walletEmail,
-          customer: { email: walletEmail, name: walletName, phone: walletPhone },
-          validation_data: {
-            ...basePayload.validation_data,
-            shipping_address: effectiveShippingAddress
-              ? {
-                  line1: effectiveShippingAddress.line1 || '',
-                  line2: effectiveShippingAddress.line2 || '',
-                  city: effectiveShippingAddress.city || '',
-                  state: effectiveShippingAddress.state || '',
-                  postal_code: effectiveShippingAddress.postal_code || '',
-                  country: effectiveShippingAddress.country || '',
-                  name:
-                    `${effectiveShippingAddress.first_name || ''} ${effectiveShippingAddress.last_name || ''}`.trim() ||
-                    walletName ||
-                    '',
-                }
-              : null,
-            billing_address: effectiveBillingAddress
-              ? {
-                  line1: effectiveBillingAddress.line1 || '',
-                  line2: effectiveBillingAddress.line2 || '',
-                  city: effectiveBillingAddress.city || '',
-                  state: effectiveBillingAddress.state || '',
-                  postal_code: effectiveBillingAddress.postal_code || '',
-                  country: effectiveBillingAddress.country || '',
-                  name:
-                    `${effectiveBillingAddress.first_name || ''} ${effectiveBillingAddress.last_name || ''}`.trim() ||
-                    walletName ||
-                    '',
-                }
-              : null,
-          },
-        }
-
-        const data = await callEdge("payments-create-intent", payload)
-        if (handleUnavailableItems(data)) return
-        const client_secret = data?.client_secret
-        const intentOrder = data?.order ?? null
-        if (!client_secret) throw new Error("No se recibió client_secret del servidor")
-
-        const result = await stripe.confirmPayment({
-          elements,
-          clientSecret: client_secret,
-          confirmParams: {
-            return_url: `${window.location.origin}/gracias/${orderId}`,
-            payment_method_data: {
-              billing_details: {
-                name: walletName || undefined,
-                email: walletEmail || undefined,
-                phone: walletPhone || undefined,
-                address: effectiveShippingAddress
-                  ? {
-                      line1: effectiveShippingAddress.line1 || '',
-                      line2: effectiveShippingAddress.line2 || '',
-                      city: effectiveShippingAddress.city || '',
-                      state: effectiveShippingAddress.state || '',
-                      postal_code: effectiveShippingAddress.postal_code || '',
-                      country:
-                        (effectiveShippingAddress.country || '').length === 2
-                          ? effectiveShippingAddress.country
-                          : countryNameToCode(effectiveShippingAddress.country || ''),
-                    }
-                  : undefined,
-              },
+      const result = await stripe.confirmPayment({
+        elements,
+        clientSecret: client_secret,
+        confirmParams: {
+          return_url: `${window.location.origin}/gracias/${orderId}`,
+          payment_method_data: {
+            billing_details: {
+              name: walletName || undefined,
+              email: walletEmail || undefined,
+              phone: walletPhone || undefined,
+              address: effectiveShippingAddress ? {
+                line1: effectiveShippingAddress.line1 || '',
+                line2: effectiveShippingAddress.line2 || '',
+                city: effectiveShippingAddress.city || '',
+                state: effectiveShippingAddress.state || '',
+                postal_code: effectiveShippingAddress.postal_code || '',
+                country: (effectiveShippingAddress.country || '').length === 2
+                  ? effectiveShippingAddress.country
+                  : countryNameToCode(effectiveShippingAddress.country || ''),
+              } : undefined,
             },
           },
-          redirect: 'if_required',
+        },
+        redirect: 'if_required',
+      })
+      if (result.error) {
+        toast({ title: "Error de pago", description: result.error.message || "No se pudo procesar el pago", variant: "destructive" })
+        return
+      }
+
+      const pi = result.paymentIntent
+      if (pi?.status === 'succeeded') {
+        trackPurchase({
+          products: paymentItems.map((item: any) => tracking.createTrackingProduct({
+            id: item.product_id, title: item.product_name || item.title,
+            price: item.price / 100, category: 'product',
+            variant: item.variant_id ? { id: item.variant_id } : undefined
+          })),
+          value: totalCents / 100, currency: tracking.getCurrencyFromSettings(currency),
+          order_id: orderId,
+          custom_parameters: { payment_method: 'express_checkout', checkout_token: checkoutToken }
         })
 
-        if (result.error) {
-          toast({
-            title: "Error de pago",
-            description: result.error.message || "No se pudo procesar el pago",
-            variant: "destructive",
-          })
-          return
-        }
-
-        const pi = result.paymentIntent
-        if (pi?.status === 'succeeded') {
-          trackPurchase({
-            products: paymentItems.map((item: any) =>
-              tracking.createTrackingProduct({
-                id: item.product_id,
-                title: item.product_name || item.title,
-                price: item.price / 100,
-                category: 'product',
-                variant: item.variant_id ? { id: item.variant_id } : undefined,
-              })
-            ),
-            value: totalCents / 100,
-            currency: tracking.getCurrencyFromSettings(currency),
-            order_id: orderId,
-            custom_parameters: {
-              payment_method: 'express_checkout',
-              checkout_token: checkoutToken,
-            },
-          })
-
-          try {
-            if (intentOrder) {
-              localStorage.setItem('completed_order', JSON.stringify(intentOrder))
+        try {
+          let toPersist: any = intentOrder
+          if (!toPersist) {
+            const checkoutData = localStorage.getItem(`checkout:${STORE_ID}`)
+            if (checkoutData) {
+              const parsed = JSON.parse(checkoutData)
+              if (parsed?.order) toPersist = parsed.order
             }
-          } catch {}
-          clearCart()
-          navigate(`/gracias/${orderId}`)
-          toast({ title: "¡Pago exitoso!", description: "Tu compra ha sido procesada correctamente." })
-        } else if (pi?.status === 'processing') {
-          clearCart()
-          navigate(`/pago-pendiente/${orderId}`)
-        }
-      } catch (err: any) {
-        console.error("Express checkout error:", err)
-        handlePaymentError(err)
-      } finally {
-        setLoading(false)
+          }
+          if (!toPersist) {
+            toPersist = {
+              id: orderId,
+              order_number: String(orderId || '').slice(0, 8),
+              total_amount: totalCents / 100,
+              currency_code: (currency || 'usd').toUpperCase(),
+              status: 'paid',
+              shipping_address: effectiveShippingAddress,
+              billing_address: effectiveBillingAddress || effectiveShippingAddress,
+              order_items: paymentItems.map((i: any) => ({
+                product_id: i.product_id,
+                variant_id: i.variant_id,
+                product_name: i.product_name || i.title,
+                variant_name: i.variant_name,
+                quantity: i.quantity,
+                price: (i.price || 0) / 100,
+                product_images: i.product_images || [],
+              })),
+              created_at: new Date().toISOString(),
+            }
+          }
+          localStorage.setItem('completed_order', JSON.stringify(toPersist))
+        } catch {}
+        clearCart()
+        navigate(`/gracias/${orderId}`)
+        toast({ title: "¡Pago exitoso!", description: "Tu compra ha sido procesada correctamente." })
+      } else if (pi?.status === 'processing') {
+        clearCart()
+        navigate(`/pago-pendiente/${orderId}`)
       }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      stripe, elements, amountCents, orderId, email, name, phone,
-      shippingAddress, billingAddress, deliveryFee, navigate, clearCart,
-      requestMissingPhone, showAddressElement, toast,
-    ]
-  )
+    } catch (err: any) {
+      console.error("Express checkout error:", err)
+      handlePaymentError(err)
+    } finally {
+      setLoading(false)
+    }
+  }, [stripe, elements, amountCents, orderId, email, name, phone, shippingAddress, billingAddress, deliveryFee, navigate, clearCart, requestMissingPhone, showAddressElement, toast])
 
-  const handleExpressShippingAddressChange = useCallback(
-    async (ev: any) => {
-      try {
-        const country = (ev?.address?.country || '').toUpperCase()
-        if (
-          allowedCountries &&
-          allowedCountries.length > 0 &&
-          country &&
-          !allowedCountries.includes(country)
-        ) {
-          ev.reject()
-          return
-        }
-        const builtRates = buildShippingRates(deliveryExpectations)
-        const rates =
-          builtRates && builtRates.length > 0
-            ? builtRates
-            : [{ id: 'standard', displayName: 'Envío estándar', amount: 0 }]
-        ev.resolve({ shippingRates: rates })
-      } catch (err) {
-        console.error('shippingaddresschange error:', err)
-        try { ev.reject() } catch {}
+  const handleExpressShippingAddressChange = useCallback(async (ev: any) => {
+    try {
+      const country = (ev?.address?.country || '').toUpperCase()
+      if (allowedCountries && allowedCountries.length > 0 && country && !allowedCountries.includes(country)) {
+        ev.reject()
+        return
       }
-    },
-    [allowedCountries, deliveryExpectations]
-  )
+
+      const paymentItems = buildPaymentItems()
+      const data = await callEdge('shipping-rates', {
+        store_id: STORE_ID,
+        destination: {
+          country_code: country,
+          state_code: ev?.address?.state || '',
+          postal_code: ev?.address?.postal_code || '',
+        },
+        items: paymentItems.map((i: any) => ({
+          product_id: i.product_id,
+          quantity: i.quantity,
+          ...(i.variant_id ? { variant_id: i.variant_id } : {}),
+        })),
+        currency_code: (currency || 'mxn').toUpperCase(),
+      })
+
+      if (!data?.coverage?.ok || !Array.isArray(data?.rates) || data.rates.length === 0) {
+        ev.reject()
+        return
+      }
+
+      const subtotalCents = Math.max(0, (amountCents || 0) - (deliveryFee || 0))
+      const shippingRates = data.rates.map((r: any) => ({
+        id: String(r.id),
+        displayName: r.name || 'Envío',
+        amount: Math.round(Number(r.amount || 0) * 100),
+        deliveryEstimate: r.delivery_estimate ? String(r.delivery_estimate).slice(0, 22) : undefined,
+      }))
+      const firstShipCents = shippingRates[0].amount
+
+      try { elements?.update({ amount: subtotalCents + firstShipCents }) } catch {}
+
+      ev.resolve({
+        shippingRates,
+        lineItems: [
+          { name: 'Subtotal', amount: subtotalCents },
+        ],
+      })
+    } catch (err) {
+      console.error('shippingaddresschange error:', err)
+      try { ev.reject() } catch {}
+    }
+  }, [allowedCountries, currency, amountCents, deliveryFee, elements])
 
   const handleExpressShippingRateChange = useCallback(async (ev: any) => {
-    try { ev.resolve() } catch {}
-  }, [])
+    try {
+      const shipCents = Number(ev?.shippingRate?.amount || 0)
+      const subtotalCents = Math.max(0, (amountCents || 0) - (deliveryFee || 0))
+      try { elements?.update({ amount: subtotalCents + shipCents }) } catch {}
+      ev.resolve({
+        lineItems: [
+          { name: 'Subtotal', amount: subtotalCents },
+        ],
+      })
+    } catch {}
+  }, [amountCents, deliveryFee, elements])
 
   return (
     <div className="space-y-6">
@@ -835,33 +765,20 @@ function PaymentForm({
         onCancel={handlePhoneDialogCancel}
       />
 
-      {/* Express Checkout (Google Pay, Apple Pay) — only when Link is NOT authenticated.
-           The element renders with height 0 when no wallets are available;
-           we use onReady to show/hide the separator only when buttons actually appear. */}
+      {/* Express Checkout (Google Pay, Apple Pay) */}
       {!linkAuthenticated && (
         <>
           <ExpressCheckoutElement
-            onReady={(ev) => {
-              const methods = (ev as any).availablePaymentMethods
-              const hasAny = !!methods && Object.values(methods).some(Boolean)
-              setExpressAvailable(hasAny)
-            }}
             onConfirm={handleExpressCheckoutConfirm}
-            onShippingAddressChange={
-              showAddressElement ? handleExpressShippingAddressChange : undefined
-            }
-            onShippingRateChange={
-              showAddressElement ? handleExpressShippingRateChange : undefined
-            }
+            onShippingAddressChange={showAddressElement ? handleExpressShippingAddressChange : undefined}
+            onShippingRateChange={showAddressElement ? handleExpressShippingRateChange : undefined}
+            onCancel={() => {
+              try { elements?.update({ amount: Math.max(amountCents || 50, 50) }) } catch {}
+            }}
             options={(() => {
-              const builtRates = buildShippingRates(deliveryExpectations)
-              const rates =
-                builtRates && builtRates.length > 0
-                  ? builtRates
-                  : [{ id: 'standard', displayName: 'Envío estándar', amount: 0 }]
+              const placeholderRates = [{ id: 'calculating', displayName: 'Calculando envío…', amount: 0 }]
               const orderHasShippingAddress = Boolean(
-                shippingAddress &&
-                  (shippingAddress.line1 || shippingAddress.address?.line1)
+                shippingAddress && (shippingAddress.line1 || shippingAddress.address?.line1)
               )
               const formIsReady = addressElementComplete && orderHasShippingAddress
               const wantsShipping = showAddressElement && !formIsReady
@@ -879,30 +796,30 @@ function PaymentForm({
                 },
                 emailRequired: true,
                 phoneNumberRequired: true,
-                ...(allowedCountries && allowedCountries.length > 0
-                  ? { allowedShippingCountries: allowedCountries }
-                  : {}),
-                ...(wantsShipping
-                  ? { shippingAddressRequired: true, shippingRates: rates }
-                  : {}),
+                ...(allowedCountries && allowedCountries.length > 0 ? {
+                  allowedShippingCountries: allowedCountries,
+                } : {}),
+                ...(wantsShipping ? {
+                  shippingAddressRequired: true,
+                  shippingRates: placeholderRates,
+                } : {}),
               } as any
             })()}
           />
-          {/* Only show the divider when wallets are actually available */}
-          {expressAvailable && (
-            <div className="flex items-center gap-3">
-              <Separator className="flex-1" />
-              <span className="text-xs text-muted-foreground uppercase tracking-wider">o</span>
-              <Separator className="flex-1" />
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            <Separator className="flex-1" />
+            <span className="text-xs text-muted-foreground uppercase tracking-wider">o</span>
+            <Separator className="flex-1" />
+          </div>
         </>
       )}
 
-      {/* Link Authentication — email capture + Link recognition */}
+      {/* Link Authentication */}
       <LinkAuthenticationElement
         options={{
-          defaultValues: { email: email || '' },
+          defaultValues: {
+            email: email || '',
+          },
         }}
         onChange={(event) => {
           if (event.value?.email && onEmailChange) {
@@ -910,7 +827,9 @@ function PaymentForm({
           }
           const authenticated = !!(event as any).authenticated
           setLinkAuthenticated(authenticated)
-          if (onLinkAuthChange) onLinkAuthChange(authenticated)
+          if (onLinkAuthChange) {
+            onLinkAuthChange(authenticated)
+          }
         }}
       />
 
@@ -920,38 +839,35 @@ function PaymentForm({
           <AddressElement
             options={{
               mode: 'shipping',
-              fields: { phone: 'always' },
-              validation: { phone: { required: 'always' } },
-              display: { name: 'split' },
-              defaultValues: defaultAddress
-                ? {
-                    firstName: defaultAddress.name?.split(' ')[0] || '',
-                    lastName: defaultAddress.name?.split(' ').slice(1).join(' ') || '',
-                    address: defaultAddress.address
-                      ? {
-                          line1: defaultAddress.address.line1 || '',
-                          line2: defaultAddress.address.line2 || '',
-                          city: defaultAddress.address.city || '',
-                          state: defaultAddress.address.state || '',
-                          postal_code: defaultAddress.address.postal_code || '',
-                          country: defaultAddress.address.country || 'MX',
-                        }
-                      : { country: 'MX', line1: '', line2: '', city: '', state: '', postal_code: '' },
-                    phone: defaultAddress.phone || '',
-                  }
-                : {
-                    address: {
-                      country: 'MX',
-                      line1: '',
-                      line2: '',
-                      city: '',
-                      state: '',
-                      postal_code: '',
-                    },
-                  },
-              ...(allowedCountries && allowedCountries.length > 0
-                ? { allowedCountries }
-                : {}),
+              fields: {
+                phone: 'always',
+              },
+              validation: {
+                phone: {
+                  required: 'always',
+                },
+              },
+              display: {
+                name: 'split',
+              },
+              defaultValues: defaultAddress ? {
+                firstName: defaultAddress.name?.split(' ')[0] || '',
+                lastName: defaultAddress.name?.split(' ').slice(1).join(' ') || '',
+                address: defaultAddress.address ? {
+                  line1: defaultAddress.address.line1 || '',
+                  line2: defaultAddress.address.line2 || '',
+                  city: defaultAddress.address.city || '',
+                  state: defaultAddress.address.state || '',
+                  postal_code: defaultAddress.address.postal_code || '',
+                  country: defaultAddress.address.country || 'MX',
+                } : { country: 'MX', line1: '', line2: '', city: '', state: '', postal_code: '' },
+                phone: defaultAddress.phone || '',
+              } : {
+                address: { country: 'MX', line1: '', line2: '', city: '', state: '', postal_code: '' },
+              },
+              ...(allowedCountries && allowedCountries.length > 0 ? {
+                allowedCountries,
+              } : {}),
             }}
             onChange={(event) => {
               if (onAddressChange) {
@@ -961,25 +877,9 @@ function PaymentForm({
             }}
           />
 
-          {/* Shipping coverage error banner */}
           {shippingError && (
             <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 flex items-start gap-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-destructive mt-0.5 shrink-0"
-              >
-                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
-                <path d="M12 9v4" />
-                <path d="M12 17h.01" />
-              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-destructive mt-0.5 shrink-0"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
               <p className="text-sm text-destructive">{shippingError}</p>
             </div>
           )}
@@ -1012,7 +912,9 @@ function PaymentForm({
               phone: phone || undefined,
             },
           },
-          business: { name: 'Lovivo' },
+          business: {
+            name: 'Lovivo',
+          },
         }}
       />
 
@@ -1029,27 +931,13 @@ function PaymentForm({
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
             <span>Procesando...</span>
           </div>
-        ) : (
-          `Completar Compra - ${amountLabel}`
-        )}
+        ) : `Completar Compra - ${amountLabel}`}
       </Button>
 
       <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
-        <a
-          href="/terminos-y-condiciones"
-          target="_blank"
-          className="underline hover:text-foreground"
-        >
-          Condiciones
-        </a>
+        <a href="/terminos-y-condiciones" target="_blank" className="underline hover:text-foreground">Condiciones</a>
         <span>|</span>
-        <a
-          href="/aviso-de-privacidad"
-          target="_blank"
-          className="underline hover:text-foreground"
-        >
-          Privacidad
-        </a>
+        <a href="/aviso-de-privacidad" target="_blank" className="underline hover:text-foreground">Privacidad</a>
       </div>
     </div>
   )
@@ -1057,23 +945,22 @@ function PaymentForm({
 
 export default function StripePayment(props: StripePaymentProps) {
   const stripePromise = useMemo(() => {
-    const opts =
-      props.chargeType === 'direct' && props.stripeAccountId
-        ? { stripeAccount: props.stripeAccountId }
-        : {}
-    return loadStripe(STRIPE_PUBLISHABLE_KEY, opts)
-  }, [props.stripeAccountId, props.chargeType])
+    const opts = props.chargeType === 'direct' && props.stripeAccountId
+      ? { stripeAccount: props.stripeAccountId }
+      : {};
+    return loadStripe(STRIPE_PUBLISHABLE_KEY, opts);
+  }, [props.stripeAccountId, props.chargeType]);
 
-  const elementsOptions = useMemo(
-    () => ({
-      mode: 'payment' as const,
-      amount: Math.max(props.amountCents || 50, 50),
-      currency: (props.currency || 'mxn').toLowerCase(),
-      paymentMethodTypes: buildElementsPaymentMethodTypes(props.paymentMethods),
-      appearance: getStripeAppearance(),
-    }),
-    [props.amountCents, props.currency, props.paymentMethods]
-  )
+  // Elements options for deferred mode.
+  // NOTE: customer_balance (SPEI) is excluded from Elements init to avoid
+  // a 400 from Stripe. It is still sent in the backend payload.
+  const elementsOptions = useMemo(() => ({
+    mode: 'payment' as const,
+    amount: Math.max(props.amountCents || 50, 50),
+    currency: (props.currency || 'mxn').toLowerCase(),
+    paymentMethodTypes: buildElementsPaymentMethodTypes(props.paymentMethods),
+    appearance: getStripeAppearance(),
+  }), [props.amountCents, props.currency, props.paymentMethods])
 
   return (
     <Elements stripe={stripePromise} options={elementsOptions}>
