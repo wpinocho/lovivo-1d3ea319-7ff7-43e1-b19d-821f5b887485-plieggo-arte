@@ -16,27 +16,19 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**Estado:** ✅ Completado — Página de gracias funcional
-
-### Fix 1 — Nombre de variante con URLs (ThankYou.tsx) ✅
-`cleanVariantName()` agregado y aplicado en la línea del `variant_name`. Muestra solo "30cm x 90cm".
-
-### Fix 2 — Upsell desde colección "Más vendidos" (ThankYou.tsx) ✅
-`loadUpsell` ahora busca la colección `top-sellers`, obtiene sus `collection_products`, filtra comprados, y trae máx 4 productos de esa colección.
+**Estado:** ✅ Completado — Tiempos de entrega y FAQ actualizados
 
 ## 4. Recent Changes
+- **2026-05-26** — AnnouncementBar.tsx + ProductFAQ.tsx: Entrega cambiada de 10-15 a 5-7 días hábiles
+- **2026-05-26** — ProductFAQ.tsx: Eliminado "Protección de acrílico 3mm" de FAQ "¿El marco viene incluido?"
 - **2026-05-25** — ThankYou.tsx: Fix 1 variant_name con URLs → cleanVariantName() aplicado
 - **2026-05-25** — ThankYou.tsx: Fix 2 upsell → ahora usa colección top-sellers en lugar de productos genéricos
-- **2026-05-25** — ThankYou.tsx: 2 bugs identificados — variant_name con URLs + upsell genérico
 - **2026-05-25** — App.tsx: agregadas rutas `/gracias` y `/gracias/:orderId` → ThankYou (fix 404 post-pago)
-- **2026-05-25** — Bug confirmado: `/gracias/:orderId` no tenía ruta en App.tsx → 404 post-pago
 - **2026-05-25** — `link` removido de `buildPaymentMethodTypes` en StripePayment.tsx. Payload ahora: `["card", "oxxo", "customer_balance"]` (sin link)
 - **2026-05-25** — `cleanVariantName()` en CheckoutUI.tsx (desktop + mobile)
 - **2026-05-25** — ECE `onReady` en StripePayment.tsx: `eceAvailable` state, separador "o" condicional
 - **2026-05-25 Buy Now fix** — `useCheckout.ts` acepta `directItems?: any[]`
 - **2026-05-25 Checkout restaurado (5 archivos)** — StripePayment.tsx, CheckoutUI.tsx, CheckoutAdapter.tsx, useCheckout.ts, checkout.ts
-- **2026-05-25 ECE fix CORRECTO** — `link` devuelto a `buildElementsPaymentMethodTypes` (solo `customer_balance` excluido)
-- **2026-05-25 Checkout fix Stripe 400** — `customer_balance` (SPEI) removido del init de Stripe Elements
 - **2026-05-25 CrossSellSection precio corregido** — Precio mínimo de variantes en lugar de `product.price`
 - **2026-05-25 Precios Acordeón unificados** — Todas las variantes a $4,500/$6,000
 - **2026-05-22 CheckoutAdapter.tsx reescrito** — Eliminado state-resetter useEffect

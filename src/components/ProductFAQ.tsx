@@ -23,7 +23,6 @@ export const ProductFAQ = () => {
           <p>Sí, todos los cuadros incluyen:</p>
           <ul className="list-disc list-inside space-y-1 ml-2">
             <li>Marco de madera natural</li>
-            <li>Protección de acrílico 3mm</li>
             <li>Sistema de montaje para colgar</li>
           </ul>
         </div>
@@ -41,8 +40,8 @@ export const ProductFAQ = () => {
       question: "¿Cuánto tarda el envío?",
       answer: (
         <div className="space-y-2 text-muted-foreground">
-          <p><span className="font-medium text-foreground">CDMX:</span> 10–15 días hábiles (GRATIS)</p>
-          <p><span className="font-medium text-foreground">Nacional:</span> 10–15 días hábiles ($200 MXN)</p>
+          <p><span className="font-medium text-foreground">CDMX:</span> 5–7 días hábiles (GRATIS)</p>
+          <p><span className="font-medium text-foreground">Nacional:</span> 5–7 días hábiles ($200 MXN)</p>
           <p className="text-xs mt-1 italic">Cada pieza se elabora especialmente para ti ✦</p>
         </div>
       )
