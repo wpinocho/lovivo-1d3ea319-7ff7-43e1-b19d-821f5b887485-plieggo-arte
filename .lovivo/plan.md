@@ -16,20 +16,64 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**Estado:** ✅ Completado — Fix `clients-upsert` disparándose en cada keystroke
+**Estado:** 🔧 Pendiente — Fix nombre/apellido/teléfono en clients-upsert
 
-### Solución implementada (2026-05-28)
-- **CheckoutAdapter.tsx**: Eliminado `useEffect` que llamaba `saveClientData()` en cada cambio de `[email, firstName, lastName, phone, orderId]`. Agregada función `saveClientDataOnBlur` expuesta en el return.
-- **CheckoutUI.tsx**: Eliminado `logic.saveClientData(true, email)` del `onEmailChange`. Agregado `onEmailBlur={() => logic.saveClientDataOnBlur()}` a `StripePayment`.
-- **StripePayment.tsx**: Agregada prop `onEmailBlur?: () => void`. En `LinkAuthenticationElement`, agregado `onBlur={() => onEmailBlur?.()}`.
+### Problema identificado (2026-05-28)
+`saveClientData()` en CheckoutAdapter lee `firstName`/`lastName`/`phone` del estado de React.
+Cuando se llama desde `onAddressChange` en CheckoutUI.tsx (línea 324-326), los `setFirstName`/`setLastName`/`setPhone` ya fueron llamados pero **React no ha actualizado el estado todavía** (batching asíncrono). Resultado: el upsert sale sin nombre, apellido ni teléfono.
 
-### Resultado
-- `clients-upsert` se llama **máximo 2 veces** por checkout:
-  1. Cuando el usuario **sale del campo de email** (blur en LinkAuthenticationElement)
-  2. Cuando **completa la dirección** (onAddressChange con `complete === true` ya existente)
-- Cero llamadas por keystroke → BD limpia, sin duplicados
+El blur del email tampoco tiene el nombre (el usuario aún no llenó la dirección en ese momento) — eso está bien.
+
+### Fix requerido
+**2 archivos:**
+
+#### 1. `src/adapters/CheckoutAdapter.tsx`
+- Modificar `saveClientData` para aceptar overrides opcionales de `firstName`, `lastName` y `phone`:
+```typescript
+const saveClientData = async (
+  immediate = false,
+  emailOverride?: string,
+  firstNameOverride?: string,
+  lastNameOverride?: string,
+  phoneOverride?: string
+) => {
+  if (!orderId) return;
+  const trimmedEmail = (emailOverride ?? email).trim();
+  const effectiveFirstName = firstNameOverride !== undefined ? firstNameOverride : firstName;
+  const effectiveLastName = lastNameOverride !== undefined ? lastNameOverride : lastName;
+  const effectivePhone = phoneOverride !== undefined ? phoneOverride : phone;
+  const normalizedPhone = normalizePhoneNumber(effectivePhone);
+  // ... resto igual, pero usando effectiveFirstName, effectiveLastName
+  if (effectiveFirstName.trim().length >= 2) customerData.first_name = effectiveFirstName.trim();
+  if (effectiveLastName.trim().length >= 2) customerData.last_name = effectiveLastName.trim();
+  ...
+}
+```
+
+- `saveClientDataOnBlur` sigue igual: `saveClientData(true)` — sin overrides (solo email).
+
+- Exponer en el return del hook: `saveClientData` (para que CheckoutUI pueda llamarla con overrides desde onAddressChange).
+
+#### 2. `src/pages/ui/CheckoutUI.tsx`
+- En el handler `onAddressChange` (línea 324-326), cambiar:
+```tsx
+// ANTES:
+if (complete && first) {
+  logic.saveClientData(true);
+}
+// DESPUÉS:
+if (complete && first) {
+  logic.saveClientData(true, undefined, first, last, phone || undefined);
+}
+```
+Esto pasa los valores directamente sin depender del estado de React actualizado.
+
+### Resultado esperado
+- Email blur → upsert con email + allow_mkt (nombre vacío en ese momento, está bien)
+- Dirección completa → upsert con email + first_name + last_name + phone + allow_mkt ✅
 
 ## 4. Recent Changes
+- **2026-05-28** — Diagnóstico: nombre/apellido/teléfono llegan null en clients-upsert (stale state bug en onAddressChange)
 - **2026-05-28** — Fix clients-upsert keystroke: blur pattern en CheckoutAdapter + CheckoutUI + StripePayment
 - **2026-05-26** — AnnouncementBar.tsx + ProductFAQ.tsx: Entrega cambiada de 10-15 a 5-7 días hábiles
 - **2026-05-26** — ProductFAQ.tsx: Eliminado "Protección de acrílico 3mm" de FAQ "¿El marco viene incluido?"
