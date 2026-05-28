@@ -226,12 +226,9 @@ export const useCheckoutLogic = () => {
     }, delay);
   };
 
-  useEffect(() => {
-    saveClientData();
-    return () => {
-      if (clientTimer.current) window.clearTimeout(clientTimer.current);
-    };
-  }, [email, firstName, lastName, phone, orderId]);
+  // saveClientDataOnBlur: llamar solo cuando el usuario salga del campo de email
+  // o cuando el formulario de dirección esté completo — nunca en cada keystroke.
+  const saveClientDataOnBlur = () => saveClientData(true);
 
   useEffect(() => {
     if (address.country && !address.state) {
@@ -615,6 +612,7 @@ export const useCheckoutLogic = () => {
     setCouponCode,
     
     saveClientData,
+    saveClientDataOnBlur,
     validateCoupon,
     removeCoupon,
     getDiscountDisplayText,

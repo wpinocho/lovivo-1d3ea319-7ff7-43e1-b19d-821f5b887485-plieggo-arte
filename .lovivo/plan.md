@@ -16,42 +16,21 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**Estado:** 🔧 Pendiente — Fix `clients-upsert` disparando en cada keystroke
+**Estado:** ✅ Completado — Fix `clients-upsert` disparándose en cada keystroke
 
-### Problema
-En `CheckoutAdapter.tsx` hay DOS mecanismos que llaman a `clients-upsert` en cada tecla:
-1. **useEffect (línea 229-234)** — reacciona a cada cambio de `email`, `firstName`, `lastName`, `phone`, `orderId`. Aunque tiene 600ms debounce, sigue siendo ruidoso: si el email es válido se dispara en cada keystroke.
-2. **`onEmailChange` en CheckoutUI.tsx (línea 334)** — llama `logic.saveClientData(true, email)` con `immediate = true` (delay = 0) en cada carácter.
+### Solución implementada (2026-05-28)
+- **CheckoutAdapter.tsx**: Eliminado `useEffect` que llamaba `saveClientData()` en cada cambio de `[email, firstName, lastName, phone, orderId]`. Agregada función `saveClientDataOnBlur` expuesta en el return.
+- **CheckoutUI.tsx**: Eliminado `logic.saveClientData(true, email)` del `onEmailChange`. Agregado `onEmailBlur={() => logic.saveClientDataOnBlur()}` a `StripePayment`.
+- **StripePayment.tsx**: Agregada prop `onEmailBlur?: () => void`. En `LinkAuthenticationElement`, agregado `onBlur={() => onEmailBlur?.()}`.
 
-### Solución estilo Shopify
-Shopify sincroniza datos del cliente en EVENTOS DE COMPLETITUD, no en cada cambio:
-- Email → solo en **blur** (cuando el usuario sale del campo)
-- Dirección → solo cuando el form de dirección está **completo** (ya implementado en `onAddressChange` cuando `complete === true`)
-- Antes del pago → al momento de validar campos antes de procesar
-
-### Cambios a realizar
-
-#### `src/adapters/CheckoutAdapter.tsx`
-- **Eliminar** el `useEffect` (líneas 229-234) que escucha `[email, firstName, lastName, phone, orderId]` y llama `saveClientData()` en cada cambio
-- Agregar una función `saveClientDataOnBlur` que es simplemente `saveClientData(true)` — para llamarla desde el blur del email
-- Exponer `saveClientDataOnBlur` en el return del adapter
-
-#### `src/pages/ui/CheckoutUI.tsx`
-- En `onEmailChange` (línea 332-335): **eliminar** `logic.saveClientData(true, email)` — solo dejar `logic.setEmail(email)`
-- Pasar `onEmailBlur={() => logic.saveClientDataOnBlur()}` a `StripePayment`
-
-#### `src/components/StripePayment.tsx`
-- Agregar prop opcional `onEmailBlur?: () => void`
-- En el `LinkAuthenticationElement`, agregar handler `onBlur` que llame `onEmailBlur()`
-- Si no hay `LinkAuthenticationElement` (solo `PaymentElement`), agregar un input email custom con `onBlur`
-
-### Resultado esperado
-- `clients-upsert` se llama como máximo 2 veces por checkout: cuando el usuario deja el campo de email, y cuando completa la dirección
-- Cero llamadas por cada keystroke
-- Comportamiento idéntico al de Shopify
+### Resultado
+- `clients-upsert` se llama **máximo 2 veces** por checkout:
+  1. Cuando el usuario **sale del campo de email** (blur en LinkAuthenticationElement)
+  2. Cuando **completa la dirección** (onAddressChange con `complete === true` ya existente)
+- Cero llamadas por keystroke → BD limpia, sin duplicados
 
 ## 4. Recent Changes
-- **2026-05-28** — Plan: Fix clients-upsert on every keystroke → blur/complete pattern
+- **2026-05-28** — Fix clients-upsert keystroke: blur pattern en CheckoutAdapter + CheckoutUI + StripePayment
 - **2026-05-26** — AnnouncementBar.tsx + ProductFAQ.tsx: Entrega cambiada de 10-15 a 5-7 días hábiles
 - **2026-05-26** — ProductFAQ.tsx: Eliminado "Protección de acrílico 3mm" de FAQ "¿El marco viene incluido?"
 - **2026-05-25** — ThankYou.tsx: Fix 1 variant_name con URLs → cleanVariantName() aplicado
@@ -84,10 +63,8 @@ Shopify sincroniza datos del cliente en EVENTOS DE COMPLETITUD, no en cada cambi
 - Slugs en code sin producto activo en DB: `acorden-terracota-vibrante`, `acorden-crema-natural`, `acorden-morado-lavanda`, `acorden-morado-elegante`, `estrellas`
 - ECE (Apple Pay / Google Pay) no aparece en el preview (esperado: preview usa iframe sin HTTPS real)
 - Stripe Link NO está activado en la cuenta — `link` removido del payload permanentemente
-- **clients-upsert se dispara en cada keystroke** — fix pendiente en Craft Mode
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** Fix clients-upsert → cambiar a blur/complete pattern (ver sección 3)
 - **[ALTA]** Probar checkout en producción (plieggo.com) — verificar thank you page carga con info de la orden
 - **[ALTA]** Probar Google Pay / Apple Pay en producción en Chrome/Safari con tarjeta guardada
 - **[ALTA]** Verificar domain verification para Apple Pay en Stripe Dashboard

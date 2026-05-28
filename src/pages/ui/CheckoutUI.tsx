@@ -331,8 +331,8 @@ export default function CheckoutUI() {
                         chargeType={chargeType}
                         onEmailChange={(email: string) => {
                           logic.setEmail(email)
-                          logic.saveClientData(true, email)
                         }}
+                        onEmailBlur={() => logic.saveClientDataOnBlur()}
                         onLinkAuthChange={setLinkAuthenticated}
                       />
                     );

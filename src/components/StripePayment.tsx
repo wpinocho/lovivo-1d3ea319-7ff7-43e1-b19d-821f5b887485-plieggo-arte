@@ -70,6 +70,7 @@ interface StripePaymentProps {
   stripeAccountId?: string | null
   chargeType?: string | null
   onEmailChange?: (email: string) => void
+  onEmailBlur?: () => void
   onAddressChange?: (address: StripeAddressValue, complete: boolean) => void
   allowedCountries?: string[]
   defaultAddress?: Partial<StripeAddressValue>
@@ -107,6 +108,7 @@ function PaymentForm({
   deliveryMethodSlot,
   paymentMethods,
   onEmailChange,
+  onEmailBlur,
   onAddressChange,
   allowedCountries,
   defaultAddress,
@@ -841,6 +843,7 @@ function PaymentForm({
             onLinkAuthChange(authenticated)
           }
         }}
+        onBlur={() => onEmailBlur?.()}
       />
 
       {/* Shipping Address Element */}
