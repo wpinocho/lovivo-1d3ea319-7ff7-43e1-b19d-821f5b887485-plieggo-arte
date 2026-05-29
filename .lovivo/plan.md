@@ -16,27 +16,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**Estado:** 🔧 Pendiente — Dos fixes paralelos
-
-### Fix A: Carousel móvil no resetea al cambiar variante (2026-05-29)
-**Archivo:** `src/pages/ui/ProductPageUI.tsx`
-
-**Problema:** En móvil, el `<Carousel>` de Embla no regresa a la imagen 1 al cambiar variante. En desktop sí funciona porque simplemente limpia `selectedImage` → vuelve al index 0.
-
-**Fix:**
-1. Agregar import de `type CarouselApi` desde `@/components/ui/carousel`
-2. Agregar estado: `const [carouselApi, setCarouselApi] = useState<CarouselApi>()`
-3. Agregar `useEffect` que escuche `logic.matchingVariant` y llame `carouselApi?.scrollTo(0)`:
-```tsx
-useEffect(() => {
-  carouselApi?.scrollTo(0)
-}, [logic.matchingVariant, carouselApi])
-```
-4. En el `<Carousel>` del móvil (línea ~284), agregar `setApi={setCarouselApi}`
-
-**Resultado:** Al cambiar de variante en móvil, el carrusel salta automáticamente a la imagen 1 de esa variante — igual que en desktop.
-
----
+**Estado:** 🔧 Pendiente — Fix B
 
 ### Fix B: clients-upsert no manda nombre/apellido/teléfono (2026-05-28)
 `saveClientData()` en CheckoutAdapter lee `firstName`/`lastName`/`phone` del estado de React.
@@ -81,6 +61,7 @@ if (complete && first) {
 ```
 
 ## 4. Recent Changes
+- **2026-05-29** — Fix carousel móvil (ProductPageUI.tsx): `setApi`, `carouselApi?.scrollTo(0)` en useEffect al cambiar variante
 - **2026-05-29** — Identificado bug: carrusel móvil en PDP no resetea a imagen 1 al cambiar variante
 - **2026-05-28** — Diagnóstico: nombre/apellido/teléfono llegan null en clients-upsert (stale state bug en onAddressChange)
 - **2026-05-28** — Fix clients-upsert keystroke: blur pattern en CheckoutAdapter + CheckoutUI + StripePayment
@@ -95,7 +76,6 @@ if (complete && first) {
 - **2026-05-25 Buy Now fix** — `useCheckout.ts` acepta `directItems?: any[]`
 - **2026-05-25 Checkout restaurado (5 archivos)** — StripePayment.tsx, CheckoutUI.tsx, CheckoutAdapter.tsx, useCheckout.ts, checkout.ts
 - **2026-05-25 CrossSellSection precio corregido** — Precio mínimo de variantes en lugar de `product.price`
-- **2026-05-25 Precios Acordeón unificados** — Todas las variantes a $4,500/$6,000
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
@@ -117,7 +97,6 @@ if (complete && first) {
 - Stripe Link NO está activado en la cuenta — `link` removido del payload permanentemente
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** Fix carousel móvil: resetear a imagen 1 al cambiar variante (ProductPageUI.tsx)
 - **[ALTA]** Fix clients-upsert: nombre/apellido/teléfono no llegan (CheckoutAdapter + CheckoutUI)
 - **[ALTA]** Probar checkout en producción (plieggo.com) — verificar thank you page carga con info de la orden
 - **[ALTA]** Probar Google Pay / Apple Pay en producción en Chrome/Safari con tarjeta guardada

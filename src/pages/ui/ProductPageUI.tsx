@@ -28,6 +28,7 @@ import {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
+  type CarouselApi,
 } from "@/components/ui/carousel"
 
 import type { SellingPlan } from "@/lib/supabase"
@@ -78,6 +79,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [expressAvailable, setExpressAvailable] = useState(false)
   const [isZoomed, setIsZoomed] = useState(false)
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>()
   const { ref: ctaRef, inView: ctaInView } = useInView({ threshold: 0 })
 
   // ⚠️ Hooks must be called unconditionally — BEFORE any early returns
@@ -91,7 +93,8 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
 
   useEffect(() => {
     setSelectedImage(null)
-  }, [logic.matchingVariant])
+    carouselApi?.scrollTo(0)
+  }, [logic.matchingVariant, carouselApi])
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -281,7 +284,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
               {/* Mobile: carousel */}
               {logic.displayImages && logic.displayImages.length > 1 ? (
                 <div className="md:hidden">
-                  <Carousel className="w-full">
+                  <Carousel className="w-full" setApi={setCarouselApi}>
                     <CarouselContent>
                       {logic.displayImages.map((img: string, index: number) => (
                         <CarouselItem key={index}>
