@@ -16,16 +16,31 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 
 ## 3. Active Plan
-**Estado:** 🔧 Pendiente — Fix nombre/apellido/teléfono en clients-upsert
+**Estado:** 🔧 Pendiente — Dos fixes paralelos
 
-### Problema identificado (2026-05-28)
+### Fix A: Carousel móvil no resetea al cambiar variante (2026-05-29)
+**Archivo:** `src/pages/ui/ProductPageUI.tsx`
+
+**Problema:** En móvil, el `<Carousel>` de Embla no regresa a la imagen 1 al cambiar variante. En desktop sí funciona porque simplemente limpia `selectedImage` → vuelve al index 0.
+
+**Fix:**
+1. Agregar import de `type CarouselApi` desde `@/components/ui/carousel`
+2. Agregar estado: `const [carouselApi, setCarouselApi] = useState<CarouselApi>()`
+3. Agregar `useEffect` que escuche `logic.matchingVariant` y llame `carouselApi?.scrollTo(0)`:
+```tsx
+useEffect(() => {
+  carouselApi?.scrollTo(0)
+}, [logic.matchingVariant, carouselApi])
+```
+4. En el `<Carousel>` del móvil (línea ~284), agregar `setApi={setCarouselApi}`
+
+**Resultado:** Al cambiar de variante en móvil, el carrusel salta automáticamente a la imagen 1 de esa variante — igual que en desktop.
+
+---
+
+### Fix B: clients-upsert no manda nombre/apellido/teléfono (2026-05-28)
 `saveClientData()` en CheckoutAdapter lee `firstName`/`lastName`/`phone` del estado de React.
 Cuando se llama desde `onAddressChange` en CheckoutUI.tsx (línea 324-326), los `setFirstName`/`setLastName`/`setPhone` ya fueron llamados pero **React no ha actualizado el estado todavía** (batching asíncrono). Resultado: el upsert sale sin nombre, apellido ni teléfono.
-
-El blur del email tampoco tiene el nombre (el usuario aún no llenó la dirección en ese momento) — eso está bien.
-
-### Fix requerido
-**2 archivos:**
 
 #### 1. `src/adapters/CheckoutAdapter.tsx`
 - Modificar `saveClientData` para aceptar overrides opcionales de `firstName`, `lastName` y `phone`:
@@ -49,9 +64,7 @@ const saveClientData = async (
   ...
 }
 ```
-
 - `saveClientDataOnBlur` sigue igual: `saveClientData(true)` — sin overrides (solo email).
-
 - Exponer en el return del hook: `saveClientData` (para que CheckoutUI pueda llamarla con overrides desde onAddressChange).
 
 #### 2. `src/pages/ui/CheckoutUI.tsx`
@@ -66,13 +79,9 @@ if (complete && first) {
   logic.saveClientData(true, undefined, first, last, phone || undefined);
 }
 ```
-Esto pasa los valores directamente sin depender del estado de React actualizado.
-
-### Resultado esperado
-- Email blur → upsert con email + allow_mkt (nombre vacío en ese momento, está bien)
-- Dirección completa → upsert con email + first_name + last_name + phone + allow_mkt ✅
 
 ## 4. Recent Changes
+- **2026-05-29** — Identificado bug: carrusel móvil en PDP no resetea a imagen 1 al cambiar variante
 - **2026-05-28** — Diagnóstico: nombre/apellido/teléfono llegan null en clients-upsert (stale state bug en onAddressChange)
 - **2026-05-28** — Fix clients-upsert keystroke: blur pattern en CheckoutAdapter + CheckoutUI + StripePayment
 - **2026-05-26** — AnnouncementBar.tsx + ProductFAQ.tsx: Entrega cambiada de 10-15 a 5-7 días hábiles
@@ -87,7 +96,6 @@ Esto pasa los valores directamente sin depender del estado de React actualizado.
 - **2026-05-25 Checkout restaurado (5 archivos)** — StripePayment.tsx, CheckoutUI.tsx, CheckoutAdapter.tsx, useCheckout.ts, checkout.ts
 - **2026-05-25 CrossSellSection precio corregido** — Precio mínimo de variantes en lugar de `product.price`
 - **2026-05-25 Precios Acordeón unificados** — Todas las variantes a $4,500/$6,000
-- **2026-05-22 CheckoutAdapter.tsx reescrito** — Eliminado state-resetter useEffect
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
@@ -109,6 +117,8 @@ Esto pasa los valores directamente sin depender del estado de React actualizado.
 - Stripe Link NO está activado en la cuenta — `link` removido del payload permanentemente
 
 ## 7. Pending / Future Sessions
+- **[ALTA]** Fix carousel móvil: resetear a imagen 1 al cambiar variante (ProductPageUI.tsx)
+- **[ALTA]** Fix clients-upsert: nombre/apellido/teléfono no llegan (CheckoutAdapter + CheckoutUI)
 - **[ALTA]** Probar checkout en producción (plieggo.com) — verificar thank you page carga con info de la orden
 - **[ALTA]** Probar Google Pay / Apple Pay en producción en Chrome/Safari con tarjeta guardada
 - **[ALTA]** Verificar domain verification para Apple Pay en Stripe Dashboard
