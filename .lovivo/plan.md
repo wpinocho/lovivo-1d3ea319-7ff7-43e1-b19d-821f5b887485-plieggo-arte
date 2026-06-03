@@ -18,24 +18,23 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Sticky bar**: una sola fila compacta, un solo botón terracota. Left: solo thumbnail. Botón: icono carrito + "Agregar al carrito" + precio actual + precio tachado. Fondo crema #F2EFE4/95
 - **ProductCard CTA**: botón terracota sólido `w-full h-8 px-3 text-xs tracking-wide uppercase rounded-sm bg-[#C16648]` — full width, debajo de los precios
 - **ProductCard price layout**: precio y precio tachado en la MISMA fila horizontal (`flex-row items-center gap-2`), botón en línea separada abajo ✅ APLICADO
+- **FloatingWhatsApp**: solo en home (`/`) — eliminado de colecciones y demás páginas
 
 ## 3. Active Plan
 **Estado:** ✅ Fixes aplicados — en producción desde 2026-06-03
 
 ## 4. Recent Changes
+- **2026-06-03** — CollectionAcordeon.tsx: Hero movido DEBAJO del grid de productos (users ven cuadros inmediatamente)
+- **2026-06-03** — EcommerceTemplate.tsx: FloatingWhatsApp solo en home (`/`) — quitado de colecciones y otras páginas
+- **2026-06-03** — CollectionAcordeon.tsx: h1 ahora es "Colección Acordeón" (encabezado del grid), hero usa h2
 - **2026-06-03** — ProductCardUI.tsx: layout precio+CTA → flex-col (precios en misma fila, botón full-width abajo)
 - **2026-06-03** — CollectionAcordeon.tsx: padding reducido `py-14 md:py-20` → `py-8 md:py-12`, `mb-10` → `mb-5`
 - **2026-06-03** — CollectionAcordeon.tsx: subtítulo genérico → 4 badges (Envío gratis, Hecho a mano, 4.9 +50 reseñas, Devolución garantizada)
-- **2026-06-03** — Plan: 3 fixes ProductCard layout + CollectionAcordeon padding + badges subtítulo
 - **2026-06-03** — ProductCardUI.tsx: "Ver más" → "Ver cuadro" (botón terracota sólido, h-8, rounded-sm)
 - **2026-06-03** — ProductCardUI.tsx: compare-at price text-xs → text-sm (más visible, estilo Desenio)
 - **2026-06-03** — ProductCardUI.tsx: tap cue en móvil — ícono flecha en esquina inferior derecha imagen (visible solo en móvil, md:hidden)
-- **2026-06-03** — CollectionAcordeon.tsx: Trust strip movido debajo de la grilla de productos (ya no empuja cuadros fuera del viewport en móvil)
-- **2026-06-03** — CollectionAcordeon.tsx: Subtítulo "Envío a toda México · Cada pieza es única" debajo del h2 de la grilla
-- **2026-06-03** — Plan: optimización click-through /coleccion-acordeon → PDP (4 cambios: CTA, precios, trust strip position, mobile tap cue)
-- **2026-06-03** — ProductPageUI.tsx: Sticky bar — precios removidos del lado izquierdo; botón muestra: icono carrito + texto + precio actual + precio tachado
-- **2026-06-03** — ProductPageUI.tsx: Sticky bar rediseñado → una fila, un botón terracota, precios inline (precio tachado en info izquierda Y dentro del botón)
-- **2026-06-03** — Plan: Rediseño sticky bar → una sola fila, un botón, precios inline (inspiración Desenio)
+- **2026-06-03** — CollectionAcordeon.tsx: Trust strip movido debajo de la grilla de productos
+- **2026-06-03** — ProductPageUI.tsx: Sticky bar rediseñado → una fila, un botón terracota, precios inline
 - **2026-06-03** — ProductPageUI.tsx: PDP spacing comprimido + variant buttons más compactos (h-8, rounded-sm)
 - **2026-05-29** — Fix carousel móvil (ProductPageUI.tsx): `setApi`, `carouselApi?.scrollTo(0)` en useEffect al cambiar variante
 

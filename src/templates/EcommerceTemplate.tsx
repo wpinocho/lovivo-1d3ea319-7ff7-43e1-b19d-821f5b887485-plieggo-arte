@@ -71,8 +71,8 @@ export const EcommerceTemplate = ({
     return () => window.removeEventListener('scroll', handleScroll)
   }, [isHome])
 
-  // No mostrar WhatsApp en checkout
-  const showWhatsApp = !location.pathname.includes('/checkout')
+  // Solo mostrar WhatsApp en la página principal
+  const showWhatsApp = location.pathname === '/'
   // En página de producto o bundle (móvil), ocultar WhatsApp para no tapar el CTA de compra
   const isProductPage = location.pathname.startsWith('/products/')
   const isBundlePage = location.pathname.startsWith('/bundles/')
