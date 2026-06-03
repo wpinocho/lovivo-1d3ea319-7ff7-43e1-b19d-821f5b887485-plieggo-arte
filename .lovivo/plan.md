@@ -17,68 +17,15 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **PDP variant buttons**: `h-8 px-3 text-xs tracking-wide rounded-sm` — compactos, estilo editorial
 - **Sticky bar**: una sola fila compacta, un solo botón terracota. Left: solo thumbnail. Botón: icono carrito + "Agregar al carrito" + precio actual + precio tachado. Fondo crema #F2EFE4/95
 - **ProductCard CTA**: botón terracota sólido `w-full h-8 px-3 text-xs tracking-wide uppercase rounded-sm bg-[#C16648]` — full width, debajo de los precios
-- **ProductCard price layout**: precio y precio tachado en la MISMA fila horizontal (`flex-row items-center gap-2`), botón en línea separada abajo
+- **ProductCard price layout**: precio y precio tachado en la MISMA fila horizontal (`flex-row items-center gap-2`), botón en línea separada abajo ✅ APLICADO
 
 ## 3. Active Plan
-**Estado:** 🔧 Pendiente en Craft Mode — 3 fixes CollectionAcordeon + ProductCard
-
-### Fix 1: Reducir padding excesivo en sección de productos (CollectionAcordeon.tsx)
-- Línea 128: `py-14 md:py-20` → `py-8 md:py-12`
-- Línea 131: `mb-10` → `mb-5`
-
-### Fix 2: Layout ProductCard móvil (ProductCardUI.tsx, líneas 210–233)
-Cambiar el bloque "Precio y CTA" de flex-row (precio izq, botón der) a flex-col (precio arriba, botón abajo full-width):
-
-```jsx
-{/* Precio y CTA */}
-<div className="flex flex-col gap-2">
-  {/* Precio + tachado en la MISMA línea horizontal */}
-  <div className="flex items-center gap-2 flex-wrap">
-    <span className="font-heading text-foreground font-bold text-base md:text-lg leading-none">
-      {logic.formatMoney(logic.currentPrice)}
-    </span>
-    {logic.currentCompareAt && logic.currentCompareAt > logic.currentPrice && (
-      <span className="font-body text-muted-foreground text-sm line-through">
-        {logic.formatMoney(logic.currentCompareAt)}
-      </span>
-    )}
-  </div>
-
-  <Button
-    size="sm"
-    className="w-full h-8 px-3 text-xs tracking-wide uppercase font-heading rounded-sm bg-[#C16648] hover:bg-[#C16648]/90 text-white border-0"
-    onClick={(e) => {
-      e.stopPropagation()
-      navigate(`/products/${logic.product.slug}`)
-    }}
-  >
-    Ver cuadro
-  </Button>
-</div>
-```
-
-### Fix 3: Reemplazar subtítulo genérico con badges (CollectionAcordeon.tsx, línea 135–137)
-Reemplazar el `<p>` de "Envío a toda México · Cada pieza es única" con badges inline:
-
-```jsx
-<div className="flex flex-wrap justify-center gap-2 mt-3">
-  <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-foreground/5 text-foreground border border-border/60">
-    <Truck className="w-3 h-3 text-[#C16648]" /> Envío gratis
-  </span>
-  <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-foreground/5 text-foreground border border-border/60">
-    <Hand className="w-3 h-3 text-[#C16648]" /> Hecho a mano
-  </span>
-  <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-foreground/5 text-foreground border border-border/60">
-    <Star className="w-3 h-3 text-[#C16648]" /> 4.9 · +50 reseñas
-  </span>
-  <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-foreground/5 text-foreground border border-border/60">
-    <RotateCcw className="w-3 h-3 text-[#C16648]" /> Devolución garantizada
-  </span>
-</div>
-```
-Nota: Los iconos `Truck`, `Hand`, `Star`, `RotateCcw` ya están importados en CollectionAcordeon.tsx (línea 8).
+**Estado:** ✅ Fixes aplicados — en producción desde 2026-06-03
 
 ## 4. Recent Changes
+- **2026-06-03** — ProductCardUI.tsx: layout precio+CTA → flex-col (precios en misma fila, botón full-width abajo)
+- **2026-06-03** — CollectionAcordeon.tsx: padding reducido `py-14 md:py-20` → `py-8 md:py-12`, `mb-10` → `mb-5`
+- **2026-06-03** — CollectionAcordeon.tsx: subtítulo genérico → 4 badges (Envío gratis, Hecho a mano, 4.9 +50 reseñas, Devolución garantizada)
 - **2026-06-03** — Plan: 3 fixes ProductCard layout + CollectionAcordeon padding + badges subtítulo
 - **2026-06-03** — ProductCardUI.tsx: "Ver más" → "Ver cuadro" (botón terracota sólido, h-8, rounded-sm)
 - **2026-06-03** — ProductCardUI.tsx: compare-at price text-xs → text-sm (más visible, estilo Desenio)
@@ -90,9 +37,6 @@ Nota: Los iconos `Truck`, `Hand`, `Star`, `RotateCcw` ya están importados en Co
 - **2026-06-03** — ProductPageUI.tsx: Sticky bar rediseñado → una fila, un botón terracota, precios inline (precio tachado en info izquierda Y dentro del botón)
 - **2026-06-03** — Plan: Rediseño sticky bar → una sola fila, un botón, precios inline (inspiración Desenio)
 - **2026-06-03** — ProductPageUI.tsx: PDP spacing comprimido + variant buttons más compactos (h-8, rounded-sm)
-- **2026-06-03** — Plan PDP: spacing fix + variant buttons compactos (decidido mantener orden precio→bullets→tamaño)
-- **2026-06-03** — CollectionAcordeon.tsx: EDITORIAL_IMAGE actualizada a nueva foto lifestyle (recámara con cuadro acordeón en pared)
-- **2026-06-01** — Diagnóstico performance móvil /coleccion-acordeon: score 67. Plan de 5 fixes identificado.
 - **2026-05-29** — Fix carousel móvil (ProductPageUI.tsx): `setApi`, `carouselApi?.scrollTo(0)` en useEffect al cambiar variante
 
 ## 5. Image Inventory
@@ -124,10 +68,10 @@ Nota: Los iconos `Truck`, `Hand`, `Star`, `RotateCcw` ya están importados en Co
 - **[ALTA]** Verificar domain verification para Apple Pay en Stripe Dashboard
 - **[ALTA]** Verificar precios de Lunas en DB — confirmar variantes con precio correcto
 - **[ALTA]** Subir fotos reales para reseñas g1, g2, g3, g5, g6, g7, g8
+- **[MEDIA]** Medir impacto en PostHog de los cambios del 2026-06-03 (/coleccion-acordeon → PDP CTR)
 - **[MEDIA]** Agregar fotos a más reviews específicas en PDP
 - **[MEDIA]** Añadir más fotos a Luna Beige (detalle, textura, en sala)
 - **[MEDIA]** Indicador de stock "Solo X disponibles" para Edición Limitada
-- **[BAJA]** Medir impacto en PostHog de los cambios del 2026-06-03 (/coleccion-acordeon → PDP CTR)
 - Revisar comportamiento de ExpressCheckout en Safari/iOS (Apple Pay)
 - Video del producto mostrando el juego de luz y sombra
 - Fecha estimada de entrega concreta en trust strip

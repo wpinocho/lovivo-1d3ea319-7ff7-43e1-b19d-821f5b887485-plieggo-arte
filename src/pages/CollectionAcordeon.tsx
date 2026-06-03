@@ -125,16 +125,27 @@ const CollectionAcordeon = () => {
       </section>
 
       {/* ─── PRODUCTOS GRID ─── */}
-      <section id="productos" className="py-14 md:py-20 bg-background">
+      <section id="productos" className="py-8 md:py-12 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          <div className="text-center mb-10">
+          <div className="text-center mb-5">
             <h2 className="font-heading text-3xl md:text-4xl font-bold tracking-tight text-foreground">
               Colección Acordeón
             </h2>
-            <p className="font-body text-sm text-muted-foreground mt-2">
-              Envío a toda México · Cada pieza es única
-            </p>
+            <div className="flex flex-wrap justify-center gap-2 mt-3">
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-foreground/5 text-foreground border border-border/60">
+                <Truck className="w-3 h-3 text-[#C16648]" /> Envío gratis
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-foreground/5 text-foreground border border-border/60">
+                <Hand className="w-3 h-3 text-[#C16648]" /> Hecho a mano
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-foreground/5 text-foreground border border-border/60">
+                <Star className="w-3 h-3 text-[#C16648]" /> 4.9 · +50 reseñas
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-foreground/5 text-foreground border border-border/60">
+                <RotateCcw className="w-3 h-3 text-[#C16648]" /> Devolución garantizada
+              </span>
+            </div>
           </div>
 
           {loading ? (

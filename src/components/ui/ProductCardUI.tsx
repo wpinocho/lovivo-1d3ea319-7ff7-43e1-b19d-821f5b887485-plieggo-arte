@@ -208,21 +208,22 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [], 
               </div>
 
               {/* Precio y CTA */}
-              <div className="flex items-end justify-between gap-1">
-                <div className="flex flex-col">
+              <div className="flex flex-col gap-2">
+                {/* Precio + tachado en la misma línea */}
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-heading text-foreground font-bold text-base md:text-lg leading-none">
                     {logic.formatMoney(logic.currentPrice)}
                   </span>
                   {logic.currentCompareAt && logic.currentCompareAt > logic.currentPrice && (
-                    <span className="font-body text-muted-foreground text-sm line-through mt-0.5">
+                    <span className="font-body text-muted-foreground text-sm line-through">
                       {logic.formatMoney(logic.currentCompareAt)}
                     </span>
                   )}
                 </div>
-                
+
                 <Button
                   size="sm"
-                  className="shrink-0 h-8 px-3 text-xs tracking-wide uppercase font-heading rounded-sm bg-[#C16648] hover:bg-[#C16648]/90 text-white border-0"
+                  className="w-full h-8 px-3 text-xs tracking-wide uppercase font-heading rounded-sm bg-[#C16648] hover:bg-[#C16648]/90 text-white border-0"
                   onClick={(e) => {
                     e.stopPropagation()
                     navigate(`/products/${logic.product.slug}`)
