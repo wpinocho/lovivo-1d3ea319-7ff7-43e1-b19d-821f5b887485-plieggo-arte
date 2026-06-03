@@ -326,7 +326,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
             </div>
 
             {/* ── INFO COLUMN (lg:col-span-5) ── */}
-            <div className="lg:col-span-5 space-y-4">
+            <div className="lg:col-span-5 space-y-3">
               {/* Title block */}
               <div className="space-y-3">
                 {vendor && (
@@ -421,7 +421,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
               )}
 
               {/* Craftsmanship story */}
-              <div className="py-3 border-y border-border/60">
+              <div className="py-2 border-y border-border/60">
                 <div className="flex flex-col sm:flex-row gap-4">
                   <div className="flex items-start gap-3 flex-1">
                     <Hand className="h-5 w-5 text-[#C16648] shrink-0 mt-0.5" />
