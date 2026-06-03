@@ -6,6 +6,7 @@ import { ProductBadge, type BadgeType } from "@/components/ProductBadge"
 import type { Product, PriceRule } from "@/lib/supabase"
 import { getBadgeForProduct } from "@/lib/product-badges"
 import { PriceRuleBadge } from "@/components/ui/PriceRuleBadge"
+import { ArrowRight } from "lucide-react"
 
 /**
  * EDITABLE UI COMPONENT - ProductCardUI
@@ -103,6 +104,11 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [], 
                     Agotado
                   </span>
                 )}
+              </div>
+
+              {/* Tap cue en móvil — visible solo en móvil, no en hover desktop */}
+              <div className="absolute bottom-2.5 right-2.5 z-10 flex items-center justify-center w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm md:hidden">
+                <ArrowRight className="w-3.5 h-3.5 text-white" />
               </div>
 
               {/* Overlay hover — gradiente anclado al fondo, arte visible en la parte superior */}
@@ -208,7 +214,7 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [], 
                     {logic.formatMoney(logic.currentPrice)}
                   </span>
                   {logic.currentCompareAt && logic.currentCompareAt > logic.currentPrice && (
-                    <span className="font-body text-muted-foreground text-xs line-through mt-0.5">
+                    <span className="font-body text-muted-foreground text-sm line-through mt-0.5">
                       {logic.formatMoney(logic.currentCompareAt)}
                     </span>
                   )}
@@ -216,14 +222,13 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [], 
                 
                 <Button
                   size="sm"
-                  variant="ghost"
-                  className="shrink-0 text-accent hover:text-accent/80 text-xs md:text-sm font-medium px-0 h-auto pb-0.5 underline underline-offset-2"
+                  className="shrink-0 h-8 px-3 text-xs tracking-wide uppercase font-heading rounded-sm bg-[#C16648] hover:bg-[#C16648]/90 text-white border-0"
                   onClick={(e) => {
                     e.stopPropagation()
                     navigate(`/products/${logic.product.slug}`)
                   }}
                 >
-                  Ver más
+                  Ver cuadro
                 </Button>
               </div>
 

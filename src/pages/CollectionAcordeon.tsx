@@ -124,30 +124,6 @@ const CollectionAcordeon = () => {
         </div>
       </section>
 
-      {/* ─── TRUST STRIP ─── */}
-      <section className="py-10 border-b border-border/40 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-            <div className="flex flex-col items-center text-center gap-2">
-              <Hand className="w-6 h-6 text-primary" />
-              <span className="font-body text-sm font-medium text-foreground">Hecho a mano en México</span>
-            </div>
-            <div className="flex flex-col items-center text-center gap-2">
-              <Sparkles className="w-6 h-6 text-primary" />
-              <span className="font-body text-sm font-medium text-foreground">Arte que cambia con la luz</span>
-            </div>
-            <div className="flex flex-col items-center text-center gap-2">
-              <Truck className="w-6 h-6 text-primary" />
-              <span className="font-body text-sm font-medium text-foreground">Envío asegurado</span>
-            </div>
-            <div className="flex flex-col items-center text-center gap-2">
-              <RotateCcw className="w-6 h-6 text-primary" />
-              <span className="font-body text-sm font-medium text-foreground">Devoluciones sin preguntas</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ─── PRODUCTOS GRID ─── */}
       <section id="productos" className="py-14 md:py-20 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -156,6 +132,9 @@ const CollectionAcordeon = () => {
             <h2 className="font-heading text-3xl md:text-4xl font-bold tracking-tight text-foreground">
               Colección Acordeón
             </h2>
+            <p className="font-body text-sm text-muted-foreground mt-2">
+              Envío a toda México · Cada pieza es única
+            </p>
           </div>
 
           {loading ? (
@@ -186,6 +165,28 @@ const CollectionAcordeon = () => {
               </p>
             </div>
           )}
+
+          {/* ─── TRUST STRIP ─── */}
+          <div className="mt-14 pt-10 border-t border-border/40">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+              <div className="flex flex-col items-center text-center gap-2">
+                <Hand className="w-6 h-6 text-primary" />
+                <span className="font-body text-sm font-medium text-foreground">Hecho a mano en México</span>
+              </div>
+              <div className="flex flex-col items-center text-center gap-2">
+                <Sparkles className="w-6 h-6 text-primary" />
+                <span className="font-body text-sm font-medium text-foreground">Arte que cambia con la luz</span>
+              </div>
+              <div className="flex flex-col items-center text-center gap-2">
+                <Truck className="w-6 h-6 text-primary" />
+                <span className="font-body text-sm font-medium text-foreground">Envío asegurado</span>
+              </div>
+              <div className="flex flex-col items-center text-center gap-2">
+                <RotateCcw className="w-6 h-6 text-primary" />
+                <span className="font-body text-sm font-medium text-foreground">Devoluciones sin preguntas</span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

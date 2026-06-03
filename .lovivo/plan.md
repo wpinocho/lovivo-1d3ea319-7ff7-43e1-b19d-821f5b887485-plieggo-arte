@@ -16,24 +16,18 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 - **PDP variant buttons**: `h-8 px-3 text-xs tracking-wide rounded-sm` — compactos, estilo editorial
 - **Sticky bar**: una sola fila compacta, un solo botón terracota. Left: solo thumbnail. Botón: icono carrito + "Agregar al carrito" + precio actual + precio tachado. Fondo crema #F2EFE4/95
+- **ProductCard CTA**: botón terracota sólido `h-8 px-3 text-xs tracking-wide uppercase rounded-sm bg-[#C16648]` con texto "Ver cuadro"
+- **ProductCard compare-at price**: `text-sm` (no text-xs) — mismo tamaño visual que referencia Desenio
 
 ## 3. Active Plan
-**Estado:** 🔧 En progreso — Optimizar click-through rate /coleccion-acordeon → PDP
-
-### Cambios acordados (ProductCardUI.tsx + CollectionAcordeon.tsx):
-
-#### A) ProductCardUI.tsx — 3 cambios
-1. **CTA "Ver cuadro"**: Cambiar "Ver más" a "Ver cuadro". Hacer el botón más visible pero elegante. Sugerencia: pequeño botón sólido terracota o con borde, texto `text-xs tracking-wide uppercase font-heading`. Sin ghost/underline.
-2. **Precio tachado más visible**: Cambiar `text-xs` a `text-sm` para el compare-at price. Mantener `line-through` y `text-muted-foreground`. El objetivo es que ambos precios tengan un tamaño más similar (como referencia Desenio/imagen compartida por usuario).
-3. **Tap cue en móvil**: En la imagen de la tarjeta, agregar un pequeño overlay muy sutil en la esquina inferior derecha visible solo en móvil (no en hover) — ej. un ícono de flecha/ojo pequeño — para indicar que es tappable. O alternativamente, un leve borde/sombra persistente en móvil.
-
-#### B) CollectionAcordeon.tsx — 1 cambio de layout
-4. **Mover trust strip debajo de la grilla de productos**: La sección de trust strip (iconos: hecho a mano, arte que cambia con la luz, envío, devoluciones) actualmente aparece ENTRE el hero y los productos. En móvil esto empuja la grilla de productos completamente fuera del viewport al cargar. Mover el trust strip a después de la grilla `#productos`, antes de la sección editorial split.
-
-#### Cambio opcional (bajo prioridad):
-5. **Subtítulo en la grilla**: Agregar debajo del h2 "Colección Acordeón" una línea pequeña tipo `font-body text-sm text-muted-foreground` que diga algo como "Envío a toda México · Cada pieza es única".
+**Estado:** ✅ Completado — Optimización click-through /coleccion-acordeon → PDP (4 cambios implementados)
 
 ## 4. Recent Changes
+- **2026-06-03** — ProductCardUI.tsx: "Ver más" → "Ver cuadro" (botón terracota sólido, h-8, rounded-sm)
+- **2026-06-03** — ProductCardUI.tsx: compare-at price text-xs → text-sm (más visible, estilo Desenio)
+- **2026-06-03** — ProductCardUI.tsx: tap cue en móvil — ícono flecha en esquina inferior derecha imagen (visible solo en móvil, md:hidden)
+- **2026-06-03** — CollectionAcordeon.tsx: Trust strip movido debajo de la grilla de productos (ya no empuja cuadros fuera del viewport en móvil)
+- **2026-06-03** — CollectionAcordeon.tsx: Subtítulo "Envío a toda México · Cada pieza es única" debajo del h2 de la grilla
 - **2026-06-03** — Plan: optimización click-through /coleccion-acordeon → PDP (4 cambios: CTA, precios, trust strip position, mobile tap cue)
 - **2026-06-03** — ProductPageUI.tsx: Sticky bar — precios removidos del lado izquierdo; botón muestra: icono carrito + texto + precio actual + precio tachado
 - **2026-06-03** — ProductPageUI.tsx: Sticky bar rediseñado → una fila, un botón terracota, precios inline (precio tachado en info izquierda Y dentro del botón)
@@ -44,11 +38,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-06-01** — Diagnóstico performance móvil /coleccion-acordeon: score 67. Plan de 5 fixes identificado.
 - **2026-05-29** — Fix carousel móvil (ProductPageUI.tsx): `setApi`, `carouselApi?.scrollTo(0)` en useEffect al cambiar variante
 - **2026-05-29** — Identificado bug: carrusel móvil en PDP no resetea a imagen 1 al cambiar variante
-- **2026-05-28** — Diagnóstico: nombre/apellido/teléfono llegan null en clients-upsert (stale state bug en onAddressChange)
-- **2026-05-28** — Fix clients-upsert keystroke: blur pattern en CheckoutAdapter + CheckoutUI + StripePayment
-- **2026-05-26** — AnnouncementBar.tsx + ProductFAQ.tsx: Entrega cambiada de 10-15 a 5-7 días hábiles
-- **2026-05-26** — ProductFAQ.tsx: Eliminado "Protección de acrílico 3mm" de FAQ "¿El marco viene incluido?"
-- **2026-05-25** — ThankYou.tsx: Fix 1 variant_name con URLs → cleanVariantName() aplicado
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
@@ -72,7 +61,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Stripe Link NO está activado en la cuenta — `link` removido del payload permanentemente
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** Optimizar click-through /coleccion-acordeon → PDP: mover trust strip debajo de la grilla, "Ver cuadro" button, precio tachado más visible (archivos: ProductCardUI.tsx, CollectionAcordeon.tsx)
 - **[ALTA]** Performance móvil: 3 fixes pendientes (mover fuentes Google a HTML, lazy-load InspirationCarousel, fetchpriority en hero image)
 - **[ALTA]** Fix clients-upsert: nombre/apellido/teléfono no llegan (CheckoutAdapter + CheckoutUI)
 - **[ALTA]** Probar checkout en producción (plieggo.com) — verificar thank you page carga con info de la orden
@@ -83,6 +71,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **[MEDIA]** Agregar fotos a más reviews específicas en PDP
 - **[MEDIA]** Añadir más fotos a Luna Beige (detalle, textura, en sala)
 - **[MEDIA]** Indicador de stock "Solo X disponibles" para Edición Limitada
+- **[BAJA]** Medir impacto en PostHog de los cambios del 2026-06-03 (/coleccion-acordeon → PDP CTR)
 - Revisar comportamiento de ExpressCheckout en Safari/iOS (Apple Pay)
 - Video del producto mostrando el juego de luz y sombra
 - Fecha estimada de entrega concreta en trust strip
