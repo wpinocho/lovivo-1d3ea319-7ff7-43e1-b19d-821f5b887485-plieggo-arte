@@ -740,31 +740,23 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
           >
             <div className="max-w-7xl mx-auto px-4 py-2.5">
               <div className="flex items-center justify-between gap-3">
-                {/* Left: thumbnail + name + prices */}
-                <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                  <div className="w-9 h-9 rounded-sm overflow-hidden bg-muted/30 shrink-0">
+                {/* Left: thumbnail only */}
+                <div className="flex items-center shrink-0">
+                  <div className="w-9 h-9 rounded-sm overflow-hidden bg-muted/30">
                     <img src={displayImage} alt="" className="w-full h-full object-contain" />
                   </div>
-                  <div className="min-w-0 hidden sm:block">
-                    <p className="text-xs font-medium truncate text-foreground/60 leading-tight">{logic.product.title}</p>
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="text-sm font-semibold text-foreground">{logic.formatMoney(logic.currentPrice)}</span>
-                    {logic.currentCompareAt && logic.currentCompareAt > logic.currentPrice && (
-                      <span className="text-xs text-muted-foreground line-through">{logic.formatMoney(logic.currentCompareAt)}</span>
-                    )}
-                  </div>
                 </div>
-                {/* Right: single CTA */}
+                {/* Right: single CTA with prices inside */}
                 <Button
                   onClick={logic.handleAddToCart}
                   size="sm"
-                  className="shrink-0 h-9 px-4 text-xs tracking-wide rounded-sm bg-[#C16648] hover:bg-[#a85538] text-white border-0"
+                  className="shrink-0 h-9 px-4 text-xs tracking-wide rounded-sm bg-[#C16648] hover:bg-[#a85538] text-white border-0 flex items-center gap-2"
                 >
-                  <ShoppingCart className="mr-1.5 h-3.5 w-3.5" />
-                  Agregar al carrito
+                  <span className="font-semibold">{logic.formatMoney(logic.currentPrice)}</span>
+                  <ShoppingCart className="h-3.5 w-3.5" />
+                  <span>Agregar al carrito</span>
                   {logic.currentCompareAt && logic.currentCompareAt > logic.currentPrice && (
-                    <span className="ml-1.5 opacity-70 line-through font-normal">{logic.formatMoney(logic.currentCompareAt)}</span>
+                    <span className="opacity-70 line-through font-normal">{logic.formatMoney(logic.currentCompareAt)}</span>
                   )}
                 </Button>
               </div>

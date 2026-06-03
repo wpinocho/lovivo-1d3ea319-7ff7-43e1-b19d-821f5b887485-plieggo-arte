@@ -15,12 +15,13 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Review photos: `aspect-[4/5]` (ReviewCard y GeneralReviewCard) — menos alto que 3/4
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 - **PDP variant buttons**: `h-8 px-3 text-xs tracking-wide rounded-sm` — compactos, estilo editorial
-- **Sticky bar**: una sola fila compacta, un solo botón terracota "Agregar al carrito" con precio tachado dentro, fondo crema #F2EFE4/95
+- **Sticky bar**: una sola fila compacta, un solo botón terracota. Left: solo thumbnail. Botón: precio actual + icono carrito + "Agregar al carrito" + precio tachado. Fondo crema #F2EFE4/95
 
 ## 3. Active Plan
-**Estado:** ✅ Completado — Rediseño sticky add-to-cart bar implementado
+**Estado:** ✅ Completado — Sticky bar final: thumbnail solo a la izquierda, precios solo dentro del botón
 
 ## 4. Recent Changes
+- **2026-06-03** — ProductPageUI.tsx: Sticky bar — precios removidos del lado izquierdo; botón muestra: precio actual + icono + texto + precio tachado
 - **2026-06-03** — ProductPageUI.tsx: Sticky bar rediseñado → una fila, un botón terracota, precios inline (precio tachado en info izquierda Y dentro del botón)
 - **2026-06-03** — Plan: Rediseño sticky bar → una sola fila, un botón, precios inline (inspiración Desenio)
 - **2026-06-03** — ProductPageUI.tsx: PDP spacing comprimido + variant buttons más compactos (h-8, rounded-sm)
@@ -35,7 +36,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-05-26** — ProductFAQ.tsx: Eliminado "Protección de acrílico 3mm" de FAQ "¿El marco viene incluido?"
 - **2026-05-25** — ThankYou.tsx: Fix 1 variant_name con URLs → cleanVariantName() aplicado
 - **2026-05-25** — ThankYou.tsx: Fix 2 upsell → ahora usa colección top-sellers en lugar de productos genéricos
-- **2026-05-25** — App.tsx: agregadas rutas `/gracias` y `/gracias/:orderId` → ThankYou (fix 404 post-pago)
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
