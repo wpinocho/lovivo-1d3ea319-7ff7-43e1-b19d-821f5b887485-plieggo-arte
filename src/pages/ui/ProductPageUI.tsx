@@ -734,56 +734,39 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
         {logic.inStock && (
           <div
             className={cn(
-              "fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-t shadow-lg transition-transform duration-300 ease-out pb-[env(safe-area-inset-bottom)]",
+              "fixed bottom-0 left-0 right-0 z-50 bg-[#F2EFE4]/95 backdrop-blur-sm border-t border-border/40 shadow-md transition-transform duration-300 ease-out pb-[env(safe-area-inset-bottom)]",
               ctaInView ? "translate-y-full" : "translate-y-0",
             )}
           >
-            <div className="max-w-7xl mx-auto px-4 py-3">
-              {/* Desktop */}
-              <div className="hidden md:flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-12 h-12 rounded-md overflow-hidden bg-muted/30 shrink-0">
+            <div className="max-w-7xl mx-auto px-4 py-2.5">
+              <div className="flex items-center justify-between gap-3">
+                {/* Left: thumbnail + name + prices */}
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <div className="w-9 h-9 rounded-sm overflow-hidden bg-muted/30 shrink-0">
                     <img src={displayImage} alt="" className="w-full h-full object-contain" />
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="font-medium truncate text-sm">{logic.product.title}</h3>
-                    <span className="font-semibold text-base">
-                      {logic.formatMoney(logic.currentPrice)}
-                    </span>
+                  <div className="min-w-0 hidden sm:block">
+                    <p className="text-xs font-medium truncate text-foreground/60 leading-tight">{logic.product.title}</p>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-sm font-semibold text-foreground">{logic.formatMoney(logic.currentPrice)}</span>
+                    {logic.currentCompareAt && logic.currentCompareAt > logic.currentPrice && (
+                      <span className="text-xs text-muted-foreground line-through">{logic.formatMoney(logic.currentCompareAt)}</span>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <Button onClick={logic.handleBuyNow} size="default">
-                    Comprar ahora
-                  </Button>
-                  <Button onClick={logic.handleAddToCart} variant="outline" size="default">
-                    <ShoppingCart className="mr-2 h-4 w-4" />
-                    Agregar al carrito
-                  </Button>
-                </div>
-              </div>
-              {/* Mobile */}
-              <div className="md:hidden space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 rounded-md overflow-hidden bg-muted/30 shrink-0">
-                    <img src={displayImage} alt="" className="w-full h-full object-contain" />
-                  </div>
-                  <div className="flex items-center justify-between gap-2 flex-1 min-w-0">
-                    <h3 className="font-medium text-sm truncate">{logic.product.title}</h3>
-                    <span className="font-semibold shrink-0 text-sm">
-                      {logic.formatMoney(logic.currentPrice)}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button onClick={logic.handleBuyNow} size="sm" className="flex-1">
-                    Comprar ahora
-                  </Button>
-                  <Button onClick={logic.handleAddToCart} variant="outline" size="sm" className="flex-1">
-                    <ShoppingCart className="mr-1 h-3.5 w-3.5" />
-                    Agregar
-                  </Button>
-                </div>
+                {/* Right: single CTA */}
+                <Button
+                  onClick={logic.handleAddToCart}
+                  size="sm"
+                  className="shrink-0 h-9 px-4 text-xs tracking-wide rounded-sm bg-[#C16648] hover:bg-[#a85538] text-white border-0"
+                >
+                  <ShoppingCart className="mr-1.5 h-3.5 w-3.5" />
+                  Agregar al carrito
+                  {logic.currentCompareAt && logic.currentCompareAt > logic.currentPrice && (
+                    <span className="ml-1.5 opacity-70 line-through font-normal">{logic.formatMoney(logic.currentCompareAt)}</span>
+                  )}
+                </Button>
               </div>
             </div>
           </div>
