@@ -19,11 +19,15 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **ProductCard CTA**: botón terracota sólido `w-full h-8 px-3 text-xs tracking-wide uppercase rounded-sm bg-[#C16648]` — full width, debajo de los precios
 - **ProductCard price layout**: precio y precio tachado en la MISMA fila horizontal (`flex-row items-center gap-2`), botón en línea separada abajo ✅ APLICADO
 - **FloatingWhatsApp**: solo en home (`/`) — eliminado de colecciones y demás páginas
+- **Collection page layout**: Grid primero (h1 + badges) → Trust strip (dentro del mismo section) → Hero editorial → Reviews → Editorial split → CTA → Carousel ✅ APLICADO EN TODAS
 
 ## 3. Active Plan
-**Estado:** ✅ Fixes aplicados — en producción desde 2026-06-03
+**Estado:** ✅ Layout unificado en todas las colecciones — en producción desde 2026-06-03
 
 ## 4. Recent Changes
+- **2026-06-03** — AllProducts.tsx: grid primero + badges + trust strip dentro → hero abajo (layout unificado)
+- **2026-06-03** — TopSellers.tsx: grid primero + badges + trust strip dentro → hero abajo (layout unificado)
+- **2026-06-03** — CollectionEspacio.tsx: grid primero + badges + trust strip dentro → hero abajo (layout unificado)
 - **2026-06-03** — CollectionAcordeon.tsx: Hero movido DEBAJO del grid de productos (users ven cuadros inmediatamente)
 - **2026-06-03** — EcommerceTemplate.tsx: FloatingWhatsApp solo en home (`/`) — quitado de colecciones y otras páginas
 - **2026-06-03** — CollectionAcordeon.tsx: h1 ahora es "Colección Acordeón" (encabezado del grid), hero usa h2
@@ -35,8 +39,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-06-03** — ProductCardUI.tsx: tap cue en móvil — ícono flecha en esquina inferior derecha imagen (visible solo en móvil, md:hidden)
 - **2026-06-03** — CollectionAcordeon.tsx: Trust strip movido debajo de la grilla de productos
 - **2026-06-03** — ProductPageUI.tsx: Sticky bar rediseñado → una fila, un botón terracota, precios inline
-- **2026-06-03** — ProductPageUI.tsx: PDP spacing comprimido + variant buttons más compactos (h-8, rounded-sm)
-- **2026-05-29** — Fix carousel móvil (ProductPageUI.tsx): `setApi`, `carouselApi?.scrollTo(0)` en useEffect al cambiar variante
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
@@ -45,6 +47,8 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - TopSellers HERO_IMAGE + EDITORIAL_IMAGE: misma imagen que hero slide 1
 - **CollectionAcordeon HERO_IMAGE**: `...1779296069343-1i4gabj0it4.webp`
 - **CollectionAcordeon EDITORIAL_IMAGE**: `...1780499559157-3zjpthekjcj.webp` (recámara lifestyle con cuadro acordeón en pared — actualizada 2026-06-03)
+- **AllProducts HERO_IMAGE**: `...1779296069343-2ifge8n87sv.webp`
+- **CollectionEspacio HERO_IMAGE**: `...1779296069343-1ra0u85wh3j.webp`
 - Logo: `/public/logo.svg`
 - **About Studio 1**: `...1779325504866-5bg4llquutd.webp`
 - **About Studio 2**: `...1779325504867-4wurhzmqhfg.webp`

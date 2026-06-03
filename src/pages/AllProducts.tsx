@@ -76,81 +76,28 @@ const AllProducts = () => {
   return (
     <EcommerceTemplate>
 
-      {/* ─── HERO EDITORIAL COMPACTO ─── */}
-      <section
-        className="relative flex items-end overflow-hidden"
-        style={{ height: 'clamp(340px, 55vh, 520px)' }}
-      >
-        <img
-          src={HERO_IMAGE}
-          alt="Todos los cuadros Plieggo"
-          className="absolute inset-0 w-full h-full object-cover object-center"
-          loading="eager"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/10" />
-
-        <div className="relative z-10 w-full px-6 sm:px-10 lg:px-16 pb-10 md:pb-14">
-          <div className="flex items-center gap-1.5 mb-3">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-            ))}
-            <span className="font-body text-xs text-white/90 ml-1">4.9 · +50 hogares transformados</span>
-          </div>
-
-          <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight tracking-tight mb-2 max-w-lg">
-            Arte hecho a mano<br className="hidden sm:block" /> que transforma tu espacio
-          </h1>
-
-          <p className="font-body text-sm sm:text-base text-white/80 mb-6 max-w-md">
-            Explora toda la colección — piezas únicas en papel con técnica de pliegue artesanal.
-          </p>
-
-          <a
-            href="#productos"
-            onClick={(e) => {
-              e.preventDefault()
-              document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth' })
-            }}
-            className="inline-flex items-center gap-2 font-heading font-semibold text-sm px-5 py-2.5 rounded-sm bg-white text-foreground hover:bg-white/90 transition-colors"
-          >
-            Ver cuadros
-            <ArrowRight className="w-4 h-4" />
-          </a>
-        </div>
-      </section>
-
-      {/* ─── TRUST STRIP ─── */}
-      <section className="py-10 border-b border-border/40 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-            <div className="flex flex-col items-center text-center gap-2">
-              <Hand className="w-6 h-6 text-primary" />
-              <span className="font-body text-sm font-medium text-foreground">Hecho a mano en México</span>
-            </div>
-            <div className="flex flex-col items-center text-center gap-2">
-              <Sparkles className="w-6 h-6 text-primary" />
-              <span className="font-body text-sm font-medium text-foreground">Arte que cambia con la luz</span>
-            </div>
-            <div className="flex flex-col items-center text-center gap-2">
-              <Truck className="w-6 h-6 text-primary" />
-              <span className="font-body text-sm font-medium text-foreground">Envío asegurado</span>
-            </div>
-            <div className="flex flex-col items-center text-center gap-2">
-              <RotateCcw className="w-6 h-6 text-primary" />
-              <span className="font-body text-sm font-medium text-foreground">Devoluciones sin preguntas</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ─── PRODUCTOS GRID ─── */}
-      <section id="productos" className="py-14 md:py-20 bg-background">
+      <section id="productos" className="py-8 md:py-12 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          <div className="text-center mb-10">
-            <h2 className="font-heading text-3xl md:text-4xl font-bold tracking-tight text-foreground">
-              Toda la colección
-            </h2>
+          <div className="text-center mb-5">
+            <h1 className="font-heading text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+              Todos los cuadros
+            </h1>
+            <div className="flex flex-wrap justify-center gap-2 mt-3">
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-foreground/5 text-foreground border border-border/60">
+                <Truck className="w-3 h-3 text-[#C16648]" /> Envío gratis
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-foreground/5 text-foreground border border-border/60">
+                <Hand className="w-3 h-3 text-[#C16648]" /> Hecho a mano
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-foreground/5 text-foreground border border-border/60">
+                <Star className="w-3 h-3 text-[#C16648]" /> 4.9 · +50 reseñas
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-foreground/5 text-foreground border border-border/60">
+                <RotateCcw className="w-3 h-3 text-[#C16648]" /> Devolución garantizada
+              </span>
+            </div>
           </div>
 
           {loading ? (
@@ -187,6 +134,59 @@ const AllProducts = () => {
               </p>
             </div>
           )}
+
+          {/* ─── TRUST STRIP ─── */}
+          <div className="mt-14 pt-10 border-t border-border/40">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+              <div className="flex flex-col items-center text-center gap-2">
+                <Hand className="w-6 h-6 text-primary" />
+                <span className="font-body text-sm font-medium text-foreground">Hecho a mano en México</span>
+              </div>
+              <div className="flex flex-col items-center text-center gap-2">
+                <Sparkles className="w-6 h-6 text-primary" />
+                <span className="font-body text-sm font-medium text-foreground">Arte que cambia con la luz</span>
+              </div>
+              <div className="flex flex-col items-center text-center gap-2">
+                <Truck className="w-6 h-6 text-primary" />
+                <span className="font-body text-sm font-medium text-foreground">Envío asegurado</span>
+              </div>
+              <div className="flex flex-col items-center text-center gap-2">
+                <RotateCcw className="w-6 h-6 text-primary" />
+                <span className="font-body text-sm font-medium text-foreground">Devoluciones sin preguntas</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── HERO EDITORIAL ─── */}
+      <section
+        className="relative flex items-end overflow-hidden"
+        style={{ height: 'clamp(300px, 50vh, 480px)' }}
+      >
+        <img
+          src={HERO_IMAGE}
+          alt="Todos los cuadros Plieggo"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/10" />
+
+        <div className="relative z-10 w-full px-6 sm:px-10 lg:px-16 pb-10 md:pb-14">
+          <div className="flex items-center gap-1.5 mb-3">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+            ))}
+            <span className="font-body text-xs text-white/90 ml-1">4.9 · +50 hogares transformados</span>
+          </div>
+
+          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight tracking-tight mb-2 max-w-lg">
+            Arte hecho a mano<br className="hidden sm:block" /> que transforma tu espacio
+          </h2>
+
+          <p className="font-body text-sm sm:text-base text-white/80 max-w-md">
+            Explora toda la colección — piezas únicas en papel con técnica de pliegue artesanal.
+          </p>
         </div>
       </section>
 
