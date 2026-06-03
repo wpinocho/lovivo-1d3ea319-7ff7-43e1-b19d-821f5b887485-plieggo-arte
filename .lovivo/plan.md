@@ -16,13 +16,70 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
 - **PDP variant buttons**: `h-8 px-3 text-xs tracking-wide rounded-sm` — compactos, estilo editorial
 - **Sticky bar**: una sola fila compacta, un solo botón terracota. Left: solo thumbnail. Botón: icono carrito + "Agregar al carrito" + precio actual + precio tachado. Fondo crema #F2EFE4/95
-- **ProductCard CTA**: botón terracota sólido `h-8 px-3 text-xs tracking-wide uppercase rounded-sm bg-[#C16648]` con texto "Ver cuadro"
-- **ProductCard compare-at price**: `text-sm` (no text-xs) — mismo tamaño visual que referencia Desenio
+- **ProductCard CTA**: botón terracota sólido `w-full h-8 px-3 text-xs tracking-wide uppercase rounded-sm bg-[#C16648]` — full width, debajo de los precios
+- **ProductCard price layout**: precio y precio tachado en la MISMA fila horizontal (`flex-row items-center gap-2`), botón en línea separada abajo
 
 ## 3. Active Plan
-**Estado:** ✅ Completado — Optimización click-through /coleccion-acordeon → PDP (4 cambios implementados)
+**Estado:** 🔧 Pendiente en Craft Mode — 3 fixes CollectionAcordeon + ProductCard
+
+### Fix 1: Reducir padding excesivo en sección de productos (CollectionAcordeon.tsx)
+- Línea 128: `py-14 md:py-20` → `py-8 md:py-12`
+- Línea 131: `mb-10` → `mb-5`
+
+### Fix 2: Layout ProductCard móvil (ProductCardUI.tsx, líneas 210–233)
+Cambiar el bloque "Precio y CTA" de flex-row (precio izq, botón der) a flex-col (precio arriba, botón abajo full-width):
+
+```jsx
+{/* Precio y CTA */}
+<div className="flex flex-col gap-2">
+  {/* Precio + tachado en la MISMA línea horizontal */}
+  <div className="flex items-center gap-2 flex-wrap">
+    <span className="font-heading text-foreground font-bold text-base md:text-lg leading-none">
+      {logic.formatMoney(logic.currentPrice)}
+    </span>
+    {logic.currentCompareAt && logic.currentCompareAt > logic.currentPrice && (
+      <span className="font-body text-muted-foreground text-sm line-through">
+        {logic.formatMoney(logic.currentCompareAt)}
+      </span>
+    )}
+  </div>
+
+  <Button
+    size="sm"
+    className="w-full h-8 px-3 text-xs tracking-wide uppercase font-heading rounded-sm bg-[#C16648] hover:bg-[#C16648]/90 text-white border-0"
+    onClick={(e) => {
+      e.stopPropagation()
+      navigate(`/products/${logic.product.slug}`)
+    }}
+  >
+    Ver cuadro
+  </Button>
+</div>
+```
+
+### Fix 3: Reemplazar subtítulo genérico con badges (CollectionAcordeon.tsx, línea 135–137)
+Reemplazar el `<p>` de "Envío a toda México · Cada pieza es única" con badges inline:
+
+```jsx
+<div className="flex flex-wrap justify-center gap-2 mt-3">
+  <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-foreground/5 text-foreground border border-border/60">
+    <Truck className="w-3 h-3 text-[#C16648]" /> Envío gratis
+  </span>
+  <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-foreground/5 text-foreground border border-border/60">
+    <Hand className="w-3 h-3 text-[#C16648]" /> Hecho a mano
+  </span>
+  <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-foreground/5 text-foreground border border-border/60">
+    <Star className="w-3 h-3 text-[#C16648]" /> 4.9 · +50 reseñas
+  </span>
+  <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full bg-foreground/5 text-foreground border border-border/60">
+    <RotateCcw className="w-3 h-3 text-[#C16648]" /> Devolución garantizada
+  </span>
+</div>
+```
+Nota: Los iconos `Truck`, `Hand`, `Star`, `RotateCcw` ya están importados en CollectionAcordeon.tsx (línea 8).
 
 ## 4. Recent Changes
+- **2026-06-03** — Plan: 3 fixes ProductCard layout + CollectionAcordeon padding + badges subtítulo
 - **2026-06-03** — ProductCardUI.tsx: "Ver más" → "Ver cuadro" (botón terracota sólido, h-8, rounded-sm)
 - **2026-06-03** — ProductCardUI.tsx: compare-at price text-xs → text-sm (más visible, estilo Desenio)
 - **2026-06-03** — ProductCardUI.tsx: tap cue en móvil — ícono flecha en esquina inferior derecha imagen (visible solo en móvil, md:hidden)
@@ -37,7 +94,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-06-03** — CollectionAcordeon.tsx: EDITORIAL_IMAGE actualizada a nueva foto lifestyle (recámara con cuadro acordeón en pared)
 - **2026-06-01** — Diagnóstico performance móvil /coleccion-acordeon: score 67. Plan de 5 fixes identificado.
 - **2026-05-29** — Fix carousel móvil (ProductPageUI.tsx): `setApi`, `carouselApi?.scrollTo(0)` en useEffect al cambiar variante
-- **2026-05-29** — Identificado bug: carrusel móvil en PDP no resetea a imagen 1 al cambiar variante
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
