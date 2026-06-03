@@ -326,7 +326,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
             </div>
 
             {/* ── INFO COLUMN (lg:col-span-5) ── */}
-            <div className="lg:col-span-5 space-y-6">
+            <div className="lg:col-span-5 space-y-4">
               {/* Title block */}
               <div className="space-y-3">
                 {vendor && (
@@ -384,7 +384,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                 )}
 
                 {/* Price block */}
-                <div className="flex items-baseline gap-3 pt-1">
+                <div className="flex items-baseline gap-3">
                   <span className="text-3xl font-semibold tracking-tight">
                     {logic.formatMoney(logic.currentPrice)}
                   </span>
@@ -542,9 +542,9 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
 
               {/* Product Options */}
               {logic.product.options && logic.product.options.length > 0 && (
-                <div className="space-y-5">
+                <div className="space-y-3">
                   {logic.product.options.map((option: any) => (
-                    <div key={option.name} className="space-y-2.5">
+                    <div key={option.name} className="space-y-2">
                       <div className="flex items-baseline justify-between">
                         <Label className="text-sm font-medium uppercase tracking-wider">
                           {option.name}
@@ -569,7 +569,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                               disabled={!isAvailable}
                               onClick={() => logic.handleOptionSelect(option.name, value)}
                               className={cn(
-                                "min-w-[3rem] px-4 h-11 rounded-md border text-sm font-medium transition-all",
+                                "min-w-[2.5rem] px-3 h-8 rounded-sm border text-xs font-medium tracking-wide transition-all",
                                 isSelected
                                   ? "border-foreground bg-foreground text-background"
                                   : "border-border bg-background hover:border-foreground/60",

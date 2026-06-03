@@ -14,53 +14,21 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero CTA standard: `inline-flex gap-2 bg-white/10 backdrop-blur-sm border border-white/40 hover:bg-white hover:text-[#1B2A41] text-white px-6 py-2.5 text-xs tracking-[0.15em] uppercase rounded-none` — sin shadow, sin scale
 - Review photos: `aspect-[4/5]` (ReviewCard y GeneralReviewCard) — menos alto que 3/4
 - AboutPage: editorial split-screen (no rounded corners, full-bleed images, pilares 3-col, dark proceso section)
+- **PDP variant buttons**: `h-8 px-3 text-xs tracking-wide rounded-sm` — compactos, estilo editorial
 
 ## 3. Active Plan
-**Estado:** 🔧 Pendiente — Performance Fix (móvil /coleccion-acordeon)
+**Estado:** ✅ Completado — PDP spacing & variant selector refinement
 
-### Score actual: 67/100 móvil (Lighthouse)
-- FCP: 3.5s ❌ | LCP: 8.4s ❌ | TBT: 130ms ✅ | CLS: 0.001 ✅
-
-### Problemas identificados (en orden de impacto):
-
-#### FIX 1 — Google Fonts @import → `<link>` en HTML (render-blocking) ⚡ MAYOR IMPACTO
-**Archivo:** `src/index.css` línea 1 + `index.html`
-
-El `@import url('https://fonts.googleapis.com/css2?...')` dentro del CSS es RENDER-BLOCKING — el browser no puede pintar nada hasta que descargue y parsee ese CSS externo. Esto explica el FCP 3.5s.
-
-**Fix:**
-1. Eliminar la línea 1 de `src/index.css`:
-   ```css
-   /* ELIMINAR: */
-   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;500;600&display=swap');
-   ```
-
-2. Agregar en `index.html` dentro de `<head>`, ANTES del `<script>` de Vite:
-   ```html
-   <!-- Google Fonts — preconnect + stylesheet (no render-blocking) -->
-   <link rel="preconnect" href="https://fonts.googleapis.com">
-   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
-   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Crimson+Pro:wght@400;500;600&display=swap"></noscript>
-   ```
-
-#### FIX 2 — InspirationCarousel: no renderizar todas las imágenes en el DOM ⚡ GRAN IMPACTO
-**Archivo:** `src/components/InspirationCarousel.tsx`
-
-Actualmente renderiza 6 imágenes como `position: absolute; opacity: 0`. El browser las descarga TODAS aunque no sean visibles.
-
-**Fix:** Solo renderizar la imagen actual + precargar la siguiente con `<link rel="preload">` dinámico.
-
-#### FIX 3 — fetchpriority="high" en hero de /coleccion-acordeon
-**Archivo:** `src/pages/CollectionAcordeon.tsx` línea ~90
-
-#### FIX 4 — Actualizar preload en index.html al hero correcto
-**Archivo:** `index.html`
-
-#### FIX 5 — No cargar imagen hover en móvil (ProductCardUI)
-**Archivo:** `src/components/ui/ProductCardUI.tsx`
+### Cambios aplicados en `src/pages/ui/ProductPageUI.tsx`
+- `space-y-6` → `space-y-4` en columna info (reduce todos los gaps)
+- `pt-1` eliminado del bloque de precio
+- `space-y-5` → `space-y-3` en wrapper de opciones
+- `space-y-2.5` → `space-y-2` en cada opción individual
+- Botones variante: `h-11 px-4 text-sm rounded-md` → `h-8 px-3 text-xs tracking-wide rounded-sm`
 
 ## 4. Recent Changes
+- **2026-06-03** — ProductPageUI.tsx: PDP spacing comprimido + variant buttons más compactos (h-8, rounded-sm)
+- **2026-06-03** — Plan PDP: spacing fix + variant buttons compactos (decidido mantener orden precio→bullets→tamaño)
 - **2026-06-03** — CollectionAcordeon.tsx: EDITORIAL_IMAGE actualizada a nueva foto lifestyle (recámara con cuadro acordeón en pared)
 - **2026-06-01** — Diagnóstico performance móvil /coleccion-acordeon: score 67. Plan de 5 fixes identificado.
 - **2026-05-29** — Fix carousel móvil (ProductPageUI.tsx): `setApi`, `carouselApi?.scrollTo(0)` en useEffect al cambiar variante
@@ -74,8 +42,6 @@ Actualmente renderiza 6 imágenes como `position: absolute; opacity: 0`. El brow
 - **2026-05-25** — App.tsx: agregadas rutas `/gracias` y `/gracias/:orderId` → ThankYou (fix 404 post-pago)
 - **2026-05-25** — `link` removido de `buildPaymentMethodTypes` en StripePayment.tsx. Payload ahora: `["card", "oxxo", "customer_balance"]` (sin link)
 - **2026-05-25** — `cleanVariantName()` en CheckoutUI.tsx (desktop + mobile)
-- **2026-05-25** — ECE `onReady` en StripePayment.tsx: `eceAvailable` state, separador "o" condicional
-- **2026-05-25 Buy Now fix** — `useCheckout.ts` acepta `directItems?: any[]`
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
@@ -99,7 +65,7 @@ Actualmente renderiza 6 imágenes como `position: absolute; opacity: 0`. El brow
 - Stripe Link NO está activado en la cuenta — `link` removido del payload permanentemente
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** Performance móvil: 5 fixes identificados (ver Sección 3)
+- **[ALTA]** Performance móvil: 3 fixes pendientes (mover fuentes Google a HTML, lazy-load InspirationCarousel, fetchpriority en hero image)
 - **[ALTA]** Fix clients-upsert: nombre/apellido/teléfono no llegan (CheckoutAdapter + CheckoutUI)
 - **[ALTA]** Probar checkout en producción (plieggo.com) — verificar thank you page carga con info de la orden
 - **[ALTA]** Probar Google Pay / Apple Pay en producción en Chrome/Safari con tarjeta guardada
