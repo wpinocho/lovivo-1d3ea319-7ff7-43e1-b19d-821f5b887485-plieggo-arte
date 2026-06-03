@@ -752,9 +752,9 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                   size="sm"
                   className="shrink-0 h-9 px-4 text-xs tracking-wide rounded-sm bg-[#C16648] hover:bg-[#a85538] text-white border-0 flex items-center gap-2"
                 >
-                  <span className="font-semibold">{logic.formatMoney(logic.currentPrice)}</span>
                   <ShoppingCart className="h-3.5 w-3.5" />
                   <span>Agregar al carrito</span>
+                  <span className="font-semibold">{logic.formatMoney(logic.currentPrice)}</span>
                   {logic.currentCompareAt && logic.currentCompareAt > logic.currentPrice && (
                     <span className="opacity-70 line-through font-normal">{logic.formatMoney(logic.currentCompareAt)}</span>
                   )}
