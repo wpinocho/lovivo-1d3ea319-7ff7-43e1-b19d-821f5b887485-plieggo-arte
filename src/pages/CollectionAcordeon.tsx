@@ -11,7 +11,7 @@ import { plieggoGeneralReviews, getInitials } from '@/data/plieggo-general-revie
 type ProductWithCollection = Product & { collectionType?: 'acordeon' | 'prisma' }
 
 const HERO_IMAGE = 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779296069343-1i4gabj0it4.webp'
-const EDITORIAL_IMAGE = 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/acordeon.webp'
+const EDITORIAL_IMAGE = 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1780499559157-3zjpthekjcj.webp'
 
 const FEATURED_REVIEWS = [plieggoGeneralReviews[0], plieggoGeneralReviews[2]]
 
