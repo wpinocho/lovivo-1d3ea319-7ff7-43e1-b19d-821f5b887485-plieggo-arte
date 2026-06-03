@@ -17,16 +17,84 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **PDP variant buttons**: `h-8 px-3 text-xs tracking-wide rounded-sm` — compactos, estilo editorial
 
 ## 3. Active Plan
-**Estado:** ✅ Completado — PDP spacing & variant selector refinement
+**Estado:** 🔧 Pendiente — Rediseño sticky add-to-cart bar (inspirado en Desenio)
 
-### Cambios aplicados en `src/pages/ui/ProductPageUI.tsx`
-- `space-y-6` → `space-y-4` en columna info (reduce todos los gaps)
-- `pt-1` eliminado del bloque de precio
-- `space-y-5` → `space-y-3` en wrapper de opciones
-- `space-y-2.5` → `space-y-2` en cada opción individual
-- Botones variante: `h-11 px-4 text-sm rounded-md` → `h-8 px-3 text-xs tracking-wide rounded-sm`
+### Objetivo
+Simplificar el sticky bar de la PDP a una sola fila compacta con UN solo botón que incluya ambos precios.
+
+### Cambios en `src/pages/ui/ProductPageUI.tsx` (líneas 733–790)
+
+#### Diseño actual (problema)
+- Móvil: 2 filas — thumbnail+nombre+precio arriba, dos botones (Comprar ahora | Agregar) abajo → demasiado alto
+- Desktop: thumbnail+nombre+precio a la izquierda, dos botones a la derecha
+
+#### Diseño nuevo (inspirado en Desenio)
+- **Una sola fila** tanto en móvil como en desktop
+- **Un único botón**: "Agregar al carrito" con los dos precios inline
+  - Formato: `Agregar al carrito — $4,500 <s>$6,000</s>`
+  - El precio tachado se hace con `<span className="line-through opacity-60 ml-1">$6,000</span>` dentro del botón
+  - Solo mostrar el precio tachado si `logic.currentCompareAt` existe y es mayor al precio actual
+- **Barra más compacta**: `py-2.5` (actualmente `py-3`)
+- Mantener thumbnail pequeño (w-10 h-10) + nombre del producto
+- Eliminar el layout de `space-y-2` en móvil — todo en una sola fila `flex items-center gap-3`
+- Color del botón: terracota (#C16648) — mantener el estilo Plieggo, no negro como Desenio
+- La acción del botón: `logic.handleAddToCart` (agregar al carrito, no comprar ahora)
+
+#### Estructura nueva (ambas versiones mobile y desktop comparten el mismo layout):
+```
+[ 🖼️ ] [ Nombre producto ] [ $4,500 $6,000 ] → [ Agregar al carrito — $4,500 $6,000 ]
+```
+- El precio también se muestra en el lado izquierdo (nombre + precios) para que el usuario sepa el valor
+- Botón a la derecha (desktop) o abajo en una fila separada compacta (mobile si no cabe)
+
+#### Implementación técnica
+Reemplazar el bloque completo del sticky bar (líneas 733–790) con:
+
+```tsx
+{/* Sticky Add-to-Cart Bar */}
+{logic.inStock && (
+  <div
+    className={cn(
+      "fixed bottom-0 left-0 right-0 z-50 bg-[#F2EFE4]/95 backdrop-blur-sm border-t border-border/40 shadow-md transition-transform duration-300 ease-out pb-[env(safe-area-inset-bottom)]",
+      ctaInView ? "translate-y-full" : "translate-y-0",
+    )}
+  >
+    <div className="max-w-7xl mx-auto px-4 py-2.5">
+      <div className="flex items-center justify-between gap-3">
+        {/* Left: thumbnail + info */}
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          <div className="w-9 h-9 rounded-sm overflow-hidden bg-muted/30 shrink-0">
+            <img src={displayImage} alt="" className="w-full h-full object-contain" />
+          </div>
+          <div className="min-w-0 hidden sm:block">
+            <p className="text-xs font-medium truncate text-foreground/70">{logic.product.title}</p>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className="text-sm font-semibold">{logic.formatMoney(logic.currentPrice)}</span>
+            {logic.currentCompareAt && logic.currentCompareAt > logic.currentPrice && (
+              <span className="text-xs text-muted-foreground line-through">{logic.formatMoney(logic.currentCompareAt)}</span>
+            )}
+          </div>
+        </div>
+        {/* Right: single CTA */}
+        <Button
+          onClick={logic.handleAddToCart}
+          size="sm"
+          className="shrink-0 h-9 px-4 text-xs tracking-wide"
+        >
+          <ShoppingCart className="mr-1.5 h-3.5 w-3.5" />
+          Agregar al carrito
+        </Button>
+      </div>
+    </div>
+  </div>
+)}
+```
+
+**Nota:** En mobile el nombre se oculta con `hidden sm:block` para ahorrar espacio, pero los precios siempre se muestran.
 
 ## 4. Recent Changes
+- **2026-06-03** — Plan: Rediseño sticky bar → una sola fila, un botón, precios inline (inspiración Desenio)
 - **2026-06-03** — ProductPageUI.tsx: PDP spacing comprimido + variant buttons más compactos (h-8, rounded-sm)
 - **2026-06-03** — Plan PDP: spacing fix + variant buttons compactos (decidido mantener orden precio→bullets→tamaño)
 - **2026-06-03** — CollectionAcordeon.tsx: EDITORIAL_IMAGE actualizada a nueva foto lifestyle (recámara con cuadro acordeón en pared)
@@ -41,7 +109,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-05-25** — ThankYou.tsx: Fix 2 upsell → ahora usa colección top-sellers en lugar de productos genéricos
 - **2026-05-25** — App.tsx: agregadas rutas `/gracias` y `/gracias/:orderId` → ThankYou (fix 404 post-pago)
 - **2026-05-25** — `link` removido de `buildPaymentMethodTypes` en StripePayment.tsx. Payload ahora: `["card", "oxxo", "customer_balance"]` (sin link)
-- **2026-05-25** — `cleanVariantName()` en CheckoutUI.tsx (desktop + mobile)
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
