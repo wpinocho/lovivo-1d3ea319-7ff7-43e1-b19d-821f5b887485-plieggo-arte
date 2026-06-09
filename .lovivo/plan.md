@@ -24,20 +24,27 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 ## 3. Active Plan
 **Estado:** ✅ Layout unificado en todas las colecciones — en producción desde 2026-06-03
 
+### Fix pendiente: fbc timestamp en PixelContext
+**Archivo:** `src/contexts/PixelContext.tsx` línea 41
+**Problema:** `Date.now()` retorna milisegundos (13 dígitos), pero Meta espera Unix timestamp en **segundos** (10 dígitos) en el formato `fb.1.<seconds>.<fbclid>`. Meta lo detecta como "fbclid modificado" causando pérdida de atribución en ViewContent e InitiateCheckout.
+**Fix:** Cambiar `Date.now()` → `Math.floor(Date.now() / 1000)`
+
+```diff
+- const fbcValue = `fb.1.${Date.now()}.${fbclid}`;
++ const fbcValue = `fb.1.${Math.floor(Date.now() / 1000)}.${fbclid}`;
+```
+
 ## 4. Recent Changes
+- **2026-06-09** — DETECTADO: fbc timestamp en milisegundos en PixelContext.tsx — pendiente fix
 - **2026-06-03** — AllProducts.tsx: grid primero + badges + trust strip dentro → hero abajo (layout unificado)
 - **2026-06-03** — TopSellers.tsx: grid primero + badges + trust strip dentro → hero abajo (layout unificado)
 - **2026-06-03** — CollectionEspacio.tsx: grid primero + badges + trust strip dentro → hero abajo (layout unificado)
-- **2026-06-03** — CollectionAcordeon.tsx: Hero movido DEBAJO del grid de productos (users ven cuadros inmediatamente)
 - **2026-06-03** — EcommerceTemplate.tsx: FloatingWhatsApp solo en home (`/`) — quitado de colecciones y otras páginas
 - **2026-06-03** — CollectionAcordeon.tsx: h1 ahora es "Colección Acordeón" (encabezado del grid), hero usa h2
 - **2026-06-03** — ProductCardUI.tsx: layout precio+CTA → flex-col (precios en misma fila, botón full-width abajo)
 - **2026-06-03** — CollectionAcordeon.tsx: padding reducido `py-14 md:py-20` → `py-8 md:py-12`, `mb-10` → `mb-5`
-- **2026-06-03** — CollectionAcordeon.tsx: subtítulo genérico → 4 badges (Envío gratis, Hecho a mano, 4.9 +50 reseñas, Devolución garantizada)
-- **2026-06-03** — ProductCardUI.tsx: "Ver más" → "Ver cuadro" (botón terracota sólido, h-8, rounded-sm)
-- **2026-06-03** — ProductCardUI.tsx: compare-at price text-xs → text-sm (más visible, estilo Desenio)
-- **2026-06-03** — ProductCardUI.tsx: tap cue en móvil — ícono flecha en esquina inferior derecha imagen (visible solo en móvil, md:hidden)
-- **2026-06-03** — CollectionAcordeon.tsx: Trust strip movido debajo de la grilla de productos
+- **2026-06-03** — CollectionAcordeon.tsx: subtítulo genérico → 4 badges
+- **2026-06-03** — ProductCardUI.tsx: "Ver más" → "Ver cuadro" (botón terracota sólido)
 - **2026-06-03** — ProductPageUI.tsx: Sticky bar rediseñado → una fila, un botón terracota, precios inline
 
 ## 5. Image Inventory
@@ -46,7 +53,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Hero slide 3: video hero-paper-folding.mp4 (CTA → /galeria)
 - TopSellers HERO_IMAGE + EDITORIAL_IMAGE: misma imagen que hero slide 1
 - **CollectionAcordeon HERO_IMAGE**: `...1779296069343-1i4gabj0it4.webp`
-- **CollectionAcordeon EDITORIAL_IMAGE**: `...1780499559157-3zjpthekjcj.webp` (recámara lifestyle con cuadro acordeón en pared — actualizada 2026-06-03)
+- **CollectionAcordeon EDITORIAL_IMAGE**: `...1780499559157-3zjpthekjcj.webp`
 - **AllProducts HERO_IMAGE**: `...1779296069343-2ifge8n87sv.webp`
 - **CollectionEspacio HERO_IMAGE**: `...1779296069343-1ra0u85wh3j.webp`
 - Logo: `/public/logo.svg`
@@ -55,15 +62,17 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Review photos generales (plieggo-general-reviews.ts)** — 5 con foto (g4, g9, g10, g11, g12)
 
 ## 6. Known Issues
+- **[ALTA 2026-06-09]** PixelContext.tsx: fbc timestamp en milisegundos en lugar de segundos → Meta reporta "fbclid modificado" en ViewContent e InitiateCheckout
 - Handle de Colección Acordeón en DB tiene typo: `coleccin-acorden` — corregido en código
 - Video play error recurrente en hero (play/pause race condition) — no afecta funcionalidad
 - Luna Beige tiene solo 1 imagen en galería — necesita fotos de detalle y lifestyle
 - `plieggo-general-reviews.ts` tiene `photoUrl` vacío en g1, g2, g3, g5, g6, g7, g8 — pendiente
 - Slugs en code sin producto activo en DB: `acorden-terracota-vibrante`, `acorden-crema-natural`, `acorden-morado-lavanda`, `acorden-morado-elegante`, `estrellas`
-- ECE (Apple Pay / Google Pay) no aparece en el preview (esperado: preview usa iframe sin HTTPS real)
+- ECE (Apple Pay / Google Pay) no aparece en el preview (esperado)
 - Stripe Link NO está activado en la cuenta — `link` removido del payload permanentemente
 
 ## 7. Pending / Future Sessions
+- **[ALTA]** Fix fbc: `Date.now()` → `Math.floor(Date.now() / 1000)` en PixelContext.tsx línea 41
 - **[ALTA]** Performance móvil: 3 fixes pendientes (mover fuentes Google a HTML, lazy-load InspirationCarousel, fetchpriority en hero image)
 - **[ALTA]** Fix clients-upsert: nombre/apellido/teléfono no llegan (CheckoutAdapter + CheckoutUI)
 - **[ALTA]** Probar checkout en producción (plieggo.com) — verificar thank you page carga con info de la orden
@@ -71,7 +80,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **[ALTA]** Verificar domain verification para Apple Pay en Stripe Dashboard
 - **[ALTA]** Verificar precios de Lunas en DB — confirmar variantes con precio correcto
 - **[ALTA]** Subir fotos reales para reseñas g1, g2, g3, g5, g6, g7, g8
-- **[MEDIA]** Medir impacto en PostHog de los cambios del 2026-06-03 (/coleccion-acordeon → PDP CTR)
+- **[MEDIA]** Medir impacto en PostHog de los cambios del 2026-06-03
 - **[MEDIA]** Agregar fotos a más reviews específicas en PDP
 - **[MEDIA]** Añadir más fotos a Luna Beige (detalle, textura, en sala)
 - **[MEDIA]** Indicador de stock "Solo X disponibles" para Edición Limitada
