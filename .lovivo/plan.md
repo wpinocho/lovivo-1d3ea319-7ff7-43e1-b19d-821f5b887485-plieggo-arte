@@ -22,20 +22,10 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Collection page layout**: Grid primero (h1 + badges) → Trust strip (dentro del mismo section) → Hero editorial → Reviews → Editorial split → CTA → Carousel ✅ APLICADO EN TODAS
 
 ## 3. Active Plan
-**Estado:** ✅ Layout unificado en todas las colecciones — en producción desde 2026-06-03
-
-### Fix pendiente: fbc timestamp en PixelContext
-**Archivo:** `src/contexts/PixelContext.tsx` línea 41
-**Problema:** `Date.now()` retorna milisegundos (13 dígitos), pero Meta espera Unix timestamp en **segundos** (10 dígitos) en el formato `fb.1.<seconds>.<fbclid>`. Meta lo detecta como "fbclid modificado" causando pérdida de atribución en ViewContent e InitiateCheckout.
-**Fix:** Cambiar `Date.now()` → `Math.floor(Date.now() / 1000)`
-
-```diff
-- const fbcValue = `fb.1.${Date.now()}.${fbclid}`;
-+ const fbcValue = `fb.1.${Math.floor(Date.now() / 1000)}.${fbclid}`;
-```
+**Estado:** ✅ Fix fbc timestamp aplicado — en producción desde 2026-06-09
 
 ## 4. Recent Changes
-- **2026-06-09** — DETECTADO: fbc timestamp en milisegundos en PixelContext.tsx — pendiente fix
+- **2026-06-09** — PixelContext.tsx: fix fbc timestamp `Date.now()` → `Math.floor(Date.now() / 1000)` (milisegundos → segundos para Meta)
 - **2026-06-03** — AllProducts.tsx: grid primero + badges + trust strip dentro → hero abajo (layout unificado)
 - **2026-06-03** — TopSellers.tsx: grid primero + badges + trust strip dentro → hero abajo (layout unificado)
 - **2026-06-03** — CollectionEspacio.tsx: grid primero + badges + trust strip dentro → hero abajo (layout unificado)
@@ -62,7 +52,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Review photos generales (plieggo-general-reviews.ts)** — 5 con foto (g4, g9, g10, g11, g12)
 
 ## 6. Known Issues
-- **[ALTA 2026-06-09]** PixelContext.tsx: fbc timestamp en milisegundos en lugar de segundos → Meta reporta "fbclid modificado" en ViewContent e InitiateCheckout
 - Handle de Colección Acordeón en DB tiene typo: `coleccin-acorden` — corregido en código
 - Video play error recurrente en hero (play/pause race condition) — no afecta funcionalidad
 - Luna Beige tiene solo 1 imagen en galería — necesita fotos de detalle y lifestyle
@@ -72,7 +61,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Stripe Link NO está activado en la cuenta — `link` removido del payload permanentemente
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** Fix fbc: `Date.now()` → `Math.floor(Date.now() / 1000)` en PixelContext.tsx línea 41
 - **[ALTA]** Performance móvil: 3 fixes pendientes (mover fuentes Google a HTML, lazy-load InspirationCarousel, fetchpriority en hero image)
 - **[ALTA]** Fix clients-upsert: nombre/apellido/teléfono no llegan (CheckoutAdapter + CheckoutUI)
 - **[ALTA]** Probar checkout en producción (plieggo.com) — verificar thank you page carga con info de la orden

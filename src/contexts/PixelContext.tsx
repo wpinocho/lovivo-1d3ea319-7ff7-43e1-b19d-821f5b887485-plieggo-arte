@@ -38,7 +38,7 @@ export function PixelProvider({ children }: { children: React.ReactNode }) {
     const fbclid = urlParams.get('fbclid');
     if (fbclid && !getCookie('_fbc')) {
       // fbc format: fb.1.timestamp.fbclid
-      const fbcValue = `fb.1.${Date.now()}.${fbclid}`;
+      const fbcValue = `fb.1.${Math.floor(Date.now() / 1000)}.${fbclid}`;
       setFbc(fbcValue);
     }
   }, []);
