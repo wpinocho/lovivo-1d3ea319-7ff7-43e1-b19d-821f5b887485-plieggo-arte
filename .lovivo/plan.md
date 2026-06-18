@@ -22,9 +22,80 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Collection page layout**: Grid primero (h1 + badges) → Trust strip (dentro del mismo section) → Hero editorial → Reviews → Editorial split → CTA → Carousel ✅ APLICADO EN TODAS
 
 ## 3. Active Plan
-**Estado:** ✅ Fix fbc timestamp aplicado — en producción desde 2026-06-09
+**Estado:** 🔧 PENDIENTE — Fix descuento manual en checkout (links de pago con discount_amount)
+
+### Problema
+Cuando se crea un link de pago desde el Dashboard con un descuento manual (guardado como `order.discount_amount`), el checkout no lo refleja porque solo considera `backendDiscountAmount` (reglas automáticas) o `localDiscountAmount` (cupón). El descuento manual queda ignorado y el total se muestra sin descontar.
+
+### Cambio 1 — src/hooks/useCheckout.ts
+**Líneas a modificar: ~478-508**
+
+Después de la línea:
+```ts
+const backendDiscountAmount = (appliedRules || []).reduce((sum: number, rule: any) => sum + (rule.discount || 0), 0)
+```
+
+Agregar:
+```ts
+const manualDiscountAmount = lastOrder?.order?.discount_amount ?? checkoutState?.order?.discount_amount ?? 0
+```
+
+En el objeto `return { ... }`, agregar `manualDiscountAmount` junto a `backendDiscountAmount`:
+```ts
+backendDiscountAmount,
+manualDiscountAmount,
+```
+
+**NO tocar nada más de este archivo.**
+
+### Cambio 2 — src/adapters/CheckoutAdapter.tsx
+**Línea ~41** — En la desestructuración de `useCheckout()`, agregar `manualDiscountAmount`:
+```ts
+const {
+  hasActiveCheckout,
+  isInitialized,
+  orderId,
+  checkoutToken,
+  updateShippingAddress,
+  updateBillingAddress,
+  updateDiscountCode,
+  updateStates,
+  appliedRules,
+  backendDiscountAmount,
+  manualDiscountAmount   // ← AGREGAR ESTA LÍNEA
+} = useCheckout();
+```
+
+**Línea ~539** — Cambiar la lógica de `discountAmount`:
+```ts
+// ANTES:
+const discountAmount = backendDiscountAmount > 0 ? backendDiscountAmount : localDiscountAmount;
+
+// DESPUÉS:
+const discountAmount =
+  backendDiscountAmount > 0 ? backendDiscountAmount :
+  localDiscountAmount    > 0 ? localDiscountAmount :
+  manualDiscountAmount   > 0 ? manualDiscountAmount :
+  0;
+```
+
+**NO tocar nada más de este archivo.**
+
+### Cambio 3 — src/pages/ui/CheckoutUI.tsx
+**NO requiere cambios.** Ya muestra la línea "Descuento - $X" cuando `logic.discountAmount > 0`, así que con el fallback anterior aparecerá automáticamente.
+
+### Alcance / NO tocar
+- HeadlessCheckout
+- Edge functions
+- Flujo de cupones (validateCoupon, removeCoupon)
+- Reglas automáticas (appliedRules)
+- finalTotal (ya es correcto: `Math.max(0, summaryTotal - discountAmount + shippingCost)`)
+
+### Prioridad
+Reglas automáticas > cupón > manual — si el usuario aplica cupón sobre link con descuento manual, gana el cupón.
 
 ## 4. Recent Changes
+- **2026-06-18** — PENDIENTE: Fix checkout descuento manual (manualDiscountAmount en useCheckout + fallback en CheckoutAdapter)
 - **2026-06-09** — PixelContext.tsx: fix fbc timestamp `Date.now()` → `Math.floor(Date.now() / 1000)` (milisegundos → segundos para Meta)
 - **2026-06-03** — AllProducts.tsx: grid primero + badges + trust strip dentro → hero abajo (layout unificado)
 - **2026-06-03** — TopSellers.tsx: grid primero + badges + trust strip dentro → hero abajo (layout unificado)
@@ -61,6 +132,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Stripe Link NO está activado en la cuenta — `link` removido del payload permanentemente
 
 ## 7. Pending / Future Sessions
+- **[ALTA]** Fix descuento manual en checkout (ver sección 3 Active Plan)
 - **[ALTA]** Performance móvil: 3 fixes pendientes (mover fuentes Google a HTML, lazy-load InspirationCarousel, fetchpriority en hero image)
 - **[ALTA]** Fix clients-upsert: nombre/apellido/teléfono no llegan (CheckoutAdapter + CheckoutUI)
 - **[ALTA]** Probar checkout en producción (plieggo.com) — verificar thank you page carga con info de la orden
