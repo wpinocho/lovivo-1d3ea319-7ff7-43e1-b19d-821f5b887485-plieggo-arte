@@ -38,7 +38,8 @@ export const useCheckoutLogic = () => {
     updateDiscountCode,
     updateStates,
     appliedRules,
-    backendDiscountAmount
+    backendDiscountAmount,
+    manualDiscountAmount
   } = useCheckout();
   
   const { 
@@ -536,7 +537,11 @@ export const useCheckoutLogic = () => {
     return discount ? calculateDiscountAmount(summaryTotal, discount.discount_type, discount.value, totalQuantity, discount.volume_conditions) : 0;
   }, [discount, summaryTotal, totalQuantity]);
 
-  const discountAmount = backendDiscountAmount > 0 ? backendDiscountAmount : localDiscountAmount;
+  const discountAmount =
+    backendDiscountAmount > 0 ? backendDiscountAmount :
+    localDiscountAmount    > 0 ? localDiscountAmount :
+    manualDiscountAmount   > 0 ? manualDiscountAmount :
+    0;
 
   const finalTotal = Math.max(0, summaryTotal - discountAmount + shippingCost);
 

@@ -477,6 +477,7 @@ export const useCheckout = () => {
 
   const appliedRules = lastOrder?.order?.applied_rules ?? checkoutState?.order?.applied_rules ?? []
   const backendDiscountAmount = (appliedRules || []).reduce((sum: number, rule: any) => sum + (rule.discount || 0), 0)
+  const manualDiscountAmount = lastOrder?.order?.discount_amount ?? checkoutState?.order?.discount_amount ?? 0
 
   return {
     checkout,
@@ -500,6 +501,7 @@ export const useCheckout = () => {
     
     appliedRules: appliedRules || [],
     backendDiscountAmount,
+    manualDiscountAmount,
     
     lastOrder,
     hasItems: cart.items.length > 0,
