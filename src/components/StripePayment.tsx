@@ -384,16 +384,21 @@ function PaymentForm({
       const nextAction = pi?.next_action as any
 
       if (pi?.status === 'succeeded') {
-        trackPurchase({
-          products: paymentItems.map((item: any) => tracking.createTrackingProduct({
-            id: item.product_id, title: item.product_name || item.title,
-            price: item.price / 100, category: 'product',
-            variant: item.variant_id ? { id: item.variant_id } : undefined
-          })),
-          value: totalCents / 100, currency: tracking.getCurrencyFromSettings(currency),
-          order_id: orderId,
-          custom_parameters: { payment_method: 'stripe', checkout_token: checkoutToken }
-        })
+        const _ptKey1 = `purchase_tracked_${orderId}`;
+        const _alreadyTracked1 = (() => { try { return sessionStorage.getItem(_ptKey1) === '1'; } catch { return false; } })();
+        if (!_alreadyTracked1) {
+          try { sessionStorage.setItem(_ptKey1, '1'); } catch {}
+          trackPurchase({
+            products: paymentItems.map((item: any) => tracking.createTrackingProduct({
+              id: item.product_id, title: item.product_name || item.title,
+              price: item.price / 100, category: 'product',
+              variant: item.variant_id ? { id: item.variant_id } : undefined
+            })),
+            value: totalCents / 100, currency: tracking.getCurrencyFromSettings(currency),
+            order_id: orderId,
+            custom_parameters: { payment_method: 'stripe', checkout_token: checkoutToken }
+          })
+        }
 
         try {
           let toPersist: any = intentOrder
@@ -636,16 +641,21 @@ function PaymentForm({
 
       const pi = result.paymentIntent
       if (pi?.status === 'succeeded') {
-        trackPurchase({
-          products: paymentItems.map((item: any) => tracking.createTrackingProduct({
-            id: item.product_id, title: item.product_name || item.title,
-            price: item.price / 100, category: 'product',
-            variant: item.variant_id ? { id: item.variant_id } : undefined
-          })),
-          value: totalCents / 100, currency: tracking.getCurrencyFromSettings(currency),
-          order_id: orderId,
-          custom_parameters: { payment_method: 'express_checkout', checkout_token: checkoutToken }
-        })
+        const _ptKey2 = `purchase_tracked_${orderId}`;
+        const _alreadyTracked2 = (() => { try { return sessionStorage.getItem(_ptKey2) === '1'; } catch { return false; } })();
+        if (!_alreadyTracked2) {
+          try { sessionStorage.setItem(_ptKey2, '1'); } catch {}
+          trackPurchase({
+            products: paymentItems.map((item: any) => tracking.createTrackingProduct({
+              id: item.product_id, title: item.product_name || item.title,
+              price: item.price / 100, category: 'product',
+              variant: item.variant_id ? { id: item.variant_id } : undefined
+            })),
+            value: totalCents / 100, currency: tracking.getCurrencyFromSettings(currency),
+            order_id: orderId,
+            custom_parameters: { payment_method: 'express_checkout', checkout_token: checkoutToken }
+          })
+        }
 
         try {
           let toPersist: any = intentOrder

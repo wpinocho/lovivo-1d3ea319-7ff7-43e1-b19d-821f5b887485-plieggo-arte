@@ -404,24 +404,29 @@ function PaymentRequestInner({
         }
 
         if (finalIntent?.status === 'succeeded') {
-          trackPurchase({
-            products: [
-              tracking.createTrackingProduct({
-                id: product.id,
-                title: product.title,
-                price: unitPrice,
-                category: 'product',
-                variant,
-              }),
-            ],
-            value: totalAmount,
-            currency: tracking.getCurrencyFromSettings(currencyCode),
-            order_id: orderId,
-            custom_parameters: {
-              payment_method: 'payment_request_button',
-              checkout_token: checkoutToken,
-            },
-          })
+          const _ptKey3 = `purchase_tracked_${orderId}`;
+          const _alreadyTracked3 = (() => { try { return sessionStorage.getItem(_ptKey3) === '1'; } catch { return false; } })();
+          if (!_alreadyTracked3) {
+            try { sessionStorage.setItem(_ptKey3, '1'); } catch {}
+            trackPurchase({
+              products: [
+                tracking.createTrackingProduct({
+                  id: product.id,
+                  title: product.title,
+                  price: unitPrice,
+                  category: 'product',
+                  variant,
+                }),
+              ],
+              value: totalAmount,
+              currency: tracking.getCurrencyFromSettings(currencyCode),
+              order_id: orderId,
+              custom_parameters: {
+                payment_method: 'payment_request_button',
+                checkout_token: checkoutToken,
+              },
+            })
+          }
 
           try {
             const completedOrder = intentData?.order ?? order.order
