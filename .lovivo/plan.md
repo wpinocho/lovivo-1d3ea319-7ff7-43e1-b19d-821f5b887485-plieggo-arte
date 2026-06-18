@@ -22,49 +22,16 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Collection page layout**: Grid primero (h1 + badges) → Trust strip (dentro del mismo section) → Hero editorial → Reviews → Editorial split → CTA → Carousel ✅ APLICADO EN TODAS
 
 ## 3. Active Plan
-**Estado:** 🔧 EN PROGRESO — Fix UI: mostrar línea "Descuento" en checkout con token de pago
+**Estado:** ✅ COMPLETADO — Fix UI descuento en checkout con token de pago
 
-### Diagnóstico (2026-06-18)
-El descuento del link de pago SÍ se aplica al total (el $8,100 confirma que $900 se restan). El bug es puramente visual: la línea "Descuento -$900" no aparece en el resumen.
+El descuento del link de pago ya muestra la línea "Descuento -$XXX" en el resumen de desktop.
 
-**Por qué no aparece:**
-En `CheckoutUI.tsx` línea 500:
-```jsx
-{logic.discount && logic.backendDiscountAmount === 0 && (
-  <div>Descuento ...</div>
-)}
-```
-Esta condición solo muestra la línea cuando existe `logic.discount` (objeto de cupón). El descuento manual (`manualDiscountAmount`) no crea un objeto cupón — llega como número directo. Por eso `discountAmount` = $900 está bien calculado pero la línea visual nunca se activa.
-
-### Fix exacto — solo `CheckoutUI.tsx`
-
-**Dónde:** después de la línea `{logic.discount && logic.backendDiscountAmount === 0 && (...)}` (~línea 500), agregar:
-
-```jsx
-{!logic.discount && logic.discountAmount > 0 && logic.backendDiscountAmount === 0 && (
-  <div className="flex justify-between text-green-600">
-    <span>Descuento</span>
-    <span>- {formatMoney(logic.discountAmount, logic.currencyCode)}</span>
-  </div>
-)}
-```
-
-Esto muestra la línea solo cuando:
-- No hay cupón activo (`!logic.discount`)
-- Hay un descuento calculado positivo (`logic.discountAmount > 0`)
-- No hay descuento de reglas automáticas (`logic.backendDiscountAmount === 0`)
-
-**También hacer el mismo fix en la versión mobile** (~línea 580) que ya tiene `{logic.discountAmount > 0 && (...)}` — esa ya funciona bien. Solo la versión desktop necesita el fix.
-
-### Archivos a modificar
-- `src/pages/ui/CheckoutUI.tsx`: Agregar condición para descuento manual después de la condición de cupón (~línea 505)
-
-### Nota
-- NO tocar `useCheckout.ts`, `CheckoutAdapter.tsx`, ni `useTokenCheckout.ts` — ya están correctos
-- El cálculo del total ya es correcto ($8,100), solo es UI visual
-- La versión mobile ya funciona (línea ~580 usa `logic.discountAmount > 0` directamente)
+**Solución aplicada:**
+- `CheckoutUI.tsx`: Agregada condición extra `{!logic.discount && logic.discountAmount > 0 && logic.backendDiscountAmount === 0}` para mostrar línea de descuento cuando viene de link de pago (sin cupón activo)
+- La versión mobile ya funcionaba correctamente
 
 ## 4. Recent Changes
+- **2026-06-18** — ✅ CheckoutUI.tsx: línea "Descuento" en desktop para descuentos de link de pago (sin cupón)
 - **2026-06-18** — 🔧 Diagnóstico: checkout token muestra total correcto ($8,100) pero falta línea "Descuento" — fix en CheckoutUI.tsx condición de descuento manual
 - **2026-06-18** — 🔧 Diagnóstico: token checkout no muestra discount_amount porque res.order tapa el fallback
 - **2026-06-18** — ✅ Fix checkout descuento manual: manualDiscountAmount en useCheckout + fallback cascada en CheckoutAdapter

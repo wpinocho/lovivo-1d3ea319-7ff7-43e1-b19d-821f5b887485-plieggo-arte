@@ -503,6 +503,14 @@ export default function CheckoutUI() {
                         <span>- {formatMoney(logic.discountAmount, logic.currencyCode)}</span>
                       </div>
                     )}
+
+                    {!logic.discount && logic.discountAmount > 0 && logic.backendDiscountAmount === 0 && (
+                      <div className="flex justify-between text-green-600">
+                        <span>Descuento</span>
+                        <span>- {formatMoney(logic.discountAmount, logic.currencyCode)}</span>
+                      </div>
+                    )}
+
                     <div className="flex justify-between items-baseline text-lg font-semibold pt-2 border-t">
                       <span>Total</span>
                       <div className={`flex items-baseline gap-1.5 ${logic.isCalculatingTotal ? 'opacity-50 blur-sm' : ''} transition-all duration-200`}>
