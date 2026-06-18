@@ -22,68 +22,50 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Collection page layout**: Grid primero (h1 + badges) → Trust strip (dentro del mismo section) → Hero editorial → Reviews → Editorial split → CTA → Carousel ✅ APLICADO EN TODAS
 
 ## 3. Active Plan
-**Estado:** 🔧 EN PROGRESO — Fix token checkout: discount_amount no llega desde order-get
+**Estado:** 🔧 EN PROGRESO — Fix UI: mostrar línea "Descuento" en checkout con token de pago
 
 ### Diagnóstico (2026-06-18)
-El flujo del token checkout es:
-1. Usuario abre `/checkout?token=XYZ`
-2. `useTokenCheckout` llama `order-get` → recibe `res` con la orden
-3. Guarda en localStorage: `order: res.order || fallback`
-4. Recarga la página
-5. `useCheckoutState` lee localStorage → `checkoutState.order`
-6. `useCheckout` calcula `manualDiscountAmount = lastOrder?.order?.discount_amount ?? checkoutState?.order?.discount_amount ?? 0`
-7. `CheckoutAdapter` usa `manualDiscountAmount` en la cascada de descuentos
+El descuento del link de pago SÍ se aplica al total (el $8,100 confirma que $900 se restan). El bug es puramente visual: la línea "Descuento -$900" no aparece en el resumen.
 
-**El bug:** Si `order-get` devuelve `res.order` (objeto de orden completo), el fallback nunca se usa. Si `res.order.discount_amount` no está en ese objeto (o es 0), `manualDiscountAmount` = 0 → sin descuento.
+**Por qué no aparece:**
+En `CheckoutUI.tsx` línea 500:
+```jsx
+{logic.discount && logic.backendDiscountAmount === 0 && (
+  <div>Descuento ...</div>
+)}
+```
+Esta condición solo muestra la línea cuando existe `logic.discount` (objeto de cupón). El descuento manual (`manualDiscountAmount`) no crea un objeto cupón — llega como número directo. Por eso `discountAmount` = $900 está bien calculado pero la línea visual nunca se activa.
 
-### Fix exacto — solo `useTokenCheckout.ts`
-Cambiar línea `order: res.order || { ... }` por spread que garantice `discount_amount`:
+### Fix exacto — solo `CheckoutUI.tsx`
 
-```typescript
-// ANTES (líneas 40-59):
-order: res.order || {
-  id: res.order_id,
-  ...
-  discount_amount: res.discount_amount || 0,
-  ...
-}
+**Dónde:** después de la línea `{logic.discount && logic.backendDiscountAmount === 0 && (...)}` (~línea 500), agregar:
 
-// DESPUÉS:
-order: res.order ? {
-  ...res.order,
-  // Garantizar que discount_amount del top-level siempre se preserve
-  discount_amount: res.order.discount_amount ?? res.discount_amount ?? 0,
-} : {
-  id: res.order_id,
-  store_id: res.store_id || STORE_ID,
-  order_number: res.order_number,
-  subtotal: res.subtotal,
-  tax_amount: res.tax_amount || 0,
-  shipping_amount: res.shipping_amount || 0,
-  discount_amount: res.discount_amount || 0,
-  total_amount: res.total_amount,
-  shipping_address: res.shipping_address,
-  billing_address: res.billing_address,
-  notes: res.notes,
-  discount_code: res.discount_code,
-  currency_code: res.currency_code,
-  status: res.status,
-  checkout_token: res.checkout_token,
-  created_at: '',
-  updated_at: '',
-  order_items: res.order_items || [],
-}
+```jsx
+{!logic.discount && logic.discountAmount > 0 && logic.backendDiscountAmount === 0 && (
+  <div className="flex justify-between text-green-600">
+    <span>Descuento</span>
+    <span>- {formatMoney(logic.discountAmount, logic.currencyCode)}</span>
+  </div>
+)}
 ```
 
+Esto muestra la línea solo cuando:
+- No hay cupón activo (`!logic.discount`)
+- Hay un descuento calculado positivo (`logic.discountAmount > 0`)
+- No hay descuento de reglas automáticas (`logic.backendDiscountAmount === 0`)
+
+**También hacer el mismo fix en la versión mobile** (~línea 580) que ya tiene `{logic.discountAmount > 0 && (...)}` — esa ya funciona bien. Solo la versión desktop necesita el fix.
+
 ### Archivos a modificar
-- `src/hooks/useTokenCheckout.ts`: Cambiar objeto `order` en checkoutState (líneas ~40-59)
+- `src/pages/ui/CheckoutUI.tsx`: Agregar condición para descuento manual después de la condición de cupón (~línea 505)
 
 ### Nota
-- NO tocar `useCheckout.ts` ni `CheckoutAdapter.tsx` — ya están correctos
-- NO tocar `CheckoutUI.tsx` — ya muestra descuento cuando `discountAmount > 0`
-- El fix es 1 archivo, ~20 líneas modificadas
+- NO tocar `useCheckout.ts`, `CheckoutAdapter.tsx`, ni `useTokenCheckout.ts` — ya están correctos
+- El cálculo del total ya es correcto ($8,100), solo es UI visual
+- La versión mobile ya funciona (línea ~580 usa `logic.discountAmount > 0` directamente)
 
 ## 4. Recent Changes
+- **2026-06-18** — 🔧 Diagnóstico: checkout token muestra total correcto ($8,100) pero falta línea "Descuento" — fix en CheckoutUI.tsx condición de descuento manual
 - **2026-06-18** — 🔧 Diagnóstico: token checkout no muestra discount_amount porque res.order tapa el fallback
 - **2026-06-18** — ✅ Fix checkout descuento manual: manualDiscountAmount en useCheckout + fallback cascada en CheckoutAdapter
 - **2026-06-09** — PixelContext.tsx: fix fbc timestamp `Date.now()` → `Math.floor(Date.now() / 1000)` (milisegundos → segundos para Meta)
