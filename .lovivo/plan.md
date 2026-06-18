@@ -22,14 +22,69 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Collection page layout**: Grid primero (h1 + badges) → Trust strip (dentro del mismo section) → Hero editorial → Reviews → Editorial split → CTA → Carousel ✅ APLICADO EN TODAS
 
 ## 3. Active Plan
-**Estado:** ✅ COMPLETADO — Fix descuento manual en checkout
+**Estado:** 🔧 EN PROGRESO — Fix token checkout: discount_amount no llega desde order-get
 
-### Cambios aplicados (2026-06-18)
-- `src/hooks/useCheckout.ts`: calculado `manualDiscountAmount = lastOrder?.order?.discount_amount ?? checkoutState?.order?.discount_amount ?? 0` y expuesto en el return.
-- `src/adapters/CheckoutAdapter.tsx`: desestructurado `manualDiscountAmount` de `useCheckout()`. `discountAmount` ahora usa fallback en cascada: reglas automáticas → cupón → manual → 0.
-- `src/pages/ui/CheckoutUI.tsx`: sin cambios (ya mostraba la línea de descuento cuando `discountAmount > 0`).
+### Diagnóstico (2026-06-18)
+El flujo del token checkout es:
+1. Usuario abre `/checkout?token=XYZ`
+2. `useTokenCheckout` llama `order-get` → recibe `res` con la orden
+3. Guarda en localStorage: `order: res.order || fallback`
+4. Recarga la página
+5. `useCheckoutState` lee localStorage → `checkoutState.order`
+6. `useCheckout` calcula `manualDiscountAmount = lastOrder?.order?.discount_amount ?? checkoutState?.order?.discount_amount ?? 0`
+7. `CheckoutAdapter` usa `manualDiscountAmount` en la cascada de descuentos
+
+**El bug:** Si `order-get` devuelve `res.order` (objeto de orden completo), el fallback nunca se usa. Si `res.order.discount_amount` no está en ese objeto (o es 0), `manualDiscountAmount` = 0 → sin descuento.
+
+### Fix exacto — solo `useTokenCheckout.ts`
+Cambiar línea `order: res.order || { ... }` por spread que garantice `discount_amount`:
+
+```typescript
+// ANTES (líneas 40-59):
+order: res.order || {
+  id: res.order_id,
+  ...
+  discount_amount: res.discount_amount || 0,
+  ...
+}
+
+// DESPUÉS:
+order: res.order ? {
+  ...res.order,
+  // Garantizar que discount_amount del top-level siempre se preserve
+  discount_amount: res.order.discount_amount ?? res.discount_amount ?? 0,
+} : {
+  id: res.order_id,
+  store_id: res.store_id || STORE_ID,
+  order_number: res.order_number,
+  subtotal: res.subtotal,
+  tax_amount: res.tax_amount || 0,
+  shipping_amount: res.shipping_amount || 0,
+  discount_amount: res.discount_amount || 0,
+  total_amount: res.total_amount,
+  shipping_address: res.shipping_address,
+  billing_address: res.billing_address,
+  notes: res.notes,
+  discount_code: res.discount_code,
+  currency_code: res.currency_code,
+  status: res.status,
+  checkout_token: res.checkout_token,
+  created_at: '',
+  updated_at: '',
+  order_items: res.order_items || [],
+}
+```
+
+### Archivos a modificar
+- `src/hooks/useTokenCheckout.ts`: Cambiar objeto `order` en checkoutState (líneas ~40-59)
+
+### Nota
+- NO tocar `useCheckout.ts` ni `CheckoutAdapter.tsx` — ya están correctos
+- NO tocar `CheckoutUI.tsx` — ya muestra descuento cuando `discountAmount > 0`
+- El fix es 1 archivo, ~20 líneas modificadas
 
 ## 4. Recent Changes
+- **2026-06-18** — 🔧 Diagnóstico: token checkout no muestra discount_amount porque res.order tapa el fallback
 - **2026-06-18** — ✅ Fix checkout descuento manual: manualDiscountAmount en useCheckout + fallback cascada en CheckoutAdapter
 - **2026-06-09** — PixelContext.tsx: fix fbc timestamp `Date.now()` → `Math.floor(Date.now() / 1000)` (milisegundos → segundos para Meta)
 - **2026-06-03** — AllProducts.tsx: grid primero + badges + trust strip dentro → hero abajo (layout unificado)
