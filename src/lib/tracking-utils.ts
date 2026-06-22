@@ -63,8 +63,8 @@ class TrackingUtility {
   }
 
   private formatCurrency(currency?: string): string {
-    if (!currency) return 'mxn';
-    return currency.toLowerCase().replace(/[^a-z]/g, '');
+    if (!currency) return 'MXN';
+    return currency.toUpperCase().replace(/[^A-Z]/g, '');
   }
 
   private formatValue(value?: number): number {
@@ -404,7 +404,7 @@ class TrackingUtility {
    * Helper method to get currency from settings
    */
   getCurrencyFromSettings(currencyCode?: string): string {
-    return this.formatCurrency(currencyCode || 'MXN');
+    return this.formatCurrency(currencyCode || 'MXN'); // always returns uppercase
   }
 }
 

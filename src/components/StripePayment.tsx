@@ -27,10 +27,11 @@ function buildPaymentMethodTypes(pm?: PaymentMethods): string[] {
 }
 
 /** Build payment_method_types for Elements init — excludes customer_balance (SPEI)
- *  which causes a 400 from Stripe when used in deferred-mode Elements init.
- *  SPEI is still included in the backend payload via buildPaymentMethodTypes(). */
+ *  and oxxo, both of which cause a 400 from Stripe when used in deferred-mode
+ *  Elements init. Both are still included in the backend payload via
+ *  buildPaymentMethodTypes(). */
 function buildElementsPaymentMethodTypes(pm?: PaymentMethods): string[] {
-  return buildPaymentMethodTypes(pm).filter(t => t !== 'customer_balance')
+  return buildPaymentMethodTypes(pm).filter(t => t !== 'customer_balance' && t !== 'oxxo')
 }
 
 interface StripeAddressValue {
