@@ -22,9 +22,29 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Collection page layout**: Grid primero (h1 + badges) → Trust strip (dentro del mismo section) → Hero editorial → Reviews → Editorial split → CTA → Carousel ✅ APLICADO EN TODAS
 
 ## 3. Active Plan
-**Estado:** ✅ COMPLETADO — Fix deduplicación Meta (2026-06-18)
+**Estado:** 🔧 EN PROGRESO — Fix checkout con link de pago (OXXO + Stripe Elements deferred 400)
+
+### Problema
+Al abrir un link de pago generado desde el Dashboard (`/checkout?token=...`), el formulario de Stripe no carga. 
+
+**Causa raíz:** `buildElementsPaymentMethodTypes` en `StripePayment.tsx` incluye `oxxo` en el array que se manda a Stripe Elements al inicializar en modo "deferred". OXXO no es compatible con este modo → Stripe devuelve HTTP 400 → todo el formulario falla y no se renderiza nada.
+
+### Fix (1 línea de código)
+**Archivo:** `src/components/StripePayment.tsx` línea ~33
+
+```ts
+function buildElementsPaymentMethodTypes(pm?: PaymentMethods): string[] {
+  return buildPaymentMethodTypes(pm).filter(t => t !== 'customer_balance' && t !== 'oxxo')
+}
+```
+
+Agregar `&& t !== 'oxxo'` al filtro existente. OXXO ya está incluido en `buildPaymentMethodTypes` (para el backend), solo se excluye del init de Elements. El PaymentElement en modo deferred con solo `card` cargará correctamente. Cuando el usuario confirme el pago, el backend crea el PaymentIntent con OXXO incluido.
+
+### Fix secundario (opcional)
+El warning de Meta Pixel `Invalid parameter format for currency` — verificar que en `trackPurchase` o `tracking-utils.ts` se pase currency como string en mayúsculas (`"MXN"` no objeto).
 
 ## 4. Recent Changes
+- **2026-06-22** — 🔧 Diagnóstico: checkout token OXXO causa 400 en Stripe Elements deferred init → formulario en blanco
 - **2026-06-18** — ✅ Fix deduplicación Meta: event_id determinístico + sessionStorage guard en los 3 call sites de trackPurchase
 - **2026-06-18** — ✅ CheckoutUI.tsx: línea "Descuento" en desktop para descuentos de link de pago (sin cupón)
 - **2026-06-18** — 🔧 Diagnóstico: checkout token muestra total correcto ($8,100) pero falta línea "Descuento" — fix en CheckoutUI.tsx condición de descuento manual
@@ -39,7 +59,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-06-03** — ProductCardUI.tsx: layout precio+CTA → flex-col (precios en misma fila, botón full-width abajo)
 - **2026-06-03** — CollectionAcordeon.tsx: padding reducido `py-14 md:py-20` → `py-8 md:py-12`, `mb-10` → `mb-5`
 - **2026-06-03** — CollectionAcordeon.tsx: subtítulo genérico → 4 badges
-- **2026-06-03** — ProductCardUI.tsx: "Ver más" → "Ver cuadro" (botón terracota sólido)
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
@@ -63,6 +82,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Slugs en code sin producto activo en DB: `acorden-terracota-vibrante`, `acorden-crema-natural`, `acorden-morado-lavanda`, `acorden-morado-elegante`, `estrellas`
 - ECE (Apple Pay / Google Pay) no aparece en el preview (esperado)
 - Stripe Link NO está activado en la cuenta — `link` removido del payload permanentemente
+- **[ACTIVO]** OXXO en buildElementsPaymentMethodTypes causa 400 → formulario checkout en blanco
 
 ## 7. Pending / Future Sessions
 - **[ALTA]** Performance móvil: 3 fixes pendientes (mover fuentes Google a HTML, lazy-load InspirationCarousel, fetchpriority en hero image)
