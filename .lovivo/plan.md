@@ -22,13 +22,104 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Collection page layout**: Grid primero (h1 + badges) → Trust strip (dentro del mismo section) → Hero editorial → Reviews → Editorial split → CTA → Carousel ✅ APLICADO EN TODAS
 
 ## 3. Active Plan
-**Estado:** ✅ RESUELTO — Fix checkout con link de pago (OXXO + Stripe Elements deferred 400)
+**Estado:** 🔧 LISTO PARA CONSTRUIR — Página pública de rastreo de pedidos (Order Tracking)
 
-### Fix aplicado (2026-06-22)
-1. `StripePayment.tsx` línea 33: `buildElementsPaymentMethodTypes` ahora filtra `oxxo` además de `customer_balance` → Stripe Elements inicializa solo con `card` → formulario carga correctamente
-2. `tracking-utils.ts` línea 66: `formatCurrency` ahora devuelve mayúsculas (`MXN` no `mxn`) → fix del warning de Meta Pixel "Invalid parameter format for currency"
+### Objetivo de negocio
+Dar al cliente una página propia de rastreo (estilo Shopify) para reducir los "¿dónde está mi pedido?" por WhatsApp y dar confianza post-compra. Backend YA desplegado (edge function `order-track`). Solo falta el frontend del template.
+
+### Contexto del backend (ya listo, NO tocar)
+- Edge function `order-track` acepta `{ token }` o `{ store_id, order_number, email }`.
+- Devuelve: `timeline` con `steps[]` (4 pasos), `current_step`, `cancelled`, `carrier`, `tracking_number`, `tracking_url`, `estimated_delivery_at`, `events[]` (`occurred_at`, `status_detail`, `location`) y `display_mode` (`detailed` | `masked`).
+- Emails de envío enlazan a `https://{dominio}/orders/track/{checkout_token}`. POR ESO la ruta DEBE ser `/orders/track/...` (NO traducir a español).
+- Llamar con el helper existente `callEdge('order-track', payload)` de `src/lib/edge.ts`. Es público, NO requiere auth.
+
+### Hallazgos de la inspección del código
+- `src/lib/edge.ts`: `callEdge(functionName, body)` existe y funciona (invoke + fallback fetch). ✅
+- `src/lib/config.ts`: exporta `STORE_ID` (usado en ThankYou y otros). ✅
+- `src/App.tsx`: rutas con lazy loading. Hay que agregar `/orders/track` y `/orders/track/:token`.
+- `src/adapters/MyOrdersAdapter.tsx` (TIPO C, no editar lógica): YA usa `.select('*')` en `orders`, así que `checkout_token`, `tracking_number`, `tracking_url`, `shipping_carrier`, `estimated_delivery_at`, `shipped_at`, `paid_at` YA llegan si existen en la tabla. **NO hace falta tocar el adapter.**
+- `src/lib/supabase.ts` → `interface Order` (editable): tiene `checkout_token` pero NO los campos de tracking. Hay que AGREGAR al tipo: `tracking_number?`, `tracking_url?`, `shipping_carrier?`, `estimated_delivery_at?`, `shipped_at?`, `paid_at?` para evitar errores de TypeScript en MyOrdersUI.
+- `src/pages/ui/MyOrdersUI.tsx` (TIPO B, editable): cards de pedido. Agregar CTA "Rastrear pedido" + chip de tracking + entrega estimada dentro de cada `CardContent` (después del bloque de Envío).
+- `src/pages/ThankYou.tsx` (editable): carga la orden desde `localStorage('completed_order')`. Si el objeto incluye `checkout_token`, agregar CTA "Rastrear mi pedido". Verificar que `completed_order` guarde `checkout_token` (el `CheckoutResponse` sí lo trae); si no está, leerlo de ahí.
+- `EcommerceTemplate` acepta `pageTitle` y `showCart`. NO maneja noindex por sí mismo → usar un `useEffect` que inyecte `<meta name="robots" content="noindex">` (patrón ligero, como hacen otras páginas transaccionales) o documentar que SEO maneja noindex aparte.
+
+### Pasos de implementación (Craft Mode)
+
+**1. Extender el tipo Order** — `src/lib/supabase.ts`
+Agregar campos opcionales a `interface Order`:
+```ts
+tracking_number?: string | null
+tracking_url?: string | null
+shipping_carrier?: string | null
+estimated_delivery_at?: string | null
+shipped_at?: string | null
+paid_at?: string | null
+```
+
+**2. Crear `src/pages/OrderTrack.tsx`** (Tipo B, página delgada)
+- Lee `:token` de `useParams()`.
+- `useEffect` para inyectar meta `robots = noindex` (transaccional por cliente).
+- Monta `<OrderTrackUI token={token} />` dentro de `EcommerceTemplate`.
+
+**3. Crear `src/pages/ui/OrderTrackUI.tsx`** (Tipo B, UI editable — el grueso del trabajo)
+Dos modos:
+- **Modo token** (`/orders/track/:token`): al montar, `callEdge('order-track', { token })`.
+- **Modo lookup** (`/orders/track` sin token): formulario con `order_number` + `email` → `callEdge('order-track', { store_id: STORE_ID, order_number, email })`. (Puede ir inline o en subcomponente `OrderTrackLookupForm.tsx`.)
+
+UI del timeline (estilo Shopify horizontal):
+- 4 pasos de `steps[]`; `current_step` pinta el progreso (círculos llenos ● para completados, ● actual, ○ pendientes; conectores `━`).
+- Etiqueta + fecha bajo cada paso (formato `d MMM` con `date-fns` + locale `es`).
+- Si `cancelled: true` → banner rojo "Pedido cancelado" (usar tono destructive, NO terracota).
+- Bloque destacado **"Entrega estimada"** con `estimated_delivery_at` (formato `d MMM yyyy`, `date-fns/locale/es`).
+- Bloque carrier (SOLO si `display_mode === 'detailed'`): nombre del carrier, `tracking_number` copiable (botón copiar), botón "Rastrear con la paquetería" → `tracking_url` (target _blank).
+- Lista `events[]` colapsable (Accordion shadcn): `occurred_at` + `status_detail` + `location`.
+- Si `display_mode === 'masked'`: ocultar carrier/tracking/eventos; mostrar solo timeline + entrega estimada (marca blanca).
+- Estados: loading skeleton (usar `Skeleton`), error 404 ("No encontramos tu pedido. Verifica tu número de pedido y correo."), error genérico.
+- Estilo: seguir componentes shadcn que ya usa MyOrdersUI (Card, Badge, Button, Skeleton, Accordion). Aplicar design system Plieggo (terracota #C16648 para acentos/iconos, NO emojis, line icons de lucide).
+
+**4. Registrar rutas** — `src/App.tsx`
+```ts
+const OrderTrack = lazy(() => import('./pages/OrderTrack'));
+// dentro de <Routes>:
+<Route path="/orders/track" element={<OrderTrack />} />
+<Route path="/orders/track/:token" element={<OrderTrack />} />
+```
+
+**5. Conectar MyOrdersUI** — `src/pages/ui/MyOrdersUI.tsx`
+Dentro de cada `<CardContent>` del map de orders, después del bloque "Envío":
+- Si `order.checkout_token` → botón principal terracota "Rastrear pedido" → `navigate('/orders/track/' + order.checkout_token)`.
+- Si además `order.tracking_number` → chip secundario con el número; si hay `order.tracking_url`, link externo "Ver en la paquetería".
+- Si `order.estimated_delivery_at` → línea "Entrega estimada: {fecha}" (formato `d MMM yyyy`, locale es).
+
+**6. ThankYou CTA (opcional, recomendado)** — `src/pages/ThankYou.tsx`
+- Después del resumen / botones de acción, si `order.checkout_token` disponible → CTA "Rastrear mi pedido" → `/orders/track/{checkout_token}`.
+- Verificar que el objeto guardado en `localStorage('completed_order')` incluya `checkout_token` (viene en `CheckoutResponse.checkout_token`). Si no está, asegurarlo donde se guarda `completed_order` (StripePayment / checkout flow).
+
+### Consideraciones técnicas
+- i18n: todo en español (México).
+- SEO: `noindex` en OrderTrack (contenido transaccional por cliente). Cargar skill `workflow.seo` antes de tocar meta tags.
+- NO tocar `HeadlessMyOrders.tsx`. El adapter `MyOrdersAdapter.tsx` ya hace `select('*')` → no necesita cambios.
+- NO requiere migración, ni tablas, ni edge functions nuevas.
+
+### Verificación end-to-end
+1. Generar etiqueta de Envia en dashboard → confirmar email `order_shipped` con link `/orders/track/{token}`.
+2. Abrir link → ver timeline en "Enviado", carrier, tracking, entrega estimada.
+3. Simular webhook de Envia → recargar → eventos nuevos + avance de paso.
+4. `/mis-pedidos` (autenticado) → card con botón "Rastrear pedido" + entrega estimada.
+5. `/orders/track` sin token con order_number + email → lookup funciona.
+6. Cambiar `store_settings.tracking_display_mode` a `'masked'` → recargar → sin carrier/tracking/eventos.
+
+### Archivos a crear / modificar
+- `src/pages/OrderTrack.tsx` — CREAR
+- `src/pages/ui/OrderTrackUI.tsx` — CREAR
+- `src/pages/ui/OrderTrackLookupForm.tsx` — CREAR (opcional, subcomponente)
+- `src/App.tsx` — agregar 2 rutas lazy
+- `src/lib/supabase.ts` — extender `interface Order` con campos de tracking
+- `src/pages/ui/MyOrdersUI.tsx` — CTA "Rastrear pedido" + chip + entrega estimada
+- `src/pages/ThankYou.tsx` — (opcional) CTA "Rastrear mi pedido"
 
 ## 4. Recent Changes
+- **2026-06-24** — 🔧 Plan guardado: Página pública de Order Tracking (`/orders/track/:token` + lookup, CTA en MyOrders/ThankYou). Backend `order-track` ya desplegado.
 - **2026-06-22** — ✅ Fix StripePayment.tsx: excluir `oxxo` de `buildElementsPaymentMethodTypes` (causaba 400 en deferred mode)
 - **2026-06-22** — ✅ Fix tracking-utils.ts: `formatCurrency` devuelve mayúsculas (MXN) — fix warning Meta Pixel
 - **2026-06-22** — 🔧 Diagnóstico: checkout token OXXO causa 400 en Stripe Elements deferred init → formulario en blanco
@@ -43,7 +134,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-06-03** — CollectionEspacio.tsx: grid primero + badges + trust strip dentro → hero abajo (layout unificado)
 - **2026-06-03** — EcommerceTemplate.tsx: FloatingWhatsApp solo en home (`/`) — quitado de colecciones y otras páginas
 - **2026-06-03** — CollectionAcordeon.tsx: h1 ahora es "Colección Acordeón" (encabezado del grid), hero usa h2
-- **2026-06-03** — ProductCardUI.tsx: layout precio+CTA → flex-col (precios en misma fila, botón full-width abajo)
 
 ## 5. Image Inventory
 - **Hero slide 1**: `...1779301620051-88tz4z58bt7.webp` (lifestyle 7 cuadros en pared cálida → CTA /top-sellers)
@@ -67,8 +157,10 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Slugs en code sin producto activo en DB: `acorden-terracota-vibrante`, `acorden-crema-natural`, `acorden-morado-lavanda`, `acorden-morado-elegante`, `estrellas`
 - ECE (Apple Pay / Google Pay) no aparece en el preview (esperado)
 - Stripe Link NO está activado en la cuenta — `link` removido del payload permanentemente
+- Confirmar que `completed_order` en localStorage incluya `checkout_token` para el CTA de ThankYou (viene en CheckoutResponse)
 
 ## 7. Pending / Future Sessions
+- **[ALTA]** Construir página de Order Tracking (ver Active Plan) — Craft Mode
 - **[ALTA]** Performance móvil: 3 fixes pendientes (mover fuentes Google a HTML, lazy-load InspirationCarousel, fetchpriority en hero image)
 - **[ALTA]** Fix clients-upsert: nombre/apellido/teléfono no llegan (CheckoutAdapter + CheckoutUI)
 - **[ALTA]** Probar checkout en producción (plieggo.com) — verificar thank you page carga con info de la orden
