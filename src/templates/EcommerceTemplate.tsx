@@ -145,6 +145,13 @@ export const EcommerceTemplate = ({
                 >
                   Nosotros
                 </Link>
+                <Link 
+                  to="/orders/track" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="font-body text-lg text-foreground hover:text-primary py-3 border-b border-border"
+                >
+                  Rastrear pedido
+                </Link>
               </nav>
             </SheetContent>
           </Sheet>
@@ -161,6 +168,7 @@ export const EcommerceTemplate = ({
               { to: '/coleccion-espacio', label: 'Espacio' },
               { to: '/galeria', label: 'Galería' },
               { to: '/about', label: 'Nosotros' },
+              { to: '/orders/track', label: 'Rastrear pedido' },
             ].map(({ to, label }) => (
               <Link
                 key={to}
@@ -254,6 +262,12 @@ export const EcommerceTemplate = ({
                   className="block font-body text-secondary-foreground/70 hover:text-secondary-foreground transition-colors"
                 >
                   Sobre Nosotros
+                </Link>
+                <Link 
+                  to="/orders/track" 
+                  className="block font-body text-secondary-foreground/70 hover:text-secondary-foreground transition-colors"
+                >
+                  Rastrear pedido
                 </Link>
               </div>
             </div>

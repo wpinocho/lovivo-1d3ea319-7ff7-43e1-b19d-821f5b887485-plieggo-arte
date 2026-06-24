@@ -12,9 +12,10 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { AuthDialog } from '@/components/AuthDialog'
-import { Package, Calendar, DollarSign, RefreshCw, ShoppingBag, AlertCircle, LogIn } from 'lucide-react'
+import { Package, Calendar, DollarSign, RefreshCw, ShoppingBag, AlertCircle, LogIn, Truck, ExternalLink, CalendarClock } from 'lucide-react'
 import { formatMoney } from '@/lib/money'
 import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
 import { useNavigate } from 'react-router-dom'
 
 interface MyOrdersUIProps {
@@ -213,7 +214,49 @@ export default function MyOrdersUI({ user, authLoading }: MyOrdersUIProps) {
                             </span>
                           </div>
                         )}
+
+                        {order.estimated_delivery_at && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground flex items-center gap-1">
+                              <CalendarClock className="h-3 w-3" />
+                              Entrega estimada:
+                            </span>
+                            <span className="font-medium">
+                              {format(new Date(order.estimated_delivery_at), "d 'de' MMM, yyyy", { locale: es })}
+                            </span>
+                          </div>
+                        )}
                       </div>
+
+                      {(order.checkout_token || order.tracking_number) && (
+                        <div className="mt-4 pt-4 border-t space-y-3">
+                          {order.checkout_token && (
+                            <Button
+                              className="w-full"
+                              onClick={() => navigate(`/orders/track/${order.checkout_token}`)}
+                            >
+                              <Truck className="mr-2 h-4 w-4" />
+                              Rastrear pedido
+                            </Button>
+                          )}
+                          {order.tracking_number && (
+                            <div className="flex items-center justify-between text-xs text-muted-foreground">
+                              <span>Guía: <span className="font-medium text-foreground">{order.tracking_number}</span></span>
+                              {order.tracking_url && (
+                                <a
+                                  href={order.tracking_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-primary hover:underline"
+                                >
+                                  Ver en la paquetería
+                                  <ExternalLink className="h-3 w-3" />
+                                </a>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 ))}

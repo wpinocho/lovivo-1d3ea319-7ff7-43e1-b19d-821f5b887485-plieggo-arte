@@ -129,6 +129,12 @@ export interface Order {
   currency_code: string
   status: string
   checkout_token: string
+  tracking_number?: string | null
+  tracking_url?: string | null
+  shipping_carrier?: string | null
+  estimated_delivery_at?: string | null
+  shipped_at?: string | null
+  paid_at?: string | null
   created_at: string
   updated_at: string
   order_items: OrderItem[]
