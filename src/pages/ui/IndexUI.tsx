@@ -279,7 +279,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-8">
               {[...Array(8)].map((_, i) => (
                 <div key={i} className="space-y-3">
-                  <div className="bg-muted rounded-sm aspect-square animate-pulse" />
+                  <div className="bg-muted rounded-sm aspect-[4/5] animate-pulse" />
                   <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
                   <div className="h-6 bg-muted rounded animate-pulse w-1/2" />
                 </div>
@@ -343,7 +343,7 @@ export const IndexUI = ({ logic }: IndexUIProps) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {[...Array(3)].map((_, i) => (
                   <div key={i} className="space-y-3">
-                    <div className="bg-muted rounded-sm aspect-square animate-pulse" />
+                    <div className="bg-muted rounded-sm aspect-[4/5] animate-pulse" />
                     <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
                     <div className="h-6 bg-muted rounded animate-pulse w-1/2" />
                   </div>

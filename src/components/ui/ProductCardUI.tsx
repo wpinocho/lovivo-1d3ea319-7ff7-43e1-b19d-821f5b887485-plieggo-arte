@@ -32,13 +32,11 @@ interface ProductCardUIProps {
 export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [], hoverImageIndex = 2 }: ProductCardUIProps) => {
   const navigate = useNavigate()
   const badge = getBadgeForProduct(product)
-  
-  // Determine aspect ratio class - MOBILE: always square, DESKTOP: use real ratio
-  const aspectRatioClass = aspectRatio === 'square' 
-    ? 'aspect-square' 
-    : aspectRatio === 'rectangle'
-    ? 'aspect-[24/43]'  // Proporción exacta 768×1376 px — igual en móvil y desktop
-    : 'aspect-square md:aspect-auto'   // Mobile: square, Desktop: auto
+
+  // FORMATO CANÓNICO: todas las tarjetas usan 4:5 vertical (1080×1350).
+  // Todas las imágenes de producto están estandarizadas a 4:5, así llenan
+  // el marco completo sin recortes ni bandas, en móvil y desktop.
+  const aspectRatioClass = 'aspect-[4/5]'
   
   return (
     <HeadlessProductCard product={product}>
@@ -62,29 +60,35 @@ export const ProductCardUI = ({ product, aspectRatio = 'auto', priceRules = [], 
             <div className={`bg-muted overflow-hidden relative ${aspectRatioClass}`}>
               {(logic.matchingVariant?.image || (logic.product.images && logic.product.images.length > 0)) ? (
                 <>
-                  {/* Imagen principal - solo se oculta si hay segunda imagen */}
+                  {/* Imagen principal — se oculta al hover si hay segunda imagen general */}
                   {(() => {
-                    const hasSecondImage = !logic.matchingVariant?.image && logic.product.images && logic.product.images.length > hoverImageIndex
+                    // SIEMPRE mostramos la 2ª imagen general del producto (images[1])
+                    // al hover, sin importar la variante. El dueño la controla
+                    // desde el dashboard reordenando las imágenes del producto.
+                    const hoverImage = logic.product.images && logic.product.images.length > 1
+                      ? logic.product.images[1]
+                      : null
                     return (
-                      <img
-                        src={(logic.matchingVariant?.image as any) || logic.product.images![0]}
-                        alt={logic.product.title}
-                        loading="lazy"
-                        decoding="async"
-                        className={`w-full h-full object-contain transition-all duration-500 group-hover:scale-105 ${hasSecondImage ? 'group-hover:opacity-0' : ''}`}
-                      />
+                      <>
+                        <img
+                          src={(logic.matchingVariant?.image as any) || logic.product.images![0]}
+                          alt={logic.product.title}
+                          loading="lazy"
+                          decoding="async"
+                          className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-105 ${hoverImage ? 'group-hover:opacity-0' : ''}`}
+                        />
+                        {hoverImage && (
+                          <img
+                            src={hoverImage}
+                            alt={`${logic.product.title} - vista alternativa`}
+                            loading="lazy"
+                            decoding="async"
+                            className="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-500 group-hover:opacity-100"
+                          />
+                        )}
+                      </>
                     )
                   })()}
-                  {/* Tercera imagen al hover (solo si existe) */}
-                  {!logic.matchingVariant?.image && logic.product.images && logic.product.images.length > hoverImageIndex && (
-                    <img
-                      src={logic.product.images[hoverImageIndex]}
-                      alt={`${logic.product.title} - vista alternativa`}
-                      loading="lazy"
-                      decoding="async"
-                      className="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-500 group-hover:opacity-100"
-                    />
-                  )}
                 </>
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-muted-foreground">

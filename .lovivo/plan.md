@@ -15,6 +15,8 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **PDP CTA**: "Agregar al carrito" PRIMARIO terracota (h-14); "Comprar ahora" SECUNDARIO outline (h-12); express TERCIARIO.
 - **Sticky bar**: una fila, un botón terracota. Fondo #F2EFE4/95
 - **ProductCard CTA**: terracota sólido w-full h-8 rounded-sm
+- **ProductCard aspect-ratio: 4:5 SIEMPRE** (todas las colecciones, todas las páginas). Se ignora el prop `aspectRatio`. object-cover en imagen principal. Skeletons también 4:5.
+- **ProductCard hover: SIEMPRE muestra `product.images[1]`** (2ª imagen general), sin importar variante. El dueño la controla reordenando imágenes en el dashboard. Se ignora el prop `hoverImageIndex`.
 - **PDP variant buttons**: h-8 px-3 text-xs rounded-sm
 - **Galería móvil PDP**: carrusel con peek (basis-[86%]) + counter chip + dots (activo terracota). object-cover en 4:5.
 - **FORMATO IMAGEN PRODUCTO CANÓNICO: 4:5 vertical (1080×1350px).** Contenedor PDP es aspect-[4/5]. Todas las imágenes deben exportarse a 4:5 para llenar sin recorte ni letterbox.
@@ -33,6 +35,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Medir ATC de estas 2 PDPs vs antes; si sube, expandir efecto al resto.
 
 ## 4. Recent Changes
+- **2026-07-07** — ✅ ProductCard estandarizado a 4:5 en TODAS las páginas (ProductCardUI ignora prop aspectRatio, usa aspect-[4/5] + object-cover). Skeletons a 4:5 en Index/TopSellers/AllProducts/CollectionAcordeon/CollectionEspacio. Hover ahora SIEMPRE muestra product.images[1] (2ª imagen general), sin importar variante ni colección (se ignora hoverImageIndex).
 - **2026-07-07** — ✅ "Arte vivo" REAL en 2 best-sellers. Creado `src/data/light-shadow-sets.ts` (map slug→[mañana, tarde, atardecer]). Generadas 4 imágenes (gemini + reference lifestyle del dueño): beige-sutil-manana/atardecer, verde-salvia-manana/atardecer. Media tarde = fotos reales subidas por el dueño. ProductPageUI ahora pasa el set por slug con fallback. Pendiente aprobación dueño.
 - **2026-07-07** — 🔎 Definida estrategia "Arte vivo" REAL (mañana/tarde/atardecer) SOLO para verde-salvia y beige-sutil, misma escena.
 - **2026-07-07** — ✅ PDP móvil: eliminadas flechas del carrusel — solo peek + dots. Quitado botón "Seguir comprando" superior.
