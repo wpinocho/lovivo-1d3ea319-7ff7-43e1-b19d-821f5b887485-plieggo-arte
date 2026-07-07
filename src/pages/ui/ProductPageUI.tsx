@@ -81,6 +81,8 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
   const [expressAvailable, setExpressAvailable] = useState(false)
   const [isZoomed, setIsZoomed] = useState(false)
   const [carouselApi, setCarouselApi] = useState<CarouselApi>()
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [slideCount, setSlideCount] = useState(0)
   const { ref: ctaRef, inView: ctaInView } = useInView({ threshold: 0 })
 
   // ⚠️ Hooks must be called unconditionally — BEFORE any early returns
@@ -96,6 +98,22 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
     setSelectedImage(null)
     carouselApi?.scrollTo(0)
   }, [logic.matchingVariant, carouselApi])
+
+  // Track carousel position for dots + counter (mobile gallery affordance)
+  useEffect(() => {
+    if (!carouselApi) return
+    const update = () => {
+      setSlideCount(carouselApi.scrollSnapList().length)
+      setCurrentSlide(carouselApi.selectedScrollSnap())
+    }
+    update()
+    carouselApi.on("select", update)
+    carouselApi.on("reInit", update)
+    return () => {
+      carouselApi.off("select", update)
+      carouselApi.off("reInit", update)
+    }
+  }, [carouselApi])
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -285,23 +303,31 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
               {/* Mobile: carousel */}
               {logic.displayImages && logic.displayImages.length > 1 ? (
                 <div className="md:hidden">
-                  <Carousel className="w-full" setApi={setCarouselApi}>
+                  <Carousel
+                    className="w-full"
+                    setApi={setCarouselApi}
+                    opts={{ align: "start" }}
+                  >
                     <CarouselContent>
                       {logic.displayImages.map((img: string, index: number) => (
-                        <CarouselItem key={index}>
+                        <CarouselItem key={index} className="basis-[86%]">
                           <div className="relative aspect-[4/5] rounded-lg overflow-hidden bg-muted/30">
                             <img
                               src={img}
                               alt={`${logic.product.title} ${index + 1}`}
                               loading="lazy"
                               decoding="async"
-                              className="w-full h-full object-contain"
+                              className="w-full h-full object-cover"
                             />
                             {discountPct > 0 && index === 0 && (
                               <Badge className="absolute top-3 left-3 bg-foreground text-background">
                                 -{discountPct}%
                               </Badge>
                             )}
+                            {/* Counter chip */}
+                            <div className="absolute bottom-3 right-3 bg-foreground/70 text-background text-xs px-2 py-0.5 rounded-full backdrop-blur-sm">
+                              {index + 1} / {logic.displayImages.length}
+                            </div>
                           </div>
                         </CarouselItem>
                       ))}
@@ -309,6 +335,23 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                     <CarouselPrevious className="left-2" />
                     <CarouselNext className="right-2" />
                   </Carousel>
+
+                  {/* Pagination dots — señal de "hay más, desliza" */}
+                  <div className="flex items-center justify-center gap-1.5 mt-3">
+                    {Array.from({ length: slideCount }).map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => carouselApi?.scrollTo(i)}
+                        aria-label={`Ir a imagen ${i + 1}`}
+                        className={cn(
+                          "h-1.5 rounded-full transition-all",
+                          i === currentSlide
+                            ? "w-5 bg-[#C16648]"
+                            : "w-1.5 bg-muted-foreground/30",
+                        )}
+                      />
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <div className="md:hidden relative aspect-[4/5] rounded-lg overflow-hidden bg-muted/30">
@@ -700,8 +743,8 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                 <div className="flex items-center gap-2 flex-1">
                   <Truck className="h-4 w-4 text-[#C16648] shrink-0" />
                   <div>
-                    <p className="font-semibold text-foreground/80">Envío gratis CDMX</p>
-                    <p>$200 MXN al resto de México</p>
+                    <p className="font-semibold text-foreground/80">Envío gratis</p>
+                    <p>A todo México</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-1">

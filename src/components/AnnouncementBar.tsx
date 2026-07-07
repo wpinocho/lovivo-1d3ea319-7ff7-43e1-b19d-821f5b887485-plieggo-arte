@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
  */
 
 const MESSAGES = [
-  'Envío gratis en CDMX • Entrega 5-7 días hábiles',
+  'Envío gratis a todo México • Entrega 5–7 días hábiles',
   'Cada pieza es única • Arte hecho a mano',
   '🇲🇽 100% Diseño Mexicano • Listo para colgar'
 ]

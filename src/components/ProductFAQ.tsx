@@ -40,8 +40,7 @@ export const ProductFAQ = () => {
       question: "¿Cuánto tarda el envío?",
       answer: (
         <div className="space-y-2 text-muted-foreground">
-          <p><span className="font-medium text-foreground">CDMX:</span> 5–7 días hábiles (GRATIS)</p>
-          <p><span className="font-medium text-foreground">Nacional:</span> 5–7 días hábiles ($200 MXN)</p>
+          <p><span className="font-medium text-foreground">Todo México:</span> 5–7 días hábiles · <span className="font-medium text-foreground">Envío GRATIS</span></p>
           <p className="text-xs mt-1 italic">Cada pieza se elabora especialmente para ti ✦</p>
         </div>
       )
