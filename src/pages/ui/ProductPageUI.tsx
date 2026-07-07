@@ -43,6 +43,7 @@ import { ProductFAQ } from "@/components/ProductFAQ"
 import { CrossSellSection } from "@/components/CrossSellSection"
 import { InspirationCarousel } from "@/components/InspirationCarousel"
 import { ProductReviews } from "@/components/ProductReviews"
+import { LightShadowFeature } from "@/components/LightShadowFeature"
 import { getProductReview } from "@/data/product-reviews"
 import { SizeGuide } from "@/components/SizeGuide"
 
@@ -620,64 +621,77 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                 </div>
               </div>
 
-              {/* CTAs — justo después de cantidad */}
+              {/* CTAs — jerarquía para ticket alto: Agregar al carrito PRIMARIO
+                  (baja fricción, es la acción que medimos), Comprar ahora
+                  secundario, y express checkout como opción terciaria. */}
               <div ref={ctaRef} className="flex flex-col gap-3">
-                {logic.inStock && logic.canAddToCart && !logic.selectedPlan && (
+                {logic.inStock ? (
                   <>
-                    <ProductExpressCheckout
-                      product={logic.product}
-                      variant={logic.matchingVariant}
-                      sellingPlan={logic.selectedPlan}
-                      quantity={logic.quantity}
-                      unitPrice={logic.currentPrice}
-                      onAvailabilityChange={setExpressAvailable}
-                    />
-                    {expressAvailable && (
-                      <div className="flex items-center gap-3 py-1">
-                        <Separator className="flex-1" />
-                        <span className="text-xs text-muted-foreground uppercase tracking-widest">
-                          o
-                        </span>
-                        <Separator className="flex-1" />
-                      </div>
+                    {/* PRIMARIO — Agregar al carrito (sólido terracota, igual que sticky bar) */}
+                    <Button
+                      onClick={logic.handleAddToCart}
+                      className="w-full h-14 text-base tracking-wide rounded-md bg-[#C16648] hover:bg-[#a85538] text-white border-0"
+                      size="lg"
+                    >
+                      <ShoppingCart className="mr-2 h-4 w-4" />
+                      {logic.selectedPlan
+                        ? `Suscribirse — ${logic.formatMoney(
+                            logic.subscriptionPrice || logic.currentPrice,
+                          )}/${intervalLabel(
+                            logic.selectedPlan.interval,
+                            logic.selectedPlan.interval_count,
+                          )}`
+                        : "Agregar al carrito"}
+                    </Button>
+
+                    {/* SECUNDARIO — Comprar ahora (solo compra única) */}
+                    {!logic.selectedPlan && (
+                      <Button
+                        onClick={logic.handleBuyNow}
+                        variant="outline"
+                        className="w-full h-12 text-sm tracking-wide rounded-md"
+                        size="lg"
+                      >
+                        Comprar ahora
+                      </Button>
+                    )}
+
+                    {/* TERCIARIO — Express checkout (Apple / Google Pay) */}
+                    {logic.canAddToCart && !logic.selectedPlan && (
+                      <>
+                        {expressAvailable && (
+                          <div className="flex items-center gap-3 py-1">
+                            <Separator className="flex-1" />
+                            <span className="text-xs text-muted-foreground uppercase tracking-widest">
+                              o paga directo
+                            </span>
+                            <Separator className="flex-1" />
+                          </div>
+                        )}
+                        <ProductExpressCheckout
+                          product={logic.product}
+                          variant={logic.matchingVariant}
+                          sellingPlan={logic.selectedPlan}
+                          quantity={logic.quantity}
+                          unitPrice={logic.currentPrice}
+                          onAvailabilityChange={setExpressAvailable}
+                        />
+                      </>
                     )}
                   </>
-                )}
-
-                {logic.inStock && (
-                  <Button
-                    onClick={logic.handleBuyNow}
-                    className="w-full h-14 text-base tracking-wide rounded-md"
-                    size="lg"
-                  >
-                    Comprar ahora
-                  </Button>
-                )}
-
-                <Button
-                  onClick={logic.handleAddToCart}
-                  disabled={!logic.inStock}
-                  variant={logic.inStock ? "outline" : "default"}
-                  className="w-full h-14 text-base tracking-wide rounded-md"
-                  size="lg"
-                >
-                  <ShoppingCart className="mr-2 h-4 w-4" />
-                  {logic.inStock
-                    ? logic.selectedPlan
-                      ? `Suscribirse — ${logic.formatMoney(
-                          logic.subscriptionPrice || logic.currentPrice,
-                        )}/${intervalLabel(
-                          logic.selectedPlan.interval,
-                          logic.selectedPlan.interval_count,
-                        )}`
-                      : "Agregar al carrito"
-                    : "Agotado"}
-                </Button>
-
-                {!logic.inStock && (
-                  <Badge variant="secondary" className="w-fit">
-                    Agotado
-                  </Badge>
+                ) : (
+                  <>
+                    <Button
+                      disabled
+                      className="w-full h-14 text-base tracking-wide rounded-md"
+                      size="lg"
+                    >
+                      Agotado
+                    </Button>
+                    <Badge variant="secondary" className="w-fit">
+                      Agotado
+                    </Badge>
+                  </>
                 )}
               </div>
 
@@ -723,6 +737,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
           {/* ── Plieggo sections ── */}
           {/* Orden: Reviews (confianza) → Inspiración (deseo) → FAQ (objeciones) → CrossSell (upsell) */}
           <div className="mt-16 space-y-16">
+            <LightShadowFeature images={logic.displayImages || product.images} title={product.title} />
             <ProductReviews productSlug={product.slug} />
             <InspirationCarousel />
             <ProductFAQ />

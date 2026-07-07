@@ -114,12 +114,15 @@ export const useProductLogic = (slugProp?: string) => {
         newSelected[opt.name] = availableValues[0]
         hasChanges = true
       }
-      // If multiple values available, prefer "30x90" size (any format) if it exists
+      // If multiple values available, pick a default size.
+      // Prisma abre en 50x50; el resto de las piezas prefiere 30x90.
       else if (availableValues.length > 1 && !selected[opt.name]) {
-        // Normalize and look for 30x90 in any format ("30x90cm", "30cm x 90cm", etc.)
+        const isPrisma = ((product as any).title || '').toLowerCase().includes('prisma')
+        const targetSize = isPrisma ? '50x50' : '30x90'
+        // Normalize and look for target size in any format ("50x50cm", "50cm x 50cm", etc.)
         const preferred = availableValues.find((val: string) => {
           const normalized = val.toLowerCase().replace(/\s+/g, '').replace(/cm/g, '')
-          return normalized === '30x90' || normalized.includes('30x90')
+          return normalized === targetSize || normalized.includes(targetSize)
         })
         if (preferred) {
           newSelected[opt.name] = preferred

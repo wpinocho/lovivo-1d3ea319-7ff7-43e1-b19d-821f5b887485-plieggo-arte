@@ -269,6 +269,14 @@ export const productReviews: Record<string, Review[]> = {
     { id: '2', author: 'Andrea Villanueva', rating: 5, comment: 'La combinación azul y coral en los pliegues es impresionante. Cada ángulo revela algo diferente. Arte vivo que transforma el espacio.', date: '2026-01-18', verified: true, variant: 'Única' },
     { id: '3', author: 'Diego Lara', rating: 5, comment: 'Una pieza realmente única. El prisma azul coral tiene una personalidad propia. Llegó muy bien protegido y en perfectas condiciones.', date: '2026-01-05', verified: true, variant: 'Única' },
     { id: '4', author: 'Fernanda Castañeda', rating: 4, comment: 'Hermosa pieza artesanal. El azul coral es una combinación que no esperaba que funcionara tan bien. Me encantó el resultado.', date: '2025-12-15', verified: true, variant: 'Única' },
+    { id: '5', author: 'Mariana Estévez', rating: 5, comment: 'Lo regalé a mi hermana en su cumpleaños y no paraba de agradecerme. El azul con el coral es distinto a todo lo que había visto. Se ve carísimo en persona.', date: '2025-12-02', verified: true, variant: '50x50cm' },
+    { id: '6', author: 'Gustavo Peralta', rating: 5, comment: 'Lo puse frente a la ventana de mi estudio y por la mañana el azul se ve más brillante, por la tarde más profundo. Nunca me canso de verlo.', date: '2025-11-20', verified: true, variant: '30x90cm' },
+    { id: '7', author: 'Renata Ochoa', rating: 4, comment: 'Muy bonito y bien hecho. Tardó unos días en llegar pero llegó impecable, súper bien empaquetado. El coral resalta más de lo que esperaba.', date: '2025-11-08', verified: true, variant: '50x50cm' },
+    { id: '8', author: 'Alejandro Cervantes', rating: 5, comment: 'Segunda pieza que compro de Plieggo. El nivel de detalle en los pliegues es de otro nivel. El azul coral quedó perfecto en mi departamento.', date: '2025-10-25', verified: true, variant: '30x90cm' },
+    { id: '9', author: 'Paulina Guerra', rating: 5, comment: 'Buscaba algo que no fuera un cuadro genérico de tienda y esto es exactamente eso: una pieza de arte real. Todos me preguntan de dónde es.', date: '2025-10-10', verified: true, variant: '50x50cm' },
+    { id: '10', author: 'Emiliano Ruvalcaba', rating: 5, comment: 'El contraste del azul profundo con el coral es espectacular con luz cálida por la noche. Le dio vida a toda mi sala.', date: '2025-09-27', verified: true, variant: '50x50cm' },
+    { id: '11', author: 'Daniela Otero', rating: 4, comment: 'Precioso. El azul es intenso y elegante. Le quito una estrella solo porque me hubiera gustado en un tamaño más grande, pero la calidad es innegable.', date: '2025-09-14', verified: true, variant: '30x90cm' },
+    { id: '12', author: 'Ricardo Beltrán', rating: 5, comment: 'Vale cada peso. Es de esas piezas que cambian por completo una pared. El empaque de lujo y la atención de Plieggo, impecables.', date: '2025-08-30', verified: true, variant: '50x50cm' },
   ],
 
   // NUEVO — 4 reseñas, 4.8★

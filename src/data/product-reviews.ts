@@ -105,7 +105,7 @@ export const productReviews: Record<string, ProductReview> = {
   },
   'acordeon-prisma-azul-coral': {
     rating: 4.8,
-    reviewCount: 4
+    reviewCount: 12
   },
   'acordeon-prisma-beige-blanco': {
     rating: 4.8,
