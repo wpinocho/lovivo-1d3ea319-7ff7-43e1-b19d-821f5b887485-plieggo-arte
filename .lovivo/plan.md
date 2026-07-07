@@ -22,19 +22,36 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **FORMATO IMAGEN PRODUCTO CANÓNICO: 4:5 vertical (1080×1350px).** Contenedor PDP es aspect-[4/5]. Todas las imágenes deben exportarse a 4:5 para llenar sin recorte ni letterbox.
 
 ## 3. Active Plan
-**GOAL: ✅ HECHO (pendiente aprobación del dueño) — Sección "Arte vivo" REAL en los 2 best-sellers.**
+**GOAL: "Arte vivo" solo honesto — quitar la versión "3 horas" de los 14 NO best-sellers y sustituir por bloque editorial de 1 foto.**
 
-- Componente `src/components/LightShadowFeature.tsx`: recibe `images?: string[]`, muestra hasta 3 con captions FIJOS `["Luz de mañana", "Media tarde", "Al anochecer"]` (grid-cols-3, aspect-[3/4], object-cover).
-- Ahora `ProductPageUI.tsx` (línea ~765) usa `getLightShadowSet(product.slug)` de `src/data/light-shadow-sets.ts`. Si el slug tiene set real de luz, lo usa; si no, cae al comportamiento anterior (galería del producto).
-- **Sets reales creados**: beige-sutil y verde-salvia. Cada set = [mañana generada, media-tarde (foto real del dueño), atardecer generada]. Misma escena, solo cambia luz.
-- Imágenes generadas con gemini + reference lifestyle del dueño (1 URL por pieza), 3:4, ~1200×1600.
+### Decisión (2026-07-07)
+- Rechazada opción de simular luz con filtro/opacidad CSS sobre la misma foto: se ve falso lado a lado, resta premium.
+- Aprobado: mantener el bloque "3 fotos a distinta hora" SOLO en best-sellers (verde-salvia, beige-sutil, que tienen sets reales). Para el resto NO mostrar 3 fotos con rótulos falsos.
+- Para no dejar hueco, los no-best-sellers muestran una variante editorial de UNA sola foto (la lifestyle = imagen 2) + copy del juego de luz/sombra, SIN el claim "distinta a cada hora" (100% honesto, sin fotos generadas).
+- Mantiene el piloto limpio para medir conversión de los 2 best-sellers antes de escalar.
+
+### Implementation steps (para Craft Mode)
+1. `src/components/LightShadowFeature.tsx`:
+   - Añadir prop `variant?: "triptych" | "single"` (default "triptych").
+   - `triptych`: comportamiento actual (grid-cols-3, captions FIJOS mañana/tarde/atardecer). Requiere >=2 imágenes distintas.
+   - `single`: recibe UNA imagen (la lifestyle). Layout de 1 foto grande (aspect-[4/5] o [3/4]) + texto. Cambiar copy del párrafo para NO prometer "3 momentos"; hablar del juego de luz/sombra a lo largo del día de forma genérica y honesta. Quitar los 3 figcaption; opcional un caption único tipo "Luz natural".
+   - Ocultar (return null) el modo single si no hay imagen lifestyle válida.
+2. `src/pages/ui/ProductPageUI.tsx` (~línea 766): decidir variante por slug.
+   - Si `getLightShadowSet(product.slug)` existe → `variant="triptych"` con el set real (como hoy).
+   - Si NO existe → `variant="single"` con `product.images[1]` (2ª imagen = lifestyle padre) como única foto. Si no hay images[1], usar images[0]; si tampoco, no renderizar.
+3. Verificar que `light-shadow-sets.ts` sigue igual (solo beige-sutil y verde-salvia).
+4. Revisar en PDP de un no-best-seller (ej. Luna Beige / Burdeos) que la sección single se vea premium en móvil.
+
+### Files to modify
+- `src/components/LightShadowFeature.tsx`: agregar variante `single` + copy honesto.
+- `src/pages/ui/ProductPageUI.tsx`: pasar variante e imagen según slug.
 
 ### Pendiente
-- **Dueño debe aprobar** las 4 imágenes generadas (mañana/atardecer × 2). Ver en las PDPs de verde-salvia y acorden-beige-sutil tras el deploy.
-- Los otros 14 productos SIGUEN mostrando la sección con fotos del producto (no cambian de luz) — sigue "mintiendo". Decidir: quitarla de no-best-sellers o expandir el efecto. Ver Known Issues.
-- Medir ATC de estas 2 PDPs vs antes; si sube, expandir efecto al resto.
+- **Dueño debe aprobar** las 4 imágenes generadas (mañana/atardecer × 2) en verde-salvia y beige-sutil.
+- Medir ATC de las 2 PDPs con triptych vs resto; si sube, generar sets reales para más productos y pasarlos a triptych.
 
 ## 4. Recent Changes
+- **2026-07-07** — 🔎 Decisión "Arte vivo" no-best-sellers: NO simular luz con filtro CSS (se ve falso). Plan: variante `single` (1 foto lifestyle + copy honesto sin claim de 3 horas) para los 14; triptych real solo en best-sellers. Piloto limpio.
 - **2026-07-07** — ✅ ProductCard estandarizado a 4:5 en TODAS las páginas (ProductCardUI ignora prop aspectRatio, usa aspect-[4/5] + object-cover). Skeletons a 4:5 en Index/TopSellers/AllProducts/CollectionAcordeon/CollectionEspacio. Hover ahora SIEMPRE muestra product.images[1] (2ª imagen general), sin importar variante ni colección (se ignora hoverImageIndex).
 - **2026-07-07** — ✅ "Arte vivo" REAL en 2 best-sellers. Creado `src/data/light-shadow-sets.ts` (map slug→[mañana, tarde, atardecer]). Generadas 4 imágenes (gemini + reference lifestyle del dueño): beige-sutil-manana/atardecer, verde-salvia-manana/atardecer. Media tarde = fotos reales subidas por el dueño. ProductPageUI ahora pasa el set por slug con fallback. Pendiente aprobación dueño.
 - **2026-07-07** — 🔎 Definida estrategia "Arte vivo" REAL (mañana/tarde/atardecer) SOLO para verde-salvia y beige-sutil, misma escena.
@@ -56,27 +73,27 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
   - beige-sutil: mañana=`product-images/.../beige-sutil-manana.webp`, tarde=`message-images/.../1783465455514-erl7cp2ex7h.webp` (foto dueño), atardecer=`product-images/.../beige-sutil-atardecer.webp`
   - verde-salvia: mañana=`product-images/.../verde-salvia-manana.webp`, tarde=`message-images/.../1783465455514-6789ry46yfb.webp` (foto dueño), atardecer=`product-images/.../verde-salvia-atardecer.webp`
   - URLs completas y map en `src/data/light-shadow-sets.ts`.
+- No-best-sellers: usar `product.images[1]` (lifestyle padre) como única foto del bloque single.
 - **verde-salvia** (id 16782cd1-...): imágenes producto en /product-images/products/: cydjtdr71j7, jf3z6pes9v, fwf6yok6qvw, vq9ybpu5tj, r449lwaje3h, vscfxbcjx8.
 - **acorden-beige-sutil**: lifestyle primera + 4:5 pendiente por dueño.
 - **Faltan reseñas (fotos)**: Beige Sutil y Luna Beige — el dueño las subirá.
 
 ## 6. Known Issues
-- **Sección "Arte vivo" en los 14 NO best-sellers sigue sin luz real**: usa fotos del producto que no cambian de luz. Decidir con dueño: (a) ocultarla para productos sin set, o (b) generar sets. Ahora mismo se mantiene por defecto para no reducir contenido sin datos.
+- **Sección "Arte vivo" triptych falsa en los 14 NO best-sellers** → se resuelve con el Active Plan (pasar a variante single honesta). Hasta que Craft Mode lo aplique, sigue mostrando rótulos de 3 horas sobre la misma toma.
 - **Inconsistencia tiempo de entrega**: announcement/FAQ dicen "5–7 días", trust strip PDP dice "10–15 días". Unificar (confirmar con dueño).
 - **Verificar tarifa de envío Dashboard = $0 todo México** para no contradecir copy en checkout.
-- **Imágenes con aspect ratio mixto (1:1 vs 4:5)**: con object-cover las 1:1 se recortan. Dueño debe re-exportar TODAS a 4:5.
+- **Imágenes con aspect ratio mixto (1:1 vs 4:5)**: dueño reporta que YA subió todo a 4:5. Verificar en preview que no queden 1:1 recortadas.
 - `inventory_quantity: 0` con track_inventory:false (comprables).
 - Video play error recurrente en hero (race condition) — no afecta.
 - Stripe Link NO activado; ECE no aparece en preview (esperado).
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** Dueño: aprobar las 4 imágenes de "Arte vivo" tras el deploy en verde-salvia y beige-sutil.
-- **[ALTA]** Decidir qué hacer con "Arte vivo" en los no best-sellers (ocultar vs expandir).
-- **[ALTA]** Dueño: reordenar imágenes (lifestyle primera) + estandarizar a 4:5.
+- **[ALTA]** Aplicar Active Plan: variante `single` honesta para no-best-sellers en LightShadowFeature (Craft Mode).
+- **[ALTA]** Dueño: aprobar las 4 imágenes de "Arte vivo" en verde-salvia y beige-sutil.
 - **[ALTA]** Unificar tiempo de entrega (5–7 vs 10–15 días).
 - **[ALTA]** Verificar tarifa envío Dashboard = $0.
 - **[ALTA]** FASE 3 CRO: encuesta exit-intent en /products/ (mobile).
 - **[MEDIA]** Dueño subir fotos de reseñas de Beige Sutil y Luna Beige.
-- **[MEDIA]** Si el efecto luz funciona en best-sellers → expandir al resto.
+- **[MEDIA]** Si el efecto luz funciona en best-sellers → generar sets reales del resto y pasarlos a triptych.
 - **[MEDIA]** A/B test lifestyle-first vs packshot-first primera imagen.
 - **[MEDIA]** Video del producto mostrando luz y sombra.
