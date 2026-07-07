@@ -41,6 +41,7 @@ import { CrossSellSection } from "@/components/CrossSellSection"
 import { InspirationCarousel } from "@/components/InspirationCarousel"
 import { ProductReviews } from "@/components/ProductReviews"
 import { LightShadowFeature } from "@/components/LightShadowFeature"
+import { getLightShadowSet } from "@/data/light-shadow-sets"
 import { getProductReview } from "@/data/product-reviews"
 import { SizeGuide } from "@/components/SizeGuide"
 
@@ -762,7 +763,14 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
           {/* ── Plieggo sections ── */}
           {/* Orden: Reviews (confianza) → Inspiración (deseo) → FAQ (objeciones) → CrossSell (upsell) */}
           <div className="mt-16 space-y-16">
-            <LightShadowFeature images={logic.displayImages || product.images} title={product.title} />
+            <LightShadowFeature
+              images={
+                getLightShadowSet(product.slug) ||
+                logic.displayImages ||
+                product.images
+              }
+              title={product.title}
+            />
             <ProductReviews productSlug={product.slug} />
             <InspirationCarousel />
             <ProductFAQ />
