@@ -8,7 +8,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { EcommerceTemplate } from "@/templates/EcommerceTemplate"
 import {
   ShoppingCart,
-  ArrowLeft,
   Plus,
   Minus,
   ChevronRight,
@@ -26,8 +25,6 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselPrevious,
-  CarouselNext,
   type CarouselApi,
 } from "@/components/ui/carousel"
 
@@ -228,19 +225,6 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
             </span>
           </nav>
 
-          {/* Back link — visible on all screens */}
-          <button
-            type="button"
-            onClick={logic.handleNavigateBack}
-            className="inline-flex mb-4 items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors
-              text-[11px] tracking-wide md:text-sm
-              bg-background/70 backdrop-blur-sm border border-border/50 rounded-full
-              px-3 py-1 md:px-0 md:py-0 md:bg-transparent md:backdrop-blur-none md:border-none md:rounded-none"
-          >
-            <ArrowLeft className="h-3 w-3 md:h-3.5 md:w-3.5" />
-            Seguir comprando
-          </button>
-
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
             {/* ── GALLERY (lg:col-span-7) ── */}
             <div className="lg:col-span-7 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-7rem)]">
@@ -332,8 +316,6 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                         </CarouselItem>
                       ))}
                     </CarouselContent>
-                    <CarouselPrevious className="left-2" />
-                    <CarouselNext className="right-2" />
                   </Carousel>
 
                   {/* Pagination dots — señal de "hay más, desliza" */}

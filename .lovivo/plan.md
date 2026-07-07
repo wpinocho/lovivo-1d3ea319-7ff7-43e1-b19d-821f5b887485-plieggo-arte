@@ -23,6 +23,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 **GOAL: PDP best-sellers listas para maximizar ATC en móvil.** Envío gratis corregido ✅. Galería móvil mejorada ✅. Pendiente: dueño reordena imágenes (lifestyle primera) + estandariza a 4:5.
 
 ## 4. Recent Changes
+- **2026-07-07** — ✅ PDP móvil: eliminadas flechas del carrusel (CarouselPrevious/Next) — ahora solo peek + dots. Quitado botón "Seguir comprando" superior para mejor pantallazo inicial. Imports ArrowLeft/CarouselPrevious/CarouselNext removidos.
 - **2026-07-07** — ✅ Envío gratis todo México corregido en 3 sitios (AnnouncementBar 13, ProductPageUI trust strip, ProductFAQ). Grep confirma sin residuos "$200"/"CDMX".
 - **2026-07-07** — ✅ Galería móvil PDP: peek de siguiente imagen (basis-[86%] + align start), counter chip "n/N", dots de paginación (activo terracota), object-contain→object-cover para eliminar whitespace lateral. Estados currentSlide/slideCount + effect sobre carouselApi.
 - **2026-07-07** — 🔎 Recomendación al dueño: estandarizar TODAS las imágenes de producto a 4:5 (1080×1350); subir 5-6 por pieza (packshot, lifestyle luz/sombra, detalle textura, escala, ambiente).
