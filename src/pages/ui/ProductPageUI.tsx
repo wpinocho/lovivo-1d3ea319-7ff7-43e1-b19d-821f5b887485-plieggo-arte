@@ -763,14 +763,27 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
           {/* ── Plieggo sections ── */}
           {/* Orden: Reviews (confianza) → Inspiración (deseo) → FAQ (objeciones) → CrossSell (upsell) */}
           <div className="mt-16 space-y-16">
-            <LightShadowFeature
-              images={
-                getLightShadowSet(product.slug) ||
-                logic.displayImages ||
-                product.images
+            {(() => {
+              const realSet = getLightShadowSet(product.slug)
+              if (realSet) {
+                return (
+                  <LightShadowFeature
+                    variant="triptych"
+                    images={realSet}
+                    title={product.title}
+                  />
+                )
               }
-              title={product.title}
-            />
+              // Sin set real: bloque editorial honesto de UNA sola foto (lifestyle).
+              const lifestyle = product.images?.[1] || product.images?.[0]
+              return lifestyle ? (
+                <LightShadowFeature
+                  variant="single"
+                  images={[lifestyle]}
+                  title={product.title}
+                />
+              ) : null
+            })()}
             <ProductReviews productSlug={product.slug} />
             <InspirationCarousel />
             <ProductFAQ />
