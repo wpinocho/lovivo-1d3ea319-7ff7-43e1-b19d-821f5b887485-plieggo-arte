@@ -9,7 +9,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Best-sellers reales: `acorden-beige-sutil` y `verde-salvia`.**
 - **Rating agregado real del catálogo: ~4.8★ · 196 reseñas.**
 - **MSI ACTIVO EN DASHBOARD.** Backend (`payments-create-intent`) inyecta payment_method_options[card][installments] server-side leyendo `store_settings.payment_methods.installments`.
-- **SPEI (customer_balance) y OXXO ACTIVOS.**
+- **SPEI (customer_balance) y OXXO ACTIVOS.** SPEI EXIGE un customer con EMAIL VÁLIDO al crear el intent.
 - **Tienda hermana de referencia: rodata.mx** (mismo template, checkout deferred limpio que funciona).
 
 ## 2. Design System
@@ -22,32 +22,44 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **MSI badge marketing** (encima del PaymentElement): "Paga hasta en {N} meses sin intereses con tarjetas participantes." (N = paymentMethods.installments_max_plan ?? 6). Sin glow.
 
 ## 3. Active Plan
-**OBJETIVO: PASO 2 — Selector MSI inline. ✅ IMPLEMENTADO (2026-07-08) — PENDIENTE VALIDAR EN PROD.**
+**OBJETIVO: PASO 3 — Arreglar bug del correo que se borra + errores 500 SPEI en el checkout MSI up-front.**
 
-### ✅ PASO 2 IMPLEMENTADO (2026-07-08) — modo client_secret up-front en `StripePayment.tsx`
-Reescrito el wrapper `StripePayment` (export default) para crear el PaymentIntent UP-FRONT al montar (único modo que hace que Stripe muestre el selector de meses inline). Detalles del código:
-- Nuevos props en `PaymentForm`: `preClientSecret`, `preIntentOrder`.
-- El wrapper crea el intent con `createIntent()` (useCallback + `creatingRef` guard) en un `useEffect` al montar cuando hay `orderId + amountCents`. Guarda `client_secret` + `order`.
-- `<Elements>` se monta en modo `{ clientSecret, appearance }` cuando hay secret; si no (suscripción o fallo), cae a modo deferred `{ mode, amount, paymentMethodTypes, appearance }`. `key={clientSecret||'deferred'}`.
-- Mientras se crea el intent: `<PaymentBlockSkeleton>` (evita flash deferred→client_secret).
-- `handlePayment` y `handleExpressCheckoutConfirm`: si hay `preClientSecret`, lo usan directo (NO recrean intent en el clic). Si no, mantienen el flujo deferred / subscription-create.
-- `elements.update({amount})` se SALTA cuando hay `preClientSecret` (no permitido en modo client_secret).
-- Recreación de intent si el total cambia (cupón post-mount): `useEffect` que compara `intentAmountRef` vs `amountCents` → `createIntent()` de nuevo. Raro y NO es swap de modo.
-- Suscripciones: `hasSubscription` detectado desde items → se mantiene modo deferred (fallback), no rompe.
+### 🐛 DIAGNÓSTICO (2026-07-08) — CONFIRMADO leyendo código
+Bug reportado por el dueño: al escribir el correo la 1ª vez, se borra; a la 2ª se queda y aparece el selector MSI. Además consola llena de 500 de `payments-create-intent`.
 
-**VALIDACIÓN EN PROD tras deploy (dueño con tarjeta de crédito MX real):**
-- Al escribir tarjeta de CRÉDITO mexicana debe aparecer el selector 3/6/9/12 meses dentro del PaymentElement.
-- Tarjeta de débito NO muestra meses (esperado).
-- SPEI (Transferencia) sigue generando instrucciones (next_action) — VALIDAR que el email llega para las instrucciones (se envía en confirmPayment vía receipt_email).
-- OXXO sigue funcionando. Express checkout sigue visible.
-- Si el edge NO crea el intent up-front sin email o rompe SPEI → ESCALAR A LOVIVO (no volver a deferred).
+**Causa raíz (una sola, con 3 síntomas):** El correo se captura con `<LinkAuthenticationElement>` que vive DENTRO de `<Elements>`. El wrapper `StripePayment` (default export, `src/components/StripePayment.tsx`) arranca en modo **deferred** (`key={clientSecret || 'deferred'}`) porque al montar NO hay email → el `createIntent()` up-front falla (SPEI/`customer_balance` exige customer con email válido → 500 "You must provide a customer...").
+- Al escribir un email válido, `createIntent` (useCallback con dep en `props.email`) + el `useEffect` de montaje (dep en `createIntent`) provocan que `createIntent()` se dispare EN CADA TECLA → 500s con emails parciales (`julian.ruiz.loza@gmailc` → "Invalid email address").
+- Cuando el email queda válido, `createIntent` triunfa → `setClientSecret()` → el `key` de `<Elements>` pasa de `'deferred'` a `clientSecret` → **`<Elements>` SE REMONTA por completo** → el `LinkAuthenticationElement` se resetea a su estado colapsado de Link → el correo recién escrito "se borra".
+- 2º intento: `clientSecret` ya existe → guard `if (!clientSecret)` evita re-swap → sin remount → el correo persiste y el selector MSI aparece. ← coincide 100% con el reporte.
+
+**Conclusión:** El swap deferred→client_secret (remount de `<Elements>`) es incompatible con capturar el email dentro de Elements. NO se puede cambiar el modo de un `<Elements>` montado sin remontarlo. La solución limpia es capturar un email VÁLIDO ANTES de montar Elements, para que Elements se monte UNA sola vez directamente en modo client_secret (sin fase deferred, sin swap, sin wipe).
+
+### ✅ FIX RECOMENDADO (Opción A — email-first, arquitectura limpia)
+Localizado en `src/pages/ui/CheckoutUI.tsx` + `src/components/StripePayment.tsx`.
+
+1. **Campo de correo NATIVO fuera de Stripe Elements** en `CheckoutUI.tsx`, ARRIBA del `<StripePayment>`:
+   - Input controlado por `logic.email` / `logic.setEmail` (ya existen; ver props `onEmailChange`/`onEmailBlur` líneas 332-335). En blur llamar `logic.saveClientDataOnBlur()`.
+   - `type="email"`, `inputMode="email"`, `autoComplete="email"`, validación inline de email completo.
+   - Copy/label: "Correo electrónico" + microcopy "Para enviarte la confirmación y el comprobante".
+2. **Gatear el render de `<StripePayment>` hasta tener email válido y completo.** Mientras no haya email válido, mostrar un placeholder/skeleton bajo el campo de correo (no montar Elements todavía). Regex simple de email completo antes de permitir montar.
+3. **En `StripePayment.tsx` (wrapper default export):**
+   - `createIntent()` SOLO se dispara cuando `props.email` es un email válido y completo. Añadir `hasCreatedRef` para que se cree UNA sola vez por email válido (evitar spam por tecla). Quitar/neutralizar el disparo en cada cambio de `props.email` en el `useEffect` de montaje.
+   - Con email válido desde el inicio → `createIntent()` triunfa a la primera → `clientSecret` listo → `<Elements>` se monta UNA vez en modo client_secret. NO más fase `'deferred'` para one-time. `key={clientSecret}` estable (no cambia).
+   - Mantener el `PaymentBlockSkeleton` mientras se crea el intent.
+   - `LinkAuthenticationElement` se mantiene DENTRO de Elements SOLO pre-sembrado (`defaultValues.email = props.email`) para conservar Link/tarjetas guardadas de clientes recurrentes; ya NO es la captura primaria, y como Elements no se remonta, no hay wipe.
+   - Fallback deferred se conserva SOLO para suscripciones (`hasSubscription`) o si `createIntent` falla pese a email válido.
+4. **SPEI:** con el intent creado ya CON email válido, desaparece el error "You must provide a customer...". Validar que Transferencia sigue generando instrucciones.
+
+### Opción B (fallback si Opción A da problemas con Link/SPEI en prod)
+Revertir a flujo deferred limpio (Paso 1, paridad rodata) SIN up-front. Se pierde el selector MSI inline (solo queda el badge marketing). Cero wipe, cero 500s. Usar solo si Opción A no se puede estabilizar.
 
 ### ThankYou — mostrar plan MSI (pendiente ALTA)
 En `/gracias/:orderId` (`src/pages/ThankYou.tsx`), leer `payment_method_details.installments` del order y mostrar "Pagado en {count} meses sin intereses" + opcional last4. Verificar RLS sobre `orders`.
 
 ## 4. Recent Changes
-- **2026-07-08** — ✅ PASO 2 IMPLEMENTADO: `StripePayment.tsx` wrapper reescrito a modo client_secret UP-FRONT (intent creado al montar → activa selector MSI inline). Props `preClientSecret`/`preIntentOrder`, skeleton, fallback deferred para suscripción/fallo, recreación de intent al cambiar total. PENDIENTE validar en prod con tarjeta crédito MX real.
-- **2026-07-08** — 🔎 DIAGNÓSTICO PASO 2 confirmado con docs Stripe: selector MSI inline REQUIERE modo client_secret up-front. Plieggo seguro (envío gratis/fijo → total estable).
+- **2026-07-08** — 🐛 DIAGNÓSTICO PASO 3: correo se borra en 1er intento por REMOUNT de `<Elements>` al hacer swap deferred→client_secret (email vive en LinkAuthenticationElement dentro de Elements). Errores 500 SPEI por crear intent sin email / con email parcial (createIntent en cada tecla). Fix recomendado: capturar email NATIVO fuera de Elements + gatear StripePayment hasta email válido → Elements monta 1 vez en client_secret. PENDIENTE implementar en Craft.
+- **2026-07-08** — ✅ PASO 2 IMPLEMENTADO: `StripePayment.tsx` wrapper reescrito a modo client_secret UP-FRONT (intent creado al montar → activa selector MSI inline). MSI FUNCIONA (confirmado por dueño en 2º intento de correo), pero con bug de wipe + 500s → ver Paso 3.
+- **2026-07-08** — 🔎 DIAGNÓSTICO PASO 2 confirmado con docs Stripe: selector MSI inline REQUIERE modo client_secret up-front.
 - **2026-07-08** — ⚠️ Detectado error 400 `checkout-update` "Order not found or cannot be updated" al guardar dirección (preview). Ver Known Issues.
 - **2026-07-08** — ✅ Dueño CONFIRMA que PASO 1 funciona (checkout como rodata).
 - **2026-07-08** — ✅ PASO 1: `StripePayment.tsx` reescrito a deferred limpio (paridad rodata).
@@ -56,7 +68,6 @@ En `/gracias/:orderId` (`src/pages/ThankYou.tsx`), leer `payment_method_details.
 - **2026-07-08** — ✅ CHECKOUT CRO. Nuevo `CheckoutTrustBadges.tsx`.
 - **2026-07-07** — ✅ "Arte vivo" honesto (`LightShadowFeature.tsx`).
 - **2026-07-07** — ✅ ProductCard estandarizado 4:5. Hover product.images[1].
-- **2026-07-07** — ✅ Envío gratis todo México corregido en 3 sitios.
 
 ## 5. Image Inventory
 - **Hero slide 1**: ...1779301620051-88tz4z58bt7.webp · slide 2: ...1779296069343-2ifge8n87sv.webp · slide 3: hero-paper-folding.mp4
@@ -66,17 +77,18 @@ En `/gracias/:orderId` (`src/pages/ThankYou.tsx`), leer `payment_method_details.
 - **Faltan reseñas (fotos)**: Beige Sutil y Luna Beige — el dueño las subirá.
 
 ## 6. Known Issues
-- **[VALIDAR EN PROD 2026-07-08] Selector MSI inline**: implementado modo client_secret up-front. Requiere validación del dueño con tarjeta de crédito MX real. Riesgos a vigilar: (a) email vacío al mount para SPEI (se envía en confirm), (b) cupón post-mount recrea intent.
-- **[NUEVO 2026-07-08] Error 400 `checkout-update` "Order not found or cannot be updated"** al guardar dirección de envío (visto en screenshots preview). Puede ser quirk de preview o bug real. VALIDAR en prod. Si afecta prod → escalar a Lovivo.
-- **SPEI (customer_balance)**: en up-front server-side sigue soportado (el edge crea Customer). Riesgo solo si el email llega tarde para instrucciones — validar.
+- **[EN CURSO 2026-07-08] Correo se borra en 1er intento (Paso 3)**: causa = remount de `<Elements>` en swap deferred→client_secret. Fix diseñado (email-first). Implementar en Craft.
+- **[EN CURSO 2026-07-08] Errores 500 `payments-create-intent`**: "You must provide a customer... customer_balance" (email vacío al mount) y "Invalid email address" (email parcial por createIntent en cada tecla). Se resuelven con el fix email-first (crear intent solo con email válido, una vez).
+- **[VALIDAR EN PROD 2026-07-08] Selector MSI inline**: FUNCIONA (confirmado). Validar que sigue funcionando tras el fix email-first.
+- **[NUEVO 2026-07-08] Error 400 `checkout-update` "Order not found or cannot be updated"** al guardar dirección. Puede ser quirk de preview. VALIDAR en prod. Si afecta prod → escalar a Lovivo.
 - **Failed to fetch en consola**: extensión de Chrome (`frame_ant.js`), NO de la tienda. Ignorar.
 - **"Unable to download payment manifest pay.google.com/..."**: ruido de Google Pay. Ignorar.
 - **ThankYou fetch a `orders`**: puede fallar por RLS (fallback silencioso).
 - **Verificar tarifa de envío Dashboard = $0 todo México**.
-- Stripe Link NO activado; ECE puede no aparecer en preview (esperado).
 
 ## 7. Pending / Future Sessions
-- **[ALTA · DUEÑO/PROD]** Validar Paso 2 con tarjeta de crédito MX real: aparece selector 3/6/9/12, SPEI/OXXO/express siguen bien, dirección persiste.
+- **[ALTA · CRAFT]** Implementar fix email-first (Paso 3): campo de correo nativo fuera de Elements + gatear StripePayment + createIntent solo con email válido (una vez). Elimina wipe y 500s.
+- **[ALTA · DUEÑO/PROD]** Tras el fix, validar: correo NO se borra a la 1ª, selector MSI sigue apareciendo, SPEI/OXXO/express siguen bien, sin 500s en consola.
 - **[ALTA]** ThankYou muestra el plan MSI ("Pagado en {count} meses sin intereses" + last4). RLS sobre `orders`.
 - **[MEDIA]** Investigar/validar error 400 `checkout-update` (dirección de envío).
 - **[MEDIA]** Verificar tarifa envío Dashboard = $0.
