@@ -733,7 +733,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                 <div className="flex items-center gap-2 flex-1">
                   <Clock className="h-4 w-4 text-[#C16648] shrink-0" />
                   <div>
-                    <p className="font-semibold text-foreground/80">10–15 días hábiles</p>
+                    <p className="font-semibold text-foreground/80">Entrega 5–7 días hábiles</p>
                     <p>Hecha a mano para ti</p>
                   </div>
                 </div>

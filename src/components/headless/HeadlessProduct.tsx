@@ -323,17 +323,16 @@ export const useProductLogic = (slugProp?: string) => {
   // Helper para obtener imágenes a mostrar según variante seleccionada
   const getDisplayImages = (): string[] => {
     if (!product) return []
-    
-    const productImages = product.images || []
+
+    const productImages: string[] = product.images || []
     const matchingVariant = getMatchingVariant()
-    
-    // Si la variante tiene imágenes propias, mostrar SOLO las de esa variante
-    if (matchingVariant?.image_urls && matchingVariant.image_urls.length > 0) {
-      return matchingVariant.image_urls
-    }
-    
-    // Sin variante o variante sin image_urls: mostrar todas las imágenes del producto
-    return productImages
+    const variantImages: string[] = matchingVariant?.image_urls || []
+
+    // REGLA PLIEGGO: las imágenes del producto (las del dashboard) SIEMPRE
+    // aparecen en el carrusel, en su orden original. Si la variante tiene
+    // imágenes propias adicionales, se anexan al final sin duplicar. Así nunca
+    // "desaparece" una imagen del dashboard ni se muestra una que no exista ahí.
+    return Array.from(new Set([...productImages, ...variantImages]))
   }
 
   // Calculated values
