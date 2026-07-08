@@ -22,28 +22,28 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **MSI badge marketing** (encima del PaymentElement): "Paga hasta en {N} meses sin intereses con tarjetas participantes." (N = paymentMethods.installments_max_plan ?? 6). Sin glow.
 
 ## 3. Active Plan
-**OBJETIVO: PASO 3 — Fix email-first IMPLEMENTADO. Pendiente validación del dueño en prod.**
+**OBJETIVO: PASO 4 — Quitar el "muro" de correo → "best of both worlds". PENDIENTE GREEN-LIGHT DEL DUEÑO.**
 
-### ✅ FIX IMPLEMENTADO (2026-07-08) — Email-first (Opción A)
-Bug: al escribir el correo la 1ª vez se borra (remount de `<Elements>` al hacer swap deferred→client_secret) + 500s de SPEI (`payments-create-intent`) por crear intent sin email / con email parcial.
+### 🟡 PROPUESTA (2026-07-08) — Formulario completo desde el inicio + upgrade a MSI on-email
+El dueño reporta 2 problemas con el gate email-first actual:
+1. Se siente como muro (baja conv) — hoy `CheckoutUI.tsx` esconde TODO hasta que hay correo válido (`paymentUnlocked`).
+2. Se perdió el autollenado propio de Stripe Link (el `LinkAuthenticationElement` solo monta post-gate).
 
-**Cambios aplicados:**
-1. **`src/pages/ui/CheckoutUI.tsx`** — Gate de correo NATIVO fuera de Stripe Elements:
-   - Nuevo estado latch `paymentUnlocked` (una vez válido, no se re-esconde).
-   - `useEffect` que hace `setPaymentUnlocked(true)` cuando `isCompleteEmail(logic.email)`.
-   - En la sección de Pago: si `!paymentUnlocked` → muestra `<CheckoutSecurityBanner/>` + `<Input>` de correo nativo (type=email, inputMode=email, autoComplete=email) controlado por `logic.email`/`setEmail`, blur→`saveClientDataOnBlur()`, con validación inline. Solo cuando el correo es válido monta `<StripePayment>`.
-2. **`src/components/StripePayment.tsx`**:
-   - Nuevo helper exportado `isCompleteEmail(email)`.
-   - `createIntent()` ahora GATEA con `if (!isCompleteEmail(props.email)) { setIntentReady(true); return }` → nunca crea intent sin email válido (mata los 500 de SPEI). Con StripePayment gateado por CheckoutUI, monta ya con email válido → intent se crea 1 vez → Elements monta 1 vez en client_secret (sin fase deferred, sin swap, sin wipe).
-   - `LinkAuthenticationElement` se mantiene DENTRO de Elements (pre-seeded con props.email) para Link/tarjetas guardadas; ya no se remonta → no borra el correo. No hay doble campo porque el nativo solo se ve pre-unlock.
-
-**Trade-off conocido:** Express Checkout (Google Pay/Link arriba) queda tras el gate de correo → el cliente escribe correo antes de ver los wallets (estilo Shopify). Aceptable. Clientes recurrentes con correo guardado saltan el gate automáticamente (latch inmediato).
+**Enfoque propuesto (confirmado técnicamente viable, PENDIENTE que el dueño diga "sí"):**
+- Montar el checkout COMPLETO desde el inicio en modo *deferred* (correo, dirección, métodos de pago, express) — sin muro.
+- Correo como PRIMER campo, arriba.
+- Cuando el correo es válido → crear intent → remontar Elements en modo `client_secret` (aparecen los meses).
+- El correo vive en estado React y se re-inyecta vía `defaultValues.email` tras el remonte → no se borra (soluciona el bug original de otra forma).
+- Como el correo va PRIMERO, el remonte/parpadeo ocurre ANTES de que escriban dirección → no se pierde nada.
+- **Costo aceptado:** un parpadeo único del bloque de pago al validar el correo (obligado por Stripe para pasar a modo MSI).
+- **Ganancia:** sin muro + MSI + se recupera el autollenado de Stripe Link.
 
 ### ThankYou — mostrar plan MSI (pendiente ALTA)
 En `/gracias/:orderId` (`src/pages/ThankYou.tsx`), leer `payment_method_details.installments` del order y mostrar "Pagado en {count} meses sin intereses" + opcional last4. Verificar RLS sobre `orders`.
 
 ## 4. Recent Changes
-- **2026-07-08** — ✅ PASO 3 FIX IMPLEMENTADO (email-first): campo de correo nativo con gate `paymentUnlocked` en `CheckoutUI.tsx` + `createIntent` gateado con `isCompleteEmail()` en `StripePayment.tsx`. Elements monta 1 vez en client_secret → sin wipe del correo, sin 500s de SPEI. PENDIENTE validar en prod.
+- **2026-07-08** — 🟡 PROPUESTA PASO 4 (discusión): quitar muro email-first → formulario completo deferred desde inicio + upgrade a client_secret (MSI) al validar correo; correo re-inyectado vía defaultValues. Recupera autollenado de Stripe Link. PENDIENTE green-light del dueño.
+- **2026-07-08** — ✅ PASO 3 FIX IMPLEMENTADO (email-first): campo de correo nativo con gate `paymentUnlocked` en `CheckoutUI.tsx` + `createIntent` gateado con `isCompleteEmail()` en `StripePayment.tsx`. Elements monta 1 vez en client_secret → sin wipe del correo, sin 500s de SPEI.
 - **2026-07-08** — 🐛 DIAGNÓSTICO PASO 3: correo se borra por REMOUNT de `<Elements>` al hacer swap deferred→client_secret. 500s SPEI por crear intent sin email / con email parcial.
 - **2026-07-08** — ✅ PASO 2 IMPLEMENTADO: `StripePayment.tsx` a modo client_secret UP-FRONT (activa selector MSI inline). MSI FUNCIONA.
 - **2026-07-08** — ⚠️ Detectado error 400 `checkout-update` "Order not found or cannot be updated" al guardar dirección (preview).
@@ -70,8 +70,8 @@ En `/gracias/:orderId` (`src/pages/ThankYou.tsx`), leer `payment_method_details.
 - **Verificar tarifa de envío Dashboard = $0 todo México**.
 
 ## 7. Pending / Future Sessions
-- **[ALTA · DUEÑO/PROD]** Validar el fix email-first en prod (ver Known Issues).
-- **[MEDIA] Express Checkout tras gate**: si el dueño quiere Google Pay/Link ANTES del correo, montar un `<Elements>` deferred separado solo para ExpressCheckoutElement arriba, independiente del intent con MSI.
+- **[ALTA · ESPERANDO GREEN-LIGHT]** PASO 4: implementar el enfoque "best of both worlds" (ver Active Plan). Toca `CheckoutUI.tsx` (quitar gate `paymentUnlocked`, correo primer campo, mantener form visible) y `StripePayment.tsx` (deferred→client_secret upgrade al validar correo, re-inyectar email vía defaultValues, LinkAuthenticationElement montado desde inicio). Cargar skill `pages.checkout` antes de tocar.
+- **[ALTA · DUEÑO/PROD]** Validar el fix email-first actual en prod (si no se implementa PASO 4).
 - **[ALTA]** ThankYou muestra el plan MSI ("Pagado en {count} meses sin intereses" + last4). RLS sobre `orders`.
 - **[MEDIA]** Investigar/validar error 400 `checkout-update` (dirección de envío).
 - **[MEDIA]** Verificar tarifa envío Dashboard = $0.
