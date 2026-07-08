@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast'
 import { EcommerceTemplate } from '@/templates/EcommerceTemplate'
 import { supabase } from '@/lib/supabase'
 import { STORE_ID } from '@/lib/config'
-import type { Product } from '@/lib/supabase'
+import type { Product, OrderPaymentMethodDetails } from '@/lib/supabase'
 
 interface OrderDetails {
   id: string
@@ -26,6 +26,7 @@ interface OrderDetails {
   order_items: any[]
   created_at: string
   checkout_token?: string
+  payment_method_details?: OrderPaymentMethodDetails
 }
 
 /** Strips raw variant name format "30cm x 90cm / 6000 / ['url1', ...]" → "30cm x 90cm" */
@@ -79,6 +80,39 @@ const ThankYou = () => {
     }
 
     loadOrder()
+  }, [orderId])
+
+  // Fetch payment_method_details from DB (written by the Stripe webhook) to show
+  // the chosen MSI plan. May arrive with a small delay, so we poll a couple times.
+  useEffect(() => {
+    if (!orderId) return
+    let attempts = 0
+    let timer: ReturnType<typeof setTimeout>
+
+    const fetchPaymentDetails = async () => {
+      try {
+        const { data } = await supabase
+          .from('orders')
+          .select('payment_method_details')
+          .eq('id', orderId)
+          .maybeSingle()
+
+        const details = data?.payment_method_details as OrderPaymentMethodDetails | undefined
+        if (details?.installments) {
+          setOrder((prev) => (prev ? { ...prev, payment_method_details: details } : prev))
+          return
+        }
+      } catch (e) {
+        // Silent — non-critical enhancement
+      }
+      attempts += 1
+      if (attempts < 3) {
+        timer = setTimeout(fetchPaymentDetails, 2500)
+      }
+    }
+
+    fetchPaymentDetails()
+    return () => clearTimeout(timer)
   }, [orderId])
 
   // Fetch upsell products after order is loaded
@@ -264,6 +298,15 @@ const ThankYou = () => {
                   <span>Total</span>
                   <span>{formatMoney(order.total_amount, order.currency_code)}</span>
                 </div>
+
+                {order.payment_method_details?.installments && (
+                  <p className="text-sm text-muted-foreground pt-1">
+                    Pagado en {order.payment_method_details.installments.count} meses sin intereses
+                    {order.payment_method_details.card?.last4 && (
+                      <> con tarjeta terminada en {order.payment_method_details.card.last4}</>
+                    )}
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>

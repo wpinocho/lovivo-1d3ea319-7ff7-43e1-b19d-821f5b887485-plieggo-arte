@@ -225,6 +225,14 @@ export type PaymentMethods = {
   card: boolean
   oxxo: boolean
   spei: boolean
+  installments?: boolean
+  installments_max_plan?: 3 | 6 | 9 | 12
+}
+
+export type OrderPaymentMethodDetails = {
+  type?: string
+  card?: { brand?: string; last4?: string; country?: string; funding?: string }
+  installments?: { count: number; interval: 'month'; type: 'fixed_count' }
 }
 
 export type StoreSettings = {

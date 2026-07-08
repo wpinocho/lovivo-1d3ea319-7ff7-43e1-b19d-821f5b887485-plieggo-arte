@@ -84,7 +84,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
   const { ref: ctaRef, inView: ctaInView } = useInView({ threshold: 0 })
 
   // ⚠️ Hooks must be called unconditionally — BEFORE any early returns
-  const { storeName, currencyCode } = useSettings()
+  const { storeName, currencyCode, paymentMethods } = useSettings()
 
   const displayImage =
     selectedImage ||
@@ -429,6 +429,20 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                       </>
                     )}
                 </div>
+
+                {/* MSI badge — solo tarjetas MX, MSI activo en Dashboard y precio elegible ($4,500+) */}
+                {paymentMethods?.installments &&
+                  currencyCode.toLowerCase() === "mxn" &&
+                  logic.currentPrice >= 4500 && (
+                    <p className="text-xs text-muted-foreground">
+                      o {paymentMethods.installments_max_plan ?? 6} meses sin intereses de{" "}
+                      <span className="font-medium text-foreground">
+                        {logic.formatMoney(
+                          logic.currentPrice / (paymentMethods.installments_max_plan ?? 6),
+                        )}
+                      </span>
+                    </p>
+                  )}
 
                 {/* Promo badges */}
                 {logic.product?.id && (

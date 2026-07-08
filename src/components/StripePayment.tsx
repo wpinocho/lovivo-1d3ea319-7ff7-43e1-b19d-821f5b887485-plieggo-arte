@@ -230,9 +230,9 @@ function PaymentForm({
     capture_method: "automatic",
     use_stripe_connect: true,
     payment_method_types: buildPaymentMethodTypes(paymentMethods),
-    // Habilita Meses Sin Intereses (MSI) en tarjetas MX elegibles. Stripe los
-    // muestra automáticamente en el PaymentElement cuando el PaymentIntent los pide.
-    payment_method_options: { card: { installments: { enabled: true } } },
+    // MSI (Meses Sin Intereses): el backend inyecta payment_method_options[card][installments]
+    // server-side leyendo store_settings.payment_methods.installments. NO se envía desde el
+    // frontend para respetar el interruptor del Dashboard.
     validation_data: {
       shipping_address: shippingAddress ? {
         line1: shippingAddress.line1 || "",
@@ -917,6 +917,16 @@ function PaymentForm({
 
           {deliveryMethodSlot}
         </>
+      )}
+
+      {/* MSI marketing badge — solo si el Dashboard tiene MSI activo y la moneda es MXN */}
+      {paymentMethods?.installments && (currency || 'mxn').toLowerCase() === 'mxn' && (
+        <div className="rounded-md border border-primary/20 bg-primary/5 px-3 py-2 flex items-start gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="text-primary mt-0.5 shrink-0"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+          <p className="text-sm text-primary">
+            Paga hasta en {paymentMethods.installments_max_plan ?? 6} meses sin intereses con tarjetas participantes.
+          </p>
+        </div>
       )}
 
       {/* Unified Payment Element */}
