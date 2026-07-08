@@ -42,6 +42,14 @@ function shouldUseInstallmentsMode(pm?: PaymentMethods, currency?: string): bool
   return !!pm?.installments && (currency || 'mxn').toLowerCase() === 'mxn'
 }
 
+/** Minimal, forgiving email validation. Used to gate the early MSI intent
+ *  creation: customer_balance (SPEI) requires a Stripe Customer with an email,
+ *  so we must NOT create the intent until the customer typed a valid email. */
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+function isValidEmail(email?: string | null): boolean {
+  return !!email && EMAIL_RE.test(email.trim())
+}
+
 /** Normalize + dedupe cart/order items into the shape the payments edge expects. */
 function buildPaymentItemsFrom(items: any[], sourceOrder: any): any[] {
   const rawItems: any[] = (Array.isArray(items) && items.length > 0)
@@ -1090,16 +1098,32 @@ function InstallmentsElements({ stripePromise, ...props }: StripePaymentProps & 
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [intentOrder, setIntentOrder] = useState<any>(null)
   const [fallback, setFallback] = useState(false)
+  // Live email tracked locally so the blur handler always sees the latest value
+  // (parent onEmailChange also runs, but React state may lag one render).
+  const [liveEmail, setLiveEmail] = useState(props.email || '')
   const creatingRef = React.useRef(false)
   const lastAmountRef = React.useRef<number | null>(null)
+  // Whether the email was already valid on FIRST render (returning customer /
+  // Link autofill). Only in that case do we auto-create on mount — fresh typers
+  // create on blur to avoid a mid-typing Elements remount.
+  const initialEmailValidRef = React.useRef(isValidEmail(props.email))
 
   const amountCents = props.amountCents
+
+  // Prefer the live email; fall back to the prop. Empty string if neither valid.
+  const emailForIntent = isValidEmail(liveEmail)
+    ? liveEmail.trim()
+    : (isValidEmail(props.email) ? (props.email as string).trim() : '')
 
   const createIntent = useCallback(async () => {
     if (creatingRef.current) return
     const totalCents = Math.max(0, Math.floor(amountCents || 0))
     if (totalCents <= 0) return
     if (!props.orderId && !props.checkoutToken) return
+    // Shopify-style guard: never create the MSI intent without a valid email.
+    // customer_balance (SPEI) requires a Stripe Customer with an email, so an
+    // empty-email intent 500s. Wait until the customer typed a valid email.
+    if (!isValidEmail(emailForIntent)) return
     creatingRef.current = true
     try {
       const sourceOrder = (typeof getFreshOrder === 'function' ? getFreshOrder() : null) || (typeof getOrderSnapshot === 'function' ? getOrderSnapshot() : null)
@@ -1112,7 +1136,7 @@ function InstallmentsElements({ stripePromise, ...props }: StripePaymentProps & 
       const payload = buildCreateIntentPayload(paymentItems, totalCents, {
         orderId: props.orderId, checkoutToken: props.checkoutToken, currency: props.currency,
         expectedTotal: props.expectedTotal, deliveryFee: props.deliveryFee, description: props.description,
-        metadata: props.metadata, email: props.email, name: props.name, phone: props.phone,
+        metadata: props.metadata, email: emailForIntent, name: props.name, phone: props.phone,
         paymentMethods: props.paymentMethods, shippingAddress: props.shippingAddress, billingAddress: props.billingAddress,
         deliveryExpectations: props.deliveryExpectations, pickupLocations: props.pickupLocations,
       })
@@ -1131,30 +1155,57 @@ function InstallmentsElements({ stripePromise, ...props }: StripePaymentProps & 
     } finally {
       creatingRef.current = false
     }
-  }, [amountCents, props.orderId, props.checkoutToken, props.currency, props.expectedTotal, props.deliveryFee, props.description, props.metadata, props.email, props.name, props.phone, props.paymentMethods, props.shippingAddress, props.billingAddress, props.deliveryExpectations, props.pickupLocations, props.items, getFreshOrder, getOrderSnapshot])
+  }, [amountCents, emailForIntent, props.orderId, props.checkoutToken, props.currency, props.expectedTotal, props.deliveryFee, props.description, props.metadata, props.name, props.phone, props.paymentMethods, props.shippingAddress, props.billingAddress, props.deliveryExpectations, props.pickupLocations, props.items, getFreshOrder, getOrderSnapshot])
 
-  // Create on mount and re-create (debounced) when the charged amount changes.
-  // In client_secret mode elements.update({ amount }) is not allowed, so the
-  // intent must be recreated and Elements remounted (keyed on clientSecret).
+  // Track the email typed inside the (deferred) email field and bubble it up.
+  const handleEmailChange = useCallback((email: string) => {
+    setLiveEmail(email)
+    props.onEmailChange?.(email)
+  }, [props.onEmailChange])
+
+  // On blur with a valid email, create the MSI intent (customer now available)
+  // and swap to the installments Elements. This is the Shopify-style "contact
+  // before payment" flow that avoids the customer_balance 500.
+  const handleEmailBlur = useCallback(() => {
+    props.onEmailBlur?.()
+    if (!clientSecret && !fallback && isValidEmail(liveEmail)) {
+      createIntent()
+    }
+  }, [props.onEmailBlur, clientSecret, fallback, liveEmail, createIntent])
+
+  // Auto-create on mount ONLY if the email was already valid at first render
+  // (returning customer / Link). No remount risk since nothing is being typed.
   useEffect(() => {
-    if (fallback) return
+    if (fallback || clientSecret) return
+    if (!initialEmailValidRef.current) return
+    createIntent()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Once in MSI mode, recreate (debounced) when the charged amount changes —
+  // in client_secret mode elements.update({ amount }) is not allowed.
+  useEffect(() => {
+    if (fallback || !clientSecret) return
     const amt = Math.max(0, Math.floor(amountCents || 0))
-    if (clientSecret && lastAmountRef.current === amt) return
-    const delay = clientSecret ? 500 : 0
-    const t = setTimeout(() => { createIntent() }, delay)
+    if (lastAmountRef.current === amt) return
+    const t = setTimeout(() => { createIntent() }, 500)
     return () => clearTimeout(t)
   }, [amountCents, clientSecret, fallback, createIntent])
 
-  if (fallback) {
-    return <DeferredElements stripePromise={stripePromise} {...props} />
-  }
-
-  if (!clientSecret) {
+  // Before we have a client_secret, render the DEFERRED flow (NOT a spinner).
+  // The spinner would hide the email field (it lives inside Elements), creating
+  // a deadlock where the user can't type the email we're waiting for. The
+  // deferred flow is safe: it never creates the intent early and excludes
+  // customer_balance from Elements init. We intercept its email change/blur to
+  // trigger the MSI intent once a valid email exists.
+  if (fallback || !clientSecret) {
     return (
-      <div className="flex items-center justify-center py-10">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
-        <span className="ml-3 text-sm text-muted-foreground">Preparando opciones de pago…</span>
-      </div>
+      <DeferredElements
+        stripePromise={stripePromise}
+        {...props}
+        onEmailChange={handleEmailChange}
+        onEmailBlur={handleEmailBlur}
+      />
     )
   }
 

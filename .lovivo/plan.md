@@ -32,54 +32,35 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 ## 3. Active Plan
 **OBJETIVO: Subir conversión initiate_checkout → purchase (baseline ~30%).**
 
-### FRENTE A — Meses sin intereses (MSI) — 🟡 AVANCE: error cambió, nuevo bloqueo es de TIMING (arreglable en Craft Mode) — 2026-07-08 (3ª ronda)
+### FRENTE A — Meses sin intereses (MSI) — ✅ FIX DE TIMING IMPLEMENTADO — PENDIENTE PROBAR EN PROD (2026-07-08, 4ª ronda)
 
-**CONTEXTO NUEVO:** El error en prod YA NO es el de `available_plans` (installments). Ahora es:
-```
-POST payments-create-intent 500
-"You must provide a customer when creating or updating a PaymentIntent with a `customer_balance` PaymentMethod."
-[Installments] early intent create failed — falling back to deferred
-```
-INTERPRETACIÓN: el fix del edge para MSI (`available_plans` → `installments.enabled`) MUY PROBABLEMENTE YA se desplegó, porque Stripe ahora pasa esa validación y falla en la SIGUIENTE (customer_balance/SPEI). Es progreso.
+**QUÉ SE IMPLEMENTÓ (`src/components/StripePayment.tsx` → `InstallmentsElements`):**
+Gating estilo Shopify ("contacto antes de pago"). Se resuelve el error `customer_balance` (SPEI exige customer con email) y el DEADLOCK del spinner que escondía el campo de email.
+1. Helper `isValidEmail()` + regex mínima (arriba del archivo, junto a `shouldUseInstallmentsMode`).
+2. `createIntent()` ahora hace `return` temprano si el email NO es válido (además de guards de amount/orderId).
+3. Mientras NO hay `clientSecret` (o en fallback), se renderiza `<DeferredElements>` en lugar del spinner → el campo de email es visible y escribible. (El spinner viejo causaba deadlock.)
+4. Se interceptan `onEmailChange`/`onEmailBlur` del deferred: en el BLUR con email válido → `createIntent()` (customer ya presente) → set `clientSecret` → SWAP a Elements MSI (selector de meses). Evita remount a media escritura.
+5. `liveEmail` local + `emailForIntent` para no depender del lag de props.email. `initialEmailValidRef` → auto-create en mount SOLO si el email ya venía válido (returning customer / Link).
+6. Recreación por cambio de monto solo cuando ya hay `clientSecret` (debounced 500ms). Fallback a deferred intacto (nunca rompe el checkout).
 
-**CAUSA RAÍZ DEL NUEVO ERROR (100% del lado del storefront, arreglable por nosotros):**
-`InstallmentsElements.createIntent()` (en `StripePayment.tsx`) crea el PaymentIntent EN EL MOUNT del checkout MSI, ANTES de que el cliente escriba su email. El payload usa `buildPaymentMethodTypes()` que INCLUYE `customer_balance` (SPEI) cuando `pm.spei===true`. SPEI exige un Stripe Customer con email → como el email va vacío al montar, el edge no puede crear el customer → Stripe rechaza (400) → edge responde 500 → cae a deferred → el selector MSI nunca aparece.
-
-**Nota de arquitectura:** el flujo DEFERRED (no-MSI) NO sufre esto porque crea el intent al hacer clic en "Completar Compra", cuando el email YA existe; y su init de Elements excluye customer_balance/oxxo (`buildElementsPaymentMethodTypes`). El bug solo vive en el flujo MSI de creación temprana.
-
-**SOLUCIÓN (best-practice tipo Shopify: contacto ANTES de pago) — implementar en Craft Mode:**
-Gatear la creación del intent temprano de MSI a que exista un EMAIL VÁLIDO, mostrando mientras tanto el flujo deferred (que ya trae el campo de email de Link + form de tarjeta + badge MSI), y solo cuando el email es válido crear el intent (con el customer ya presente) y hacer swap a modo client_secret (selector MSI).
-
-Pasos concretos en `src/components/StripePayment.tsx` → componente `InstallmentsElements`:
-1. Añadir validación simple de email válido (regex mínima o reutilizar helper existente).
-2. En `createIntent()`: `return` temprano si `props.email` NO es un email válido (además de los guards actuales de amount/orderId).
-3. Mientras NO haya email válido O aún no exista `clientSecret`, RENDERIZAR `<DeferredElements {...props} />` en lugar del spinner "Preparando opciones de pago…". Esto es clave: el spinner actual esconde el campo de email (LinkAuthenticationElement vive dentro de Elements) → sin deferred visible el usuario no puede escribir su correo (deadlock). Deferred es seguro: no crea intent temprano y excluye customer_balance del init.
-4. Disparar la creación del intent MSI preferentemente en el BLUR del email válido (usar el prop `onEmailBlur` / callback ya existente) para evitar remount a media escritura. Al escribir email → blur → crear intent → swap a Elements con client_secret (comportamiento actual keyed en clientSecret).
-5. Mantener el fallback a deferred si el edge falla por cualquier motivo (ya existe) — el checkout NUNCA se rompe.
-6. Verificar que el email que se manda en el payload temprano es el email en vivo (props.email fluye desde onEmailChange del LinkAuthenticationElement del deferred).
-
-**RIESGO/EDGE CASES a validar tras implementar:**
-- Que el swap deferred→MSI ocurra ANTES de que el usuario escriba la tarjeta (email va arriba, tarjeta abajo → ok en la mayoría). Si escribe tarjeta en deferred y hace clic antes del swap, paga sin MSI esa vez (no se rompe, solo no aplica MSI). Aceptable como fallback.
-- Evitar flip-flop deferred↔MSI: una vez que hay clientSecret, quedarse en MSI (la recreación por cambio de monto ya está debounced).
-- Tras el fix, RE-PROBAR si el selector MSI aparece o si resurge el error `available_plans` (para confirmar de una vez si el edge de installments ya quedó bien).
+**PENDIENTE (dueño / prod):** probar en prod → escribir email → salir del campo (blur) → debe aparecer el selector 3/6/9/12 en el form de tarjeta. Pagar con crédito MX. Confirmar que SPEI también funciona (customer ya presente) y que NO resurge `available_plans` (confirmaría que el edge de installments quedó bien).
 
 ### FRENTE B — Señales de confianza en checkout — ✅ IMPLEMENTADO (2026-07-08)
 ### FRENTE C — Integridad de galería PDP — ✅ IMPLEMENTADO (2026-07-08)
 
 ## 4. Recent Changes
-- **2026-07-08** — 🟡 MSI: el error en prod CAMBIÓ de `available_plans` (installments) a `customer_balance` (SPEI) → el fix del edge de MSI probablemente YA llegó. Nuevo bloqueo diagnosticado: `InstallmentsElements` crea el intent en el mount (email vacío) e incluye customer_balance, que exige customer con email → 500 → fallback deferred. SOLUCIÓN definida: gatear la creación temprana del intent al email válido (estilo Shopify), mostrando deferred mientras tanto. ARREGLABLE EN CRAFT MODE (no depende de Lovivo).
-- **2026-07-08** — ⛔ MSI RE-VERIFICADO: el dueño dice que Lovivo aplicó el fix, pero la consola mostraba el MISMO error `available_plans`. RE-ESCALADO (feedback 546d0603).
-- **2026-07-08** — ⛔ MSI BLOQUEADO POR BACKEND. Edge mandaba `available_plans` (response-only) → 500. REPORTADO a Lovivo (feedback ID 546d0603).
-- **2026-07-08** — ✅ FIX MSI IMPLEMENTADO en `StripePayment.tsx`: deferred → client_secret temprano. `InstallmentsElements` + `DeferredElements`; ECE oculto en MSI mode; fallback a deferred.
+- **2026-07-08** — ✅ FIX MSI (timing) IMPLEMENTADO en `StripePayment.tsx`: gating estilo Shopify. `InstallmentsElements` ya NO crea el intent en el mount con email vacío; renderiza `DeferredElements` (email visible) hasta que el cliente escribe email válido, y en el blur crea el intent (customer presente) y hace swap al selector MSI. Resuelve el 500 de `customer_balance` y el deadlock del spinner. Fallback a deferred intacto. PENDIENTE probar en prod.
+- **2026-07-08** — 🟡 MSI: el error en prod CAMBIÓ de `available_plans` a `customer_balance` (SPEI) → el fix del edge de MSI probablemente YA llegó. Diagnóstico del nuevo bloqueo (intent temprano con email vacío + customer_balance).
+- **2026-07-08** — ⛔ MSI RE-VERIFICADO / RE-ESCALADO (feedback 546d0603).
+- **2026-07-08** — ⛔ MSI BLOQUEADO POR BACKEND (`available_plans`). REPORTADO (feedback 546d0603).
+- **2026-07-08** — ✅ FIX MSI previo en `StripePayment.tsx`: deferred → client_secret temprano. `InstallmentsElements` + `DeferredElements`.
 - **2026-07-08** — 🎯 DIAGNÓSTICO MSI: crédito Visa a $4,500, badge sí, selector no.
 - **2026-07-08** — ✅ MSI CABLEADO (4 cambios): tipos `PaymentMethods`, badge MSI checkout/PDP, ThankYou fetch payment_method_details.
-- **2026-07-08** — ✅ FIX galería PDP: `getDisplayImages()` mergea product.images + variantes. Trust strip "Entrega 5–7 días hábiles".
-- **2026-07-08** — ✅ Fix checkout: miniaturas resumen 4:5. Envío resumen móvil "GRATIS" siempre.
+- **2026-07-08** — ✅ FIX galería PDP: `getDisplayImages()` mergea product.images + variantes.
+- **2026-07-08** — ✅ Fix checkout: miniaturas resumen 4:5. Envío resumen móvil "GRATIS".
 - **2026-07-08** — ✅ CHECKOUT CRO. Nuevo `CheckoutTrustBadges.tsx`.
 - **2026-07-07** — ✅ "Arte vivo" honesto (`LightShadowFeature.tsx` triptych/single).
-- **2026-07-07** — ✅ ProductCard estandarizado 4:5 en TODAS las páginas. Hover product.images[1].
-- **2026-07-07** — ✅ "Arte vivo" REAL en 2 best-sellers. `light-shadow-sets.ts`.
-- **2026-07-07** — ✅ PDP móvil: eliminadas flechas del carrusel — solo peek + dots.
+- **2026-07-07** — ✅ ProductCard estandarizado 4:5. Hover product.images[1].
 - **2026-07-07** — ✅ Envío gratis todo México corregido en 3 sitios.
 - **2026-07-07** — ✅ Galería móvil PDP: peek, counter chip, dots, object-cover.
 
@@ -92,18 +73,18 @@ Pasos concretos en `src/components/StripePayment.tsx` → componente `Installmen
 - **Faltan reseñas (fotos)**: Beige Sutil y Luna Beige — el dueño las subirá.
 
 ## 6. Known Issues
-- **🟡 MSI selector — nuevo bloqueo es de TIMING en el storefront (2026-07-08, 3ª ronda):** el error pasó de `available_plans` a `customer_balance`. El intent MSI se crea en el mount con email vacío e incluye SPEI (customer_balance), que exige customer con email → 500. FIX: gatear creación al email válido (ver FRENTE A). Arreglable en Craft Mode. Tras el fix, confirmar si el selector aparece o si resurge `available_plans`.
-- **Intent temprano**: cuando el edge funcione, se creará un PaymentIntent al tener email válido en /pagar en MXN con MSI on (por diseño). Verificar en Stripe Dashboard que no genere ruido.
-- **Remount al cambiar monto / al swap deferred→MSI**: en client_secret mode Elements se remonta; puede limpiar inputs. Mitigar disparando el swap en el blur del email (antes de escribir tarjeta). Bajo riesgo (envío gratis fijo MX).
+- **🟡 MSI selector — fix de timing implementado, PENDIENTE confirmar en prod (2026-07-08, 4ª ronda):** el flujo ahora espera email válido antes de crear el intent. Probar: email → blur → selector 3/6/9/12. Si tras el fix resurge `available_plans`, el edge de installments seguiría mal (re-escalar). Si aparece el selector, cerrado.
+- **Swap deferred→MSI en el blur**: al pasar a client_secret mode Elements se remonta; el email persiste vía `defaultValues` (props.email). Si el usuario llena tarjeta en deferred y hace clic ANTES del swap, paga sin MSI esa vez (fallback aceptable, no se rompe).
+- **Intent temprano**: cuando el edge funcione, se creará un PaymentIntent al blur del email válido en /pagar en MXN con MSI on (por diseño). Verificar en Stripe Dashboard que no genere ruido.
 - **Failed to fetch en consola**: proviene de extensión de Chrome (`frame_ant.js`), NO de la tienda. Ignorar.
-- **"Unable to download payment manifest pay.google.com/about/redirect"**: ruido de Google Pay en el navegador, NO afecta el checkout. Ignorar.
+- **"Unable to download payment manifest pay.google.com/..."**: ruido de Google Pay, NO afecta checkout. Ignorar.
 - **ThankYou fetch a `orders`**: puede fallar por RLS (fallback silencioso).
 - **Verificar tarifa de envío Dashboard = $0 todo México**.
 - `inventory_quantity: 0` con track_inventory:false (comprables).
 - Stripe Link NO activado; ECE no aparece en preview (esperado). En MSI mode ECE se oculta a propósito.
 
 ## 7. Pending / Future Sessions
-- **[CRÍTICA · CRAFT MODE]** Implementar el gating del intent temprano MSI al email válido en `InstallmentsElements` (ver FRENTE A). Luego RE-PROBAR en prod: escribir email → aparece selector 3/6/9/12 en el form de tarjeta; pagar con crédito MX; SPEI también debe funcionar (customer ya presente). Confirmar si `available_plans` ya quedó resuelto en el edge.
+- **[CRÍTICA · DUEÑO]** Probar MSI en prod tras el fix de timing: email → blur → selector 3/6/9/12 en el form de tarjeta; pagar con crédito MX; SPEI también debe funcionar. Confirmar si `available_plans` ya quedó resuelto en el edge.
 - **[ALTA]** Verificar que ThankYou muestra el plan MSI (RLS sobre `orders`).
 - **[ALTA]** Verificar tarifa envío Dashboard = $0.
 - **[MEDIA]** Sugerir al dueño limpiar imágenes variant-only no-4:5 en dashboard.
