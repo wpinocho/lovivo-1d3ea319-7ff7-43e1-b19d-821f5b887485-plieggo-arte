@@ -185,6 +185,11 @@ interface StripePaymentProps {
   addressElementComplete?: boolean
   shippingError?: string | null
   onLinkAuthChange?: (authenticated: boolean) => void
+  /** client_secret de un PaymentIntent creado UP-FRONT (modo requerido para mostrar
+   *  el selector de meses sin intereses inline dentro del PaymentElement). */
+  preClientSecret?: string
+  /** Order devuelto junto con el intent pre-creado. */
+  preIntentOrder?: any
 }
 
 
@@ -218,6 +223,8 @@ function PaymentForm({
   addressElementComplete = false,
   shippingError,
   onLinkAuthChange,
+  preClientSecret,
+  preIntentOrder,
 }: StripePaymentProps) {
   const stripe = useStripe()
   const elements = useElements()
@@ -263,12 +270,15 @@ function PaymentForm({
   // amount in-place. Remounting <Elements> would kill open wallet sessions.
   useEffect(() => {
     if (!elements) return
+    // En modo client_secret (up-front, MSI) NO se puede llamar elements.update({amount}).
+    // El monto ya está fijado en el PaymentIntent. Solo aplica en modo deferred.
+    if (preClientSecret) return
     try {
       elements.update({ amount: Math.max(amountCents || 50, 50) })
     } catch (err) {
       console.warn('elements.update(amount) failed:', err)
     }
-  }, [elements, amountCents])
+  }, [elements, amountCents, preClientSecret])
 
   const amountLabel = useMemo(() => {
     const amt = (amountCents || 0) / 100
@@ -346,7 +356,12 @@ function PaymentForm({
         return
       }
 
-      if (hasSubscription) {
+      if (preClientSecret) {
+        // Modo up-front: el intent ya se creó al montar el checkout (para que Stripe
+        // muestre el selector de meses sin intereses). No se recrea en el clic.
+        client_secret = preClientSecret
+        intentOrder = preIntentOrder ?? null
+      } else if (hasSubscription) {
         const subscriptionItems = paymentItems.filter((it: any) => it.selling_plan_id)
         const oneTimeItems = paymentItems.filter((it: any) => !it.selling_plan_id)
         const mainItem = subscriptionItems[0]
@@ -632,10 +647,17 @@ function PaymentForm({
         },
       }
 
-      const data = await callEdge("payments-create-intent", payload)
-      if (handleUnavailableItems(data)) return
-      const client_secret = data?.client_secret
-      const intentOrder = data?.order ?? null
+      let client_secret: string | undefined
+      let intentOrder: any = null
+      if (preClientSecret) {
+        client_secret = preClientSecret
+        intentOrder = preIntentOrder ?? null
+      } else {
+        const data = await callEdge("payments-create-intent", payload)
+        if (handleUnavailableItems(data)) return
+        client_secret = data?.client_secret
+        intentOrder = data?.order ?? null
+      }
       if (!client_secret) throw new Error("No se recibió client_secret del servidor")
 
       const result = await stripe.confirmPayment({
@@ -1016,6 +1038,22 @@ function PaymentForm({
   )
 }
 
+/** Skeleton mientras se crea el intent up-front (evita montar Elements en deferred
+ *  y luego remontarlo, lo que mataría el selector de meses). */
+function PaymentBlockSkeleton() {
+  return (
+    <div className="space-y-6">
+      <CheckoutSecurityBanner />
+      <div className="space-y-3 animate-pulse">
+        <div className="h-11 rounded-md bg-muted" />
+        <div className="h-11 rounded-md bg-muted" />
+        <div className="h-32 rounded-md bg-muted" />
+        <div className="h-12 rounded-md bg-muted" />
+      </div>
+    </div>
+  )
+}
+
 export default function StripePayment(props: StripePaymentProps) {
   const stripePromise = useMemo(() => {
     const opts = props.chargeType === 'direct' && props.stripeAccountId
@@ -1024,22 +1062,103 @@ export default function StripePayment(props: StripePaymentProps) {
     return loadStripe(STRIPE_PUBLISHABLE_KEY, opts);
   }, [props.stripeAccountId, props.chargeType]);
 
-  // Un solo flujo deferred, limpio y estable (paridad con rodata.mx).
-  // paymentMethodTypes incluye card + oxxo + customer_balance (SPEI). El intent
-  // se crea server-side al momento de pagar (con el customer/email ya presente),
-  // por eso SPEI no rompe. MSI: el backend inyecta payment_method_options[card]
-  // [installments] server-side leyendo store_settings.payment_methods.installments.
-  const elementsOptions = useMemo(() => ({
-    mode: 'payment' as const,
-    amount: Math.max(props.amountCents || 50, 50),
-    currency: (props.currency || 'mxn').toLowerCase(),
-    paymentMethodTypes: buildPaymentMethodTypes(props.paymentMethods),
-    appearance: getStripeAppearance(),
-  }), [props.amountCents, props.currency, props.paymentMethods])
+  const { getFreshOrder, getOrderSnapshot } = useCheckoutState()
+
+  // ── MSI: modo client_secret UP-FRONT ─────────────────────────────────────
+  // Stripe SOLO muestra el selector de meses sin intereses INLINE si el intent se
+  // crea ANTES de que el cliente escriba la tarjeta (con installments habilitado
+  // server-side). En Plieggo es seguro porque el envío es gratis/fijo → el total
+  // es estable desde el mount. Para suscripciones o si falla la creación, caemos
+  // a modo deferred (el intent se crea en el clic).
+  const [clientSecret, setClientSecret] = useState<string | null>(null)
+  const [intentOrder, setIntentOrder] = useState<any>(null)
+  const [intentReady, setIntentReady] = useState(false)
+  const creatingRef = React.useRef(false)
+  const intentAmountRef = React.useRef<number | null>(null)
+
+  // Las suscripciones tienen su propio flujo (subscription-create) → sin up-front.
+  const hasSubscription = useMemo(() => {
+    const src = (typeof getFreshOrder === 'function' ? getFreshOrder() : null)
+      || (typeof getOrderSnapshot === 'function' ? getOrderSnapshot() : null)
+    return buildPaymentItemsFrom(props.items || [], src).some((it: any) => it.selling_plan_id)
+  }, [props.items, getFreshOrder, getOrderSnapshot])
+
+  const createIntent = useCallback(async () => {
+    if (creatingRef.current || !props.orderId || !props.amountCents) return
+    creatingRef.current = true
+    try {
+      const src = (typeof getFreshOrder === 'function' ? getFreshOrder() : null)
+        || (typeof getOrderSnapshot === 'function' ? getOrderSnapshot() : null)
+      const paymentItems = buildPaymentItemsFrom(props.items || [], src)
+      const totalCents = Math.max(0, Math.floor(props.amountCents || 0))
+      const payload = buildCreateIntentPayload(paymentItems, totalCents, {
+        orderId: props.orderId, checkoutToken: props.checkoutToken, currency: props.currency,
+        expectedTotal: props.expectedTotal, deliveryFee: props.deliveryFee, description: props.description,
+        metadata: props.metadata, email: props.email, name: props.name, phone: props.phone,
+        paymentMethods: props.paymentMethods, shippingAddress: props.shippingAddress,
+        billingAddress: props.billingAddress, deliveryExpectations: props.deliveryExpectations,
+        pickupLocations: props.pickupLocations,
+      })
+      const data = await callEdge('payments-create-intent', payload)
+      if (data?.client_secret) {
+        intentAmountRef.current = totalCents
+        setIntentOrder(data.order ?? null)
+        setClientSecret(data.client_secret)
+      }
+    } catch (err) {
+      console.error('[StripePayment] up-front create-intent failed, fallback to deferred', err)
+    } finally {
+      creatingRef.current = false
+      setIntentReady(true)
+    }
+  }, [props.orderId, props.amountCents, props.checkoutToken, props.currency, props.expectedTotal,
+      props.deliveryFee, props.description, props.metadata, props.email, props.name, props.phone,
+      props.paymentMethods, props.shippingAddress, props.billingAddress, props.deliveryExpectations,
+      props.pickupLocations, props.items, getFreshOrder, getOrderSnapshot])
+
+  // Crear el intent una sola vez al montar (flujo one-time).
+  useEffect(() => {
+    if (hasSubscription) { setIntentReady(true); return }
+    if (!clientSecret) createIntent()
+  }, [hasSubscription, clientSecret, createIntent])
+
+  // Si el total cambia (p. ej. cupón aplicado después de montar), recrear el intent
+  // con el nuevo monto. Es un evento raro y NO es un swap de modo (sigue client_secret).
+  useEffect(() => {
+    if (hasSubscription || !clientSecret) return
+    if (intentAmountRef.current != null && props.amountCents
+        && Math.floor(props.amountCents) !== intentAmountRef.current) {
+      createIntent()
+    }
+  }, [props.amountCents, clientSecret, hasSubscription, createIntent])
+
+  const elementsOptions = useMemo(() => {
+    if (clientSecret) {
+      // Modo client_secret: los métodos de pago vienen del intent (card+oxxo+SPEI).
+      return { clientSecret, appearance: getStripeAppearance() }
+    }
+    // Fallback deferred (suscripción o si falló la creación up-front).
+    return {
+      mode: 'payment' as const,
+      amount: Math.max(props.amountCents || 50, 50),
+      currency: (props.currency || 'mxn').toLowerCase(),
+      paymentMethodTypes: buildPaymentMethodTypes(props.paymentMethods),
+      appearance: getStripeAppearance(),
+    }
+  }, [clientSecret, props.amountCents, props.currency, props.paymentMethods])
+
+  // Mostrar skeleton mientras se crea el intent up-front (evita el flash deferred).
+  if (!hasSubscription && !clientSecret && !intentReady) {
+    return <PaymentBlockSkeleton />
+  }
 
   return (
-    <Elements stripe={stripePromise} options={elementsOptions}>
-      <PaymentForm {...props} />
+    <Elements stripe={stripePromise} options={elementsOptions} key={clientSecret || 'deferred'}>
+      <PaymentForm
+        {...props}
+        preClientSecret={clientSecret || undefined}
+        preIntentOrder={intentOrder}
+      />
     </Elements>
   )
 }
