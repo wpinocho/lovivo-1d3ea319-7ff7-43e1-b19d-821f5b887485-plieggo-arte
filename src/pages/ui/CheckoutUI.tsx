@@ -10,8 +10,7 @@ import { Tag, X, ShoppingBag, Loader2, RefreshCw, ChevronDown, ChevronUp, AlertT
 import { Badge } from "@/components/ui/badge";
 import { CartAppliedRules } from "@/components/ui/CartAppliedRules";
 import { useNavigate } from "react-router-dom";
-import StripePayment, { isCompleteEmail } from "@/components/StripePayment";
-import { CheckoutSecurityBanner } from "@/components/CheckoutTrustBadges";
+import StripePayment from "@/components/StripePayment";
 import { HeadlessCheckout } from "@/components/headless/HeadlessCheckout";
 import { BrandLogoLeft } from "@/components/BrandLogoLeft";
 import { useURLCheckoutParams } from "@/hooks/useURLCheckoutParams";
@@ -39,9 +38,6 @@ export default function CheckoutUI() {
   const { paymentMethods, stripeAccountId, chargeType, isLoading: isSettingsLoading } = useSettings();
   const [linkAuthenticated, setLinkAuthenticated] = useState(false);
   const [addressElementComplete, setAddressElementComplete] = useState(false);
-  // Latch: una vez que el correo es válido, se "desbloquea" el bloque de pago y
-  // ya no se vuelve a esconder aunque el cliente edite el correo dentro de Stripe.
-  const [paymentUnlocked, setPaymentUnlocked] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -76,14 +72,6 @@ export default function CheckoutUI() {
             logic.applyURLParams(params);
           }
         }, [hasParams, params]);
-
-        // Desbloquea el bloque de pago en cuanto haya un correo válido y completo.
-        // Esto permite que Stripe Elements monte UNA sola vez ya en modo client_secret
-        // (con el correo listo para SPEI y el selector de meses), sin remontarse ni
-        // borrar el correo.
-        useEffect(() => {
-          if (isCompleteEmail(logic.email)) setPaymentUnlocked(true);
-        }, [logic.email]);
 
         // Convert available country names to ISO codes for Stripe AddressElement
         const allowedCountries = useMemo(() => {
@@ -263,44 +251,6 @@ export default function CheckoutUI() {
                       stripeAccountId,
                       chargeType,
                     ].join('|');
-
-                    // Gate de correo: capturamos un correo VÁLIDO en un campo nativo
-                    // (fuera de Stripe Elements) ANTES de montar el bloque de pago.
-                    // Así el intent se crea una sola vez con correo válido → sin errores
-                    // 500 de SPEI y sin que el correo se borre por remontaje de Elements.
-                    if (!paymentUnlocked) {
-                      const showEmailError = !!logic.email && !isCompleteEmail(logic.email);
-                      return (
-                        <div className="space-y-6">
-                          <CheckoutSecurityBanner />
-                          <div className="space-y-2">
-                            <Label htmlFor="checkout-email" className="text-sm font-medium">
-                              Correo electrónico
-                            </Label>
-                            <Input
-                              id="checkout-email"
-                              type="email"
-                              inputMode="email"
-                              autoComplete="email"
-                              placeholder="tucorreo@ejemplo.com"
-                              value={logic.email}
-                              onChange={(e) => logic.setEmail(e.target.value)}
-                              onBlur={() => logic.saveClientDataOnBlur()}
-                              className={showEmailError ? "border-destructive focus-visible:ring-destructive" : ""}
-                            />
-                            {showEmailError ? (
-                              <p className="text-xs text-destructive">
-                                Ingresa un correo válido para continuar con el pago.
-                              </p>
-                            ) : (
-                              <p className="text-xs text-muted-foreground">
-                                Te enviaremos la confirmación y el comprobante de tu compra.
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    }
 
                     return (
                       <StripePayment 
