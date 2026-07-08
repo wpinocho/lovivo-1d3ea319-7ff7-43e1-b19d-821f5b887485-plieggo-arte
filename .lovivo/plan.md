@@ -45,6 +45,7 @@ Todo en frontend (Craft Mode). Hecho:
 7. ✅ Resumen móvil abierto por defecto.
 
 ## 4. Recent Changes
+- **2026-07-08** — ✅ Fix checkout: miniaturas resumen ahora 4:5 (móvil w-12 h-[60px], desktop w-16 h-20, +bg-muted) para no recortar imágenes 4:5. Envío en resumen móvil muestra "GRATIS" siempre (antes "Pendiente" cuando shippingCost=0).
 - **2026-07-08** — ✅ CHECKOUT CRO implementado. Nuevo `CheckoutTrustBadges.tsx` (banner SSL, rating real calculado, garantías, logos de pago). Integrado en `StripePayment.tsx`: banner arriba, rating antes del CTA, garantías+logos debajo, fix business.name→'Plieggo Arte', MSI vía `payment_method_options` en buildPayload. `CheckoutUI.tsx`: resumen móvil abierto por defecto + estimación 5-7 días en resumen desktop y móvil.
 - **2026-07-08** — 🔎 Diagnóstico checkout CRO. MSI no aparecen porque edge `payments-create-intent` no mandaba installments. Escalado a Lovivo.
 - **2026-07-07** — ✅ "Arte vivo" honesto (`LightShadowFeature.tsx` triptych/single).

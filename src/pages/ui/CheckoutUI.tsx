@@ -398,7 +398,7 @@ export default function CheckoutUI() {
                           <img 
                             src={item.product.images?.[0] || "/placeholder.svg"} 
                             alt={item.product.name} 
-                            className="w-16 h-16 object-cover rounded border" 
+                            className="w-16 h-20 object-cover rounded border bg-muted" 
                           />
                           <span className="absolute -top-2 -right-2 bg-muted text-muted-foreground text-xs rounded-full w-6 h-6 flex items-center justify-center">
                             {item.quantity}
@@ -563,7 +563,7 @@ function MobileOrderSummary({ logic }: { logic: any }) {
                 <img
                   src={item.product.images?.[0] || "/placeholder.svg"}
                   alt={item.product.name}
-                  className="w-12 h-12 object-cover rounded border"
+                  className="w-12 h-[60px] object-cover rounded border bg-muted"
                 />
                 <span className="absolute -top-1.5 -right-1.5 bg-foreground text-background text-[10px] rounded-full w-5 h-5 flex items-center justify-center">
                   {item.quantity}
@@ -587,7 +587,7 @@ function MobileOrderSummary({ logic }: { logic: any }) {
             <div className="flex justify-between">
               <span className="text-muted-foreground">Envío</span>
               <span>
-                {logic.selectedPickupLocation ? "GRATIS" : logic.shippingCost > 0 ? formatMoney(logic.shippingCost, logic.currencyCode) : "Pendiente"}
+                {logic.selectedPickupLocation ? "GRATIS (Recoger en tienda)" : logic.shippingCost > 0 ? formatMoney(logic.shippingCost, logic.currencyCode) : "GRATIS"}
               </span>
             </div>
             {logic.discountAmount > 0 && (
