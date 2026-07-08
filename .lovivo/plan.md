@@ -33,12 +33,16 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 
 ### FRENTE A — Meses sin intereses (MSI) — ✅ IMPLEMENTADO (2026-07-08)
 - Dueño activó MSI en Dashboard. Frontend cableado según guía backend.
-- **PENDIENTE CRÍTICO: VERIFICAR en preview con tarjeta MX elegible** que el selector de meses aparece en el PaymentElement, y que ThankYou muestra el plan (requiere que el webhook persista `payment_method_details`).
+- **CÓMO FUNCIONA EL FLUJO (investigado 2026-07-08, docs Stripe):** El selector de meses aparece DENTRO del PaymentElement automáticamente en cuanto el cliente teclea una tarjeta de CRÉDITO mexicana elegible — igual que Mercado Pago, ANTES de dar "Completar compra". No se cobra a meses salvo que el cliente lo elija. NO es post-clic.
+- **MONTO MÍNIMO STRIPE: ~$100 MXN por mensualidad.** → 3 meses ≥ ~$300, 6 meses ≥ ~$600, 9 ≥ ~$900, 12 ≥ ~$1,200. Con precios reales ($4,500) salen todos los planes. Con montos bajos (ej. descuento de prueba $22.50) NO aparece ningún plan — comportamiento CORRECTO.
+- Requisitos: tarjeta de crédito mexicana (no débito), banco participante, y en modo test usar tarjetas de prueba de Stripe para MSI.
+- **PENDIENTE CRÍTICO: VERIFICAR en preview con producto de precio real ($4,500) + tarjeta MX de crédito elegible** que el selector de meses aparece en el PaymentElement, y que ThankYou muestra el plan.
 
 ### FRENTE B — Señales de confianza en checkout — ✅ IMPLEMENTADO (2026-07-08)
 ### FRENTE C — Integridad de galería PDP — ✅ IMPLEMENTADO (2026-07-08)
 
 ## 4. Recent Changes
+- **2026-07-08** — 🔎 Explicado al dueño flujo MSI + monto mínimo. Su prueba con $22.50 NO mostraba meses porque está por debajo del mínimo (~$100/mensualidad). Implementación confirmada correcta; probar con precio real.
 - **2026-07-08** — ✅ MSI CABLEADO (4 cambios): (1) `supabase.ts` tipos `PaymentMethods` + `installments`/`installments_max_plan` y nuevo `OrderPaymentMethodDetails`. (2) `StripePayment.tsx` QUITADO hardcode `payment_method_options.card.installments.enabled=true` (ahora backend lo inyecta según toggle Dashboard) + badge MSI sobre PaymentElement (solo si installments activo + MXN). (3) `ProductPageUI.tsx` badge "o X MSI de $Y" bajo precio (solo MXN + precio ≥ $4,500). (4) `ThankYou.tsx` fetch de `orders.payment_method_details` (poll 3x) para mostrar "Pagado en N meses sin intereses con tarjeta terminada en XXXX".
 - **2026-07-08** — 📋 Plan MSI validado contra código + guía backend. Direct charges es el modo correcto.
 - **2026-07-08** — ✅ FIX galería PDP: `getDisplayImages()` mergea product.images + variantes. Trust strip PDP "10–15 días" → "Entrega 5–7 días hábiles".
@@ -52,8 +56,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-07-07** — ✅ Galería móvil PDP: peek, counter chip, dots, object-cover.
 - **2026-07-07** — ✅ FASE 1+2 CRO. Descripciones premium 12 productos. CTA reorder.
 - **2026-07-07** — 🔎 Diagnóstico CRO PDP→ATC. Baseline 1.8%.
-- **2026-06-24** — ✅ Order Tracking: OrderTrack.tsx + rutas /orders/track.
-- **2026-06-22** — ✅ Fix StripePayment: excluir oxxo.
 
 ## 5. Image Inventory
 - **Hero slide 1**: ...1779301620051-88tz4z58bt7.webp · slide 2: ...1779296069343-2ifge8n87sv.webp · slide 3: hero-paper-folding.mp4
@@ -64,7 +66,8 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Faltan reseñas (fotos)**: Beige Sutil y Luna Beige — el dueño las subirá.
 
 ## 6. Known Issues
-- **MSI VERIFICACIÓN PENDIENTE**: tras quitar el hardcode, SI en preview MSI deja de aparecer con tarjeta MX elegible → señal de que el backend aún no inyecta → revertir el hardcode en `StripePayment.tsx` (buildPayload) y escalar a Lovivo.
+- **MSI — monto mínimo**: no aparece el selector si el total < ~$100/mensualidad. NO es bug. Al probar usar precio real ($4,500).
+- **MSI VERIFICACIÓN PENDIENTE**: tras quitar el hardcode, SI en preview MSI deja de aparecer con producto real + tarjeta MX de crédito elegible → señal de que el backend aún no inyecta → revertir el hardcode en `StripePayment.tsx` (buildPayload) y escalar a Lovivo.
 - **ThankYou fetch a `orders`**: puede fallar por RLS (fallback silencioso). Si no muestra el plan MSI aunque el pago fue a meses, verificar permisos de lectura de `orders.payment_method_details` desde el cliente / o usar edge function `order-get`.
 - **Imágenes variant-only no-4:5** (ej. verde-salvia): pueden aparecer recortadas en posiciones posteriores. Depurar en dashboard.
 - **Verificar tarifa de envío Dashboard = $0 todo México**.
@@ -73,7 +76,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - Stripe Link NO activado; ECE no aparece en preview (esperado).
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** VERIFICAR en preview con tarjeta MX elegible que aparece el selector de meses en el PaymentElement + badge checkout + badge PDP.
+- **[ALTA]** VERIFICAR en preview con producto de precio real ($4,500) + tarjeta MX de crédito elegible que aparece el selector de meses en el PaymentElement + badge checkout + badge PDP.
 - **[ALTA]** VERIFICAR que ThankYou muestra el plan MSI (depende de RLS sobre `orders` + webhook). Si falla, usar edge function.
 - **[ALTA]** Verificar tarifa envío Dashboard = $0.
 - **[MEDIA]** Sugerir al dueño limpiar imágenes variant-only no-4:5 en dashboard.
