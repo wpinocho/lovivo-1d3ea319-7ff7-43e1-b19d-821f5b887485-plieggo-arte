@@ -31,19 +31,35 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 ## 3. Active Plan
 **OBJETIVO: Subir conversión initiate_checkout → purchase (baseline ~30%).**
 
-### FRENTE A — Meses sin intereses (MSI) — ✅ IMPLEMENTADO (2026-07-08)
-- Dueño activó MSI en Dashboard. Frontend cableado según guía backend.
-- **CÓMO FUNCIONA EL FLUJO (investigado 2026-07-08, docs Stripe):** El selector de meses aparece DENTRO del PaymentElement automáticamente en cuanto el cliente teclea una tarjeta de CRÉDITO mexicana elegible — igual que Mercado Pago, ANTES de dar "Completar compra". No se cobra a meses salvo que el cliente lo elija. NO es post-clic.
-- **MONTO MÍNIMO STRIPE: ~$100 MXN por mensualidad.** → 3 meses ≥ ~$300, 6 meses ≥ ~$600, 9 ≥ ~$900, 12 ≥ ~$1,200. Con precios reales ($4,500) salen todos los planes. Con montos bajos (ej. descuento de prueba $22.50) NO aparece ningún plan — comportamiento CORRECTO.
-- Requisitos: tarjeta de crédito mexicana (no débito), banco participante, y en modo test usar tarjetas de prueba de Stripe para MSI.
-- **PENDIENTE CRÍTICO: VERIFICAR en preview con producto de precio real ($4,500) + tarjeta MX de crédito elegible** que el selector de meses aparece en el PaymentElement, y que ThankYou muestra el plan.
+### FRENTE A — Meses sin intereses (MSI) — ⚠️ CABLEADO, PERO VERIFICACIÓN CRÍTICA PENDIENTE (2026-07-08)
+**DIAGNÓSTICO 2026-07-08 (por qué el dueño NO veía el selector):**
+1. **CAUSA PRINCIPAL CONFIRMADA — probó con tarjeta de DÉBITO + wallets.** Sus capturas muestran Visa **Débito** …3831, Link y Google Pay. Docs Stripe (docs.stripe.com/payments/mx-installments): *"El método de pago debe ser una tarjeta de CRÉDITO emitida en México."* Débito NUNCA muestra meses. Wallets (Link, Google Pay, Apple Pay) **NO soportan MSI**. Solo tarjeta de CRÉDITO mexicana tecleada directo en el campo "Tarjeta".
+2. **FLUJO UX correcto (confirmado docs):** el selector de meses aparece DENTRO del PaymentElement en cuanto se teclea una tarjeta de crédito compatible, ANTES de dar "Completar compra" (igual que Mercado Pago). El checkout ya usa el `PaymentElement` unificado (correcto).
+
+**RIESGO TÉCNICO A VERIFICAR — MODO DIFERIDO (deferred mode):**
+- `StripePayment.tsx` inicializa Elements en **deferred mode** (`mode: 'payment'`, sin client_secret; ver `elementsOptions` línea ~1007). El PaymentIntent (con `payment_method_options[card][installments][enabled]=true` que inyecta el backend) se crea SOLO al dar clic en "Completar compra" (`handlePayment` → `payments-create-intent`).
+- **DUDA:** en deferred mode el PaymentElement puede no conocer que installments está habilitado hasta que existe el intent → el selector podría no renderizarse ANTES del clic. Ver GitHub stripe/stripe-js#454: con "Automatic Payment Methods" no se muestran installments salvo enable explícito en el intent.
+- **HIPÓTESIS OPTIMISTA:** como es Connect direct charge con `stripeAccount` de la cuenta conectada (que tiene MSI ON en su Dashboard), el PaymentElement diferido puede leer la config de installments de la cuenta conectada y mostrarlos igual. SOLO se sabe probando con crédito real.
+
+**PLAN DE VERIFICACIÓN (hacer PRIMERO, antes de tocar código):**
+1. Producto precio real ($4,500), SIN descuento de prueba.
+2. En sección "Tarjeta" (NO Link, NO Google Pay), teclear tarjeta de **CRÉDITO** mexicana: en test → tarjeta de crédito de prueba de Stripe para MSI (ver docs.stripe.com/payments/meses-sin-intereses/accept-a-payment); en prod → tarjeta de crédito real MX.
+3. Observar si el selector de meses (3/6/9/12) aparece dentro del formulario de tarjeta.
+
+**SI CON CRÉDITO REAL NO APARECE EL SELECTOR → FIX NECESARIO (Craft Mode):**
+- El deferred Elements necesita saber que installments está habilitado en el momento del render. Opciones a investigar/implementar en `StripePayment.tsx`:
+  - (a) Pasar la configuración de installments en las opciones de `<Elements>` (deferred) para que el PaymentElement ofrezca meses antes del intent, O
+  - (b) Cambiar a crear el PaymentIntent temprano (no-deferred) con `payment_method_options[card][installments][enabled]=true` y pasar el client_secret al PaymentElement, O
+  - (c) Escalar a Lovivo backend si el edge `payments-create-intent` es el único punto donde se puede habilitar y no hay forma de exponerlo al Elements diferido.
+- Validar contra docs.stripe.com/payments/accept-a-payment-deferred + mx-installments.
 
 ### FRENTE B — Señales de confianza en checkout — ✅ IMPLEMENTADO (2026-07-08)
 ### FRENTE C — Integridad de galería PDP — ✅ IMPLEMENTADO (2026-07-08)
 
 ## 4. Recent Changes
-- **2026-07-08** — 🔎 Explicado al dueño flujo MSI + monto mínimo. Su prueba con $22.50 NO mostraba meses porque está por debajo del mínimo (~$100/mensualidad). Implementación confirmada correcta; probar con precio real.
-- **2026-07-08** — ✅ MSI CABLEADO (4 cambios): (1) `supabase.ts` tipos `PaymentMethods` + `installments`/`installments_max_plan` y nuevo `OrderPaymentMethodDetails`. (2) `StripePayment.tsx` QUITADO hardcode `payment_method_options.card.installments.enabled=true` (ahora backend lo inyecta según toggle Dashboard) + badge MSI sobre PaymentElement (solo si installments activo + MXN). (3) `ProductPageUI.tsx` badge "o X MSI de $Y" bajo precio (solo MXN + precio ≥ $4,500). (4) `ThankYou.tsx` fetch de `orders.payment_method_details` (poll 3x) para mostrar "Pagado en N meses sin intereses con tarjeta terminada en XXXX".
+- **2026-07-08** — 🔎 DIAGNÓSTICO MSI FINAL: dueño no veía meses porque probó con tarjeta de DÉBITO (…3831) + Link + Google Pay. Confirmado con docs Stripe: MSI SOLO con tarjeta de CRÉDITO mexicana tecleada directo; débito y wallets NO. Además detectado RIESGO de deferred mode: verificar con crédito real que el selector aparece antes del clic; si no, requiere fix en `StripePayment.tsx`.
+- **2026-07-08** — 🔎 Explicado al dueño flujo MSI + monto mínimo. Su prueba con $22.50 NO mostraba meses porque está por debajo del mínimo (~$100/mensualidad).
+- **2026-07-08** — ✅ MSI CABLEADO (4 cambios): (1) `supabase.ts` tipos `PaymentMethods` + `installments`/`installments_max_plan` y nuevo `OrderPaymentMethodDetails`. (2) `StripePayment.tsx` QUITADO hardcode `payment_method_options.card.installments.enabled=true` (ahora backend lo inyecta según toggle Dashboard) + badge MSI sobre PaymentElement (solo si installments activo + MXN). (3) `ProductPageUI.tsx` badge "o X MSI de $Y" bajo precio (solo MXN + precio ≥ $4,500). (4) `ThankYou.tsx` fetch de `orders.payment_method_details` (poll 3x).
 - **2026-07-08** — 📋 Plan MSI validado contra código + guía backend. Direct charges es el modo correcto.
 - **2026-07-08** — ✅ FIX galería PDP: `getDisplayImages()` mergea product.images + variantes. Trust strip PDP "10–15 días" → "Entrega 5–7 días hábiles".
 - **2026-07-08** — ✅ Fix checkout: miniaturas resumen 4:5. Envío resumen móvil "GRATIS" siempre.
@@ -55,7 +71,6 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **2026-07-07** — ✅ Envío gratis todo México corregido en 3 sitios.
 - **2026-07-07** — ✅ Galería móvil PDP: peek, counter chip, dots, object-cover.
 - **2026-07-07** — ✅ FASE 1+2 CRO. Descripciones premium 12 productos. CTA reorder.
-- **2026-07-07** — 🔎 Diagnóstico CRO PDP→ATC. Baseline 1.8%.
 
 ## 5. Image Inventory
 - **Hero slide 1**: ...1779301620051-88tz4z58bt7.webp · slide 2: ...1779296069343-2ifge8n87sv.webp · slide 3: hero-paper-folding.mp4
@@ -66,18 +81,20 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Faltan reseñas (fotos)**: Beige Sutil y Luna Beige — el dueño las subirá.
 
 ## 6. Known Issues
-- **MSI — monto mínimo**: no aparece el selector si el total < ~$100/mensualidad. NO es bug. Al probar usar precio real ($4,500).
-- **MSI VERIFICACIÓN PENDIENTE**: tras quitar el hardcode, SI en preview MSI deja de aparecer con producto real + tarjeta MX de crédito elegible → señal de que el backend aún no inyecta → revertir el hardcode en `StripePayment.tsx` (buildPayload) y escalar a Lovivo.
-- **ThankYou fetch a `orders`**: puede fallar por RLS (fallback silencioso). Si no muestra el plan MSI aunque el pago fue a meses, verificar permisos de lectura de `orders.payment_method_details` desde el cliente / o usar edge function `order-get`.
-- **Imágenes variant-only no-4:5** (ej. verde-salvia): pueden aparecer recortadas en posiciones posteriores. Depurar en dashboard.
+- **MSI — probado con débito/wallets (2026-07-08)**: NO es bug. MSI solo con tarjeta de CRÉDITO mexicana tecleada directo. Débito, Link, Google Pay, Apple Pay NUNCA muestran meses.
+- **MSI — DEFERRED MODE (riesgo abierto)**: el intent con installments se crea al dar clic. Verificar que el selector aparece ANTES del clic con crédito real. Si no aparece → fix en `StripePayment.tsx` (habilitar installments a nivel Elements diferido o crear intent temprano). Ver stripe-js#454 + docs accept-a-payment-deferred.
+- **MSI — monto mínimo**: no aparece si total < ~$100/mensualidad. Probar con precio real ($4,500).
+- **ThankYou fetch a `orders`**: puede fallar por RLS (fallback silencioso). Si no muestra plan MSI, verificar permisos lectura `orders.payment_method_details` o usar edge function `order-get`.
+- **Imágenes variant-only no-4:5** (ej. verde-salvia): pueden aparecer recortadas en posiciones posteriores.
 - **Verificar tarifa de envío Dashboard = $0 todo México**.
 - `inventory_quantity: 0` con track_inventory:false (comprables).
 - Video play error recurrente en hero (race condition) — no afecta.
 - Stripe Link NO activado; ECE no aparece en preview (esperado).
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** VERIFICAR en preview con producto de precio real ($4,500) + tarjeta MX de crédito elegible que aparece el selector de meses en el PaymentElement + badge checkout + badge PDP.
-- **[ALTA]** VERIFICAR que ThankYou muestra el plan MSI (depende de RLS sobre `orders` + webhook). Si falla, usar edge function.
+- **[CRÍTICA]** VERIFICAR MSI con producto precio real ($4,500) + tarjeta de CRÉDITO mexicana (NO débito, NO wallet): ¿aparece el selector de meses DENTRO del formulario de tarjeta ANTES del clic? Documentar resultado.
+- **[ALTA — condicional]** Si con crédito real NO aparece → implementar fix deferred-mode en `StripePayment.tsx` (habilitar installments a nivel Elements o crear intent temprano). Escalar a Lovivo si el backend es el único punto de habilitación.
+- **[ALTA]** VERIFICAR que ThankYou muestra el plan MSI (RLS sobre `orders` + webhook). Si falla, usar edge function.
 - **[ALTA]** Verificar tarifa envío Dashboard = $0.
 - **[MEDIA]** Sugerir al dueño limpiar imágenes variant-only no-4:5 en dashboard.
 - **[ALTA]** Dueño: aprobar las 4 imágenes de "Arte vivo" (triptych).
