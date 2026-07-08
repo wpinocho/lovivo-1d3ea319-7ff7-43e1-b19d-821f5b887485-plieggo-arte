@@ -27,29 +27,6 @@ function buildPaymentMethodTypes(pm?: PaymentMethods): string[] {
   return types
 }
 
-/** Build payment_method_types for Elements init — excludes customer_balance (SPEI)
- *  and oxxo, both of which cause a 400 from Stripe when used in deferred-mode
- *  Elements init. Both are still included in the backend payload via
- *  buildPaymentMethodTypes(). */
-function buildElementsPaymentMethodTypes(pm?: PaymentMethods): string[] {
-  return buildPaymentMethodTypes(pm).filter(t => t !== 'customer_balance' && t !== 'oxxo')
-}
-
-/** Whether MSI (Meses Sin Intereses) should drive an early-created PaymentIntent
- *  so the Payment Element can render the installments selector on load.
- *  Installments only apply to card payments in MXN. */
-function shouldUseInstallmentsMode(pm?: PaymentMethods, currency?: string): boolean {
-  return !!pm?.installments && (currency || 'mxn').toLowerCase() === 'mxn'
-}
-
-/** Minimal, forgiving email validation. Used to gate the early MSI intent
- *  creation: customer_balance (SPEI) requires a Stripe Customer with an email,
- *  so we must NOT create the intent until the customer typed a valid email. */
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-function isValidEmail(email?: string | null): boolean {
-  return !!email && EMAIL_RE.test(email.trim())
-}
-
 /** Normalize + dedupe cart/order items into the shape the payments edge expects. */
 function buildPaymentItemsFrom(items: any[], sourceOrder: any): any[] {
   const rawItems: any[] = (Array.isArray(items) && items.length > 0)
@@ -208,13 +185,6 @@ interface StripePaymentProps {
   addressElementComplete?: boolean
   shippingError?: string | null
   onLinkAuthChange?: (authenticated: boolean) => void
-  /** When set, Elements was initialized with this intent's client_secret (MSI mode).
-   *  handlePayment confirms THIS intent instead of creating a new one, and
-   *  elements.submit() is skipped (deferred-only). */
-  preCreatedIntent?: { clientSecret: string; order: any } | null
-  /** Hide the Express Checkout (wallets) block. Used in MSI/client_secret mode
-   *  because wallets don't support installments and would break confirm. */
-  hideExpressCheckout?: boolean
 }
 
 
@@ -248,14 +218,11 @@ function PaymentForm({
   addressElementComplete = false,
   shippingError,
   onLinkAuthChange,
-  preCreatedIntent,
-  hideExpressCheckout,
 }: StripePaymentProps) {
   const stripe = useStripe()
   const elements = useElements()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
-  const [linkAuthenticated, setLinkAuthenticated] = useState(false)
   const [eceAvailable, setEceAvailable] = useState(false)
   const navigate = useNavigate()
   const { clearCart } = useCart()
@@ -296,15 +263,12 @@ function PaymentForm({
   // amount in-place. Remounting <Elements> would kill open wallet sessions.
   useEffect(() => {
     if (!elements) return
-    // In client_secret (MSI) mode the amount is fixed to the created intent;
-    // elements.update({ amount }) is only valid in deferred mode.
-    if (preCreatedIntent) return
     try {
       elements.update({ amount: Math.max(amountCents || 50, 50) })
     } catch (err) {
       console.warn('elements.update(amount) failed:', err)
     }
-  }, [elements, amountCents, preCreatedIntent])
+  }, [elements, amountCents])
 
   const amountLabel = useMemo(() => {
     const amt = (amountCents || 0) / 100
@@ -376,21 +340,13 @@ function PaymentForm({
       let client_secret: string | undefined
       let intentOrder: any = null
 
-      if (preCreatedIntent?.clientSecret) {
-        // MSI mode: the PaymentIntent was created up-front so the Payment Element
-        // could render the meses-sin-intereses selector. Confirm that SAME intent —
-        // do NOT call elements.submit() (deferred-only) and do NOT create a new
-        // intent (clientSecret must match the one Elements was initialized with).
-        client_secret = preCreatedIntent.clientSecret
-        intentOrder = preCreatedIntent.order ?? null
-      } else {
-        const { error: submitError } = await elements.submit()
-        if (submitError) {
-          toast({ title: "Error", description: submitError.message || "Verifica los datos de pago", variant: "destructive" })
-          return
-        }
+      const { error: submitError } = await elements.submit()
+      if (submitError) {
+        toast({ title: "Error", description: submitError.message || "Verifica los datos de pago", variant: "destructive" })
+        return
+      }
 
-        if (hasSubscription) {
+      if (hasSubscription) {
         const subscriptionItems = paymentItems.filter((it: any) => it.selling_plan_id)
         const oneTimeItems = paymentItems.filter((it: any) => !it.selling_plan_id)
         const mainItem = subscriptionItems[0]
@@ -418,7 +374,6 @@ function PaymentForm({
         client_secret = data?.client_secret
         intentOrder = data?.order ?? null
         }
-      }
 
       if (!client_secret) {
         throw new Error("No se recibió client_secret del servidor")
@@ -855,8 +810,8 @@ function PaymentForm({
       {/* Banner de seguridad */}
       <CheckoutSecurityBanner />
 
-      {/* Express Checkout (Google Pay, Apple Pay) */}
-      {!hideExpressCheckout && !linkAuthenticated && (
+      {/* Express Checkout (Google Pay, Apple Pay) — visible desde el inicio, como rodata */}
+      {(
         <>
           <div style={{ display: eceAvailable ? undefined : 'none' }}>
           <ExpressCheckoutElement
@@ -925,7 +880,6 @@ function PaymentForm({
             onEmailChange(event.value.email)
           }
           const authenticated = !!(event as any).authenticated
-          setLinkAuthenticated(authenticated)
           if (onLinkAuthChange) {
             onLinkAuthChange(authenticated)
           }
@@ -1062,168 +1016,6 @@ function PaymentForm({
   )
 }
 
-/** Deferred-mode Elements (the stable default flow for all non-MSI checkouts). */
-function DeferredElements({ stripePromise, ...props }: StripePaymentProps & { stripePromise: any }) {
-  // Elements options for deferred mode.
-  // NOTE: customer_balance (SPEI) is excluded from Elements init to avoid
-  // a 400 from Stripe. It is still sent in the backend payload.
-  const elementsOptions = useMemo(() => ({
-    mode: 'payment' as const,
-    amount: Math.max(props.amountCents || 50, 50),
-    currency: (props.currency || 'mxn').toLowerCase(),
-    paymentMethodTypes: buildElementsPaymentMethodTypes(props.paymentMethods),
-    appearance: getStripeAppearance(),
-  }), [props.amountCents, props.currency, props.paymentMethods])
-
-  return (
-    <Elements stripe={stripePromise} options={elementsOptions}>
-      <PaymentForm {...props} />
-    </Elements>
-  )
-}
-
-/**
- * Installments (MSI) mode. To make the Payment Element render the
- * meses-sin-intereses selector on load, Stripe requires Elements to be
- * initialized with the client_secret of a PaymentIntent that already has
- * installments enabled (deferred mode never shows the selector — see
- * docs.stripe.com/payments/accept-a-payment-deferred + stripe-js#454).
- *
- * We therefore create the intent up-front and mount Elements with its
- * client_secret. If anything fails (subscription in cart, edge error, no
- * amount yet) we FALL BACK to the deferred flow so checkout never breaks.
- */
-function InstallmentsElements({ stripePromise, ...props }: StripePaymentProps & { stripePromise: any }) {
-  const { getFreshOrder, getOrderSnapshot } = useCheckoutState()
-  const [clientSecret, setClientSecret] = useState<string | null>(null)
-  const [intentOrder, setIntentOrder] = useState<any>(null)
-  const [fallback, setFallback] = useState(false)
-  // Live email tracked locally so the blur handler always sees the latest value
-  // (parent onEmailChange also runs, but React state may lag one render).
-  const [liveEmail, setLiveEmail] = useState(props.email || '')
-  const creatingRef = React.useRef(false)
-  const lastAmountRef = React.useRef<number | null>(null)
-  // Whether the email was already valid on FIRST render (returning customer /
-  // Link autofill). Only in that case do we auto-create on mount — fresh typers
-  // create on blur to avoid a mid-typing Elements remount.
-  const initialEmailValidRef = React.useRef(isValidEmail(props.email))
-
-  const amountCents = props.amountCents
-
-  // Prefer the live email; fall back to the prop. Empty string if neither valid.
-  const emailForIntent = isValidEmail(liveEmail)
-    ? liveEmail.trim()
-    : (isValidEmail(props.email) ? (props.email as string).trim() : '')
-
-  const createIntent = useCallback(async () => {
-    if (creatingRef.current) return
-    const totalCents = Math.max(0, Math.floor(amountCents || 0))
-    if (totalCents <= 0) return
-    if (!props.orderId && !props.checkoutToken) return
-    // Shopify-style guard: never create the MSI intent without a valid email.
-    // customer_balance (SPEI) requires a Stripe Customer with an email, so an
-    // empty-email intent 500s. Wait until the customer typed a valid email.
-    if (!isValidEmail(emailForIntent)) return
-    creatingRef.current = true
-    try {
-      const sourceOrder = (typeof getFreshOrder === 'function' ? getFreshOrder() : null) || (typeof getOrderSnapshot === 'function' ? getOrderSnapshot() : null)
-      const paymentItems = buildPaymentItemsFrom(props.items || [], sourceOrder)
-      // Installments don't apply to subscriptions — use the deferred flow instead.
-      if (paymentItems.some((it: any) => it.selling_plan_id)) {
-        setFallback(true)
-        return
-      }
-      const payload = buildCreateIntentPayload(paymentItems, totalCents, {
-        orderId: props.orderId, checkoutToken: props.checkoutToken, currency: props.currency,
-        expectedTotal: props.expectedTotal, deliveryFee: props.deliveryFee, description: props.description,
-        metadata: props.metadata, email: emailForIntent, name: props.name, phone: props.phone,
-        paymentMethods: props.paymentMethods, shippingAddress: props.shippingAddress, billingAddress: props.billingAddress,
-        deliveryExpectations: props.deliveryExpectations, pickupLocations: props.pickupLocations,
-      })
-      const data = await callEdge('payments-create-intent', payload)
-      if (data?.client_secret) {
-        lastAmountRef.current = totalCents
-        setIntentOrder(data.order ?? null)
-        setClientSecret(data.client_secret)
-      } else {
-        console.warn('[Installments] no client_secret from edge — falling back to deferred')
-        setFallback(true)
-      }
-    } catch (err) {
-      console.warn('[Installments] early intent create failed — falling back to deferred', err)
-      setFallback(true)
-    } finally {
-      creatingRef.current = false
-    }
-  }, [amountCents, emailForIntent, props.orderId, props.checkoutToken, props.currency, props.expectedTotal, props.deliveryFee, props.description, props.metadata, props.name, props.phone, props.paymentMethods, props.shippingAddress, props.billingAddress, props.deliveryExpectations, props.pickupLocations, props.items, getFreshOrder, getOrderSnapshot])
-
-  // Track the email typed inside the (deferred) email field and bubble it up.
-  const handleEmailChange = useCallback((email: string) => {
-    setLiveEmail(email)
-    props.onEmailChange?.(email)
-  }, [props.onEmailChange])
-
-  // On blur with a valid email, create the MSI intent (customer now available)
-  // and swap to the installments Elements. This is the Shopify-style "contact
-  // before payment" flow that avoids the customer_balance 500.
-  const handleEmailBlur = useCallback(() => {
-    props.onEmailBlur?.()
-    if (!clientSecret && !fallback && isValidEmail(liveEmail)) {
-      createIntent()
-    }
-  }, [props.onEmailBlur, clientSecret, fallback, liveEmail, createIntent])
-
-  // Auto-create on mount ONLY if the email was already valid at first render
-  // (returning customer / Link). No remount risk since nothing is being typed.
-  useEffect(() => {
-    if (fallback || clientSecret) return
-    if (!initialEmailValidRef.current) return
-    createIntent()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // Once in MSI mode, recreate (debounced) when the charged amount changes —
-  // in client_secret mode elements.update({ amount }) is not allowed.
-  useEffect(() => {
-    if (fallback || !clientSecret) return
-    const amt = Math.max(0, Math.floor(amountCents || 0))
-    if (lastAmountRef.current === amt) return
-    const t = setTimeout(() => { createIntent() }, 500)
-    return () => clearTimeout(t)
-  }, [amountCents, clientSecret, fallback, createIntent])
-
-  // Before we have a client_secret, render the DEFERRED flow (NOT a spinner).
-  // The spinner would hide the email field (it lives inside Elements), creating
-  // a deadlock where the user can't type the email we're waiting for. The
-  // deferred flow is safe: it never creates the intent early and excludes
-  // customer_balance from Elements init. We intercept its email change/blur to
-  // trigger the MSI intent once a valid email exists.
-  if (fallback || !clientSecret) {
-    return (
-      <DeferredElements
-        stripePromise={stripePromise}
-        {...props}
-        onEmailChange={handleEmailChange}
-        onEmailBlur={handleEmailBlur}
-      />
-    )
-  }
-
-  return (
-    <Elements
-      key={clientSecret}
-      stripe={stripePromise}
-      options={{ clientSecret, appearance: getStripeAppearance() }}
-    >
-      <PaymentForm
-        {...props}
-        preCreatedIntent={{ clientSecret, order: intentOrder }}
-        hideExpressCheckout
-      />
-    </Elements>
-  )
-}
-
 export default function StripePayment(props: StripePaymentProps) {
   const stripePromise = useMemo(() => {
     const opts = props.chargeType === 'direct' && props.stripeAccountId
@@ -1232,12 +1024,22 @@ export default function StripePayment(props: StripePaymentProps) {
     return loadStripe(STRIPE_PUBLISHABLE_KEY, opts);
   }, [props.stripeAccountId, props.chargeType]);
 
-  // MSI (Meses Sin Intereses): create the intent early + init Elements with
-  // client_secret so the installments selector renders inside the card form.
-  // Otherwise keep the stable deferred flow.
-  if (shouldUseInstallmentsMode(props.paymentMethods, props.currency)) {
-    return <InstallmentsElements stripePromise={stripePromise} {...props} />
-  }
+  // Un solo flujo deferred, limpio y estable (paridad con rodata.mx).
+  // paymentMethodTypes incluye card + oxxo + customer_balance (SPEI). El intent
+  // se crea server-side al momento de pagar (con el customer/email ya presente),
+  // por eso SPEI no rompe. MSI: el backend inyecta payment_method_options[card]
+  // [installments] server-side leyendo store_settings.payment_methods.installments.
+  const elementsOptions = useMemo(() => ({
+    mode: 'payment' as const,
+    amount: Math.max(props.amountCents || 50, 50),
+    currency: (props.currency || 'mxn').toLowerCase(),
+    paymentMethodTypes: buildPaymentMethodTypes(props.paymentMethods),
+    appearance: getStripeAppearance(),
+  }), [props.amountCents, props.currency, props.paymentMethods])
 
-  return <DeferredElements stripePromise={stripePromise} {...props} />
+  return (
+    <Elements stripe={stripePromise} options={elementsOptions}>
+      <PaymentForm {...props} />
+    </Elements>
+  )
 }
