@@ -18,6 +18,12 @@ import { isValidPhone } from "@/lib/phone-utils"
 import { MissingPhoneDialog } from "@/components/MissingPhoneDialog"
 import { CheckoutSecurityBanner, CheckoutRating, CheckoutGuarantees, CheckoutPaymentLogos } from "@/components/CheckoutTrustBadges"
 
+/** Validación simple de correo completo (para gatear la creación del intent). */
+export function isCompleteEmail(email?: string | null): boolean {
+  if (!email) return false
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())
+}
+
 /** Build Stripe payment_method_types array from store_settings.payment_methods */
 function buildPaymentMethodTypes(pm?: PaymentMethods): string[] {
   const types: string[] = []
@@ -1085,6 +1091,9 @@ export default function StripePayment(props: StripePaymentProps) {
 
   const createIntent = useCallback(async () => {
     if (creatingRef.current || !props.orderId || !props.amountCents) return
+    // SPEI (customer_balance) exige un customer con email válido al crear el intent.
+    // Sin email válido NO creamos intent up-front: dejamos que caiga a deferred sin 500s.
+    if (!isCompleteEmail(props.email)) { setIntentReady(true); return }
     creatingRef.current = true
     try {
       const src = (typeof getFreshOrder === 'function' ? getFreshOrder() : null)
