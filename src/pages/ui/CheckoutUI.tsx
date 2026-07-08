@@ -518,6 +518,11 @@ export default function CheckoutUI() {
                         <span>{formatMoney(logic.finalTotal, logic.currencyCode)}</span>
                       </div>
                     </div>
+
+                    <p className="flex items-center gap-1.5 text-sm text-muted-foreground pt-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 shrink-0 text-primary"><path d="M14 18V6a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h1"/><path d="M14 9h4l4 4v4a1 1 0 0 1-1 1h-1"/><circle cx="7.5" cy="18" r="2"/><circle cx="17.5" cy="18" r="2"/></svg>
+                      Envío gratis · Llega en 5-7 días hábiles
+                    </p>
                   </div>
                 </div>
               </div>
@@ -532,7 +537,7 @@ export default function CheckoutUI() {
 
 /* ─── Mobile Order Summary ─── */
 function MobileOrderSummary({ logic }: { logic: any }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   if (logic.summaryItems.length === 0) return null;
 
   return (
@@ -595,6 +600,10 @@ function MobileOrderSummary({ logic }: { logic: any }) {
               <span>Total</span>
               <span>{formatMoney(logic.finalTotal, logic.currencyCode)}</span>
             </div>
+            <p className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5 shrink-0 text-primary"><path d="M14 18V6a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h1"/><path d="M14 9h4l4 4v4a1 1 0 0 1-1 1h-1"/><circle cx="7.5" cy="18" r="2"/><circle cx="17.5" cy="18" r="2"/></svg>
+              Envío gratis · Llega en 5-7 días hábiles
+            </p>
           </div>
 
           <MobileCouponSection logic={logic} />

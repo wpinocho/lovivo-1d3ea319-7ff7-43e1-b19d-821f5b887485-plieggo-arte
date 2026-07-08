@@ -16,6 +16,7 @@ import { trackPurchase, tracking } from "@/lib/tracking-utils"
 import type { PaymentMethods } from "@/lib/supabase"
 import { isValidPhone } from "@/lib/phone-utils"
 import { MissingPhoneDialog } from "@/components/MissingPhoneDialog"
+import { CheckoutSecurityBanner, CheckoutRating, CheckoutGuarantees, CheckoutPaymentLogos } from "@/components/CheckoutTrustBadges"
 
 /** Build Stripe payment_method_types array from store_settings.payment_methods */
 function buildPaymentMethodTypes(pm?: PaymentMethods): string[] {
@@ -229,6 +230,9 @@ function PaymentForm({
     capture_method: "automatic",
     use_stripe_connect: true,
     payment_method_types: buildPaymentMethodTypes(paymentMethods),
+    // Habilita Meses Sin Intereses (MSI) en tarjetas MX elegibles. Stripe los
+    // muestra automáticamente en el PaymentElement cuando el PaymentIntent los pide.
+    payment_method_options: { card: { installments: { enabled: true } } },
     validation_data: {
       shipping_address: shippingAddress ? {
         line1: shippingAddress.line1 || "",
@@ -779,6 +783,9 @@ function PaymentForm({
         onCancel={handlePhoneDialogCancel}
       />
 
+      {/* Banner de seguridad */}
+      <CheckoutSecurityBanner />
+
       {/* Express Checkout (Google Pay, Apple Pay) */}
       {!linkAuthenticated && (
         <>
@@ -937,12 +944,15 @@ function PaymentForm({
             },
           },
           business: {
-            name: 'Lovivo',
+            name: 'Plieggo Arte',
           },
         }}
       />
 
       {billingSlot}
+
+      {/* Prueba social real */}
+      <CheckoutRating />
 
       <Button
         onClick={handlePayment}
@@ -957,6 +967,12 @@ function PaymentForm({
           </div>
         ) : `Completar Compra - ${amountLabel}`}
       </Button>
+
+      {/* Garantías + métodos de pago */}
+      <div className="space-y-3 pt-1">
+        <CheckoutGuarantees />
+        <CheckoutPaymentLogos />
+      </div>
 
       <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
         <a href="/terminos-y-condiciones" target="_blank" className="underline hover:text-foreground">Condiciones</a>
