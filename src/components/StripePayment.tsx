@@ -35,6 +35,121 @@ function buildElementsPaymentMethodTypes(pm?: PaymentMethods): string[] {
   return buildPaymentMethodTypes(pm).filter(t => t !== 'customer_balance' && t !== 'oxxo')
 }
 
+/** Whether MSI (Meses Sin Intereses) should drive an early-created PaymentIntent
+ *  so the Payment Element can render the installments selector on load.
+ *  Installments only apply to card payments in MXN. */
+function shouldUseInstallmentsMode(pm?: PaymentMethods, currency?: string): boolean {
+  return !!pm?.installments && (currency || 'mxn').toLowerCase() === 'mxn'
+}
+
+/** Normalize + dedupe cart/order items into the shape the payments edge expects. */
+function buildPaymentItemsFrom(items: any[], sourceOrder: any): any[] {
+  const rawItems: any[] = (Array.isArray(items) && items.length > 0)
+    ? items
+    : (sourceOrder && Array.isArray(sourceOrder.order_items) ? sourceOrder.order_items : [])
+
+  const normalizedItems = rawItems.map((it: any) => ({
+    product_id: it.product_id || it.product?.id || '',
+    variant_id: it.variant_id || it.variant?.id,
+    quantity: Number(it.quantity ?? 0),
+    price: Number(it.variant_price ?? it.variant?.price ?? it.price ?? it.unit_price ?? 0),
+    selling_plan_id: it.selling_plan_id || undefined,
+    product_name: it.product_name || it.product?.name || '',
+  }))
+
+  const seen = new Set<string>()
+  return normalizedItems.filter((it: any) => it.product_id && it.quantity > 0).filter((it: any) => {
+    const key = `${it.product_id}:${it.variant_id ?? ''}:${it.selling_plan_id ?? ''}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
+interface BuildIntentPayloadArgs {
+  orderId?: string
+  checkoutToken?: string
+  currency?: string
+  expectedTotal?: number
+  deliveryFee?: number
+  description?: string
+  metadata?: Record<string, string>
+  email?: string
+  name?: string
+  phone?: string
+  paymentMethods?: PaymentMethods
+  shippingAddress?: any
+  billingAddress?: any
+  deliveryExpectations?: any[]
+  pickupLocations?: any[]
+}
+
+/** Build the payments-create-intent payload. Shared between the click-time
+ *  (deferred) flow and the early-creation (installments) flow. */
+function buildCreateIntentPayload(paymentItems: any[], totalCents: number, a: BuildIntentPayloadArgs) {
+  const { orderId, checkoutToken, currency, expectedTotal, deliveryFee = 0, description, metadata, email, name, phone, paymentMethods, shippingAddress, billingAddress, deliveryExpectations, pickupLocations } = a
+  return {
+    store_id: STORE_ID,
+    order_id: orderId,
+    checkout_token: checkoutToken,
+    amount: totalCents,
+    currency: currency || "mxn",
+    expected_total: expectedTotal || totalCents,
+    delivery_fee: deliveryFee,
+    description: description || `Pedido #${orderId ?? "s/n"}`,
+    metadata: { order_id: orderId ?? "", ...(metadata || {}) },
+    receipt_email: email,
+    customer: { email, name, phone },
+    capture_method: "automatic",
+    use_stripe_connect: true,
+    payment_method_types: buildPaymentMethodTypes(paymentMethods),
+    // MSI: el backend inyecta payment_method_options[card][installments] server-side
+    // leyendo store_settings.payment_methods.installments (interruptor del Dashboard).
+    validation_data: {
+      shipping_address: shippingAddress ? {
+        line1: shippingAddress.line1 || "",
+        line2: shippingAddress.line2 || "",
+        city: shippingAddress.city || "",
+        state: shippingAddress.state || "",
+        postal_code: shippingAddress.postal_code || "",
+        country: shippingAddress.country || "",
+        name: `${shippingAddress.first_name || ""} ${shippingAddress.last_name || ""}`.trim()
+      } : null,
+      billing_address: billingAddress ? {
+        line1: billingAddress.line1 || "",
+        line2: billingAddress.line2 || "",
+        city: billingAddress.city || "",
+        state: billingAddress.state || "",
+        postal_code: billingAddress.postal_code || "",
+        country: billingAddress.country || "",
+        name: `${billingAddress.first_name || ""} ${billingAddress.last_name || ""}`.trim()
+      } : null,
+      items: paymentItems.map((item: any) => ({
+        product_id: item.product_id,
+        quantity: item.quantity,
+        ...(item.variant_id ? { variant_id: item.variant_id } : {}),
+        price: Math.max(0, Math.round(Number(item.price) * 100))
+      })),
+      ...(metadata?.discount_code ? { discount_code: metadata.discount_code } : {})
+    },
+    ...(pickupLocations && pickupLocations.length === 1 ? {
+      delivery_method: "pickup",
+      pickup_locations: pickupLocations.map(loc => ({
+        id: loc.id || loc.name,
+        name: loc.name || "",
+        address: `${loc.line1 || ""}, ${loc.city || ""}, ${loc.state || ""}, ${loc.country || ""}`,
+        hours: loc.schedule || ""
+      }))
+    } : deliveryExpectations && deliveryExpectations.length > 0 && deliveryExpectations[0]?.type !== "pickup" ? {
+      delivery_expectations: deliveryExpectations.map((exp: any) => ({
+        type: exp.type || "standard_delivery",
+        description: exp.description || "",
+        ...(exp.price !== undefined ? { estimated_days: "3-5" } : {})
+      }))
+    } : {})
+  }
+}
+
 interface StripeAddressValue {
   name: string
   address: {
@@ -85,6 +200,13 @@ interface StripePaymentProps {
   addressElementComplete?: boolean
   shippingError?: string | null
   onLinkAuthChange?: (authenticated: boolean) => void
+  /** When set, Elements was initialized with this intent's client_secret (MSI mode).
+   *  handlePayment confirms THIS intent instead of creating a new one, and
+   *  elements.submit() is skipped (deferred-only). */
+  preCreatedIntent?: { clientSecret: string; order: any } | null
+  /** Hide the Express Checkout (wallets) block. Used in MSI/client_secret mode
+   *  because wallets don't support installments and would break confirm. */
+  hideExpressCheckout?: boolean
 }
 
 
@@ -118,6 +240,8 @@ function PaymentForm({
   addressElementComplete = false,
   shippingError,
   onLinkAuthChange,
+  preCreatedIntent,
+  hideExpressCheckout,
 }: StripePaymentProps) {
   const stripe = useStripe()
   const elements = useElements()
@@ -164,12 +288,15 @@ function PaymentForm({
   // amount in-place. Remounting <Elements> would kill open wallet sessions.
   useEffect(() => {
     if (!elements) return
+    // In client_secret (MSI) mode the amount is fixed to the created intent;
+    // elements.update({ amount }) is only valid in deferred mode.
+    if (preCreatedIntent) return
     try {
       elements.update({ amount: Math.max(amountCents || 50, 50) })
     } catch (err) {
       console.warn('elements.update(amount) failed:', err)
     }
-  }, [elements, amountCents])
+  }, [elements, amountCents, preCreatedIntent])
 
   const amountLabel = useMemo(() => {
     const amt = (amountCents || 0) / 100
@@ -193,88 +320,13 @@ function PaymentForm({
 
   const buildPaymentItems = () => {
     const sourceOrder = (typeof getFreshOrder === 'function' ? getFreshOrder() : null) || (typeof getOrderSnapshot === 'function' ? getOrderSnapshot() : null)
-    const rawItems: any[] = (Array.isArray(items) && items.length > 0)
-      ? items
-      : (sourceOrder && Array.isArray(sourceOrder.order_items) ? sourceOrder.order_items : [])
-
-    const normalizedItems = rawItems.map((it: any) => ({
-      product_id: it.product_id || it.product?.id || '',
-      variant_id: it.variant_id || it.variant?.id,
-      quantity: Number(it.quantity ?? 0),
-      price: Number(it.variant_price ?? it.variant?.price ?? it.price ?? it.unit_price ?? 0),
-      selling_plan_id: it.selling_plan_id || undefined,
-      product_name: it.product_name || it.product?.name || '',
-    }))
-
-    const seen = new Set<string>()
-    return normalizedItems.filter((it: any) => it.product_id && it.quantity > 0).filter((it: any) => {
-      const key = `${it.product_id}:${it.variant_id ?? ''}:${it.selling_plan_id ?? ''}`
-      if (seen.has(key)) return false
-      seen.add(key)
-      return true
-    })
+    return buildPaymentItemsFrom(items, sourceOrder)
   }
 
-  const buildPayload = (paymentItems: any[], totalCents: number) => ({
-    store_id: STORE_ID,
-    order_id: orderId,
-    checkout_token: checkoutToken,
-    amount: totalCents,
-    currency: currency || "mxn",
-    expected_total: expectedTotal || totalCents,
-    delivery_fee: deliveryFee,
-    description: description || `Pedido #${orderId ?? "s/n"}`,
-    metadata: { order_id: orderId ?? "", ...(metadata || {}) },
-    receipt_email: email,
-    customer: { email, name, phone },
-    capture_method: "automatic",
-    use_stripe_connect: true,
-    payment_method_types: buildPaymentMethodTypes(paymentMethods),
-    // MSI (Meses Sin Intereses): el backend inyecta payment_method_options[card][installments]
-    // server-side leyendo store_settings.payment_methods.installments. NO se envía desde el
-    // frontend para respetar el interruptor del Dashboard.
-    validation_data: {
-      shipping_address: shippingAddress ? {
-        line1: shippingAddress.line1 || "",
-        line2: shippingAddress.line2 || "",
-        city: shippingAddress.city || "",
-        state: shippingAddress.state || "",
-        postal_code: shippingAddress.postal_code || "",
-        country: shippingAddress.country || "",
-        name: `${shippingAddress.first_name || ""} ${shippingAddress.last_name || ""}`.trim()
-      } : null,
-      billing_address: billingAddress ? {
-        line1: billingAddress.line1 || "",
-        line2: billingAddress.line2 || "",
-        city: billingAddress.city || "",
-        state: billingAddress.state || "",
-        postal_code: billingAddress.postal_code || "",
-        country: billingAddress.country || "",
-        name: `${billingAddress.first_name || ""} ${billingAddress.last_name || ""}`.trim()
-      } : null,
-      items: paymentItems.map((item: any) => ({
-        product_id: item.product_id,
-        quantity: item.quantity,
-        ...(item.variant_id ? { variant_id: item.variant_id } : {}),
-        price: Math.max(0, Math.round(Number(item.price) * 100))
-      })),
-      ...(metadata?.discount_code ? { discount_code: metadata.discount_code } : {})
-    },
-    ...(pickupLocations && pickupLocations.length === 1 ? {
-      delivery_method: "pickup",
-      pickup_locations: pickupLocations.map(loc => ({
-        id: loc.id || loc.name,
-        name: loc.name || "",
-        address: `${loc.line1 || ""}, ${loc.city || ""}, ${loc.state || ""}, ${loc.country || ""}`,
-        hours: loc.schedule || ""
-      }))
-    } : deliveryExpectations && deliveryExpectations.length > 0 && deliveryExpectations[0]?.type !== "pickup" ? {
-      delivery_expectations: deliveryExpectations.map((exp: any) => ({
-        type: exp.type || "standard_delivery",
-        description: exp.description || "",
-        ...(exp.price !== undefined ? { estimated_days: "3-5" } : {})
-      }))
-    } : {})
+  const buildPayload = (paymentItems: any[], totalCents: number) => buildCreateIntentPayload(paymentItems, totalCents, {
+    orderId, checkoutToken, currency, expectedTotal, deliveryFee, description, metadata,
+    email, name, phone, paymentMethods, shippingAddress, billingAddress,
+    deliveryExpectations, pickupLocations,
   })
 
   const handleUnavailableItems = (data: any) => {
@@ -309,12 +361,6 @@ function PaymentForm({
     try {
       setLoading(true)
 
-      const { error: submitError } = await elements.submit()
-      if (submitError) {
-        toast({ title: "Error", description: submitError.message || "Verifica los datos de pago", variant: "destructive" })
-        return
-      }
-
       const paymentItems = buildPaymentItems()
       const totalCents = Math.max(0, Math.floor(amountCents || 0))
       const hasSubscription = paymentItems.some((it: any) => it.selling_plan_id)
@@ -322,7 +368,21 @@ function PaymentForm({
       let client_secret: string | undefined
       let intentOrder: any = null
 
-      if (hasSubscription) {
+      if (preCreatedIntent?.clientSecret) {
+        // MSI mode: the PaymentIntent was created up-front so the Payment Element
+        // could render the meses-sin-intereses selector. Confirm that SAME intent —
+        // do NOT call elements.submit() (deferred-only) and do NOT create a new
+        // intent (clientSecret must match the one Elements was initialized with).
+        client_secret = preCreatedIntent.clientSecret
+        intentOrder = preCreatedIntent.order ?? null
+      } else {
+        const { error: submitError } = await elements.submit()
+        if (submitError) {
+          toast({ title: "Error", description: submitError.message || "Verifica los datos de pago", variant: "destructive" })
+          return
+        }
+
+        if (hasSubscription) {
         const subscriptionItems = paymentItems.filter((it: any) => it.selling_plan_id)
         const oneTimeItems = paymentItems.filter((it: any) => !it.selling_plan_id)
         const mainItem = subscriptionItems[0]
@@ -349,6 +409,7 @@ function PaymentForm({
         if (handleUnavailableItems(data)) return
         client_secret = data?.client_secret
         intentOrder = data?.order ?? null
+        }
       }
 
       if (!client_secret) {
@@ -787,7 +848,7 @@ function PaymentForm({
       <CheckoutSecurityBanner />
 
       {/* Express Checkout (Google Pay, Apple Pay) */}
-      {!linkAuthenticated && (
+      {!hideExpressCheckout && !linkAuthenticated && (
         <>
           <div style={{ display: eceAvailable ? undefined : 'none' }}>
           <ExpressCheckoutElement
@@ -993,14 +1054,8 @@ function PaymentForm({
   )
 }
 
-export default function StripePayment(props: StripePaymentProps) {
-  const stripePromise = useMemo(() => {
-    const opts = props.chargeType === 'direct' && props.stripeAccountId
-      ? { stripeAccount: props.stripeAccountId }
-      : {};
-    return loadStripe(STRIPE_PUBLISHABLE_KEY, opts);
-  }, [props.stripeAccountId, props.chargeType]);
-
+/** Deferred-mode Elements (the stable default flow for all non-MSI checkouts). */
+function DeferredElements({ stripePromise, ...props }: StripePaymentProps & { stripePromise: any }) {
   // Elements options for deferred mode.
   // NOTE: customer_balance (SPEI) is excluded from Elements init to avoid
   // a 400 from Stripe. It is still sent in the backend payload.
@@ -1017,4 +1072,121 @@ export default function StripePayment(props: StripePaymentProps) {
       <PaymentForm {...props} />
     </Elements>
   )
+}
+
+/**
+ * Installments (MSI) mode. To make the Payment Element render the
+ * meses-sin-intereses selector on load, Stripe requires Elements to be
+ * initialized with the client_secret of a PaymentIntent that already has
+ * installments enabled (deferred mode never shows the selector — see
+ * docs.stripe.com/payments/accept-a-payment-deferred + stripe-js#454).
+ *
+ * We therefore create the intent up-front and mount Elements with its
+ * client_secret. If anything fails (subscription in cart, edge error, no
+ * amount yet) we FALL BACK to the deferred flow so checkout never breaks.
+ */
+function InstallmentsElements({ stripePromise, ...props }: StripePaymentProps & { stripePromise: any }) {
+  const { getFreshOrder, getOrderSnapshot } = useCheckoutState()
+  const [clientSecret, setClientSecret] = useState<string | null>(null)
+  const [intentOrder, setIntentOrder] = useState<any>(null)
+  const [fallback, setFallback] = useState(false)
+  const creatingRef = React.useRef(false)
+  const lastAmountRef = React.useRef<number | null>(null)
+
+  const amountCents = props.amountCents
+
+  const createIntent = useCallback(async () => {
+    if (creatingRef.current) return
+    const totalCents = Math.max(0, Math.floor(amountCents || 0))
+    if (totalCents <= 0) return
+    if (!props.orderId && !props.checkoutToken) return
+    creatingRef.current = true
+    try {
+      const sourceOrder = (typeof getFreshOrder === 'function' ? getFreshOrder() : null) || (typeof getOrderSnapshot === 'function' ? getOrderSnapshot() : null)
+      const paymentItems = buildPaymentItemsFrom(props.items || [], sourceOrder)
+      // Installments don't apply to subscriptions — use the deferred flow instead.
+      if (paymentItems.some((it: any) => it.selling_plan_id)) {
+        setFallback(true)
+        return
+      }
+      const payload = buildCreateIntentPayload(paymentItems, totalCents, {
+        orderId: props.orderId, checkoutToken: props.checkoutToken, currency: props.currency,
+        expectedTotal: props.expectedTotal, deliveryFee: props.deliveryFee, description: props.description,
+        metadata: props.metadata, email: props.email, name: props.name, phone: props.phone,
+        paymentMethods: props.paymentMethods, shippingAddress: props.shippingAddress, billingAddress: props.billingAddress,
+        deliveryExpectations: props.deliveryExpectations, pickupLocations: props.pickupLocations,
+      })
+      const data = await callEdge('payments-create-intent', payload)
+      if (data?.client_secret) {
+        lastAmountRef.current = totalCents
+        setIntentOrder(data.order ?? null)
+        setClientSecret(data.client_secret)
+      } else {
+        console.warn('[Installments] no client_secret from edge — falling back to deferred')
+        setFallback(true)
+      }
+    } catch (err) {
+      console.warn('[Installments] early intent create failed — falling back to deferred', err)
+      setFallback(true)
+    } finally {
+      creatingRef.current = false
+    }
+  }, [amountCents, props.orderId, props.checkoutToken, props.currency, props.expectedTotal, props.deliveryFee, props.description, props.metadata, props.email, props.name, props.phone, props.paymentMethods, props.shippingAddress, props.billingAddress, props.deliveryExpectations, props.pickupLocations, props.items, getFreshOrder, getOrderSnapshot])
+
+  // Create on mount and re-create (debounced) when the charged amount changes.
+  // In client_secret mode elements.update({ amount }) is not allowed, so the
+  // intent must be recreated and Elements remounted (keyed on clientSecret).
+  useEffect(() => {
+    if (fallback) return
+    const amt = Math.max(0, Math.floor(amountCents || 0))
+    if (clientSecret && lastAmountRef.current === amt) return
+    const delay = clientSecret ? 500 : 0
+    const t = setTimeout(() => { createIntent() }, delay)
+    return () => clearTimeout(t)
+  }, [amountCents, clientSecret, fallback, createIntent])
+
+  if (fallback) {
+    return <DeferredElements stripePromise={stripePromise} {...props} />
+  }
+
+  if (!clientSecret) {
+    return (
+      <div className="flex items-center justify-center py-10">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+        <span className="ml-3 text-sm text-muted-foreground">Preparando opciones de pago…</span>
+      </div>
+    )
+  }
+
+  return (
+    <Elements
+      key={clientSecret}
+      stripe={stripePromise}
+      options={{ clientSecret, appearance: getStripeAppearance() }}
+    >
+      <PaymentForm
+        {...props}
+        preCreatedIntent={{ clientSecret, order: intentOrder }}
+        hideExpressCheckout
+      />
+    </Elements>
+  )
+}
+
+export default function StripePayment(props: StripePaymentProps) {
+  const stripePromise = useMemo(() => {
+    const opts = props.chargeType === 'direct' && props.stripeAccountId
+      ? { stripeAccount: props.stripeAccountId }
+      : {};
+    return loadStripe(STRIPE_PUBLISHABLE_KEY, opts);
+  }, [props.stripeAccountId, props.chargeType]);
+
+  // MSI (Meses Sin Intereses): create the intent early + init Elements with
+  // client_secret so the installments selector renders inside the card form.
+  // Otherwise keep the stable deferred flow.
+  if (shouldUseInstallmentsMode(props.paymentMethods, props.currency)) {
+    return <InstallmentsElements stripePromise={stripePromise} {...props} />
+  }
+
+  return <DeferredElements stripePromise={stripePromise} {...props} />
 }
