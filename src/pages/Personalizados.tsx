@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/accordion'
 import { plieggoGeneralReviews, getInitials } from '@/data/plieggo-general-reviews'
 import { facebookPixel } from '@/lib/facebook-pixel'
+import { EcommerceTemplate } from '@/templates/EcommerceTemplate'
 
 /* ─────────────────────────────────────────────────────────
    LANDING CUADROS PERSONALIZADOS — Tráfico frío Meta Ads
@@ -27,8 +28,7 @@ import { facebookPixel } from '@/lib/facebook-pixel'
 const PHONE = '525531215386'
 const IMG = 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/products/'
 const HERO_IMAGE =
-  'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1783622578635-s1ovzkstlm.webp'
-const LOGO = '/logo.svg'
+  'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779296069343-2ifge8n87sv.webp'
 
 const STYLES = [
   {
@@ -149,21 +149,8 @@ const Personalizados = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20 lg:pb-0">
-      {/* ─── HEADER MINIMAL ─── */}
-      <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-sm border-b border-border/40">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <img src={LOGO} alt="Plieggo" className="h-7 w-auto" />
-          <button
-            onClick={() => handleWhatsAppLead()}
-            className="inline-flex items-center gap-1.5 font-heading font-semibold text-xs sm:text-sm px-3.5 py-2 rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            <MessageCircle className="w-4 h-4" />
-            WhatsApp
-          </button>
-        </div>
-      </header>
-
+    <EcommerceTemplate showCart={true} layout="full-width">
+      <div className="pb-20 lg:pb-0">
       {/* ─── HERO ─── */}
       <section className="relative flex items-end overflow-hidden" style={{ height: 'clamp(460px, 82vh, 640px)' }}>
         <img
@@ -283,7 +270,7 @@ const Personalizados = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
             {GALLERY.map((img) => (
-              <div key={img.src} className="rounded-sm overflow-hidden aspect-square">
+              <div key={img.src} className="rounded-sm overflow-hidden aspect-[4/5]">
                 <img src={img.src} alt={img.alt} className="w-full h-full object-cover" loading="lazy" />
               </div>
             ))}
@@ -294,7 +281,7 @@ const Personalizados = () => {
       {/* ─── ARTE QUE CAMBIA CON LA LUZ ─── */}
       <section className="py-14 md:py-20 px-4 sm:px-6 lg:px-8 bg-secondary text-secondary-foreground">
         <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          <div className="rounded-sm overflow-hidden aspect-[4/3] order-2 lg:order-1">
+          <div className="rounded-sm overflow-hidden aspect-[4/5] order-2 lg:order-1">
             <img
               src={`${IMG}etdkr375s4e.webp`}
               alt="Detalle de los pliegues de un cuadro Plieggo"
@@ -451,7 +438,8 @@ const Personalizados = () => {
           Personaliza el tuyo por WhatsApp
         </button>
       </div>
-    </div>
+      </div>
+    </EcommerceTemplate>
   )
 }
 

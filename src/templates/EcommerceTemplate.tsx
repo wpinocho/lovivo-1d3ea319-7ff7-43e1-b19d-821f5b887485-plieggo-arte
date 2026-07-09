@@ -139,6 +139,13 @@ export const EcommerceTemplate = ({
                   Galería
                 </Link>
                 <Link 
+                  to="/personalizados" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="font-body text-lg text-primary font-semibold hover:text-primary py-3 border-b border-border"
+                >
+                  Personalízalo
+                </Link>
+                <Link 
                   to="/about" 
                   onClick={() => setMobileMenuOpen(false)}
                   className="font-body text-lg text-foreground hover:text-primary py-3 border-b border-border"
@@ -167,6 +174,7 @@ export const EcommerceTemplate = ({
               { to: '/coleccion-acordeon', label: 'Acordeón' },
               { to: '/coleccion-espacio', label: 'Espacio' },
               { to: '/galeria', label: 'Galería' },
+              { to: '/personalizados', label: 'Personalízalo' },
               { to: '/about', label: 'Nosotros' },
               { to: '/orders/track', label: 'Rastrear pedido' },
             ].map(({ to, label }) => (
