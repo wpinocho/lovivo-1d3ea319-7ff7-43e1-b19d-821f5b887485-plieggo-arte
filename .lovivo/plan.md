@@ -22,33 +22,69 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **MSI badge marketing** (encima del PaymentElement): "Paga hasta en {N} meses sin intereses con tarjetas participantes." (N = paymentMethods.installments_max_plan ?? 6). Sin glow. Este badge SIEMPRE se muestra; el selector inline de MSI aparece cuando existe el intent.
 
 ## 3. Active Plan
-**✅ FIX 2 BUGS DE CHECKOUT EJECUTADO (2026-07-09). Pendiente validar en prod.**
+**🔧 BUG 2 (cantidad se regresa a 1) — CAUSA RAÍZ IDENTIFICADA. Pendiente ejecutar en Craft Mode.**
 
-### Qué se hizo (crear el intent up-front SOLO con el formulario completo)
-Root cause de ambos bugs: el PaymentIntent up-front se creaba demasiado pronto (a mitad de escritura del correo, cuando `isCompleteEmail` pasaba en "gmail.co"), remontando `<Elements key={clientSecret}>` → borraba el correo (bug 1) y bloqueaba la orden server-side → `checkout-update` 400 → rollback de cantidad (bug 2).
+Bug 1 (correo se borra) YA quedó resuelto (confirmado por el dueño 2026-07-09). Bug 2 sigue: al subir la cantidad, la UI vuelve sola a 1 aunque el backend SÍ la guarda.
 
-**`src/components/StripePayment.tsx`:**
-- Nueva prop `canCreateIntent?: boolean` en `StripePaymentProps`.
-- Gate de `createIntent`: `if (!props.canCreateIntent || !isCompleteEmail(props.email)) { setIntentReady(true); return }`.
-- `props.canCreateIntent` añadido a deps del `useCallback createIntent` → el mount-effect re-corre createIntent cuando pasa a true.
-- (Ya existía) `defaultAddress` se aplica en `AddressElement.defaultValues`; email en `LinkAuthenticationElement.defaultValues` → repueblan tras remonte.
+### Diagnóstico confirmado con la consola de prod
+La consola muestra: `checkout-update succeeded {subtotal: 10000}` (= 2 uds × $5,000 → el backend SÍ acepta la cantidad 2), pero la UI muestra 1 y total $5,000. Justo después aparecen 3× `Checkout updated from external component` + un segundo `Variant debug` → el evento `checkout:updated` re-renderiza la lista y REVIERTE la cantidad.
 
-**`src/pages/ui/CheckoutUI.tsx`:**
-- Nuevo estado `emailConfirmed`. Se pone true en `onEmailBlur` (si `logic.isValidEmail(logic.email)`) y en `onLinkAuthChange(authenticated===true)`.
-- `canCreateIntent={emailConfirmed && (usePickup ? (!!phone && !!billingAddress.line1) : addressElementComplete)}`.
-- Se pasa `defaultAddress` construido desde el estado React (para remonte no destructivo de la dirección).
+**Cadena exacta del bug:**
+1. Usuario da "+": `updateQuantity` (en `src/hooks/useOrderItems.ts`) hace update optimista a qty 2, registra `pendingQuantitiesRef.set(key, 2)` y tras 300ms llama `updateCheckoutItems`.
+2. `checkout-update` responde OK con `order_items` (respuesta ligera). En `updateQuantity` corre la rama `else if ('order_items' in response)` (línea ~405) → llama `mergeResponseIntoCache(...)`.
+3. `mergeResponseIntoCache` (top de `useOrderItems.ts`) hace `getOrderSnapshot()` (la orden CACHEADA, cuyos `order_items` TODAVÍA tienen qty 1) y solo mezcla campos financieros (subtotal, etc.). Llama `updateOrderCache(...)`.
+4. `updateOrderCache` (en `src/hooks/useCheckoutState.ts`, línea 98) **dispara `window.dispatchEvent(new CustomEvent('checkout:updated', { detail: orderData }))`** con order_items qty 1.
+5. El listener `checkout:updated` en `useOrderItems.ts` (líneas ~302-320) hace `transformOrderItems(updatedOrder.order_items, ...)` + `setOrderItems(reconciled)` **SIN respetar la cantidad optimista/pendiente** → PISA la UI de qty 2 a qty 1.
 
-### Resultado esperado
-- Bug 1: intent ya no se crea a mitad de escritura → sin remonte que borre el correo.
-- Bug 2: cantidad se edita en modo deferred (orden editable) → `checkout-update` OK → cantidad y monto se actualizan. Arregla de paso el 400 de dirección.
-- MSI: badge marketing siempre visible; selector inline aparece al completar el formulario (paso de pago).
+Root cause en una frase: el listener `checkout:updated` confía ciegamente en un evento que carga `order_items` con la cantidad vieja (porque `mergeResponseIntoCache` solo actualiza campos financieros del cache, no las cantidades).
 
-### Residual a validar en prod
-- Si el usuario cambia cantidad DESPUÉS de que el intent ya se creó (form completo), `checkout-update` podría volver a 400 por el lock. Caso menos común. Si aparece, evaluar cancelar/recrear intent o ajuste backend.
+### Fix a ejecutar (quirúrgico, en `src/hooks/useOrderItems.ts`)
+Modificar SOLO el listener `checkout:updated` (el `useEffect` con `handler`, líneas ~301-320) para que NO pise las cantidades del usuario:
+
+```ts
+const handler = (e: Event) => {
+  const ce = e as CustomEvent<any>
+  const updatedOrder = ce.detail
+  // NUEVO: si hay una actualización de cantidad en vuelo, updateQuantity es el
+  // dueño del estado y pondrá la cantidad final correcta. Ignorar el evento aquí
+  // evita revertir la cantidad optimista, porque updateOrderCache emite este
+  // evento con order_items que aún tienen la cantidad VIEJA (mergeResponseIntoCache
+  // solo mezcla campos financieros, no cantidades).
+  if (updatingItemsRef.current.size > 0) return
+  if (updatedOrder?.order_items) {
+    const items = transformOrderItems(updatedOrder.order_items, orderItems)
+    const seen = new Set<string>()
+    // NUEVO: overlayPending protege cualquier cantidad solicitada que aún no
+    // se refleje en el cache.
+    const reconciled = overlayPending(items)
+      .filter(it => it.quantity > 0)
+      .filter(it => { if (seen.has(it.key)) return false; seen.add(it.key); return true })
+    setOrderItems(reconciled)
+  }
+}
+```
+
+Dos capas de protección:
+1. `if (updatingItemsRef.current.size > 0) return` — mientras `updateQuantity` procesa (el key sigue en `updatingItems` hasta el `finally`, que corre DESPUÉS del dispatch), ignora el evento auto-inducido.
+2. `overlayPending(items)` — si el evento se cuela igual, respeta la cantidad pendiente registrada en `pendingQuantitiesRef`.
+
+Nota: `overlayPending` ya está definido en el hook y usa `Math.max`. Depende de `overlayPending` → agregarlo al array de deps del `useEffect` (junto a `transformOrderItems`, `orderItems`).
+
+El caso legítimo de este listener (ajustes externos de inventario) NO se rompe: esos ocurren cuando NO hay update en vuelo (`updatingItems.size === 0`).
+
+### Validación esperada tras el fix
+- Subir cantidad a 2 → se queda en 2, total = $10,000, subtotal correcto.
+- Bajar cantidad a 1 → funciona (updateQuantity setea pending=1, Math.max deja 1).
+- Quitar item (qty 0) → sigue funcionando (`removeItem`).
+- Bug 1 (correo) sigue OK; MSI sigue apareciendo; SPEI/OXXO/express OK.
+
+### Files to modify
+- `src/hooks/useOrderItems.ts`: SOLO el `useEffect` del listener `checkout:updated` (~líneas 301-320): agregar guard `updatingItemsRef.current.size > 0` y `overlayPending()`; añadir `overlayPending` a deps.
 
 ## 4. Recent Changes
-- **2026-07-09** — ✅ EJECUTADO fix 2 bugs checkout. `StripePayment.tsx`: prop `canCreateIntent` + gate en createIntent (+dep). `CheckoutUI.tsx`: estado `emailConfirmed` (onEmailBlur/onLinkAuthChange), cálculo de `canCreateIntent` y `defaultAddress`. Intent up-front solo con form completo → correo no se borra + cantidad editable. PENDIENTE validar en prod.
-- **2026-07-09** — 📋 PLAN 2 bugs checkout (correo se borra + cantidad no funciona). (Ya ejecutado.)
+- **2026-07-09** — 🔧 DIAGNÓSTICO BUG 2 (cantidad vuelve a 1): causa raíz = listener `checkout:updated` en `useOrderItems.ts` pisa la cantidad optimista con `order_items` viejos que trae el evento (emitido por `updateOrderCache` en `useCheckoutState.ts` línea 98; el cache solo mezcla campos financieros vía `mergeResponseIntoCache`). Fix planeado: guard `updatingItemsRef.size>0` + `overlayPending` en el listener. PENDIENTE ejecutar en Craft Mode.
+- **2026-07-09** — ✅ Bug 1 (correo se borra) CONFIRMADO RESUELTO por el dueño.
+- **2026-07-09** — ✅ EJECUTADO fix 2 bugs checkout. `StripePayment.tsx`: prop `canCreateIntent` + gate en createIntent (+dep). `CheckoutUI.tsx`: estado `emailConfirmed` (onEmailBlur/onLinkAuthChange), cálculo de `canCreateIntent` y `defaultAddress`. Intent up-front solo con form completo → correo no se borra + cantidad editable.
 - **2026-07-09** — ✅ FIX GALERÍA POR VARIANTE (estilo Shopify) en `HeadlessProduct.tsx` `getDisplayImages()`.
 - **2026-07-09** — ✅ FIX 404 POST-PAGO PENDIENTE: `src/pages/PagoPendiente.tsx` + ruta `/pago-pendiente/:orderId`.
 - **2026-07-08** — ✅ PASO 4 "best of both worlds": quitado gate `paymentUnlocked` de `CheckoutUI.tsx`.
@@ -68,14 +104,14 @@ Root cause de ambos bugs: el PaymentIntent up-front se creaba demasiado pronto (
 - **Faltan reseñas (fotos)**: Beige Sutil y Luna Beige — el dueño las subirá.
 
 ## 6. Known Issues
-- **[VALIDAR EN PROD 2026-07-09] Fix 2 bugs checkout EJECUTADO** — confirmar en prod: (1) el correo NO se borra al salir del campo; (2) cambiar cantidad SÍ funciona y actualiza monto; (3) MSI sigue apareciendo al completar el form; (4) sin 400 de `checkout-update`; (5) SPEI/OXXO/express OK, sin 500s.
+- **[EJECUTAR 2026-07-09] Bug 2 cantidad vuelve a 1** — causa raíz identificada (listener `checkout:updated` pisa cantidad optimista). Fix quirúrgico planeado en `useOrderItems.ts`. Ejecutar en Craft Mode y validar en prod.
 - **[VALIDAR EN PROD 2026-07-09] PagoPendiente**: compra SPEI y OXXO en prod; confirmar sin 404, datos correctos, copy funciona, fallback OK.
 - **NOTA:** import `CheckoutSecurityBanner` en `CheckoutUI.tsx` sin uso (inofensivo). Limpiar si se toca.
-- **Failed to fetch / manifest pay.google.com**: ruido de extensiones/Google Pay. Ignorar. (Los "Failed to fetch" de `frame_ant.js` en las capturas son de una extensión del navegador, NO del sitio.)
+- **Failed to fetch / manifest pay.google.com**: ruido de extensiones/Google Pay. Ignorar.
 - **Verificar tarifa de envío Dashboard = $0 todo México**.
 
 ## 7. Pending / Future Sessions
-- **[ALTA · DUEÑO/PROD]** Validar en prod el fix de los 2 bugs (correo + cantidad).
+- **[ALTA · CRAFT MODE]** Ejecutar fix Bug 2 (cantidad) en `useOrderItems.ts` y validar en prod.
 - **[ALTA · DUEÑO/PROD]** Validar PagoPendiente en prod (SPEI + OXXO).
 - **[MEDIA]** Verificar tarifa envío Dashboard = $0.
 - **[BAJA]** Limpiar import sin uso `CheckoutSecurityBanner` en CheckoutUI.tsx.
