@@ -196,6 +196,11 @@ interface StripePaymentProps {
   preClientSecret?: string
   /** Order devuelto junto con el intent pre-creado. */
   preIntentOrder?: any
+  /** Solo crear el PaymentIntent up-front cuando el formulario esté completo
+   *  (correo confirmado + dirección). Evita remontes destructivos de Elements
+   *  mientras el usuario escribe (bug: correo se borra) y mantiene la orden
+   *  editable para cambiar cantidad (bug: cantidad no funciona). */
+  canCreateIntent?: boolean
 }
 
 
@@ -1093,7 +1098,10 @@ export default function StripePayment(props: StripePaymentProps) {
     if (creatingRef.current || !props.orderId || !props.amountCents) return
     // SPEI (customer_balance) exige un customer con email válido al crear el intent.
     // Sin email válido NO creamos intent up-front: dejamos que caiga a deferred sin 500s.
-    if (!isCompleteEmail(props.email)) { setIntentReady(true); return }
+    // Además solo creamos el intent cuando el formulario está completo (canCreateIntent):
+    // así la orden sigue editable (cantidad/dirección) y no remontamos Elements a mitad
+    // de escritura del correo.
+    if (!props.canCreateIntent || !isCompleteEmail(props.email)) { setIntentReady(true); return }
     creatingRef.current = true
     try {
       const src = (typeof getFreshOrder === 'function' ? getFreshOrder() : null)
@@ -1123,7 +1131,7 @@ export default function StripePayment(props: StripePaymentProps) {
   }, [props.orderId, props.amountCents, props.checkoutToken, props.currency, props.expectedTotal,
       props.deliveryFee, props.description, props.metadata, props.email, props.name, props.phone,
       props.paymentMethods, props.shippingAddress, props.billingAddress, props.deliveryExpectations,
-      props.pickupLocations, props.items, getFreshOrder, getOrderSnapshot])
+      props.pickupLocations, props.items, props.canCreateIntent, getFreshOrder, getOrderSnapshot])
 
   // Crear el intent una sola vez al montar (flujo one-time).
   useEffect(() => {

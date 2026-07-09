@@ -39,6 +39,10 @@ export default function CheckoutUI() {
   const { paymentMethods, stripeAccountId, chargeType, isLoading: isSettingsLoading } = useSettings();
   const [linkAuthenticated, setLinkAuthenticated] = useState(false);
   const [addressElementComplete, setAddressElementComplete] = useState(false);
+  // El correo se considera "confirmado" cuando el usuario sale del campo con un correo
+  // válido, o cuando Stripe Link lo autentica. Solo entonces (con la dirección completa)
+  // creamos el PaymentIntent up-front → evita remontar Elements a mitad de escritura.
+  const [emailConfirmed, setEmailConfirmed] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -277,6 +281,24 @@ export default function CheckoutUI() {
                         orderId={logic.orderId}
                         checkoutToken={logic.checkoutToken}
                         onValidationRequired={logic.validateCheckoutFields}
+                        canCreateIntent={
+                          emailConfirmed &&
+                          (logic.usePickup
+                            ? (!!logic.phone && !!logic.billingAddress.line1)
+                            : addressElementComplete)
+                        }
+                        defaultAddress={logic.usePickup ? undefined : {
+                          name: `${logic.firstName} ${logic.lastName}`.trim(),
+                          address: {
+                            line1: logic.address.line1,
+                            line2: logic.address.line2,
+                            city: logic.address.city,
+                            state: logic.address.state,
+                            postal_code: logic.address.postal_code,
+                            country: logic.address.countryCode || 'MX',
+                          },
+                          phone: logic.phone,
+                        }}
                         expectedTotal={Math.round(logic.finalTotal * 100)}
                         deliveryFee={Math.round((logic.shippingFromCheckout || logic.shippingCost) * 100)}
                         shippingAddress={logic.usePickup ? null : {
@@ -341,8 +363,14 @@ export default function CheckoutUI() {
                         onEmailChange={(email: string) => {
                           logic.setEmail(email)
                         }}
-                        onEmailBlur={() => logic.saveClientDataOnBlur()}
-                        onLinkAuthChange={setLinkAuthenticated}
+                        onEmailBlur={() => {
+                          logic.saveClientDataOnBlur();
+                          if (logic.isValidEmail(logic.email)) setEmailConfirmed(true);
+                        }}
+                        onLinkAuthChange={(authenticated) => {
+                          setLinkAuthenticated(authenticated);
+                          if (authenticated) setEmailConfirmed(true);
+                        }}
                       />
                     );
                   })()}
