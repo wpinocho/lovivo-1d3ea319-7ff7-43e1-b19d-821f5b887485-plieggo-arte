@@ -22,25 +22,23 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **MSI badge marketing** (encima del PaymentElement): "Paga hasta en {N} meses sin intereses con tarjetas participantes." (N = paymentMethods.installments_max_plan ?? 6). Sin glow.
 
 ## 3. Active Plan
-**✅ PASO 4 IMPLEMENTADO (2026-07-08): "Best of both worlds" — sin muro + MSI + autollenado de Link recuperado. PENDIENTE VALIDAR EN PROD.**
+**✅ RUTA /pago-pendiente CREADA (2026-07-09): fix del 404 post-SPEI/OXXO. PENDIENTE VALIDAR EN PROD.**
 
-### Cómo quedó el flujo del checkout (arquitectura vigente)
-- `CheckoutUI.tsx`: se ELIMINÓ el gate `paymentUnlocked` (ya no hay campo de correo nativo/muro). `StripePayment` monta COMPLETO desde el inicio cuando `isStripeReady`.
-- El correo lo captura el `LinkAuthenticationElement` DENTRO de StripePayment → recupera el autollenado de Stripe Link. Cableado: `email={logic.email}`, `onEmailChange→logic.setEmail`, `onEmailBlur→logic.saveClientDataOnBlur`.
-- `StripePayment.tsx` (SIN cambios en este paso): monta en modo deferred (correo vacío → `createIntent` retorna temprano). Al volverse el correo válido (`isCompleteEmail`), crea el intent up-front → `clientSecret` → `<Elements key={clientSecret}>` REMONTA a modo client_secret → aparece selector MSI inline. Parpadeo ÚNICO aceptado.
-- El correo sobrevive el remonte porque `LinkAuthenticationElement` usa `defaultValues.email = email` (vive en estado React logic.email).
-- Seguridad SPEI: pagar sin correo válido queda bloqueado por `validateCheckoutFields` (CheckoutAdapter L473-476 exige `isValidEmail`), y `createIntent` no crea intent up-front sin correo válido → NO regresan los 500 de SPEI.
+### Flujo pago pendiente (nueva arquitectura vigente)
+- `StripePayment.tsx` (SIN cambios): en `requires_action` de SPEI/OXXO y en `processing`, guarda `sessionStorage.pending_payment` (method, orderId, amount, currency, + SPEI: hostedUrl/clabe/bankName, + OXXO: voucherUrl/number/expiresAfter) y hace `navigate('/pago-pendiente/${orderId}')`.
+- ANTES esa ruta NO existía → caía en NotFound (404). El dueño lo detectó al cerrar la ficha SPEI.
+- **NUEVO**: `src/pages/PagoPendiente.tsx` lee `sessionStorage.pending_payment` y muestra instrucciones (SPEI: CLABE/banco/beneficiario con copy-to-clipboard + link hostedUrl; OXXO: referencia + botón ficha). Fallback si no hay sesión (dice "te enviamos instrucciones por correo"). Registrada en `App.tsx` (`/pago-pendiente/:orderId` y `/pago-pendiente`).
+
+### Checkout "best of both worlds" (vigente desde 2026-07-08)
+- `CheckoutUI.tsx`: sin gate `paymentUnlocked`. `StripePayment` monta completo. Correo vía `LinkAuthenticationElement` (autollenado Link). MSI aparece al validar correo (deferred→client_secret). Protegido por `validateCheckoutFields`.
 
 ### ThankYou — mostrar plan MSI (pendiente ALTA)
-En `/gracias/:orderId` (`src/pages/ThankYou.tsx`), leer `payment_method_details.installments` del order y mostrar "Pagado en {count} meses sin intereses" + opcional last4. Verificar RLS sobre `orders`.
+En `/gracias/:orderId` ya lee `payment_method_details.installments` y muestra "Pagado en {count} meses sin intereses" + last4 (implementado, verificar RLS en prod).
 
 ## 4. Recent Changes
-- **2026-07-08** — ✅ PASO 4 IMPLEMENTADO ("best of both worlds"): quitado el gate `paymentUnlocked` de `CheckoutUI.tsx` (removidos state, useEffect y bloque de campo de correo nativo + import `isCompleteEmail`). Checkout monta completo desde el inicio; correo vía LinkAuthenticationElement (autollenado de Link recuperado); MSI aparece al validar correo (deferred→client_secret ya existente en StripePayment, sin tocar). Sin muro, sin 500s de SPEI (validateCheckoutFields protege).
-- **2026-07-08** — 🟡 PROPUESTA PASO 4 (discusión): quitar muro email-first → formulario completo deferred desde inicio + upgrade a client_secret (MSI) al validar correo; correo re-inyectado vía defaultValues.
-- **2026-07-08** — ✅ PASO 3 FIX (email-first, AHORA REEMPLAZADO por PASO 4): campo de correo nativo con gate `paymentUnlocked`.
-- **2026-07-08** — 🐛 DIAGNÓSTICO PASO 3: correo se borraba por REMOUNT de `<Elements>` al hacer swap deferred→client_secret.
+- **2026-07-09** — ✅ FIX 404 POST-PAGO PENDIENTE: creado `src/pages/PagoPendiente.tsx` (instrucciones SPEI/OXXO estilo Shopify, copy-to-clipboard de CLABE, monto, link ficha, fallback correo) y registrada ruta `/pago-pendiente/:orderId` (+ `/pago-pendiente`) en `App.tsx`. StripePayment ya navegaba ahí; solo faltaba la ruta.
+- **2026-07-08** — ✅ PASO 4 IMPLEMENTADO ("best of both worlds"): quitado el gate `paymentUnlocked` de `CheckoutUI.tsx`. Checkout monta completo; correo vía LinkAuthenticationElement; MSI al validar correo. Sin muro, sin 500s de SPEI.
 - **2026-07-08** — ✅ PASO 2 IMPLEMENTADO: `StripePayment.tsx` a modo client_secret UP-FRONT (activa selector MSI inline). MSI FUNCIONA.
-- **2026-07-08** — ⚠️ Detectado error 400 `checkout-update` "Order not found or cannot be updated" al guardar dirección (preview).
 - **2026-07-08** — ✅ Dueño CONFIRMA que PASO 1 funciona (checkout como rodata).
 - **2026-07-08** — ✅ PASO 1: `StripePayment.tsx` reescrito a deferred limpio (paridad rodata).
 - **2026-07-08** — ✅ FIX galería PDP: `getDisplayImages()` mergea product.images + variantes.
@@ -56,17 +54,16 @@ En `/gracias/:orderId` (`src/pages/ThankYou.tsx`), leer `payment_method_details.
 - **Faltan reseñas (fotos)**: Beige Sutil y Luna Beige — el dueño las subirá.
 
 ## 6. Known Issues
-- **[VALIDAR EN PROD 2026-07-08] PASO 4 "best of both worlds"**: Confirmar que (a) el checkout carga completo sin muro, (b) el correo del LinkAuthenticationElement se autollena/recuerda (Stripe Link) y NO se borra tras el parpadeo, (c) el selector MSI inline aparece al validar correo, (d) SPEI/OXXO/express siguen funcionando, (e) sin 500s en consola, (f) el parpadeo único es tolerable en móvil.
-- **[NUEVO 2026-07-08] Error 400 `checkout-update` "Order not found or cannot be updated"** al guardar dirección. Puede ser quirk de preview. VALIDAR en prod. Si afecta prod → escalar a Lovivo.
-- **NOTA:** import `CheckoutSecurityBanner` en `CheckoutUI.tsx` quedó sin uso tras quitar el gate (inofensivo, tree-shaken). Limpiar si se toca el archivo.
-- **Failed to fetch en consola**: extensión de Chrome (`frame_ant.js`), NO de la tienda. Ignorar.
-- **"Unable to download payment manifest pay.google.com/..."**: ruido de Google Pay. Ignorar.
-- **ThankYou fetch a `orders`**: puede fallar por RLS (fallback silencioso).
+- **[VALIDAR EN PROD 2026-07-09] PagoPendiente**: hacer una compra SPEI y otra OXXO en prod; confirmar que (a) NO cae en 404 al cerrar la ficha, (b) se muestran CLABE/banco/monto/referencia correctos, (c) copy-to-clipboard funciona en móvil, (d) el fallback aparece si se abre la URL sin sesión.
+- **[VALIDAR EN PROD 2026-07-08] Checkout "best of both worlds"**: correo se autollena/recuerda (Link) y no se borra tras el parpadeo; MSI aparece; SPEI/OXXO/express OK; sin 500s.
+- **[2026-07-08] Error 400 `checkout-update` "Order not found or cannot be updated"** al guardar dirección. Puede ser quirk de preview. VALIDAR en prod.
+- **NOTA:** import `CheckoutSecurityBanner` en `CheckoutUI.tsx` sin uso (inofensivo). Limpiar si se toca.
+- **Failed to fetch / manifest pay.google.com**: ruido de extensiones/Google Pay. Ignorar.
 - **Verificar tarifa de envío Dashboard = $0 todo México**.
 
 ## 7. Pending / Future Sessions
-- **[ALTA · DUEÑO/PROD]** Validar PASO 4 en prod (ver Known Issues checklist a-f).
-- **[ALTA]** ThankYou muestra el plan MSI ("Pagado en {count} meses sin intereses" + last4). RLS sobre `orders`.
+- **[ALTA · DUEÑO/PROD]** Validar PagoPendiente en prod (SPEI + OXXO, ver checklist Known Issues).
+- **[ALTA · DUEÑO/PROD]** Validar checkout "best of both worlds" en prod.
 - **[MEDIA]** Investigar/validar error 400 `checkout-update` (dirección de envío).
 - **[MEDIA]** Verificar tarifa envío Dashboard = $0.
 - **[BAJA]** Limpiar import sin uso `CheckoutSecurityBanner` en CheckoutUI.tsx.
