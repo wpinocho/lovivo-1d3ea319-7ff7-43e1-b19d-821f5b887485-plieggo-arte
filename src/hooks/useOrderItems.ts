@@ -303,11 +303,19 @@ export const useOrderItems = () => {
     const handler = (e: Event) => {
       const ce = e as CustomEvent<any>
       const updatedOrder = ce.detail
+      // Si hay una actualización de cantidad en vuelo, updateQuantity es el dueño
+      // del estado y pondrá la cantidad final correcta. Ignoramos el evento aquí
+      // para evitar revertir la cantidad optimista: updateOrderCache emite este
+      // evento con order_items que aún tienen la cantidad VIEJA (mergeResponseIntoCache
+      // solo mezcla campos financieros del cache, no las cantidades).
+      if (updatingItemsRef.current.size > 0) return
       if (updatedOrder?.order_items) {
         const items = transformOrderItems(updatedOrder.order_items, orderItems)
-        // Aggressive reconciliation: drop zero-qty and dedupe by key
+        // Aggressive reconciliation: drop zero-qty and dedupe by key.
+        // overlayPending protege cualquier cantidad solicitada que aún no se
+        // refleje en el cache (segunda capa de defensa).
         const seen = new Set<string>()
-        const reconciled = items.filter(it => it.quantity > 0).filter(it => {
+        const reconciled = overlayPending(items).filter(it => it.quantity > 0).filter(it => {
           if (seen.has(it.key)) return false
           seen.add(it.key)
           return true
@@ -317,7 +325,7 @@ export const useOrderItems = () => {
     }
     window.addEventListener('checkout:updated', handler as EventListener)
     return () => window.removeEventListener('checkout:updated', handler as EventListener)
-  }, [transformOrderItems, orderItems])
+  }, [transformOrderItems, orderItems, overlayPending])
 
   // Refresh items function for manual revalidation
   const refreshItems = useCallback(() => {
@@ -425,6 +433,9 @@ export const useOrderItems = () => {
         setOrderItems(previousItems)
         throw error
       } finally {
+        // El servidor ya confirmó (o revirtió) la cantidad: limpiar la cantidad
+        // pendiente para no bloquear futuros ajustes externos legítimos a la baja.
+        pendingQuantitiesRef.current.delete(key)
         // Desmarcar item como updating
         setUpdatingItems(prev => {
           const newSet = new Set(prev)
