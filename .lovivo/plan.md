@@ -21,7 +21,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Resumen de pedido móvil (checkout): ABIERTO por defecto**.
 - **MSI badge marketing** (encima del PaymentElement en `StripePayment.tsx` ~978-990). Este badge SIEMPRE se muestra cuando `paymentMethods.installments` y currency==='mxn'; el selector inline de MSI aparece cuando existe el intent.
 - **Formato de dinero**: usar SIEMPRE `formatMoney()` de `src/lib/money.ts` (es-MX, narrowSymbol, 0 decimales → "$10,000"). NUNCA construir montos a mano con `.toFixed(2)`.
-- **Reseñas con foto**: `src/data/product-reviews-content.ts` — campo `photoUrl` por reseña. La sección "Lo que dicen de este cuadro" muestra la foto encima del comentario.
+- **Reseñas con foto**: DOS archivos distintos. (1) `src/data/product-reviews-content.ts` — reseñas específicas del producto ("Lo que dicen de este cuadro"). (2) `src/data/plieggo-general-reviews.ts` — reseñas GENERALES ("Más experiencias Plieggo", aparecen en todas las PDPs). Campo `photoUrl` en ambos. OJO: verificar en cuál archivo está la reseña antes de editar.
 
 ## 3. Active Plan
 **✅ CHECKOUT PULIDO (2026-07-09).** Sin trabajo activo pendiente salvo decisiones del dueño.
@@ -31,7 +31,8 @@ Presentes y bien ubicados: resumen arriba abierto (envío GRATIS + "Llega en 5-7
 Mejora OPCIONAL (requiere decisión dueño): "Garantía de satisfacción" es vago. Si el dueño da política concreta, concretar en `CheckoutGuarantees` (`CheckoutTrustBadges.tsx` ~69-72). NO inventar.
 
 ## 4. Recent Changes
-- **2026-07-09** — ✅ Reemplazada foto de reseña de Mónica Aguilar (`acorden-verde-salvia`, id '17') en `product-reviews-content.ts` por imagen nueva subida (…1783621728918-sjeeneyp27i.webp). La anterior se veía mal.
+- **2026-07-09** — ✅ FIX REAL foto reseña Mónica A. La reseña visible ("Más experiencias Plieggo", primera card en /products/verde-salvia) estaba en `plieggo-general-reviews.ts` (id g4, línea 77), NO en product-reviews-content.ts. Reemplazada photoUrl por …1783621985376-t2q2r43fz0h.webp (cuadro verde salvia en pasillo con sala al fondo).
+- **2026-07-09** — Reemplazada foto de reseña de Mónica Aguilar en `product-reviews-content.ts` (id '17', acorden-verde-salvia) — resultó ser el archivo equivocado; la foto visible era la general.
 - **2026-07-09** — ✅ EJECUTADO FIX A + FIX B en `StripePayment.tsx`. Botón ahora "Completar Compra · $10,000 MXN" (formatMoney). Badge MSI reescrito a 2 líneas benefit-led con mensualidad "Desde {monthly}/mes, hasta {N} meses. Ingresa tu tarjeta para ver los plazos de tu banco".
 - **2026-07-09** — ✅ Dueño CIERRA bug correo: solo se reponía con cuenta de Stripe Link guardada; sin ella funciona. Decide dejarlo así.
 - **2026-07-09** — ✅ Bug 2 (cantidad) CONFIRMADO RESUELTO por el dueño.
@@ -44,14 +45,13 @@ Mejora OPCIONAL (requiere decisión dueño): "Garantía de satisfacción" es vag
 - **2026-07-08** — ✅ PASO 1: `StripePayment.tsx` reescrito a deferred limpio (paridad rodata).
 - **2026-07-08** — ✅ FIX galería PDP: `getDisplayImages()` mergea product.images + variantes.
 - **2026-07-08** — ✅ Fix checkout: miniaturas resumen 4:5. Envío resumen móvil "GRATIS".
-- **2026-07-08** — ✅ CHECKOUT CRO. Nuevo `CheckoutTrustBadges.tsx`.
 
 ## 5. Image Inventory
 - **Hero slide 1**: ...1779301620051-88tz4z58bt7.webp · slide 2: ...1779296069343-2ifge8n87sv.webp · slide 3: hero-paper-folding.mp4
 - Logo: /public/logo.svg
 - **Light-shadow sets**: URLs y map en `src/data/light-shadow-sets.ts`.
 - **verde-salvia** (id 16782cd1-...): product.images[0]=aic3ta4yru (4:5 correcta).
-- **Foto reseña Mónica Aguilar (verde-salvia)**: …1783621728918-sjeeneyp27i.webp (actualizada 2026-07-09).
+- **Foto reseña Mónica A. (verde-salvia, GENERAL/g4)**: …1783621985376-t2q2r43fz0h.webp (actualizada 2026-07-09, ESTA es la visible en la PDP).
 - **Faltan reseñas (fotos)**: Beige Sutil y Luna Beige — el dueño las subirá.
 
 ## 6. Known Issues
