@@ -14,6 +14,7 @@ import { useCheckoutState } from "@/hooks/useCheckoutState"
 import { useSettings } from "@/contexts/SettingsContext"
 import { trackPurchase, tracking } from "@/lib/tracking-utils"
 import type { PaymentMethods } from "@/lib/supabase"
+import { formatMoney } from "@/lib/money"
 import { isValidPhone } from "@/lib/phone-utils"
 import { MissingPhoneDialog } from "@/components/MissingPhoneDialog"
 import { CheckoutSecurityBanner, CheckoutRating, CheckoutGuarantees, CheckoutPaymentLogos } from "@/components/CheckoutTrustBadges"
@@ -294,7 +295,7 @@ function PaymentForm({
   const amountLabel = useMemo(() => {
     const amt = (amountCents || 0) / 100
     const cur = (currency || "mxn").toUpperCase()
-    return `${cur} $${amt.toFixed(2)}`
+    return `${formatMoney(amt, currency || "mxn")} ${cur}`
   }, [amountCents, currency])
 
   const normalizeOrderFromResponse = (resp: any) => {
@@ -979,9 +980,12 @@ function PaymentForm({
       {paymentMethods?.installments && (currency || 'mxn').toLowerCase() === 'mxn' && (
         <div className="rounded-md border border-primary/20 bg-primary/5 px-3 py-2 flex items-start gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="text-primary mt-0.5 shrink-0"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
-          <p className="text-sm text-primary">
-            Paga hasta en {paymentMethods.installments_max_plan ?? 6} meses sin intereses con tarjetas participantes.
-          </p>
+          <div className="space-y-0.5">
+            <p className="text-sm font-semibold text-primary">Págalo a meses sin intereses</p>
+            <p className="text-sm text-primary/90">
+              Desde {formatMoney(((amountCents || 0) / 100) / (paymentMethods.installments_max_plan ?? 6), currency || "mxn")} al mes, hasta {paymentMethods.installments_max_plan ?? 6} meses. Ingresa tu tarjeta para ver los plazos de tu banco.
+            </p>
+          </div>
         </div>
       )}
 
@@ -1031,7 +1035,7 @@ function PaymentForm({
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
             <span>Procesando...</span>
           </div>
-        ) : `Completar Compra - ${amountLabel}`}
+        ) : `Completar Compra · ${amountLabel}`}
       </Button>
 
       {/* Garantías + métodos de pago */}
