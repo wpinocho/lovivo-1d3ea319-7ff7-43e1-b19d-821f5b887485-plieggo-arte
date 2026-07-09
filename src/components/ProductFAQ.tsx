@@ -37,19 +37,34 @@ export const ProductFAQ = () => {
       )
     },
     {
+      question: "¿Lo pueden hacer en otra medida?",
+      answer: (
+        <div className="space-y-2 text-muted-foreground">
+          <p>
+            <span className="font-medium text-foreground">Sí — lo hacemos a tu medida.</span> Las medidas de la tienda son nuestras estándar, pero podemos ajustar el <span className="font-medium text-foreground">tamaño, el color y la paleta</span> para tu espacio.
+          </p>
+          <p>
+            Escríbenos por{" "}
+            <a
+              href="https://wa.me/525531215386?text=%C2%A1Hola!%20Vi%20un%20cuadro%20de%20Plieggo%20y%20lo%20quiero%20en%20otra%20medida.%20%C2%BFMe%20ayudan%20a%20cotizarlo%3F"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium underline"
+              style={{ color: "#C16648" }}
+            >
+              WhatsApp
+            </a>{" "}
+            con tu medida y te cotizamos sin compromiso.
+          </p>
+        </div>
+      )
+    },
+    {
       question: "¿Cuánto tarda el envío?",
       answer: (
         <div className="space-y-2 text-muted-foreground">
           <p><span className="font-medium text-foreground">Todo México:</span> 5–7 días hábiles · <span className="font-medium text-foreground">Envío GRATIS</span></p>
           <p className="text-xs mt-1 italic">Cada pieza se elabora especialmente para ti ✦</p>
-        </div>
-      )
-    },
-    {
-      question: "¿Puedo personalizarlo?",
-      answer: (
-        <div className="space-y-2 text-muted-foreground">
-          <p>¡Sí! Contáctanos para diseños a color, tamaños especiales o paletas personalizadas.</p>
         </div>
       )
     },

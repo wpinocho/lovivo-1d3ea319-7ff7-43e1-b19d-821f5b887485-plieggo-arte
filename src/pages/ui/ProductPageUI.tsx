@@ -44,6 +44,7 @@ import { LightShadowFeature } from "@/components/LightShadowFeature"
 import { getLightShadowSet } from "@/data/light-shadow-sets"
 import { getProductReview } from "@/data/product-reviews"
 import { SizeGuide } from "@/components/SizeGuide"
+import { CustomSizeCTA } from "@/components/CustomSizeCTA"
 
 /**
  * EDITABLE UI COMPONENT - ProductPageUI (Premium — Plieggo Arte)
@@ -627,6 +628,19 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                         optionValues={option.values}
                         selectedValue={logic.selected[option.name]}
                       />
+                      {/* Nota "a tu medida" — pegada al selector, punto de mayor duda */}
+                      <a
+                        href="https://wa.me/525531215386?text=%C2%A1Hola!%20Vi%20un%20cuadro%20de%20Plieggo%20y%20lo%20quiero%20en%20otra%20medida.%20%C2%BFMe%20ayudan%20a%20cotizarlo%3F"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs transition-opacity hover:opacity-70"
+                        style={{ color: '#C16648' }}
+                      >
+                        <MessageCircle className="h-3.5 w-3.5 shrink-0" />
+                        <span>
+                          <span className="font-semibold">¿Otra medida?</span> La hacemos a tu medida por WhatsApp
+                        </span>
+                      </a>
                     </div>
                   ))}
                 </div>
@@ -762,14 +776,14 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
 
               {/* WhatsApp inline link */}
               <a
-                href="https://wa.me/525531215386?text=%C2%A1Hola!%20Tengo%20una%20pregunta%20sobre%20los%20cuadros%20de%20Plieggo"
+                href="https://wa.me/525531215386?text=%C2%A1Hola!%20Vi%20un%20cuadro%20de%20Plieggo%20y%20tengo%20una%20duda%20(quiero%20saber%20si%20lo%20pueden%20hacer%20en%20otra%20medida)."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-70"
                 style={{ color: '#C16648' }}
               >
                 <MessageCircle className="h-4 w-4 shrink-0" />
-                ¿Tienes dudas? Escríbenos por WhatsApp
+                ¿Quieres otra medida o tienes dudas? Escríbenos por WhatsApp
               </a>
             </div>
           </div>
@@ -800,6 +814,13 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
             })()}
             <ProductReviews productSlug={product.slug} />
             <InspirationCarousel />
+            <CustomSizeCTA
+              sizes={
+                logic.product.options?.find((o: any) =>
+                  /tama|medida|size/i.test(o.name),
+                )?.values
+              }
+            />
             <ProductFAQ />
             <CrossSellSection currentProduct={logic.product} />
           </div>
