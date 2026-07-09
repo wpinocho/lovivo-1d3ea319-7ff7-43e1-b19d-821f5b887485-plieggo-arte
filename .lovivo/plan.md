@@ -3,7 +3,8 @@
 ## 1. Brand & Context
 Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca premium, sutil y artesanal. Vende a coleccionistas y amantes del diseño en México. Precio acordeón: $4,500 MXN (tachado $6,000). Lunas $5,000 (tachado $7,500). Uso frecuente como regalo. Diferenciador: juego de luz y sombra que cambia según la hora.
 - **Tráfico (jun-jul 2026): 96% MÓVIL.** Fuente: Instagram (~5,300) + Facebook (~1,450). Tráfico social frío. Optimizar SIEMPRE mobile-first.
-- Canal paralelo: WhatsApp (PDP + FloatingWhatsApp en home).
+- Canal paralelo: WhatsApp (PDP + FloatingWhatsApp en home). **Número: 525531215386.**
+- **PERSONALIZACIÓN SÍ SE OFRECE (confirmado dueño 2026-07-09):** las medidas del sitio son ESTÁNDAR pero se pueden cambiar tamaños (y color/paleta). Ese flujo se atiende 100% por WhatsApp. ALTA DEMANDA: muchos clientes ya preguntan por esto → oportunidad de conversión (remueve objeción "no me queda en mi pared").
 - **ENVÍO: GRATIS EN TODO MÉXICO Y FIJO.** El total NO cambia durante el checkout (clave para MSI up-front).
 - **TIEMPO DE ENTREGA OFICIAL: 5–7 días hábiles** (confirmado 2026-07-08).
 - **Best-sellers reales: `acorden-beige-sutil` y `verde-salvia`.**
@@ -24,14 +25,48 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Reseñas con foto**: DOS archivos distintos. (1) `src/data/product-reviews-content.ts` — reseñas específicas del producto ("Lo que dicen de este cuadro"). (2) `src/data/plieggo-general-reviews.ts` — reseñas GENERALES ("Más experiencias Plieggo", aparecen en todas las PDPs). Campo `photoUrl` en ambos. OJO: verificar en cuál archivo está la reseña antes de editar.
 
 ## 3. Active Plan
-**✅ CHECKOUT PULIDO (2026-07-09).** Sin trabajo activo pendiente salvo decisiones del dueño.
+### 🎯 FEATURE: Comunicar PERSONALIZACIÓN / medidas a la medida en la PDP (mover más ventas a WhatsApp)
 
-### EVALUACIÓN — El checkout ya está muy sólido en confianza (NO tocar)
-Presentes y bien ubicados: resumen arriba abierto (envío GRATIS + "Llega en 5-7 días hábiles"); banner seguridad SSL/Stripe; Express Checkout (Google Pay/Link); rating real 4.8·+196; garantías + logos (Visa/MC/Amex/Apple Pay/G Pay/OXXO); Condiciones|Privacidad.
-Mejora OPCIONAL (requiere decisión dueño): "Garantía de satisfacción" es vago. Si el dueño da política concreta, concretar en `CheckoutGuarantees` (`CheckoutTrustBadges.tsx` ~69-72). NO inventar.
+**Qué quiere el dueño**
+Comunicar con claridad, desde la PDP, que los cuadros se pueden hacer en OTRAS MEDIDAS (y color/paleta) y que ese flujo se atiende por WhatsApp. Hoy solo hay un enlace genérico "¿Tienes dudas? Escríbenos por WhatsApp" y una FAQ escondida. Objetivo: convertir la duda de tamaño (objeción #1) en un lead de WhatsApp / venta.
+
+**Estado actual (archivos revisados 2026-07-09)**
+- `src/pages/ui/ProductPageUI.tsx`:
+  - Selector de tamaño (Product Options) en ~584-633, con `<SizeGuide>` ya renderizado por opción (~626-629).
+  - Trust strip en ~738-761.
+  - Enlace WhatsApp genérico en ~763-773 (número `525531215386`, ícono `MessageCircle`, color `#C16648`, copy "¿Tienes dudas? Escríbenos por WhatsApp").
+  - Secciones Plieggo en ~777-805 (orden: LightShadowFeature → ProductReviews → InspirationCarousel → ProductFAQ → CrossSellSection).
+- `src/components/ProductFAQ.tsx`: ya existe FAQ "¿Puedo personalizarlo?" (~48-55) pero genérica y al fondo.
+
+**Enfoque: hacer las 3-4 cosas, cada una en su lugar. Mobile-first (96% tráfico).**
+
+### Implementation steps (para Craft Mode)
+1. **[MÁS IMPORTANTE] Nota contextual pegada al selector de tamaño** en `ProductPageUI.tsx`, dentro del bloque Product Options (~584-633), justo debajo del `<SizeGuide>` o del wrap de opciones. Copy corto, benefit-led, en voz "tú":
+   - Ej: "**¿Otra medida?** La hacemos a tu medida — escríbenos por WhatsApp" con flecha/ícono discreto.
+   - Enlace `wa.me/525531215386` con texto pre-cargado ESPECÍFICO de personalización (ej: "¡Hola! Quiero un cuadro en otra medida. ¿Me ayudan?" — URL-encoded).
+   - Estilo discreto terracota (#C16648), NO botón grande (no competir con Agregar al carrito). Solo aparece si el producto tiene opciones de tamaño (o siempre, decidir — el dueño ofrece medidas a la medida en todos).
+2. **Mini-sección dedicada "Hecho a tu medida"** — nuevo componente `src/components/CustomSizeCTA.tsx` (o inline), agregado en el bloque de secciones Plieggo (~777-805), sugerido DESPUÉS de `<ProductFAQ />` y antes de `<CrossSellSection />` (o justo después de InspirationCarousel). Contenido:
+   - Título editorial (DM Sans): "Hecho a tu medida".
+   - Copy corto: las medidas del sitio son estándar, pero podemos ajustar tamaño, color y paleta para tu espacio. Sin fondo tipo banda de otro color (respetar fondo continuo crema).
+   - Mostrar de forma simple las medidas estándar (tomar de las opciones del producto / SizeGuide si aplica).
+   - CTA WhatsApp con copy claro "Diséñalo a tu medida por WhatsApp" (mismo número, texto pre-cargado de personalización). Estilo terracota line/outline, NO glow.
+   - Iconos SVG line terracota si se usan (Hand/Ruler de lucide). NO emojis.
+3. **Mejorar el enlace WhatsApp existente** (~763-773): cambiar copy para liderar con personalización + dudas, ej: "¿Quieres otra medida o tienes dudas? Escríbenos por WhatsApp". Mantener ícono, color y target.
+4. **Concretar la FAQ** en `ProductFAQ.tsx` (~48-55): reescribir la respuesta de "¿Puedo personalizarlo?" para ser concreta ("Sí — cambiamos tamaño, color y paleta. Cuéntanos tu medida por WhatsApp y te cotizamos") y opcionalmente subir el orden del item. Mantener voz tú, benefit-led (cargar skill `craft.copywriting`).
+
+### Files to modify
+- `src/pages/ui/ProductPageUI.tsx`: nota contextual bajo selector de tamaño (paso 1); mejorar copy enlace WhatsApp (paso 3); insertar `<CustomSizeCTA />` en secciones Plieggo (paso 2).
+- `src/components/CustomSizeCTA.tsx` (NUEVO): mini-sección "Hecho a tu medida" (paso 2).
+- `src/components/ProductFAQ.tsx`: concretar respuesta de personalización (paso 4).
+
+### Notas / decisiones abiertas para el dueño
+- ¿Mostrar la nota "a tu medida" en TODAS las PDP o solo donde haya opción de tamaño? (Default sugerido: todas, ya que ofrece medidas custom en todo.)
+- Texto pre-cargado de WhatsApp: confirmar wording exacto que quiere que llegue.
+- Copy pendiente de pulir con skill `craft.copywriting` en Craft Mode.
 
 ## 4. Recent Changes
-- **2026-07-09** — ✅ FIX REAL foto reseña Mónica A. La reseña visible ("Más experiencias Plieggo", primera card en /products/verde-salvia) estaba en `plieggo-general-reviews.ts` (id g4, línea 77), NO en product-reviews-content.ts. Reemplazada photoUrl por …1783621985376-t2q2r43fz0h.webp (cuadro verde salvia en pasillo con sala al fondo).
+- **2026-07-09** — 📋 PLAN comunicar PERSONALIZACIÓN en PDP (medidas a la medida → WhatsApp). Enfoque 4 partes: nota contextual junto al selector de tamaño (top impacto mobile), mini-sección "Hecho a tu medida", mejorar enlace WhatsApp genérico, concretar FAQ. Archivos: ProductPageUI.tsx, nuevo CustomSizeCTA.tsx, ProductFAQ.tsx.
+- **2026-07-09** — ✅ FIX REAL foto reseña Mónica A. La reseña visible ("Más experiencias Plieggo", primera card en /products/verde-salvia) estaba en `plieggo-general-reviews.ts` (id g4, línea 77), NO en product-reviews-content.ts. Reemplazada photoUrl por la foto correcta (cuadro verde salvia en pasillo con sala al fondo).
 - **2026-07-09** — Reemplazada foto de reseña de Mónica Aguilar en `product-reviews-content.ts` (id '17', acorden-verde-salvia) — resultó ser el archivo equivocado; la foto visible era la general.
 - **2026-07-09** — ✅ EJECUTADO FIX A + FIX B en `StripePayment.tsx`. Botón ahora "Completar Compra · $10,000 MXN" (formatMoney). Badge MSI reescrito a 2 líneas benefit-led con mensualidad "Desde {monthly}/mes, hasta {N} meses. Ingresa tu tarjeta para ver los plazos de tu banco".
 - **2026-07-09** — ✅ Dueño CIERRA bug correo: solo se reponía con cuenta de Stripe Link guardada; sin ella funciona. Decide dejarlo así.
@@ -52,6 +87,7 @@ Mejora OPCIONAL (requiere decisión dueño): "Garantía de satisfacción" es vag
 - **Light-shadow sets**: URLs y map en `src/data/light-shadow-sets.ts`.
 - **verde-salvia** (id 16782cd1-...): product.images[0]=aic3ta4yru (4:5 correcta).
 - **Foto reseña Mónica A. (verde-salvia, GENERAL/g4)**: …1783621985376-t2q2r43fz0h.webp (actualizada 2026-07-09, ESTA es la visible en la PDP).
+- **Foto lifestyle verde salvia en pasillo** (subida 2026-07-09): https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1783622578635-s1ovzkstlm.webp — potencial para mini-sección "Hecho a tu medida" o galería.
 - **Faltan reseñas (fotos)**: Beige Sutil y Luna Beige — el dueño las subirá.
 
 ## 6. Known Issues
@@ -62,6 +98,7 @@ Mejora OPCIONAL (requiere decisión dueño): "Garantía de satisfacción" es vag
 - **Verificar tarifa de envío Dashboard = $0 todo México**.
 
 ## 7. Pending / Future Sessions
+- **[ALTA · CRAFT MODE]** Ejecutar plan de PERSONALIZACIÓN en PDP (sección 3). Cargar skill `craft.copywriting` antes de redactar copy.
 - **[BAJA · DUEÑO]** Definir política de garantía concreta para reemplazar "Garantía de satisfacción". NO inventar.
 - **[MEDIA · DUEÑO]** Si quiere más meses (12/18/24) ajustar `installments_max_plan` en Dashboard.
 - **[ALTA · DUEÑO/PROD]** Validar PagoPendiente en prod (SPEI + OXXO).
