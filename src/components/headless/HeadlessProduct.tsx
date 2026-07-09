@@ -321,18 +321,39 @@ export const useProductLogic = (slugProp?: string) => {
   }
 
   // Helper para obtener imágenes a mostrar según variante seleccionada
+  // REGLA PLIEGGO (estilo Shopify): al seleccionar una variante, la galería
+  // muestra SOLO las imágenes de esa variante + las imágenes "globales" (las
+  // del producto que no están asignadas a ninguna variante). Así cada talla
+  // muestra sus propias fotos y al cambiar de talla cambian las imágenes.
   const getDisplayImages = (): string[] => {
     if (!product) return []
 
     const productImages: string[] = product.images || []
+    const variants: any[] = (product as any).variants || []
+    const hasVariants = Array.isArray(variants) && variants.length > 0
+
+    // Producto sin variantes → todas las imágenes del producto.
+    if (!hasVariants) return productImages
+
+    // Imágenes asignadas a alguna variante.
+    const assignedToAnyVariant = new Set<string>()
+    for (const v of variants) {
+      ;(v.image_urls || []).forEach((u: string) => assignedToAnyVariant.add(u))
+    }
+
+    // Imágenes "globales": del producto pero no asignadas a ninguna variante.
+    // Se muestran siempre, sin importar la talla seleccionada.
+    const globalImages = productImages.filter((img) => !assignedToAnyVariant.has(img))
+
     const matchingVariant = getMatchingVariant()
     const variantImages: string[] = matchingVariant?.image_urls || []
 
-    // REGLA PLIEGGO: las imágenes del producto (las del dashboard) SIEMPRE
-    // aparecen en el carrusel, en su orden original. Si la variante tiene
-    // imágenes propias adicionales, se anexan al final sin duplicar. Así nunca
-    // "desaparece" una imagen del dashboard ni se muestra una que no exista ahí.
-    return Array.from(new Set([...productImages, ...variantImages]))
+    // Sin variante seleccionada (o variante sin imágenes propias) →
+    // mostrar todas las del producto para evitar galería vacía.
+    if (!matchingVariant || variantImages.length === 0) return productImages
+
+    // Imágenes de la variante primero, luego las globales, sin duplicar.
+    return Array.from(new Set([...variantImages, ...globalImages]))
   }
 
   // Calculated values
