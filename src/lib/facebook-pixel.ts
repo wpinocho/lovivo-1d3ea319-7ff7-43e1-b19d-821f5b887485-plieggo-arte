@@ -122,6 +122,16 @@ class FacebookPixelService {
   }, eventId?: string) {
     this.track('Search', parameters, eventId);
   }
+
+  // Lead event (standard Meta event) — for WhatsApp/contact conversions
+  lead(parameters?: {
+    content_name?: string;
+    content_category?: string;
+    value?: number;
+    currency?: string;
+  }, eventId?: string) {
+    this.track('Lead', parameters, eventId);
+  }
 }
 
 export const facebookPixel = new FacebookPixelService();

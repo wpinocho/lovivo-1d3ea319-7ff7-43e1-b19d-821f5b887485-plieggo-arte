@@ -31,6 +31,7 @@ const Bundle = lazy(() => import('./pages/Bundle'));
 const Galeria = lazy(() => import('./pages/Galeria'));
 const OrderTrack = lazy(() => import('./pages/OrderTrack'));
 const PagoPendiente = lazy(() => import('./pages/PagoPendiente'));
+const Personalizados = lazy(() => import('./pages/Personalizados'));
 
 const queryClient = new QueryClient();
 
@@ -82,6 +83,7 @@ const App = () => (
                         <Route path="/orders/track/:token" element={<OrderTrack />} />
                         <Route path="/pago-pendiente/:orderId" element={<PagoPendiente />} />
                         <Route path="/pago-pendiente" element={<PagoPendiente />} />
+                        <Route path="/personalizados" element={<Personalizados />} />
                         {/* Aquí puedes agregar/modificar rutas */}
                         <Route path="*" element={<NotFound />} />
                       </Routes>
