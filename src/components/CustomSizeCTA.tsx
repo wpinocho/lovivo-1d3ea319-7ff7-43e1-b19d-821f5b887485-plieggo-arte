@@ -5,21 +5,14 @@ import { Ruler, MessageCircle } from "lucide-react"
  *
  * Mini-sección "Hecho a tu medida" para la PDP.
  * Comunica que las medidas del sitio son estándar pero se pueden
- * ajustar tamaño, color y paleta — flujo atendido por WhatsApp.
+ * ajustar tamaño y color — flujo atendido por WhatsApp.
  * Objeción #1 (¿me queda en mi pared?) → lead a WhatsApp.
  */
 
 const WHATSAPP_URL =
   "https://wa.me/525531215386?text=%C2%A1Hola!%20Vi%20un%20cuadro%20de%20Plieggo%20y%20lo%20quiero%20en%20otra%20medida.%20%C2%BFMe%20ayudan%20a%20cotizarlo%3F"
 
-interface CustomSizeCTAProps {
-  /** Medidas estándar del producto (valores de la opción de tamaño) */
-  sizes?: string[]
-}
-
-export const CustomSizeCTA = ({ sizes }: CustomSizeCTAProps) => {
-  const hasSizes = sizes && sizes.length > 0
-
+export const CustomSizeCTA = () => {
   return (
     <section className="max-w-2xl mx-auto text-center px-4">
       <div className="flex justify-center mb-4">
@@ -33,28 +26,14 @@ export const CustomSizeCTA = ({ sizes }: CustomSizeCTAProps) => {
       </p>
 
       <h3 className="font-heading text-2xl sm:text-3xl font-semibold text-foreground mb-4">
-        ¿No te queda en tu pared? La ajustamos a tu espacio
+        ¿No queda en tu pared? La ajustamos a tu espacio
       </h3>
 
-      <p className="text-muted-foreground leading-relaxed mb-5">
+      <p className="text-muted-foreground leading-relaxed mb-6">
         Las medidas de la tienda son nuestras <span className="font-medium text-foreground">estándar</span>,
-        pero cada pieza se hace a mano — así que podemos cambiar el
-        <span className="font-medium text-foreground"> tamaño, el color y la paleta</span> para tu espacio.
-        Cuéntanos tu medida por WhatsApp y te cotizamos sin compromiso.
+        pero cada pieza se hace a mano y podemos cambiar el
+        <span className="font-medium text-foreground"> tamaño y el color</span> para tu espacio.
       </p>
-
-      {hasSizes && (
-        <div className="flex flex-wrap justify-center gap-2 mb-6">
-          {sizes!.map((size) => (
-            <span
-              key={size}
-              className="text-xs font-medium tracking-wide px-3 h-8 inline-flex items-center rounded-sm border border-border/60 text-muted-foreground"
-            >
-              {size}
-            </span>
-          ))}
-        </div>
-      )}
 
       <a
         href={WHATSAPP_URL}

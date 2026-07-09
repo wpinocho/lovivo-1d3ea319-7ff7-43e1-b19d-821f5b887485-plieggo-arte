@@ -774,23 +774,12 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                 </div>
               </div>
 
-              {/* WhatsApp inline link */}
-              <a
-                href="https://wa.me/525531215386?text=%C2%A1Hola!%20Vi%20un%20cuadro%20de%20Plieggo%20y%20tengo%20una%20duda%20(quiero%20saber%20si%20lo%20pueden%20hacer%20en%20otra%20medida)."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-70"
-                style={{ color: '#C16648' }}
-              >
-                <MessageCircle className="h-4 w-4 shrink-0" />
-                ¿Quieres otra medida o tienes dudas? Escríbenos por WhatsApp
-              </a>
             </div>
           </div>
 
           {/* ── Plieggo sections ── */}
           {/* Orden: Reviews (confianza) → Inspiración (deseo) → FAQ (objeciones) → CrossSell (upsell) */}
-          <div className="mt-16 space-y-16">
+          <div className="mt-10 space-y-16">
             {(() => {
               const realSet = getLightShadowSet(product.slug)
               if (realSet) {
@@ -814,13 +803,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
             })()}
             <ProductReviews productSlug={product.slug} />
             <InspirationCarousel />
-            <CustomSizeCTA
-              sizes={
-                logic.product.options?.find((o: any) =>
-                  /tama|medida|size/i.test(o.name),
-                )?.values
-              }
-            />
+            <CustomSizeCTA />
             <ProductFAQ />
             <CrossSellSection currentProduct={logic.product} />
           </div>
