@@ -74,7 +74,7 @@ export const productReviews: Record<string, Review[]> = {
 
   // BESTSELLER — 20 reseñas, 4.9★
   'acorden-verde-salvia': [
-    { id: '17', author: 'Mónica Aguilar', rating: 5, comment: 'El verde salvia tiene una magia especial. Cambia con la luz del día. Una obra viva en tu pared.', date: '2025-08-22', verified: true, variant: '80x80cm', photoUrl: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779313645107-25fm4pmckj4.webp' },
+    { id: '17', author: 'Mónica Aguilar', rating: 5, comment: 'El verde salvia tiene una magia especial. Cambia con la luz del día. Una obra viva en tu pared.', date: '2025-08-22', verified: true, variant: '80x80cm', photoUrl: 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1783621728918-sjeeneyp27i.webp' },
     { id: '1', author: 'Patricia Flores', rating: 5, comment: 'El color verde es precioso! Combina perfecto con mi decoración. La calidad del papel es excelente y se nota el trabajo artesanal.', date: '2026-02-10', verified: true, variant: '80x80cm' },
     { id: '2', author: 'Miguel Ángel Castro', rating: 5, comment: 'Impresionante. Es mi segunda compra de Plieggo y no decepciona. El efecto de luz y sombra es espectacular.', date: '2026-01-28', verified: true, variant: '50x50cm' },
     { id: '3', author: 'Laura Jiménez', rating: 5, comment: 'Me encanta cómo transforma el espacio. Es una pieza única que siempre genera conversación con las visitas.', date: '2026-01-15', verified: true, variant: '80x80cm' },
