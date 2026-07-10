@@ -11,7 +11,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Best-sellers reales: `verde-salvia` y `acorden-beige-sutil`.**
 - **Rating agregado real: ~4.8★ · 196 reseñas.**
 - **MSI ACTIVO.** SPEI (customer_balance) y OXXO ACTIVOS.
-- **[POR CONFIRMAR] Precio mínimo personalizados:** dueño mencionó "$3,500" como mínimo, pero productos activos arrancan en $4,500 (acordeón) / $5,000 (luna) y el FAQ de la landing dice "Desde $4,500". Aclarar cuál es el ancla real antes de publicar precio.
+- **PRECIO MÍNIMO PERSONALIZADOS CONFIRMADO: $3,500 MXN** (pueden ser más chicos). Ya publicado en hero + FAQ de /personalizados.
 
 ## 2. Design System
 - Paleta: crema mantequilla (#F2EFE4 bg), azul medianoche (#1B2A41 foreground), terracota (#C16648 primary), vino burdeos (#5D2A38 secondary).
@@ -25,52 +25,24 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Menú global** en `src/templates/EcommerceTemplate.tsx` (desktop array + mobile Sheet). Incluye `/personalizados` ("Personalízalo", destacado en primary).
 - **Imágenes producto son 4:5** (portrait). Usar `aspect-[4/5]`, NUNCA aspect-square.
 
-## 3. Active Plan — AUDITORÍA /personalizados PRE-LANZAMIENTO 📋 (2026-07-10)
+## 3. Active Plan — /personalizados LISTA PARA LANZAR ✅ (2026-07-10)
 
-Objetivo: dejar la landing lista para lanzar campaña Meta, optimizada a conversión WhatsApp (evento Lead). Estado actual = sólida (10 secciones, template global, sticky CTA, Lead en todos los CTA, aspect ratios 4:5 OK). Screenshot móvil verificado ✓. Logo "Your Logo" era glitch de carga, en vivo sale "Plieggo" ✓.
+Auditoría pre-lanzamiento COMPLETADA e implementada. La landing quedó lista para campaña Meta (evento Lead en todos los CTA). Pendiente único antes de lanzar: validar en prod que el evento `Lead` dispara al clic.
 
-### DECISIONES DE CONVERSIÓN (respuestas a preguntas del dueño)
+### Implementado este turno (2026-07-10)
+1. **Sticky CTA fix** — ahora usa `IntersectionObserver` sobre el botón del hero (`heroCtaRef`) + estado `showSticky`. Se desliza (translate-y-full → translate-y-0) SOLO cuando el botón del hero sale de vista. Ya no se duplica.
+2. **Ancla de precio** — microcopy discreto en hero bajo trust badges: "Piezas personalizadas desde $3,500 MXN · a tu color y medida".
+3. **FAQ "¿Cuánto cuesta?"** alineado a "Desde $3,500".
+4. **Nueva sección "Un regalo que nadie más tendrá"** — entre "Arte que cambia con la luz" y reseñas. Imagen `GIFT_IMAGE` (black-dining.webp de la home), 4 bullets benefit-first, CTA `handleWhatsAppLead('regalo')` (content_name cuadro-personalizado-regalo). NO incluye garantía/devolución (custom no aplica).
 
-**A) Filtro de precio ("desde $X") → SÍ, agregarlo (recomendado).**
-- Razón CRO: en lead-gen frío de Meta, mostrar precio ancla PRE-CALIFICA. Reduce leads basura (quien espera un póster de $500), sube la calidad del lead y ahorra tiempo en WhatsApp. Refuerza posicionamiento premium.
-- Riesgo: baja volumen bruto de leads, pero sube tasa de cierre → mejor ROI. Meta optimiza sobre el evento Lead igual.
-- Implementación:
-  - Añadir microcopy de precio en el HERO, discreto, junto a los trust badges: p. ej. "Piezas personalizadas desde $X" (usar `formatMoney()`).
-  - Mantener/alinear el FAQ "¿Cuánto cuesta?" al MISMO número.
-  - **BLOQUEADO hasta confirmar número real ($3,500 vs $4,500).** No publicar hasta que el dueño confirme.
-  - Framing como VALOR, no barrera: "hecho a mano, a tu medida, desde $X — envío gratis".
-
-**B) Sección de marcos personalizados / materiales → NO agregar (recomendado).**
-- Razón: contradice la estrategia de NO publicar restricciones técnicas (paleta, lino, acrílico, marco). Añade fricción/decisión en una página de lead-gen. Se resuelve mejor en WhatsApp.
-- Mantener las 3 palancas limpias: estilo → color → tamaño (sección "Lo hacemos como lo imaginas").
-- Opcional mínimo (si el dueño insiste): UNA línea suave en el paso 2 del proceso ("También afinamos el marco contigo"), sin sección dedicada.
-
-**C) Traer secciones de la home:**
-- **"Galería de ambientes" → NO duplicar.** La landing YA tiene galería lifestyle ("Piezas que transforman una pared"). Redundante. Dejar como está.
-- **"Arte para regalo" → SÍ, agregar (recomendado, alto valor).** El regalo personalizado es un disparador emocional potente y amplía la audiencia (para sí mismo + para regalar). Adaptar copy a personalización.
-  - Nueva sección tipo "Un regalo que nadie más tendrá": copy enfocado en unicidad + dedicatoria + empaque premium.
-  - Reusar imagen lifestyle de regalo de la home (comedor con ventanal, ver Image Inventory) o una de galería.
-  - Beneficios (bullets, benefit-first): "Único e irrepetible — en su color favorito", "Empaque premium incluido", "Dedicatoria personalizada gratis", "Envío gratis en 5–7 días".
-  - CTA WhatsApp con Lead: content_name `cuadro-personalizado-regalo`.
-  - Colocar entre "Arte que cambia con la luz" y las reseñas, O justo antes del proceso.
-  - NOTA: producto es hecho a la orden → NO copiar "Garantía 30 días / devolución" de la home (custom no aplica devolución). Enfatizar "cotización sin compromiso" en su lugar.
-
-### AJUSTES CRO ADICIONALES (menores, recomendados)
-1. **Expectativa de respuesta WhatsApp** (opcional, solo si es cierto): microcopy bajo el CTA del hero y CTA final: "Te respondemos rápido, Lun–Sáb". Sube confianza del clic.
-2. **Alinear FAQ precio** con el ancla confirmada.
-3. Revisar que el evento Lead siga disparando en prod (pendiente heredado).
-
-### Archivos a modificar (Craft Mode)
-- `src/pages/Personalizados.tsx`:
-  - Hero: agregar microcopy precio "desde $X" junto a trust badges (usar formatMoney o string fijo).
-  - Nueva sección "Arte para regalo personalizado" (const con bullets + imagen + CTA con `handleWhatsAppLead('regalo')`).
-  - FAQ precio: alinear número.
-  - (Opcional) microcopy de tiempo de respuesta bajo CTAs.
-- Sin cambios de estructura del template.
+### Decisiones descartadas (NO hacer)
+- NO sección de marcos/materiales (añade fricción, contradice estrategia de no publicar restricciones técnicas).
+- NO duplicar "Galería de ambientes" (ya existe galería lifestyle "Piezas que transforman una pared").
 
 ## 4. Recent Changes
-- **2026-07-10** — 📋 AUDITORÍA PRE-LANZAMIENTO /personalizados: screenshot móvil verificado (sólida). Decisiones: (A) SÍ agregar ancla de precio "desde $X" [bloqueado por confirmar número], (B) NO sección de marcos/materiales, (C) NO duplicar galería pero SÍ agregar sección "Arte para regalo personalizado". Ajustes menores: microcopy tiempo de respuesta + alinear FAQ precio.
-- **2026-07-09** — ✅ LANDING `/personalizados` AJUSTADA: envuelta en `EcommerceTemplate` (menú global + banner + footer), agregada al menú desktop+móvil ("Personalízalo"), hero cambiado al 2º slide del home, aspect ratios a 4:5.
+- **2026-07-10** — ✅ /personalizados LISTA: (1) fix sticky CTA con IntersectionObserver (solo on-scroll, no duplicado), (2) ancla precio "desde $3,500" en hero, (3) FAQ precio alineado a $3,500, (4) nueva sección "Un regalo que nadie más tendrá" con imagen black-dining + CTA WhatsApp Lead 'regalo'.
+- **2026-07-10** — 📋 AUDITORÍA PRE-LANZAMIENTO /personalizados: screenshot móvil verificado. Precio mínimo confirmado $3,500.
+- **2026-07-09** — ✅ LANDING `/personalizados` AJUSTADA: envuelta en `EcommerceTemplate` (menú global + banner + footer), agregada al menú, hero = 2º slide home, aspect ratios 4:5.
 - **2026-07-09** — ✅ LANDING `/personalizados` CONSTRUIDA: página nueva mobile-first (10 secciones), CTA único WhatsApp, evento `Lead` Meta.
 - **2026-07-09** — ✅ Método `lead()` agregado a `FacebookPixelService` (facebook-pixel.ts).
 - **2026-07-09** — ✅ AJUSTES PERSONALIZACIÓN PDP: eliminado 2º enlace WhatsApp; padding mt-10; CustomSizeCTA reescrito.
@@ -82,28 +54,26 @@ Objetivo: dejar la landing lista para lanzar campaña Meta, optimizada a convers
 - **2026-07-08** — ✅ Checkout MSI up-front (StripePayment deferred, sin gate paymentUnlocked).
 
 ## 5. Image Inventory
-- **Hero home slide 1**: ...1779301620051-88tz4z58bt7.webp · slide 2 (pared con cuadros, "Encuentra tu pieza perfecta"): ...1779296069343-2ifge8n87sv.webp · slide 3: hero-paper-folding.mp4
+- **Hero home slide 1**: ...1779301620051-88tz4z58bt7.webp · slide 2 (pared con cuadros): ...1779296069343-2ifge8n87sv.webp · slide 3: hero-paper-folding.mp4
 - **Hero landing /personalizados** = slide 2 del home: ...1779296069343-2ifge8n87sv.webp
-- **Imagen "regalo" home** (comedor con ventanal, sección "Arte que nunca falla como regalo") → candidata para nueva sección regalo en /personalizados. Ubicar URL en Index.tsx al construir.
+- **GIFT_IMAGE (regalo /personalizados + home)**: `.../product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/black-dining.webp` (comedor con ventanal).
 - Logo: /public/logo.svg
 - **Light-shadow sets**: `src/data/light-shadow-sets.ts`.
 - **Fotos lifestyle (índice 1) por producto** (base products/): verde salvia etdkr375s4e · beige sutil 551yd2x4ryw · prisma azul coral 87qtowj61fv · prisma onyx f53ej22pcj · luna llena glo0f69xdqg · luna negra 2n4coxjoz8c · luna azul 19yuabxobu1 · burdeos exq1zzkmnqt · blanco puro u5scxlsp37 · prisma beige-blanco 6gpaobcgtcc.
 - **Faltan reseñas (fotos)**: Beige Sutil y Luna Beige — el dueño las subirá.
 
 ## 6. Known Issues
-- **[POR CONFIRMAR] Precio ancla personalizados:** $3,500 (dueño) vs $4,500 (FAQ/productos). Aclarar antes de publicar.
-- **[PENDIENTE VERIF]** Validar en prod que evento `Lead` dispara al clic en /personalizados.
+- **[PENDIENTE VERIF]** Validar en prod que evento `Lead` dispara al clic en /personalizados (hero, tarjetas, regalo, sticky, CTA final).
 - **[CERRADO] Precio botón sin formato** y **Bug correo** (dueño lo deja así).
 - **NOTA:** import `CheckoutSecurityBanner` en CheckoutUI.tsx sin uso. Limpiar si se toca.
 - **Failed to fetch / manifest pay.google.com**: ruido extensiones. Ignorar.
 - **Verificar tarifa de envío Dashboard = $0 todo México**.
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** Confirmar precio ancla → luego agregar "desde $X" en hero + FAQ de /personalizados.
-- **[ALTA]** Construir sección "Arte para regalo personalizado" en /personalizados.
-- **[ALTA]** Validar evento Lead en prod.
-- **[BAJA · DUEÑO]** Definir política de garantía concreta. NO inventar. (OJO: custom no aplica devolución).
+- **[ALTA]** Validar evento Lead en prod (todos los CTA de /personalizados) antes/después de lanzar campaña.
+- **[BAJA · DUEÑO]** Definir política de garantía concreta. NO inventar. (custom no aplica devolución).
 - **[MEDIA · DUEÑO]** Más meses MSI (12/18/24) → ajustar installments_max_plan en Dashboard.
 - **[MEDIA]** Verificar tarifa envío Dashboard = $0.
 - **[MEDIA]** Dueño subir fotos de reseñas de Beige Sutil y Luna Beige.
+- **[BAJA]** Opcional: microcopy "Te respondemos rápido, Lun–Sáb" bajo CTAs (solo si es cierto — confirmar horario con dueño).
 - **[MEDIA]** FASE 3 CRO: encuesta exit-intent en /products/ (mobile).

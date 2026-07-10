@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   MessageCircle,
   Palette,
@@ -29,6 +29,8 @@ const PHONE = '525531215386'
 const IMG = 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/products/'
 const HERO_IMAGE =
   'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779296069343-2ifge8n87sv.webp'
+const GIFT_IMAGE =
+  'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/black-dining.webp'
 
 const STYLES = [
   {
@@ -108,7 +110,7 @@ const FAQS = [
   },
   {
     q: '¿Cuánto cuesta?',
-    a: 'Desde $4,500. Te damos el precio exacto por WhatsApp según el estilo, color y tamaño que elijas.',
+    a: 'Desde $3,500. Te damos el precio exacto por WhatsApp según el estilo, color y tamaño que elijas.',
   },
   {
     q: '¿Hacen envíos?',
@@ -121,6 +123,20 @@ const FAQS = [
 ]
 
 const Personalizados = () => {
+  const heroCtaRef = useRef<HTMLButtonElement>(null)
+  const [showSticky, setShowSticky] = useState(false)
+
+  useEffect(() => {
+    const el = heroCtaRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowSticky(!entry.isIntersecting),
+      { threshold: 0 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
   useEffect(() => {
     window.scrollTo(0, 0)
     document.title = 'Cuadros personalizados a tu color y medida | Plieggo'
@@ -176,7 +192,7 @@ const Personalizados = () => {
             Arte en papel hecho a mano, personalizado para tu espacio.
           </p>
 
-          <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-6 text-primary-foreground/85">
+          <div className="flex flex-wrap gap-x-4 gap-y-1.5 mb-4 text-primary-foreground/85">
             {['Hecho a mano', 'Envío gratis', 'Listo para colgar'].map((t) => (
               <span key={t} className="inline-flex items-center gap-1.5 font-body text-xs sm:text-sm">
                 <Check className="w-3.5 h-3.5 text-primary-foreground" /> {t}
@@ -184,7 +200,12 @@ const Personalizados = () => {
             ))}
           </div>
 
+          <p className="font-body text-xs sm:text-sm text-primary-foreground/70 mb-6">
+            Piezas personalizadas desde $3,500 MXN · a tu color y medida
+          </p>
+
           <button
+            ref={heroCtaRef}
             onClick={() => handleWhatsAppLead()}
             className="inline-flex items-center justify-center gap-2 font-heading font-semibold text-base px-7 py-3.5 rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors w-full sm:w-auto"
           >
@@ -312,6 +333,52 @@ const Personalizados = () => {
         </div>
       </section>
 
+      {/* ─── ARTE PARA REGALO ─── */}
+      <section className="py-14 md:py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
+          <div className="rounded-sm overflow-hidden aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5]">
+            <img
+              src={GIFT_IMAGE}
+              alt="Cuadro Plieggo personalizado como regalo en un comedor"
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </div>
+          <div>
+            <p className="font-body text-xs uppercase tracking-widest text-primary mb-3">
+              Un regalo inolvidable
+            </p>
+            <h2 className="font-heading text-2xl md:text-4xl font-bold text-foreground tracking-tight mb-5">
+              Un regalo que nadie más tendrá
+            </h2>
+            <p className="font-body text-base md:text-lg leading-relaxed text-muted-foreground mb-6 max-w-md">
+              Una pieza única, hecha a mano en el color favorito de quien más quieres.
+              Imposible de repetir y hecha para durar años en su pared.
+            </p>
+            <ul className="space-y-3 mb-8">
+              {[
+                'Único e irrepetible, en su color favorito',
+                'Empaque premium incluido',
+                'Dedicatoria personalizada gratis',
+                'Envío gratis en 5–7 días hábiles',
+              ].map((t) => (
+                <li key={t} className="flex items-start gap-2.5 font-body text-sm md:text-base text-foreground">
+                  <Check className="w-4 h-4 mt-1 flex-shrink-0 text-primary" />
+                  {t}
+                </li>
+              ))}
+            </ul>
+            <button
+              onClick={() => handleWhatsAppLead('regalo')}
+              className="inline-flex items-center justify-center gap-2 font-heading font-semibold text-base px-7 py-3.5 rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors w-full sm:w-auto"
+            >
+              <MessageCircle className="w-5 h-5" />
+              Cotiza tu regalo por WhatsApp
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* ─── SOCIAL PROOF ─── */}
       <section className="py-14 md:py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
@@ -428,8 +495,12 @@ const Personalizados = () => {
         </div>
       </section>
 
-      {/* ─── STICKY MOBILE CTA ─── */}
-      <div className="fixed bottom-0 inset-x-0 z-50 lg:hidden bg-background/95 backdrop-blur-sm border-t border-border/60 px-4 py-3">
+      {/* ─── STICKY MOBILE CTA (aparece al scrollear, cuando el botón del hero sale de vista) ─── */}
+      <div
+        className={`fixed bottom-0 inset-x-0 z-50 lg:hidden bg-background/95 backdrop-blur-sm border-t border-border/60 px-4 py-3 transition-transform duration-300 ${
+          showSticky ? 'translate-y-0' : 'translate-y-full'
+        }`}
+      >
         <button
           onClick={() => handleWhatsAppLead()}
           className="inline-flex items-center justify-center gap-2 w-full font-heading font-semibold text-base px-6 py-3.5 rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
