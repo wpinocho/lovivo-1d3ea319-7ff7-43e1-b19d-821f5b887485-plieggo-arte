@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase, type Product as ProductType } from '@/lib/supabase'
 import { STORE_ID } from '@/lib/config'
 import { useCart } from '@/contexts/CartContext'
@@ -27,6 +27,9 @@ export const useProductLogic = (slugProp?: string) => {
   const { slug: slugFromParams } = useParams<{ slug: string }>()
   const slug = slugProp || slugFromParams
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  // Deep-link de talla para anuncios: /products/xxx?talla=30x90 (alias ?size=)
+  const requestedSize = searchParams.get('talla') || searchParams.get('size')
   const [product, setProduct] = useState<ProductType | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
@@ -115,15 +118,31 @@ export const useProductLogic = (slugProp?: string) => {
         hasChanges = true
       }
       // If multiple values available, pick a default size.
-      // Prisma abre en 50x50; el resto de las piezas prefiere 30x90.
+      // Prioridad: talla pedida por URL (?talla=) > default Prisma 50x50 / resto 30x90.
       else if (availableValues.length > 1 && !selected[opt.name]) {
+        const normalizeSize = (s: string) =>
+          s.toLowerCase().replace(/\s+/g, '').replace(/cm/g, '').replace(/-/g, 'x')
         const isPrisma = ((product as any).title || '').toLowerCase().includes('prisma')
-        const targetSize = isPrisma ? '50x50' : '30x90'
-        // Normalize and look for target size in any format ("50x50cm", "50cm x 50cm", etc.)
-        const preferred = availableValues.find((val: string) => {
-          const normalized = val.toLowerCase().replace(/\s+/g, '').replace(/cm/g, '')
-          return normalized === targetSize || normalized.includes(targetSize)
-        })
+        const defaultSize = isPrisma ? '50x50' : '30x90'
+
+        // 1) Intentar aplicar la talla pedida por URL, si es válida/disponible
+        let preferred: string | undefined
+        if (requestedSize) {
+          const target = normalizeSize(requestedSize)
+          preferred = availableValues.find((val: string) => {
+            const normalized = normalizeSize(val)
+            return normalized === target || normalized.includes(target)
+          })
+        }
+
+        // 2) Caer al default normal si no hubo match por URL
+        if (!preferred) {
+          preferred = availableValues.find((val: string) => {
+            const normalized = normalizeSize(val)
+            return normalized === defaultSize || normalized.includes(defaultSize)
+          })
+        }
+
         if (preferred) {
           newSelected[opt.name] = preferred
           hasChanges = true
