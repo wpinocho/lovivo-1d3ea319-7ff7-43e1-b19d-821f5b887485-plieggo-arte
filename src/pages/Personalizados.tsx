@@ -30,7 +30,7 @@ const IMG = 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/p
 const HERO_IMAGE =
   'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779296069343-2ifge8n87sv.webp'
 const GIFT_IMAGE =
-  'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/black-dining.webp'
+  'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1785956439043-14bbt12y522l.webp'
 
 const STYLES = [
   {
@@ -339,8 +339,8 @@ const Personalizados = () => {
           <div className="rounded-sm overflow-hidden aspect-[4/5] sm:aspect-[4/3] lg:aspect-[4/5]">
             <img
               src={GIFT_IMAGE}
-              alt="Cuadro Plieggo personalizado como regalo en un comedor"
-              className="w-full h-full object-cover"
+              alt="Cuadro Plieggo personalizado colgado en un comedor, como regalo"
+              className="w-full h-full object-cover object-center"
               loading="lazy"
             />
           </div>

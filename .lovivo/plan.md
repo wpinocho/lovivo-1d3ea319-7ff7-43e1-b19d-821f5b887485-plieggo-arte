@@ -31,6 +31,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 Todo lo pendiente de alto valor está en la sección 7.
 
 ## 4. Recent Changes
+- **2026-08-05** — ✅ Reemplazada GIFT_IMAGE en `/personalizados` (sección "Un regalo que nadie más tendrá"): imagen anterior (black-dining.webp) no mostraba el producto. Nueva imagen subida por el dueño (comedor con el cuadro Plieggo real colgado en la pared, centrado) → `.../message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1785956439043-14bbt12y522l.webp`. object-cover object-center para que el cuadro quede centrado en todos los breakpoints.
 - **2026-07-17** — ✅ DEEP-LINK DE TALLA IMPLEMENTADO en `HeadlessProduct.tsx`: query param `?talla=30x90` (alias `?size=`) preselecciona la variante para anuncios Meta, con prioridad sobre el default Prisma→50x50. Normalización robusta (`30-90`, `30x90cm`). Fallback al default si el param es inválido/agotado. URL de ejemplo: `plieggo.com/products/acorden-prisma-onyx-opal?talla=30x90`.
 - **2026-07-16** — 📋 PLAN deep-link de variante por URL (ya implementado 2026-07-17).
 - **2026-07-10** — ✅ /personalizados LISTA: (1) fix sticky CTA con IntersectionObserver (solo on-scroll, no duplicado), (2) ancla precio "desde $3,500" en hero, (3) FAQ precio alineado a $3,500, (4) nueva sección "Un regalo que nadie más tendrá" con imagen black-dining + CTA WhatsApp Lead 'regalo'.
@@ -44,12 +45,11 @@ Todo lo pendiente de alto valor está en la sección 7.
 - **2026-07-09** — ✅ FIX A + FIX B en StripePayment.tsx (formatMoney + badge MSI).
 - **2026-07-09** — ✅ FIX GALERÍA POR VARIANTE en HeadlessProduct.tsx.
 - **2026-07-09** — ✅ FIX 404 POST-PAGO: PagoPendiente.tsx + ruta.
-- **2026-07-08** — ✅ Checkout MSI up-front (StripePayment deferred, sin gate paymentUnlocked).
 
 ## 5. Image Inventory
 - **Hero home slide 1**: ...1779301620051-88tz4z58bt7.webp · slide 2 (pared con cuadros): ...1779296069343-2ifge8n87sv.webp · slide 3: hero-paper-folding.mp4
 - **Hero landing /personalizados** = slide 2 del home: ...1779296069343-2ifge8n87sv.webp
-- **GIFT_IMAGE (regalo /personalizados + home)**: `.../product-images/1d3ea319-7ff7-43e1-b19d-821f5b887485/black-dining.webp` (comedor con ventanal).
+- **GIFT_IMAGE (regalo /personalizados)**: `.../message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1785956439043-14bbt12y522l.webp` (comedor con el cuadro Plieggo real en la pared, subida por el dueño 2026-08-05). REEMPLAZA a black-dining.webp (deprecada, ya no se usa en ningún lado).
 - Logo: /public/logo.svg
 - **Light-shadow sets**: `src/data/light-shadow-sets.ts`.
 - **Fotos lifestyle (índice 1) por producto** (base products/): verde salvia etdkr375s4e · beige sutil 551yd2x4ryw · prisma azul coral 87qtowj61fv · prisma onyx f53ej22pcj · luna llena glo0f69xdqg · luna negra 2n4coxjoz8c · luna azul 19yuabxobu1 · burdeos exq1zzkmnqt · blanco puro u5scxlsp37 · prisma beige-blanco 6gpaobcgtcc.
