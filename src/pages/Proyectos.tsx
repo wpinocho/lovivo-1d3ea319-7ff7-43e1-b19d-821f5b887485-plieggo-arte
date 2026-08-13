@@ -55,8 +55,8 @@ const MSG =
    Único pendiente: GIFT_IMAGE (regalo corporativo).
    ───────────────────────────────────────────────────────── */
 const HERO_IMAGE = `${MSG}1786658786579-tv4ym4zokz.webp` // B2B-1: lobby de hotel boutique
-const GIFT_IMAGE = `${MSG}1785956439043-14bbt12y522l.webp` // TODO B2B-6: cajas de regalo corporativo
-const DETAIL_IMAGE = `${IMG}etdkr375s4e.webp` // detalle de pliegues (sirve tal cual)
+const GIFT_IMAGE = `${MSG}1786659699632-92ykhoixt85.webp` // pieza Luna en sala/dining corporativo
+const DETAIL_IMAGE = `${MSG}1786659699632-3gh24xwrus4.webp` // pieza Acordeón en pasillo junto a elevador
 
 const SEGMENTS = [
   {
@@ -167,7 +167,10 @@ const GALLERY = [
     alt: 'Cuadro Acordeón burdeos iluminado en un restaurante de diseño de noche',
   },
   { src: `${IMG}u5scxlsp37.webp`, alt: 'Cuadro Acordeón blanco escultural en muro neutro' },
-  { src: `${IMG}f53ej22pcj.webp`, alt: 'Cuadro Acordeón Prisma onyx en pared oscura' },
+  {
+    src: `${MSG}1786659699632-nw9w0w6g6b.webp`,
+    alt: 'Cuadro Acordeón negro en la sala de estar de una residencia con credenza de madera',
+  },
 ]
 
 const REVIEWS = plieggoGeneralReviews.filter((r) => ['g1', 'g6', 'g8'].includes(r.id))

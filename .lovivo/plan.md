@@ -33,23 +33,21 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Default de variante PDP (`HeadlessProduct.tsx`):** Prisma abre en 50x50; el resto en 30x90.
 - **DEEP-LINK DE TALLA:** `?talla=30x90` (alias `?size=`) preselecciona talla.
 
-## 3. Active Plan — `/proyectos` (B2B) casi cerrada
+## 3. Active Plan — `/proyectos` (B2B) COMPLETA ✅
 
 La landing B2B está en producción (`src/pages/Proyectos.tsx`, alias `/b2b`).
-Imágenes B2B reales YA integradas (2026-08-13). **Solo falta 1 imagen: B2B-6 (regalo corporativo).**
-
-### Pendiente único de imagen
-- `GIFT_IMAGE` (línea ~58, marcada `TODO B2B-6`) sigue usando la foto del comedor residencial.
-  Spec: **cajas de empaque premium apiladas con una pieza a la vista**, 4:5, luz natural,
-  paleta crema-terracota, sin personas de frente, sin logos. El dueño la sube.
-  Al llegar: `lov-copy('user-uploads://...', 'products/b2b-regalo.webp')` → pegar URL en `GIFT_IMAGE`.
+**Todas las imágenes reales están integradas (2026-08-13).** No queda ninguna imagen pendiente/placeholder.
 
 ### Referencias de producto reutilizables (base `products/`)
 Acordeón `etdkr375s4e` (verde salvia) · beige sutil `551yd2x4ryw` · prisma azul coral `87qtowj61fv` · prisma onyx `f53ej22pcj` · prisma beige-blanco `6gpaobcgtcc` · luna llena `glo0f69xdqg` / `hgpuedhniqa` · luna negra `2n4coxjoz8c` · luna azul `19yuabxobu1` · burdeos `exq1zzkmnqt` · blanco puro `u5scxlsp37`.
 
 ## 4. Recent Changes
-- **2026-08-13** — ✅ **IMÁGENES B2B REALES INTEGRADAS en `/proyectos`**. HERO_IMAGE → lobby de hotel boutique 16:9 (`1786658786579-tv4ym4zokz.webp`) + `loading="eager"` / `fetchPriority="high"` / alt SEO B2B. GALLERY reordenada: 4 tomas comerciales nuevas primero (pasillo de hotel con serie de 3 colores `ckqrb8e8t9o`, recepción de oficina `6h8j8g0ewdc`, sala de juntas azul medianoche `7h75oomjxf`, restaurante burdeos nocturno `hqtofonof9o`) + 2 de producto existentes (blanco puro `u5scxlsp37`, prisma onyx `f53ej22pcj`). Alts descriptivos por contexto. Solo queda pendiente GIFT_IMAGE (B2B-6).
-- **2026-08-13** — ✅ **LANDING B2B `/proyectos` CONSTRUIDA** (`src/pages/Proyectos.tsx`, ~700 líneas). Alias `/b2b`. 11 secciones: hero (2 CTAs + chips + 4.8★), 4 tarjetas de segmento clicables a WhatsApp, "por qué funciona en espacios comerciales", **cotizador de 3 campos** (espacio/cantidad/ciudad → mensaje estructurado de WhatsApp, sin backend), proceso de 4 pasos, galería 6 fotos, regalo corporativo, 3 estilos, prueba social, FAQ de 8 preguntas + JSON-LD FAQPage, CTA final con mailto, sticky móvil con IntersectionObserver. Todos los CTA disparan `facebookPixel.lead({content_category:'b2b', content_name:'b2b-<origen>'})`. Rutas en `App.tsx` + enlace "Proyectos y mayoreo" en el footer de `EcommerceTemplate.tsx`.
+- **2026-08-13 (v2)** — ✅ **3 IMÁGENES B2B REEMPLAZADAS en `/proyectos`** a pedido del dueño (fotos nuevas más comerciales):
+  - Galería "Así se ven instaladas" item 6: pieza Prisma onyx → foto de sala de estar residencial con cuadro negro y credenza de madera (`1786659699632-nw9w0w6g6b.webp`).
+  - Sección "Por qué funciona en espacios comerciales" (DETAIL_IMAGE): detalle de pliegues → pieza Acordeón beige en pasillo junto a elevador (`1786659699632-3gh24xwrus4.webp`).
+  - Sección "Regalo corporativo" (GIFT_IMAGE): foto de comedor → pieza Luna en sala/dining con olivo (`1786659699632-92ykhoixt85.webp`). **Ya no queda ninguna imagen placeholder pendiente en /proyectos.**
+- **2026-08-13** — ✅ **IMÁGENES B2B REALES INTEGRADAS en `/proyectos`**. HERO_IMAGE → lobby de hotel boutique 16:9 (`1786658786579-tv4ym4zokz.webp`) + `loading="eager"` / `fetchPriority="high"` / alt SEO B2B. GALERÍA con 4 tomas comerciales (pasillo serie de 3 colores, recepción de oficina, sala de juntas, restaurante nocturno) + 1 de producto (blanco puro).
+- **2026-08-13** — ✅ **LANDING B2B `/proyectos` CONSTRUIDA** (`src/pages/Proyectos.tsx`, ~890 líneas). Alias `/b2b`. 11 secciones: hero, 4 tarjetas de segmento, "por qué funciona", cotizador de 3 campos, proceso de 4 pasos, galería 6 fotos, regalo corporativo, 3 estilos, prueba social, FAQ de 8 + JSON-LD, CTA final, sticky móvil.
 - **2026-08-05** — ✅ Reemplazada GIFT_IMAGE en `/personalizados` por foto real del comedor (`1785956439043-14bbt12y522l.webp`).
 - **2026-07-17** — ✅ DEEP-LINK DE TALLA en `HeadlessProduct.tsx`: `?talla=30x90`.
 - **2026-07-10** — ✅ /personalizados LISTA: sticky CTA, ancla precio "desde $3,500", FAQ alineado, sección regalo.
@@ -69,16 +67,18 @@ Acordeón `etdkr375s4e` (verde salvia) · beige sutil `551yd2x4ryw` · prisma az
   - `1786658786579-6h8j8g0ewdc.webp` — recepción de oficina, pieza Luna cuadrada
   - `1786658786579-7h75oomjxf.webp` — sala de juntas, acordeón azul medianoche
   - `1786658786579-hqtofonof9o.webp` — restaurante nocturno, acordeón burdeos
-- **GIFT_IMAGE**: `.../message-images/.../1785956439043-14bbt12y522l.webp` (comedor real). Definitiva en `/personalizados`; **TEMPORAL en `/proyectos`** (pendiente B2B-6).
+  - `u5scxlsp37.webp` (base products/) — acordeón blanco escultural
+  - `1786659699632-nw9w0w6g6b.webp` — **NUEVA**: sala de estar residencial, acordeón negro, credenza de madera
+- **DETAIL_IMAGE (sección "por qué funciona")**: `1786659699632-3gh24xwrus4.webp` — **NUEVA**: acordeón beige en pasillo junto a elevador.
+- **GIFT_IMAGE (sección "regalo corporativo")**: `1786659699632-92ykhoixt85.webp` — **NUEVA**: pieza Luna en sala/dining con olivo. Reemplaza la foto del comedor (esa sigue vigente en `/personalizados`).
 - Logo: /public/logo.svg · logo footer: `.../1765330504462-dyr43cg78.png`
 - **Light-shadow sets**: `src/data/light-shadow-sets.ts`.
 - **Fotos lifestyle (índice 1) por producto** (base products/): verde salvia etdkr375s4e · beige sutil 551yd2x4ryw · prisma azul coral 87qtowj61fv · prisma onyx f53ej22pcj · luna llena glo0f69xdqg · luna negra 2n4coxjoz8c · luna azul 19yuabxobu1 · burdeos exq1zzkmnqt · blanco puro u5scxlsp37 · prisma beige-blanco 6gpaobcgtcc.
 - **Faltan reseñas (fotos)**: Beige Sutil y Luna Beige — el dueño las subirá.
 
 ## 6. Known Issues
-- **[PENDIENTE]** Reemplazar `GIFT_IMAGE` en `/proyectos` (`TODO B2B-6`, regalo corporativo).
 - **[PENDIENTE VERIF]** Validar en prod que evento `Lead` dispara en `/personalizados` y `/proyectos` (hero, tarjetas de segmento, cotizador, regalo, estilos, sticky, CTA final).
-- **[PENDIENTE VERIF]** Revisar `/proyectos` con screenshot en móvil Y desktop tras el deploy (sobre todo el crop del hero nuevo en móvil).
+- **[PENDIENTE VERIF]** Revisar `/proyectos` con screenshot en móvil Y desktop tras el deploy, con las 3 imágenes nuevas (galería item 6, detalle, regalo).
 - **[PENDIENTE VERIF]** Probar deep-link `?talla=30x90` en prod.
 - **[CERRADO] Precio botón sin formato** y **Bug correo** (dueño lo deja así).
 - **NOTA:** import `CheckoutSecurityBanner` en CheckoutUI.tsx sin uso. Limpiar si se toca.
@@ -86,9 +86,8 @@ Acordeón `etdkr375s4e` (verde salvia) · beige sutil `551yd2x4ryw` · prisma az
 - **⚠️ Envío gratis en pedidos B2B grandes:** revisar si $0 sigue siendo rentable en lotes de 20+ piezas.
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** Swap de `GIFT_IMAGE` en `/proyectos` cuando el dueño mande la foto de regalo corporativo.
 - **[ALTA]** Validar evento Lead en prod (CTAs de `/proyectos` y `/personalizados`).
-- **[ALTA]** Screenshot QA de `/proyectos` móvil + desktop con las imágenes nuevas.
+- **[ALTA]** Screenshot QA de `/proyectos` móvil + desktop con las 3 imágenes nuevas.
 - **[MEDIA]** Definir esquema concreto de descuento por volumen (5-15 / 16-40 / 40+) para poder publicarlo y aumentar conversión B2B.
 - **[MEDIA]** Considerar un one-pager PDF de proyectos para mandar por correo a despachos.
 - **[MEDIA]** Añadir `?ref=b2b` a analytics para medir tráfico de la landing al catálogo.
