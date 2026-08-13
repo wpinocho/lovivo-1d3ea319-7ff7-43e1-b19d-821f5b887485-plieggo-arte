@@ -277,6 +277,12 @@ export const EcommerceTemplate = ({
                 >
                   Rastrear pedido
                 </Link>
+                <Link 
+                  to="/proyectos" 
+                  className="block font-body text-secondary-foreground/70 hover:text-secondary-foreground transition-colors"
+                >
+                  Proyectos y mayoreo
+                </Link>
               </div>
             </div>
 

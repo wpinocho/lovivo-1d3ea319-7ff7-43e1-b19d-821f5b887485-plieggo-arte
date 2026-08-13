@@ -32,6 +32,7 @@ const Galeria = lazy(() => import('./pages/Galeria'));
 const OrderTrack = lazy(() => import('./pages/OrderTrack'));
 const PagoPendiente = lazy(() => import('./pages/PagoPendiente'));
 const Personalizados = lazy(() => import('./pages/Personalizados'));
+const Proyectos = lazy(() => import('./pages/Proyectos'));
 
 const queryClient = new QueryClient();
 
@@ -84,6 +85,8 @@ const App = () => (
                         <Route path="/pago-pendiente/:orderId" element={<PagoPendiente />} />
                         <Route path="/pago-pendiente" element={<PagoPendiente />} />
                         <Route path="/personalizados" element={<Personalizados />} />
+                        <Route path="/proyectos" element={<Proyectos />} />
+                        <Route path="/b2b" element={<Proyectos />} />
                         {/* Aquí puedes agregar/modificar rutas */}
                         <Route path="*" element={<NotFound />} />
                       </Routes>
