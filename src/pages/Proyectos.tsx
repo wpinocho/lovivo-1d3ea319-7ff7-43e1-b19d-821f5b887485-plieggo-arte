@@ -51,10 +51,10 @@ const MSG =
   'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/'
 
 /* ── IMÁGENES ──────────────────────────────────────────────
-   TEMPORALES: material residencial existente.
-   Reemplazar por las tomas B2B cuando estén listas.
+   Material B2B definitivo (espacios comerciales).
+   Único pendiente: GIFT_IMAGE (regalo corporativo).
    ───────────────────────────────────────────────────────── */
-const HERO_IMAGE = `${MSG}1779296069343-2ifge8n87sv.webp` // TODO B2B-1: lobby de hotel boutique
+const HERO_IMAGE = `${MSG}1786658786579-tv4ym4zokz.webp` // B2B-1: lobby de hotel boutique
 const GIFT_IMAGE = `${MSG}1785956439043-14bbt12y522l.webp` // TODO B2B-6: cajas de regalo corporativo
 const DETAIL_IMAGE = `${IMG}etdkr375s4e.webp` // detalle de pliegues (sirve tal cual)
 
@@ -150,12 +150,24 @@ const STYLES = [
 ]
 
 const GALLERY = [
-  { src: `${IMG}551yd2x4ryw.webp`, alt: 'Cuadro Acordeón beige en un espacio de diseño' },
+  {
+    src: `${MSG}1786658786579-ckqrb8e8t9o.webp`,
+    alt: 'Serie de tres cuadros Plieggo en distinto color en el pasillo de un hotel boutique',
+  },
+  {
+    src: `${MSG}1786658786579-6h8j8g0ewdc.webp`,
+    alt: 'Cuadro Luna sobre la recepción de una oficina corporativa',
+  },
+  {
+    src: `${MSG}1786658786579-7h75oomjxf.webp`,
+    alt: 'Cuadro Acordeón azul medianoche en la sala de juntas de un despacho',
+  },
+  {
+    src: `${MSG}1786658786579-hqtofonof9o.webp`,
+    alt: 'Cuadro Acordeón burdeos iluminado en un restaurante de diseño de noche',
+  },
   { src: `${IMG}u5scxlsp37.webp`, alt: 'Cuadro Acordeón blanco escultural en muro neutro' },
   { src: `${IMG}f53ej22pcj.webp`, alt: 'Cuadro Acordeón Prisma onyx en pared oscura' },
-  { src: `${IMG}6gpaobcgtcc.webp`, alt: 'Cuadro Acordeón Prisma beige y blanco' },
-  { src: `${IMG}hgpuedhniqa.webp`, alt: 'Cuadro Luna llena con textura mineral' },
-  { src: `${IMG}exq1zzkmnqt.webp`, alt: 'Cuadro Acordeón burdeos en muro de acento' },
 ]
 
 const REVIEWS = plieggoGeneralReviews.filter((r) => ['g1', 'g6', 'g8'].includes(r.id))
@@ -293,8 +305,11 @@ const Proyectos = () => {
         >
           <img
             src={HERO_IMAGE}
-            alt="Cuadros de papel Plieggo instalados en un espacio de diseño"
+            alt="Cuadro de papel Plieggo hecho a mano en el lobby de un hotel boutique"
             className="absolute inset-0 w-full h-full object-cover object-center"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/25" />
 
