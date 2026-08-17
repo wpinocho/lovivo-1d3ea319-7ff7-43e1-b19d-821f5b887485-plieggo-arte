@@ -51,12 +51,12 @@ const MSG =
   'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/'
 
 /* ── IMÁGENES ──────────────────────────────────────────────
-   Material B2B definitivo (espacios comerciales).
-   Único pendiente: GIFT_IMAGE (regalo corporativo).
+   Material B2B real: espacios comerciales + macro del pliegue.
    ───────────────────────────────────────────────────────── */
-const HERO_IMAGE = `${MSG}1786658786579-tv4ym4zokz.webp` // B2B-1: lobby de hotel boutique
+const HERO_IMAGE = `${MSG}1786658786579-tv4ym4zokz.webp` // lobby de hotel boutique
 const GIFT_IMAGE = `${MSG}1786659699632-92ykhoixt85.webp` // pieza Luna en sala/dining corporativo
-const DETAIL_IMAGE = `${MSG}1786659699632-3gh24xwrus4.webp` // pieza Acordeón en pasillo junto a elevador
+const DETAIL_IMAGE = `${MSG}1787007863112-8rzvvao3e74.webp` // macro del pliegue con luz rasante
+const HALLWAY_IMAGE = `${MSG}1786659699632-3gh24xwrus4.webp` // acordeón beige en pasillo junto a elevador
 
 const SEGMENTS = [
   {
@@ -95,8 +95,12 @@ const REASONS = [
     desc: 'La sombra de los pliegues se mueve. El muro nunca sale igual en dos fotos.',
   },
   {
-    title: 'Ligera y sin cristal',
-    desc: 'Se instala y se transporta sin riesgo, incluso en volumen.',
+    title: 'Sin cristal que se rompa',
+    desc: 'Llega y se instala sin riesgo, incluso en volumen. Con acrílico opcional para zonas de alto tránsito.',
+  },
+  {
+    title: 'Llega lista para colgar',
+    desc: 'Trae el soporte montado atrás. Sin instalador, sin herrajes extra, sin obra.',
   },
   {
     title: 'Papel libre de ácidos',
@@ -153,23 +157,74 @@ const GALLERY = [
   {
     src: `${MSG}1786658786579-ckqrb8e8t9o.webp`,
     alt: 'Serie de tres cuadros Plieggo en distinto color en el pasillo de un hotel boutique',
+    caption: 'Pasillo de hotel · Serie de 3 en distinto color',
   },
   {
     src: `${MSG}1786658786579-6h8j8g0ewdc.webp`,
     alt: 'Cuadro Luna sobre la recepción de una oficina corporativa',
+    caption: 'Recepción de oficina · Pieza Luna',
   },
   {
     src: `${MSG}1786658786579-7h75oomjxf.webp`,
     alt: 'Cuadro Acordeón azul medianoche en la sala de juntas de un despacho',
+    caption: 'Sala de juntas · Acordeón azul medianoche',
   },
   {
     src: `${MSG}1786658786579-hqtofonof9o.webp`,
     alt: 'Cuadro Acordeón burdeos iluminado en un restaurante de diseño de noche',
+    caption: 'Restaurante de noche · Acordeón burdeos',
   },
-  { src: `${IMG}u5scxlsp37.webp`, alt: 'Cuadro Acordeón blanco escultural en muro neutro' },
+  {
+    src: HALLWAY_IMAGE,
+    alt: 'Cuadro Acordeón beige en el pasillo de acceso a elevadores de un edificio',
+    caption: 'Acceso a elevadores · Acordeón beige',
+  },
   {
     src: `${MSG}1786659699632-nw9w0w6g6b.webp`,
     alt: 'Cuadro Acordeón negro en la sala de estar de una residencia con credenza de madera',
+    caption: 'Lounge residencial · Acordeón negro',
+  },
+]
+
+/* Ficha técnica — datos confirmados por el taller. NO inventar campos. */
+const SPECS = [
+  {
+    label: 'Medidas',
+    value:
+      'Desde 20 × 20 cm hasta piezas de más de un metro. Las que ves en la tienda son nuestras medidas estándar; para proyecto trabajamos la medida que pida tu muro.',
+  },
+  {
+    label: 'Material',
+    value:
+      'Opalina libre de ácidos hasta aproximadamente 100 × 70 cm. En formatos mayores cambiamos a lino para mantener la rigidez del pliegue.',
+  },
+  {
+    label: 'Marco y protección',
+    value: 'Marco de madera, con color y acabado a elegir. Con o sin acrílico protector.',
+  },
+  {
+    label: 'Montaje',
+    value:
+      'Llega con el soporte ya montado en la parte trasera. Se cuelga directo: sin instalador, sin herrajes extra.',
+  },
+  {
+    label: 'Peso',
+    value:
+      'Muy ligera. Es papel y marco, sin cristal: varía con la medida, pero se cuelga sin refuerzos especiales en el muro.',
+  },
+  {
+    label: 'Humedad y alto tránsito',
+    value:
+      'Aguanta ambientes húmedos, y con acrílico aguanta todavía mejor. No la recomendamos dentro de baños ni expuesta a agua directa.',
+  },
+  {
+    label: 'Volumen de producción',
+    value:
+      'Sin tope de piezas. En lotes grandes sumamos manos al taller y la fecha se define contigo desde el brief.',
+  },
+  {
+    label: 'Origen',
+    value: 'Doblada y enmarcada a mano en México, pieza por pieza.',
   },
 ]
 
@@ -182,7 +237,7 @@ const FAQS = [
   },
   {
     q: '¿Pueden hacer la medida exacta de mi muro?',
-    a: 'Sí. Trabajamos medidas a proyecto. Hasta aproximadamente 100 × 70 cm usamos opalina; arriba de esa medida cambiamos a lino para mantener la rigidez. Mándanos las medidas por WhatsApp y te decimos la mejor opción.',
+    a: 'Sí. Vamos desde 20 × 20 cm hasta piezas de más de un metro. Hasta aproximadamente 100 × 70 cm usamos opalina; arriba de esa medida cambiamos a lino para mantener la rigidez del pliegue. Mándanos las medidas por WhatsApp y te decimos la mejor opción para tu muro.',
   },
   {
     q: '¿Manejan mi paleta de color?',
@@ -199,6 +254,22 @@ const FAQS = [
   {
     q: '¿Envían a todo el país?',
     a: 'Sí, envío gratis a todo México. Las piezas llegan enmarcadas, embaladas y listas para colgar, sin cristal que se pueda romper en el traslado.',
+  },
+  {
+    q: '¿Aguanta un espacio comercial de alto tránsito?',
+    a: 'Sí. No lleva cristal que se rompa, el papel es libre de ácidos y no amarillea, y el marco va cerrado. Para pasillos, lobbies o zonas con mucha gente recomendamos el acrílico protector: cuesta un poco más y la pieza queda blindada al polvo y al roce.',
+  },
+  {
+    q: '¿Y en zonas húmedas, como un restaurante o un spa?',
+    a: 'Aguanta ambientes húmedos, y con acrílico aguanta todavía mejor. Lo único que no recomendamos es colgarla dentro de un baño o donde le pegue agua directa.',
+  },
+  {
+    q: '¿Cómo se cuelgan? ¿Necesito instalador?',
+    a: 'No. Cada pieza llega enmarcada y con el soporte ya montado en la parte trasera: se cuelga como cualquier cuadro, sin herrajes extra ni obra. Al ser papel y madera sin cristal, son ligeras y no necesitan refuerzo en el muro.',
+  },
+  {
+    q: '¿Hay un máximo de piezas que pueden producir?',
+    a: 'No ponemos tope. Cada pieza se dobla a mano, así que en lotes grandes sumamos manos al taller para el proyecto. Dinos cuántas piezas y para cuándo, y la fecha queda por escrito en la cotización.',
   },
   {
     q: '¿Puedo pedir una pieza de muestra antes del pedido grande?',
@@ -222,12 +293,21 @@ const SPACE_OPTIONS = [
 
 const QTY_OPTIONS = ['1 a 5 piezas', '6 a 15 piezas', '16 a 40 piezas', 'Más de 40 piezas']
 
+const DATE_OPTIONS = [
+  'Lo antes posible',
+  'En 1 mes',
+  'En 2 a 3 meses',
+  'En más de 3 meses',
+  'Aún estoy explorando',
+]
+
 const Proyectos = () => {
   const heroCtaRef = useRef<HTMLButtonElement>(null)
   const [showSticky, setShowSticky] = useState(false)
   const [espacio, setEspacio] = useState('')
   const [cantidad, setCantidad] = useState('')
   const [ciudad, setCiudad] = useState('')
+  const [fecha, setFecha] = useState('')
 
   useEffect(() => {
     const el = heroCtaRef.current
@@ -288,14 +368,24 @@ const Proyectos = () => {
     )
   }
 
-  const handleQuote = () => {
-    const text =
-      'Hola Plieggo, quiero cotizar un proyecto.\n\n' +
-      `• Espacio: ${espacio || 'Por definir'}\n` +
-      `• Cantidad: ${cantidad || 'Por definir'}\n` +
-      `• Ciudad: ${ciudad.trim() || 'Por definir'}\n\n` +
-      '¿Me pueden dar precio y tiempos de entrega?'
-    openWhatsApp('cotizador', text)
+  const buildQuoteText = () =>
+    'Hola Plieggo, quiero cotizar un proyecto.\n\n' +
+    `• Espacio: ${espacio || 'Por definir'}\n` +
+    `• Cantidad: ${cantidad || 'Por definir'}\n` +
+    `• Ciudad: ${ciudad.trim() || 'Por definir'}\n` +
+    `• La necesito: ${fecha || 'Por definir'}\n\n` +
+    '¿Me pueden dar precio y tiempos de entrega?'
+
+  const handleQuote = () => openWhatsApp('cotizador', buildQuoteText())
+
+  const handleQuoteEmail = () => {
+    facebookPixel.lead({
+      content_name: 'b2b-cotizador-email',
+      content_category: 'b2b',
+    })
+    window.location.href = `mailto:${EMAIL}?subject=${encodeURIComponent(
+      'Cotización de proyecto — Plieggo'
+    )}&body=${encodeURIComponent(buildQuoteText())}`
   }
 
   return (
@@ -337,6 +427,7 @@ const Proyectos = () => {
                 'Color y medida a proyecto',
                 'Factura con IVA',
                 'Envío gratis a todo México',
+                'Respuesta el mismo día hábil',
               ].map((t) => (
                 <span
                   key={t}
@@ -435,7 +526,7 @@ const Proyectos = () => {
             <div className="rounded-sm overflow-hidden aspect-[4/5] order-2 lg:order-1">
               <img
                 src={DETAIL_IMAGE}
-                alt="Detalle de los pliegues hechos a mano de una pieza Plieggo"
+                alt="Macro del pliegue hecho a mano de un cuadro Plieggo azul medianoche con luz rasante"
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
@@ -446,7 +537,7 @@ const Proyectos = () => {
                 Por qué funciona en espacios comerciales
               </p>
               <h2 className="font-heading text-2xl md:text-4xl font-bold tracking-tight mb-8">
-                No es un póster. Es una pieza que la gente toca con la mirada.
+                No es un póster. Es relieve real que cambia con la luz.
               </h2>
 
               <ul className="space-y-6">
@@ -468,6 +559,51 @@ const Proyectos = () => {
           </div>
         </section>
 
+        {/* ─── FICHA TÉCNICA ─── */}
+        <section className="py-14 md:py-20 px-4 sm:px-6 lg:px-8 bg-muted/30">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-10 md:mb-14">
+              <p className="font-body text-xs uppercase tracking-widest text-primary mb-3">
+                Ficha técnica
+              </p>
+              <h2 className="font-heading text-2xl md:text-4xl font-bold text-foreground tracking-tight mb-3">
+                Los datos que tu proyecto necesita
+              </h2>
+              <p className="font-body text-base text-muted-foreground max-w-xl mx-auto leading-relaxed">
+                Todo lo que te van a preguntar en obra, en un solo lugar.
+              </p>
+            </div>
+
+            <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-12">
+              {SPECS.map((s) => (
+                <div key={s.label} className="py-4 border-b border-border/60">
+                  <dt className="font-heading text-sm font-semibold text-foreground mb-1.5">
+                    {s.label}
+                  </dt>
+                  <dd className="font-body text-sm text-muted-foreground leading-relaxed">
+                    {s.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+
+            <p className="font-body text-sm text-muted-foreground text-center mt-8">
+              ¿Falta un dato para tu especificación?{' '}
+              <button
+                onClick={() =>
+                  openWhatsApp(
+                    'ficha-tecnica',
+                    'Hola Plieggo, estoy especificando sus piezas para un proyecto y necesito un dato técnico. ¿Me ayudan?'
+                  )
+                }
+                className="font-heading font-semibold text-primary underline underline-offset-2"
+              >
+                Pregúntanos por WhatsApp
+              </button>
+            </p>
+          </div>
+        </section>
+
         {/* ─── COTIZADOR RÁPIDO ─── */}
         <section className="py-14 md:py-20 px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto">
@@ -479,12 +615,12 @@ const Proyectos = () => {
                 Arma tu cotización en 30 segundos
               </h2>
               <p className="font-body text-base text-muted-foreground max-w-lg mx-auto leading-relaxed">
-                Tres datos y te respondemos por WhatsApp con precio, estilos y fecha de entrega.
+                Cuatro datos y te respondemos por WhatsApp con precio, estilos y fecha de entrega.
               </p>
             </div>
 
             <div className="bg-muted/40 border border-border/60 rounded-sm p-6 md:p-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                   <label className="block font-heading text-sm font-semibold text-foreground mb-2">
                     Tipo de espacio
@@ -532,18 +668,46 @@ const Proyectos = () => {
                     className="font-body bg-background"
                   />
                 </div>
+
+                <div>
+                  <label className="block font-heading text-sm font-semibold text-foreground mb-2">
+                    ¿Para cuándo la necesitas?
+                  </label>
+                  <Select value={fecha} onValueChange={setFecha}>
+                    <SelectTrigger className="font-body bg-background">
+                      <SelectValue placeholder="Elige una" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {DATE_OPTIONS.map((o) => (
+                        <SelectItem key={o} value={o} className="font-body">
+                          {o}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              <button
-                onClick={handleQuote}
-                className="inline-flex items-center justify-center gap-2 w-full font-heading font-semibold text-base px-7 py-4 rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-              >
-                <MessageCircle className="w-5 h-5" />
-                Enviar por WhatsApp
-              </button>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={handleQuote}
+                  className="inline-flex items-center justify-center gap-2 flex-1 font-heading font-semibold text-base px-7 py-4 rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  Enviar por WhatsApp
+                </button>
+
+                <button
+                  onClick={handleQuoteEmail}
+                  className="inline-flex items-center justify-center gap-2 font-heading font-semibold text-base px-7 py-4 rounded-sm border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+                >
+                  <Mail className="w-5 h-5" />
+                  Enviar por correo
+                </button>
+              </div>
 
               <p className="font-body text-xs text-muted-foreground text-center mt-4">
-                Respondemos el mismo día hábil. También puedes escribirnos a{' '}
+                Respondemos el mismo día hábil. También puedes escribirnos directo a{' '}
                 <a
                   href={`mailto:${EMAIL}?subject=${encodeURIComponent('Cotización de proyecto — Plieggo')}`}
                   className="text-primary underline underline-offset-2"
@@ -622,16 +786,65 @@ const Proyectos = () => {
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
               {GALLERY.map((img) => (
-                <div key={img.src} className="rounded-sm overflow-hidden aspect-[4/5]">
-                  <img
-                    src={img.src}
-                    alt={img.alt}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
+                <figure key={img.src} className="m-0">
+                  <div className="rounded-sm overflow-hidden aspect-[4/5]">
+                    <img
+                      src={img.src}
+                      alt={img.alt}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <figcaption className="font-body text-xs text-muted-foreground mt-2 leading-snug">
+                    {img.caption}
+                  </figcaption>
+                </figure>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* ─── PIDE UNA MUESTRA ─── */}
+        <section className="py-14 md:py-20 px-4 sm:px-6 lg:px-8 bg-secondary text-secondary-foreground">
+          <div className="max-w-3xl mx-auto text-center">
+            <p className="font-body text-xs uppercase tracking-widest text-secondary-foreground/70 mb-3">
+              Antes de comprometerte
+            </p>
+            <h2 className="font-heading text-2xl md:text-4xl font-bold tracking-tight mb-4">
+              Toca una pieza antes de pedir el lote
+            </h2>
+            <p className="font-body text-base md:text-lg text-secondary-foreground/85 leading-relaxed mb-8 max-w-xl mx-auto">
+              El relieve y el color no se aprecian en pantalla. Compra una sola pieza del catálogo,
+              cuélgala en el espacio, mira cómo se comporta con tu luz, y a partir de ahí armamos la
+              serie completa.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link
+                to="/all-products?ref=b2b-muestra"
+                className="inline-flex items-center justify-center gap-2 font-heading font-semibold text-base px-7 py-3.5 rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+              >
+                Ver catálogo y pedir una pieza
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+
+              <button
+                onClick={() =>
+                  openWhatsApp(
+                    'muestra',
+                    'Hola Plieggo, antes de cerrar un proyecto quiero validar color y acabado. ¿Me ayudan a elegir una pieza de muestra?'
+                  )
+                }
+                className="inline-flex items-center justify-center gap-2 font-heading font-semibold text-base px-7 py-3.5 rounded-sm border border-secondary-foreground/40 text-secondary-foreground hover:bg-secondary-foreground/10 transition-colors"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Que me ayuden a elegir
+              </button>
+            </div>
+
+            <p className="font-body text-sm text-secondary-foreground/70 mt-6">
+              Envío gratis a todo México · Piezas estándar en 5 a 7 días hábiles
+            </p>
           </div>
         </section>
 
@@ -762,9 +975,21 @@ const Proyectos = () => {
                   4.8 · 196 reseñas de clientes
                 </span>
               </div>
-              <h2 className="font-heading text-2xl md:text-4xl font-bold text-foreground tracking-tight">
-                Ya cuelgan en cientos de paredes
+              <h2 className="font-heading text-2xl md:text-4xl font-bold text-foreground tracking-tight mb-5">
+                Cientos de piezas colgadas. Ninguna repetida.
               </h2>
+              <div className="flex flex-wrap justify-center gap-x-6 gap-y-2">
+                {['Hecho a mano en México', 'Factura con IVA', 'Envío gratis a todo el país'].map(
+                  (t) => (
+                    <span
+                      key={t}
+                      className="inline-flex items-center gap-1.5 font-body text-sm text-muted-foreground"
+                    >
+                      <Check className="w-3.5 h-3.5 text-primary" /> {t}
+                    </span>
+                  )
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -812,7 +1037,7 @@ const Proyectos = () => {
         <section className="py-14 md:py-20 px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mx-auto">
             <h2 className="font-heading text-2xl md:text-4xl font-bold text-foreground tracking-tight text-center mb-10">
-              Preguntas de compradores
+              Preguntas frecuentes de proyectos
             </h2>
             <Accordion type="single" collapsible className="w-full">
               {FAQS.map((faq, i) => (
