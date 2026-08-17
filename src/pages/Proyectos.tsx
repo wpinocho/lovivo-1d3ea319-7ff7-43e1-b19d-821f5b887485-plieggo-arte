@@ -186,8 +186,15 @@ const GALLERY = [
   },
 ]
 
+/* Ancla de precio autorizada por el taller (2026-08-17). */
+const PRICE_FROM = '$3,500 MXN'
+
 /* Ficha técnica — datos confirmados por el taller. NO inventar campos. */
 const SPECS = [
+  {
+    label: 'Inversión',
+    value: `Desde ${PRICE_FROM} por pieza. El precio final depende del estilo, la medida y el acabado. Desde 5 piezas aplica precio preferencial y te lo desglosamos en la cotización.`,
+  },
   {
     label: 'Medidas',
     value:
@@ -231,6 +238,10 @@ const SPECS = [
 const REVIEWS = plieggoGeneralReviews.filter((r) => ['g1', 'g6', 'g8'].includes(r.id))
 
 const FAQS = [
+  {
+    q: '¿Cuánto cuesta cada pieza para proyecto?',
+    a: `Desde ${PRICE_FROM} por pieza. De ahí sube según el estilo, la medida y si lleva acrílico. Mándanos cuántas piezas y de qué tamaño y te damos el precio cerrado por escrito, sin compromiso.`,
+  },
   {
     q: '¿Desde cuántas piezas hay precio especial?',
     a: 'Desde 5 piezas aplicamos precio preferencial. El descuento exacto depende del estilo, la medida y el volumen total: te lo damos en la cotización, sin compromiso.',
@@ -328,7 +339,7 @@ const Proyectos = () => {
     if (meta) {
       meta.setAttribute(
         'content',
-        'Cuadros de papel hechos a mano para hoteles boutique, oficinas y restaurantes. Color y medida a proyecto, precio preferencial desde 5 piezas, factura y envío gratis a todo México.'
+        `Cuadros de papel hechos a mano para hoteles boutique, oficinas y restaurantes. Desde ${PRICE_FROM} por pieza, color y medida a proyecto, precio preferencial desde 5 piezas, factura y envío gratis a todo México.`
       )
     }
 
@@ -421,9 +432,16 @@ const Proyectos = () => {
               Producción coordinada y envío a todo México.
             </p>
 
+            <p className="font-body text-sm sm:text-base text-primary-foreground/85 mb-6">
+              <span className="font-heading font-semibold text-primary-foreground">
+                Desde {PRICE_FROM} por pieza.
+              </span>{' '}
+              Precio preferencial a partir de 5.
+            </p>
+
             <div className="flex flex-wrap gap-x-4 gap-y-2 mb-7 text-primary-foreground/85">
               {[
-                'Precio preferencial desde 5 piezas',
+                'Descuento por volumen desde 5 piezas',
                 'Color y medida a proyecto',
                 'Factura con IVA',
                 'Envío gratis a todo México',
@@ -615,7 +633,8 @@ const Proyectos = () => {
                 Arma tu cotización en 30 segundos
               </h2>
               <p className="font-body text-base text-muted-foreground max-w-lg mx-auto leading-relaxed">
-                Cuatro datos y te respondemos por WhatsApp con precio, estilos y fecha de entrega.
+                Cuatro datos y te respondemos por WhatsApp con precio por pieza, estilos y fecha
+                de entrega. Los proyectos arrancan desde {PRICE_FROM} por pieza.
               </p>
             </div>
 
@@ -1062,7 +1081,7 @@ const Proyectos = () => {
             </h2>
             <p className="font-body text-base md:text-lg text-secondary-foreground/85 mb-8 leading-relaxed">
               Mándanos las medidas, la cantidad y la fecha en la que lo necesitas. Te respondemos
-              con propuesta y precio, sin compromiso.
+              con propuesta y precio cerrado, sin compromiso. Desde {PRICE_FROM} por pieza.
             </p>
 
             <button
@@ -1109,6 +1128,9 @@ const Proyectos = () => {
             <MessageCircle className="w-5 h-5" />
             Cotizar mi proyecto
           </button>
+          <p className="font-body text-[11px] text-muted-foreground text-center mt-1.5">
+            Desde {PRICE_FROM} por pieza · precio preferencial desde 5
+          </p>
         </div>
       </div>
     </EcommerceTemplate>
