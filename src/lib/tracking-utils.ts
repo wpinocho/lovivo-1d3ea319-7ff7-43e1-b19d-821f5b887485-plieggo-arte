@@ -427,5 +427,85 @@ export const trackSearch = (params: TrackingParams) => tracking.trackSearch(para
 export const trackCustomEvent = (eventName: string, parameters?: Record<string, any>) => 
   tracking.trackCustomEvent(eventName, parameters);
 
+/* -------------------------------------------------------------------------- */
+/*  Atribución (Meta + UTMs)                                                  */
+/* -------------------------------------------------------------------------- */
+
+const UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id'] as const;
+
+const safeGet = (key: string): string | null => {
+  try { return localStorage.getItem(key); } catch { return null; }
+};
+
+const safeSet = (key: string, value: string) => {
+  try { localStorage.setItem(key, value); } catch { /* modo privado / storage lleno */ }
+};
+
+/** Escribe el valor solo la primera vez (first-touch). */
+const setFirstTouch = (key: string, value: string | null) => {
+  if (!value) return;
+  if (!safeGet(key)) safeSet(key, value);
+};
+
+/**
+ * Persiste los datos de atribución en localStorage.
+ * Se llama en cada carga de página (desde PixelContext) para que la atribución
+ * sobreviva el viaje del usuario hasta el checkout, incluso si paga días después.
+ *
+ * - UTMs, landing_site y referrer se guardan como FIRST-TOUCH (no se sobreescriben).
+ * - Los valores de last-touch se guardan aparte con prefijo `_lt_`.
+ * - fbp / fbc se refrescan siempre porque vienen de cookies que Meta rota.
+ */
+export function captureAttribution(fbp?: string | null, fbc?: string | null): void {
+  if (typeof window === 'undefined') return;
+
+  try {
+    const params = new URLSearchParams(window.location.search);
+
+    if (fbp) safeSet('_fbp_fallback', fbp);
+    if (fbc) safeSet('_fbc_fallback', fbc);
+
+    const fbclid = params.get('fbclid');
+    if (fbclid) safeSet('_fbclid', fbclid);
+
+    setFirstTouch('_landing_site', window.location.href);
+    setFirstTouch('_referrer', document.referrer || null);
+
+    UTM_KEYS.forEach((key) => {
+      const value = params.get(key);
+      if (!value) return;
+      setFirstTouch(`_${key}`, value);
+      safeSet(`_lt_${key}`, value); // last-touch: siempre se sobreescribe
+    });
+  } catch (error) {
+    console.error('❌ Tracking Error (captureAttribution):', error);
+  }
+}
+
+/**
+ * Devuelve el payload de atribución para enviarlo al backend junto con la orden.
+ * Prioriza lo guardado en localStorage y cae a los params de la URL actual.
+ */
+export function getAttributionPayload(): Record<string, string | null> {
+  if (typeof window === 'undefined') {
+    return { fbp: null, fbc: null, fbclid: null, landing_site: null, referrer: null };
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const utms = UTM_KEYS.reduce((acc, key) => {
+    acc[key] = safeGet(`_${key}`) || params.get(key) || null;
+    return acc;
+  }, {} as Record<string, string | null>);
+
+  return {
+    fbp: safeGet('_fbp_fallback'),
+    fbc: safeGet('_fbc_fallback'),
+    fbclid: safeGet('_fbclid') || params.get('fbclid') || null,
+    landing_site: safeGet('_landing_site'),
+    referrer: safeGet('_referrer'),
+    ...utms,
+  };
+}
+
 // Export the main tracking instance
 export default tracking;

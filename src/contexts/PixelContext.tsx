@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useSettings } from '@/contexts/SettingsContext';
 import { facebookPixel } from '@/lib/facebook-pixel';
-import { tracking } from '@/lib/tracking-utils';
+import { tracking, captureAttribution } from '@/lib/tracking-utils';
 
 interface PixelContextType {
   pixelId: string | null;
@@ -52,6 +52,10 @@ export function PixelProvider({ children }: { children: React.ReactNode }) {
 
     // Update tracking utility with pixel data
     tracking.setPixelData(metaPixelId, fbp, fbc);
+
+    // Persist attribution (fbp/fbc/fbclid/UTMs/referrer) so orders paid later
+    // — including PayPal — can still be attributed to the right campaign.
+    captureAttribution(fbp, fbc);
   }, [metaPixelId, isLoading, fbp, fbc]);
 
   return (

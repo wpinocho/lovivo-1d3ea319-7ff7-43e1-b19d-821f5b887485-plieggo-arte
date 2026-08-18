@@ -26,6 +26,7 @@ interface OrderDetails {
   order_items: any[]
   created_at: string
   checkout_token?: string
+  payment_method?: string
   payment_method_details?: OrderPaymentMethodDetails
 }
 
@@ -331,6 +332,14 @@ const ThankYou = () => {
                     <p>{order.shipping_address.postal_code || order.shipping_address.zip || ''} {order.shipping_address.country || ''}</p>
                     {order.shipping_address.phone && <p>Teléfono: {order.shipping_address.phone}</p>}
                   </div>
+                </div>
+              ) : order.payment_method === 'paypal' ? (
+                <div>
+                  <h4 className="font-medium mb-2">Dirección de Envío:</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Enviaremos tu pieza a la dirección que registraste en PayPal. Te la
+                    confirmamos por correo junto con los datos de tu pedido.
+                  </p>
                 </div>
               ) : (
                 <div>

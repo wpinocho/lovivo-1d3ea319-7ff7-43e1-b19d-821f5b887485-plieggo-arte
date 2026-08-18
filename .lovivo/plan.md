@@ -44,18 +44,35 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 
 ---
 
-## 3. Active Plan — PayPal Express en checkout (2026-08-18)
+## 3. Active Plan — PayPal Express COMPLETO (2026-08-18)
 
-**Implementado (basado en repo de referencia que ya funciona):**
-1. Dependencia `@paypal/react-paypal-js` añadida.
-2. `SettingsContext.tsx`: nueva query `['paypal-account', STORE_ID]` con RPC `get_public_paypal_account` → expone `paypalEnabled`, `paypalClientId`, `paypalEnvironment`. Si la RPC devuelve null, `paypalEnabled = false` y nada se renderiza.
-3. `src/components/PaypalExpressButton.tsx` (nuevo): copy en español, tokens de diseño (`bg-border`, `text-muted-foreground`), botón gold horizontal 45px, `fundingSource="paypal"`. Edge functions: `paypal-create-order` + `paypal-capture-order`. Escribe `completed_order` en localStorage y navega a `/thank-you/:orderId` (ruta confirmada en App.tsx). Purchase con guardia `purchase_tracked_${ordId}` en sessionStorage.
-4. `src/pages/ui/CheckoutUI.tsx`: botón montado ARRIBA de `<StripePayment>` dentro de un fragment, con `showDivider={false}`, `shippingCost={logic.shippingFromCheckout || logic.shippingCost}`.
+### Ruta post-pago canónica del repo: `/gracias/:orderId`
+`App.tsx` registra `/gracias`, `/gracias/:orderId`, `/thank-you` y `/thank-you/:orderId` — todos apuntan a `ThankYou`. **StripePayment usa `/gracias/${orderId}`, así que PayPal ahora también.** Flujo canónico post-pago (copiar siempre este orden):
+1. `localStorage.setItem('completed_order', JSON.stringify(order))`
+2. `trackPurchase(...)` con guardia `purchase_tracked_${orderId}` en sessionStorage
+3. `clearCart()`
+4. `navigate(`/gracias/${orderId}`)`
+5. toast "¡Pago exitoso!"
 
-**DIFERENCIA vs el repo de referencia:** Plieggo NO tiene `getAttributionPayload()` en `src/lib/tracking-utils.ts` (el archivo termina en `trackSearch`). Por eso los payloads de PayPal se envían SIN `attribution` — igual que hace `checkout-create` en Plieggo hoy. Si se quiere atribución de Meta en órdenes PayPal, hay que portar esa función + los writes de localStorage en `PixelContext`.
+`ThankYou.tsx` lee la orden SOLO de `localStorage.completed_order` (y la borra). No hace fetch de la orden por id — si no hay nada en localStorage muestra "No se encontró el pedido". Por eso persistir la orden es obligatorio ANTES de navegar.
+
+### Piezas implementadas
+1. Dependencia `@paypal/react-paypal-js`.
+2. `SettingsContext.tsx`: query `['paypal-account', STORE_ID]` con RPC `get_public_paypal_account` → `paypalEnabled`, `paypalClientId`, `paypalEnvironment`. Si la RPC devuelve null → botón oculto (intencional).
+3. `src/components/PaypalExpressButton.tsx`: copy en español, tokens de Plieggo, botón gold horizontal 45px, `fundingSource="paypal"`. Edge functions `paypal-create-order` + `paypal-capture-order`. Ambos payloads llevan `attribution: getAttributionPayload()`.
+4. `src/pages/ui/CheckoutUI.tsx`: montado ARRIBA de `<StripePayment>`, `showDivider={false}`, `shippingCost={logic.shippingFromCheckout || logic.shippingCost}`.
+5. **Orden fusionada**: `{ ...fallbackOrder, ...(res.order ?? {}) }` — el backend manda pero nunca se pierden `checkout_token` (habilita "Rastrear mi pedido") ni `payment_method: 'paypal'`.
+6. `ThankYou.tsx`: si no hay `shipping_address` y `payment_method === 'paypal'`, muestra "Enviaremos tu pieza a la dirección que registraste en PayPal" en lugar del falso "Recoger en Tienda".
+
+### Atribución de Meta — PORTADA (2026-08-18)
+`src/lib/tracking-utils.ts` ahora exporta:
+- `captureAttribution(fbp, fbc)` — se llama en cada carga desde `PixelContext`. Guarda en localStorage: `_fbp_fallback`, `_fbc_fallback`, `_fbclid`, `_landing_site`, `_referrer` (first-touch), `_utm_*` (first-touch) y `_lt_utm_*` (last-touch, se sobreescribe). Todo con try/catch para modo privado.
+- `getAttributionPayload()` — devuelve `{ fbp, fbc, fbclid, landing_site, referrer, utm_source, utm_medium, utm_campaign, utm_content, utm_term, utm_id }`. Lee localStorage y cae a los params de la URL.
+
+**Reusable:** cualquier flujo de pago nuevo debe enviar `attribution: getAttributionPayload()`. `checkout-create` de Plieggo aún NO lo envía → oportunidad de mejora para atribuir también órdenes Stripe.
 
 ### Requisito operativo
-PayPal debe estar conectado desde el Dashboard (Configuración de Tienda → Pagos). Sin eso la RPC devuelve null y el botón queda oculto (comportamiento intencional, no es bug).
+PayPal debe estar conectado desde el Dashboard (Configuración de Tienda → Pagos). Sin eso la RPC devuelve null y el botón queda oculto.
 
 ### `/proyectos` B2B — pendiente (bloqueado por datos o imágenes)
 - **Prueba social B2B real** — hoy fallback honesto. Sustituir con 1-2 testimonios o logos con permiso.
@@ -70,9 +87,10 @@ taller/manos doblando (4:5) · serie grande de 5+ piezas (16:9) · empaque profe
 Acordeón `etdkr375s4e` (verde salvia) · beige sutil `551yd2x4ryw` · prisma azul coral `87qtowj61fv` · prisma onyx `f53ej22pcj` · prisma beige-blanco `6gpaobcgtcc` · luna llena `glo0f69xdqg` / `hgpuedhniqa` · luna negra `2n4coxjoz8c` · luna azul `19yuabxobu1` · burdeos `exq1zzkmnqt` · blanco puro `u5scxlsp37`.
 
 ## 4. Recent Changes
-- **2026-08-18** — ✅ **PAYPAL EXPRESS EN CHECKOUT**. Portado desde repo de referencia del dueño: dependencia, campos en SettingsContext vía RPC `get_public_paypal_account`, componente `PaypalExpressButton.tsx` en español con tokens de Plieggo, montado arriba de StripePayment. Sin `attribution` (Plieggo no tiene `getAttributionPayload`).
-- **2026-08-17** — ✅ **ANCLA DE PRECIO B2B PUBLICADA en `/proyectos`**: constante `PRICE_FROM = '$3,500 MXN'` en 6 puntos (hero, check del hero, ficha técnica campo "Inversión", cotizador, CTA final, sticky mobile) + nueva FAQ #1 "¿Cuánto cuesta cada pieza para proyecto?" (entra al JSON-LD FAQPage) + meta description con precio.
-- **2026-08-17** — ✅ **TANDA 1+2 B2B en `/proyectos`**: ficha técnica (SPECS), DETAIL_IMAGE → macro real del pliegue, 4 FAQs nuevas, campo de fecha + botón "Enviar por correo" en cotizador, sección "Toca una pieza antes de pedir el lote", captions en galería.
+- **2026-08-18** — ✅ **ATRIBUCIÓN META + FLUJO `/gracias` EN PAYPAL**. Portado `captureAttribution()` y `getAttributionPayload()` a `tracking-utils.ts`; `PixelContext` persiste atribución en cada carga; los dos payloads de PayPal la envían. Redirect corregido `/thank-you` → `/gracias/:orderId`, añadido `clearCart()` + toast de éxito, orden fusionada con `checkout_token` y `payment_method`, y `ThankYou` ya no dice "Recoger en Tienda" en órdenes PayPal.
+- **2026-08-18** — ✅ **PAYPAL EXPRESS EN CHECKOUT**. Portado desde repo de referencia del dueño: dependencia, campos en SettingsContext vía RPC `get_public_paypal_account`, componente `PaypalExpressButton.tsx`, montado arriba de StripePayment.
+- **2026-08-17** — ✅ **ANCLA DE PRECIO B2B PUBLICADA en `/proyectos`**: constante `PRICE_FROM = '$3,500 MXN'` en 6 puntos + nueva FAQ #1 + meta description con precio.
+- **2026-08-17** — ✅ **TANDA 1+2 B2B en `/proyectos`**: ficha técnica (SPECS), DETAIL_IMAGE macro del pliegue, 4 FAQs nuevas, campo de fecha + botón "Enviar por correo", sección "Toca una pieza antes de pedir el lote", captions en galería.
 - **2026-08-13** — 📋 Auditoría completa de `/proyectos` (código + screenshots).
 - **2026-08-13** — ✅ Landing B2B `/proyectos` construida (alias `/b2b`) + imágenes reales.
 - **2026-08-05** — ✅ GIFT_IMAGE de `/personalizados` reemplazada por foto real del comedor.
@@ -98,8 +116,9 @@ Acordeón `etdkr375s4e` (verde salvia) · beige sutil `551yd2x4ryw` · prisma az
 - **Faltan reseñas (fotos)**: Beige Sutil y Luna Beige.
 
 ## 6. Known Issues
-- **[PENDIENTE VERIF · PAYPAL]** Probar en prod con carrito real: (1) que el botón aparezca (requiere PayPal conectado en Dashboard), (2) que la moneda MXN se acepte, (3) que la orden quede en `paid` y llegue a `/thank-you/:orderId`, (4) que Purchase no se duplique.
-- **[NOTA PAYPAL]** Órdenes vía PayPal NO llevan atribución de Meta (falta `getAttributionPayload` en este repo). No rompe nada, pero el ROAS de esas órdenes no se atribuye.
+- **[PENDIENTE VERIF · PAYPAL]** Probar en prod con carrito real: (1) que el botón aparezca (requiere PayPal conectado en Dashboard), (2) que MXN se acepte, (3) que la orden quede en `paid`, (4) que aterrice en `/gracias/:orderId` con los items visibles, (5) que el carrito quede vacío, (6) que Purchase no se duplique.
+- **[PENDIENTE VERIF · ATRIBUCIÓN]** Confirmar en Events Manager que las órdenes PayPal lleguen con `fbp`/`fbc`/UTMs. Requiere que las edge functions `paypal-create-order` / `paypal-capture-order` consuman el campo `attribution` — si el backend lo ignora, la atribución no se guardará aunque el frontend ya la envíe.
+- **[OPORTUNIDAD]** `checkout-create` (flujo Stripe) todavía NO envía `attribution` aunque la función ya existe. Añadirlo mejoraría la atribución de TODAS las órdenes.
 - **[PENDIENTE DUEÑO]** Caso B2B mostrable; kit de muestras; política de reposición; instrucciones de limpieza; % de descuento por volumen.
 - **[PENDIENTE VERIF]** Validar en prod que `Lead` dispara en `/personalizados` y `/proyectos` (incl. `b2b-cotizador-email`).
 - **[PENDIENTE VERIF]** Probar deep-link `?talla=30x90` en prod.
@@ -110,10 +129,10 @@ Acordeón `etdkr375s4e` (verde salvia) · beige sutil `551yd2x4ryw` · prisma az
 - **⚠️ Envío gratis en lotes B2B grandes:** revisar rentabilidad en pedidos de 20+ piezas.
 
 ## 7. Pending / Future Sessions
-- **[ALTA]** Verificar PayPal end-to-end en prod (ver Known Issues).
+- **[ALTA]** Verificar PayPal end-to-end en prod (ver Known Issues) incluyendo atribución.
 - **[ALTA]** Testimonio o caso B2B real para sustituir el fallback de prueba social.
 - **[ALTA]** Validar evento Lead en prod (WhatsApp + correo).
-- **[MEDIA]** Portar `getAttributionPayload()` a `tracking-utils.ts` + writes en `PixelContext` para atribuir órdenes PayPal.
+- **[MEDIA]** Enviar `attribution: getAttributionPayload()` también en `checkout-create` (Stripe).
 - **[MEDIA]** Imágenes pendientes: taller, serie grande, empaque, retrato del fundador.
 - **[MEDIA]** One-pager PDF de proyectos.
 - **[MEDIA]** SEO `/proyectos`: Service/Organization JSON-LD + og tags + `Offer` lowPrice 3500.

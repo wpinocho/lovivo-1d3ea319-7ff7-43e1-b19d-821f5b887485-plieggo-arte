@@ -5,7 +5,8 @@ import { callEdge } from '@/lib/edge'
 import { STORE_ID } from '@/lib/config'
 import { useToast } from '@/hooks/use-toast'
 import { useNavigate } from 'react-router-dom'
-import { trackPurchase, tracking } from '@/lib/tracking-utils'
+import { useCart } from '@/contexts/CartContext'
+import { trackPurchase, tracking, getAttributionPayload } from '@/lib/tracking-utils'
 
 interface PaypalExpressButtonProps {
   orderId: string
@@ -42,6 +43,7 @@ export function PaypalExpressButton({
   const { paypalEnabled, paypalClientId } = useSettings()
   const { toast } = useToast()
   const navigate = useNavigate()
+  const { clearCart } = useCart()
 
   if (!paypalEnabled || !paypalClientId || !checkoutToken) return null
 
@@ -76,6 +78,7 @@ export function PaypalExpressButton({
               currency: currencyUpper,
               items,
               shipping: shippingCost,
+              attribution: getAttributionPayload(),
             })
             if (!result?.id) throw new Error('No se recibió el ID de la orden de PayPal')
             return result.id
@@ -86,13 +89,14 @@ export function PaypalExpressButton({
                 store_id: STORE_ID,
                 paypal_order_id: data.orderID,
                 checkout_token: checkoutToken,
+                attribution: getAttributionPayload(),
               })
               if (!res?.ok || res?.status !== 'COMPLETED') {
                 throw new Error(res?.error || 'El pago no se completó')
               }
 
               // Orden de respaldo por si el backend no devuelve res.order,
-              // para que /thank-you siempre tenga algo que mostrar.
+              // para que /gracias siempre tenga algo que mostrar.
               const internalOrderId = res.order?.id || res.order_id
               const fallbackOrder = {
                 id: internalOrderId || data.orderID,
@@ -100,6 +104,8 @@ export function PaypalExpressButton({
                 total_amount: amount,
                 currency_code: currencyUpper,
                 status: 'paid',
+                checkout_token: checkoutToken,
+                payment_method: 'paypal',
                 order_items: items.map((it: any) => ({
                   product_name: it.title || it.product_name || 'Producto',
                   quantity: it.quantity,
@@ -110,7 +116,12 @@ export function PaypalExpressButton({
                 created_at: new Date().toISOString(),
               }
 
-              localStorage.setItem('completed_order', JSON.stringify(res.order ?? fallbackOrder))
+              // Se fusiona: lo que devuelva el backend manda, pero nunca perdemos
+              // checkout_token ni payment_method (los usa /gracias).
+              const orderForThankYou = { ...fallbackOrder, ...(res.order ?? {}) }
+              try {
+                localStorage.setItem('completed_order', JSON.stringify(orderForThankYou))
+              } catch { /* modo privado */ }
               const ordId = internalOrderId || data.orderID
 
               // Purchase (Pixel + CAPI + PostHog) con guardia en sessionStorage
@@ -138,7 +149,12 @@ export function PaypalExpressButton({
                 })
               }
 
-              navigate(`/thank-you/${ordId}`)
+              clearCart()
+              navigate(`/gracias/${ordId}`)
+              toast({
+                title: '¡Pago exitoso!',
+                description: 'Tu compra ha sido procesada correctamente.',
+              })
             } catch (err: unknown) {
               toast({
                 title: 'No se pudo completar el pago con PayPal',
