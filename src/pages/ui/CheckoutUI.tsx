@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { CartAppliedRules } from "@/components/ui/CartAppliedRules";
 import { useNavigate } from "react-router-dom";
 import StripePayment from "@/components/StripePayment";
+import { PaypalExpressButton } from "@/components/PaypalExpressButton";
 import { CheckoutSecurityBanner } from "@/components/CheckoutTrustBadges";
 import { HeadlessCheckout } from "@/components/headless/HeadlessCheckout";
 import { BrandLogoLeft } from "@/components/BrandLogoLeft";
@@ -266,6 +267,20 @@ export default function CheckoutUI() {
                     // defaultValues.email (vive en estado React: logic.email). Y pagar sin
                     // correo válido queda bloqueado por validateCheckoutFields → sin 500s de SPEI.
                     return (
+                      <>
+                      {/* PayPal Express — arriba del formulario. No requiere validar
+                          campos: PayPal recolecta la dirección en su propio popup.
+                          Si la tienda no tiene PayPal conectado, no renderiza nada. */}
+                      <PaypalExpressButton
+                        className="mb-3"
+                        showDivider={false}
+                        orderId={logic.orderId}
+                        checkoutToken={logic.checkoutToken}
+                        amount={logic.finalTotal}
+                        currency={logic.currencyCode.toLowerCase()}
+                        items={logic.orderItems}
+                        shippingCost={logic.shippingFromCheckout || logic.shippingCost}
+                      />
                       <StripePayment 
                         key={stripeKey}
                         amountCents={Math.round(logic.finalTotal * 100)} 
@@ -372,6 +387,7 @@ export default function CheckoutUI() {
                           if (authenticated) setEmailConfirmed(true);
                         }}
                       />
+                      </>
                     );
                   })()}
                 </section>

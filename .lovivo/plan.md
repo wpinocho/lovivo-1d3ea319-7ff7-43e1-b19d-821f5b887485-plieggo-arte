@@ -9,7 +9,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
   - Solo estilos de colecciones existentes (Luna, Acordeón, Acordeón Prisma). Color limitado a paleta del proveedor de opalina.
 - **ENVÍO: GRATIS EN TODO MÉXICO Y FIJO.** **ENTREGA: 5–7 días hábiles** (piezas estándar).
 - **Best-sellers reales: `verde-salvia` y `acorden-beige-sutil`.** **Rating: ~4.8★ · 196 reseñas.**
-- **MSI ACTIVO.** SPEI (customer_balance) y OXXO ACTIVOS. **PRECIO MÍNIMO PERSONALIZADOS: $3,500 MXN.**
+- **MSI ACTIVO.** SPEI (customer_balance) y OXXO ACTIVOS. **PayPal Express integrado (2026-08-18).** **PRECIO MÍNIMO PERSONALIZADOS: $3,500 MXN.**
 - **✅ ANCLA DE PRECIO B2B AUTORIZADA (2026-08-17):** publicar "desde $3,500 MXN por pieza" en `/proyectos`. Constante `PRICE_FROM` en `Proyectos.tsx`.
 
 ### FICHA TÉCNICA CONFIRMADA POR EL DUEÑO (2026-08-17) — datos publicables
@@ -44,37 +44,37 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 
 ---
 
-## 3. Active Plan — `/proyectos` B2B: Tanda 1+2+3 EJECUTADAS
+## 3. Active Plan — PayPal Express en checkout (2026-08-18)
 
-**Hecho (2026-08-17):** ficha técnica, FAQs de durabilidad/montaje/volumen, cotizador de 4 campos con doble salida (WhatsApp + correo), sección "Pide una muestra", captions de galería, macro del pliegue, **ancla de precio "desde $3,500 MXN por pieza" en 6 puntos**.
+**Implementado (basado en repo de referencia que ya funciona):**
+1. Dependencia `@paypal/react-paypal-js` añadida.
+2. `SettingsContext.tsx`: nueva query `['paypal-account', STORE_ID]` con RPC `get_public_paypal_account` → expone `paypalEnabled`, `paypalClientId`, `paypalEnvironment`. Si la RPC devuelve null, `paypalEnabled = false` y nada se renderiza.
+3. `src/components/PaypalExpressButton.tsx` (nuevo): copy en español, tokens de diseño (`bg-border`, `text-muted-foreground`), botón gold horizontal 45px, `fundingSource="paypal"`. Edge functions: `paypal-create-order` + `paypal-capture-order`. Escribe `completed_order` en localStorage y navega a `/thank-you/:orderId` (ruta confirmada en App.tsx). Purchase con guardia `purchase_tracked_${ordId}` en sessionStorage.
+4. `src/pages/ui/CheckoutUI.tsx`: botón montado ARRIBA de `<StripePayment>` dentro de un fragment, con `showDivider={false}`, `shippingCost={logic.shippingFromCheckout || logic.shippingCost}`.
 
-### Queda pendiente (bloqueado por datos o imágenes)
-- **Prueba social B2B real** — hoy se usa el fallback honesto (H2 "Cientos de piezas colgadas. Ninguna repetida." + franja de 3 datos duros). Sustituir en cuanto haya 1-2 testimonios de proyecto o logos con permiso.
-- **Cara y nombre del fundador** (P1.3) — requiere foto de Julián.
-- **One-pager PDF de proyectos** (P1.6) — lead magnet para despachos.
-- **Bloque comparativo** (P2.2) y **CTA "prefiero que me llamen"** (P2.3).
-- **SEO `/proyectos`**: añadir `Service`/`Organization` JSON-LD y og:title/description/image (hoy solo FAQPage). Con el precio ya público, se puede usar `Offer` con `lowPrice: 3500`.
-- **Analytics**: scroll-depth y apertura de FAQs para saber qué duda pesa más.
+**DIFERENCIA vs el repo de referencia:** Plieggo NO tiene `getAttributionPayload()` en `src/lib/tracking-utils.ts` (el archivo termina en `trackSearch`). Por eso los payloads de PayPal se envían SIN `attribution` — igual que hace `checkout-create` en Plieggo hoy. Si se quiere atribución de Meta en órdenes PayPal, hay que portar esa función + los writes de localStorage en `PixelContext`.
 
-### Imágenes aún pedidas al dueño (NO disponibles en esta versión)
+### Requisito operativo
+PayPal debe estar conectado desde el Dashboard (Configuración de Tienda → Pagos). Sin eso la RPC devuelve null y el botón queda oculto (comportamiento intencional, no es bug).
+
+### `/proyectos` B2B — pendiente (bloqueado por datos o imágenes)
+- **Prueba social B2B real** — hoy fallback honesto. Sustituir con 1-2 testimonios o logos con permiso.
+- **Cara y nombre del fundador** (P1.3) · **One-pager PDF** (P1.6) · **Bloque comparativo** (P2.2) · **CTA "prefiero que me llamen"** (P2.3).
+- **SEO `/proyectos`**: añadir `Service`/`Organization` JSON-LD, og tags y `Offer` con `lowPrice: 3500` (hoy solo FAQPage).
+- **Analytics**: scroll-depth y apertura de FAQs.
+
+### Imágenes aún pedidas al dueño
 taller/manos doblando (4:5) · serie grande de 5+ piezas (16:9) · empaque profesional (4:5) · retrato del fundador (1:1).
 
 ### Referencias de producto reutilizables (base `products/`)
 Acordeón `etdkr375s4e` (verde salvia) · beige sutil `551yd2x4ryw` · prisma azul coral `87qtowj61fv` · prisma onyx `f53ej22pcj` · prisma beige-blanco `6gpaobcgtcc` · luna llena `glo0f69xdqg` / `hgpuedhniqa` · luna negra `2n4coxjoz8c` · luna azul `19yuabxobu1` · burdeos `exq1zzkmnqt` · blanco puro `u5scxlsp37`.
 
 ## 4. Recent Changes
-- **2026-08-17** — ✅ **ANCLA DE PRECIO B2B PUBLICADA en `/proyectos`** (autorizada por el dueño). Nueva constante `PRICE_FROM = '$3,500 MXN'` usada en 6 puntos:
-  1. **Hero**: línea nueva bajo el subtítulo — "Desde $3,500 MXN por pieza. Precio preferencial a partir de 5."
-  2. **Check del hero** "Precio preferencial desde 5 piezas" → "Descuento por volumen desde 5 piezas" (evita duplicar el mensaje).
-  3. **Ficha técnica**: nuevo campo **"Inversión"** como PRIMER dato del `dl` (antes de Medidas).
-  4. **Cotizador**: subtítulo ahora dice "precio por pieza" + "Los proyectos arrancan desde $3,500 MXN por pieza".
-  5. **CTA final**: "…precio cerrado, sin compromiso. Desde $3,500 MXN por pieza."
-  6. **Sticky mobile**: microcopy bajo el botón "Desde $3,500 MXN por pieza · precio preferencial desde 5".
-  - **Nueva FAQ #1**: "¿Cuánto cuesta cada pieza para proyecto?" (entra automáticamente al JSON-LD FAQPage).
-  - **Meta description** actualizada con el precio para pre-calificar clics desde Google/Meta.
-- **2026-08-17** — ✅ **TANDA 1+2 B2B EJECUTADA en `/proyectos`**: ficha técnica (SPECS), DETAIL_IMAGE → macro real del pliegue, 4 FAQs nuevas (alto tránsito, humedad, cómo se cuelga, sin tope), campo de fecha + botón "Enviar por correo" en el cotizador, sección "Toca una pieza antes de pedir el lote", captions en galería.
+- **2026-08-18** — ✅ **PAYPAL EXPRESS EN CHECKOUT**. Portado desde repo de referencia del dueño: dependencia, campos en SettingsContext vía RPC `get_public_paypal_account`, componente `PaypalExpressButton.tsx` en español con tokens de Plieggo, montado arriba de StripePayment. Sin `attribution` (Plieggo no tiene `getAttributionPayload`).
+- **2026-08-17** — ✅ **ANCLA DE PRECIO B2B PUBLICADA en `/proyectos`**: constante `PRICE_FROM = '$3,500 MXN'` en 6 puntos (hero, check del hero, ficha técnica campo "Inversión", cotizador, CTA final, sticky mobile) + nueva FAQ #1 "¿Cuánto cuesta cada pieza para proyecto?" (entra al JSON-LD FAQPage) + meta description con precio.
+- **2026-08-17** — ✅ **TANDA 1+2 B2B en `/proyectos`**: ficha técnica (SPECS), DETAIL_IMAGE → macro real del pliegue, 4 FAQs nuevas, campo de fecha + botón "Enviar por correo" en cotizador, sección "Toca una pieza antes de pedir el lote", captions en galería.
 - **2026-08-13** — 📋 Auditoría completa de `/proyectos` (código + screenshots).
-- **2026-08-13** — ✅ Landing B2B `/proyectos` construida (alias `/b2b`) + imágenes reales integradas.
+- **2026-08-13** — ✅ Landing B2B `/proyectos` construida (alias `/b2b`) + imágenes reales.
 - **2026-08-05** — ✅ GIFT_IMAGE de `/personalizados` reemplazada por foto real del comedor.
 - **2026-07-17** — ✅ Deep-link de talla en `HeadlessProduct.tsx`.
 - **2026-07-10** — ✅ `/personalizados` lista: sticky CTA, ancla $3,500, FAQ, sección regalo.
@@ -98,21 +98,25 @@ Acordeón `etdkr375s4e` (verde salvia) · beige sutil `551yd2x4ryw` · prisma az
 - **Faltan reseñas (fotos)**: Beige Sutil y Luna Beige.
 
 ## 6. Known Issues
-- **[PENDIENTE DUEÑO]** Caso B2B mostrable; kit de muestras; política de reposición; instrucciones de limpieza; % de descuento por rango de volumen.
+- **[PENDIENTE VERIF · PAYPAL]** Probar en prod con carrito real: (1) que el botón aparezca (requiere PayPal conectado en Dashboard), (2) que la moneda MXN se acepte, (3) que la orden quede en `paid` y llegue a `/thank-you/:orderId`, (4) que Purchase no se duplique.
+- **[NOTA PAYPAL]** Órdenes vía PayPal NO llevan atribución de Meta (falta `getAttributionPayload` en este repo). No rompe nada, pero el ROAS de esas órdenes no se atribuye.
+- **[PENDIENTE DUEÑO]** Caso B2B mostrable; kit de muestras; política de reposición; instrucciones de limpieza; % de descuento por volumen.
 - **[PENDIENTE VERIF]** Validar en prod que `Lead` dispara en `/personalizados` y `/proyectos` (incl. `b2b-cotizador-email`).
 - **[PENDIENTE VERIF]** Probar deep-link `?talla=30x90` en prod.
-- **[VIGILAR]** El ancla de $3,500 en `/proyectos` puede bajar el volumen de leads pero subir la calidad. Revisar en 2-3 semanas si el nº de conversaciones de WhatsApp B2B cae o si suben las cotizaciones cerradas.
+- **[VIGILAR]** El ancla de $3,500 en `/proyectos` puede bajar volumen de leads pero subir calidad. Revisar en 2-3 semanas.
 - **[CERRADO]** Precio botón sin formato y bug correo (el dueño lo deja así).
 - **NOTA:** import `CheckoutSecurityBanner` en CheckoutUI.tsx sin uso.
 - **Failed to fetch / manifest pay.google.com**: ruido de extensiones. Ignorar.
 - **⚠️ Envío gratis en lotes B2B grandes:** revisar rentabilidad en pedidos de 20+ piezas.
 
 ## 7. Pending / Future Sessions
+- **[ALTA]** Verificar PayPal end-to-end en prod (ver Known Issues).
 - **[ALTA]** Testimonio o caso B2B real para sustituir el fallback de prueba social.
 - **[ALTA]** Validar evento Lead en prod (WhatsApp + correo).
+- **[MEDIA]** Portar `getAttributionPayload()` a `tracking-utils.ts` + writes en `PixelContext` para atribuir órdenes PayPal.
 - **[MEDIA]** Imágenes pendientes: taller, serie grande, empaque, retrato del fundador.
 - **[MEDIA]** One-pager PDF de proyectos.
-- **[MEDIA]** SEO `/proyectos`: Service/Organization JSON-LD + og tags + `Offer` con lowPrice 3500.
+- **[MEDIA]** SEO `/proyectos`: Service/Organization JSON-LD + og tags + `Offer` lowPrice 3500.
 - **[MEDIA]** Esquema concreto de descuento por volumen (5-15 / 16-40 / 40+).
 - **[MEDIA · DUEÑO]** Más meses MSI (12/18/24). Verificar tarifa envío = $0.
 - **[MEDIA]** Dueño subir fotos de reseñas de Beige Sutil y Luna Beige.

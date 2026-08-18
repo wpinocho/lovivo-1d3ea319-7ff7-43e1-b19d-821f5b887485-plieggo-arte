@@ -66,7 +66,8 @@
     "zod": "^3.23.8",
     "framer-motion": "latest",
     "terser": "latest",
-    "react-intersection-observer": "latest"
+    "react-intersection-observer": "latest",
+    "@paypal/react-paypal-js": "latest"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
