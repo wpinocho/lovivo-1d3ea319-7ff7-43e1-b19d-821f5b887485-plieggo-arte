@@ -60,6 +60,35 @@ export const ProductFAQ = () => {
       )
     },
     {
+      question: "¿Y si al colgarlo no me convence?",
+      answer: (
+        <div className="space-y-2 text-muted-foreground">
+          <p>
+            <span className="font-medium text-foreground">Cuélgalo y vívelo 30 días.</span> Si no te enamora, escríbenos: pasamos por la pieza y te devolvemos tu dinero completo.
+          </p>
+          <p>
+            Una pieza así hay que verla en <span className="font-medium text-foreground">tu pared, con tu luz, a tu hora del día</span>. Por eso el riesgo lo corremos nosotros, no tú.
+          </p>
+          <p>
+            Y si la pediste a tu medida, la aprobamos contigo <span className="font-medium text-foreground">antes</span> de empezar a plegarla — trabajamos juntos hasta que quede como la imaginaste.
+          </p>
+        </div>
+      )
+    },
+    {
+      question: "¿Cómo llega empacada? Es papel…",
+      answer: (
+        <div className="space-y-2 text-muted-foreground">
+          <p>
+            Llega en <span className="font-medium text-foreground">caja rígida reforzada</span>, con esquineros y protección interior: los pliegues viajan intactos.
+          </p>
+          <p>
+            La abres, la sacas y la cuelgas. <span className="font-medium text-foreground">El soporte ya viene montado atrás</span> — no necesitas herrajes ni instalador.
+          </p>
+        </div>
+      )
+    },
+    {
       question: "¿Cuánto tarda el envío?",
       answer: (
         <div className="space-y-2 text-muted-foreground">

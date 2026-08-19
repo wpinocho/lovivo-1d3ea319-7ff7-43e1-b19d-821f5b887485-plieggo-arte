@@ -2,7 +2,11 @@ import { useState } from "react"
 import { CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { getProductReview } from "@/data/product-reviews"
+import {
+  getProductReview,
+  BRAND_RATING,
+  BRAND_REVIEW_COUNT,
+} from "@/data/product-reviews"
 import { getProductReviewsContent, type Review } from "@/data/product-reviews-content"
 import {
   plieggoGeneralReviews,
@@ -270,9 +274,13 @@ export function ProductReviews({ productSlug }: ProductReviewsProps) {
           </div>
           {/* Overall brand rating */}
           <div className="flex items-center gap-2 shrink-0">
-            <StarRating rating={4.9} size="md" />
-            <span className="text-sm font-semibold tabular-nums">4.9</span>
-            <span className="text-xs text-muted-foreground">· +100 reseñas</span>
+            <StarRating rating={BRAND_RATING} size="md" />
+            <span className="text-sm font-semibold tabular-nums">
+              {BRAND_RATING.toFixed(1)}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              · {BRAND_REVIEW_COUNT} reseñas
+            </span>
           </div>
         </div>
 

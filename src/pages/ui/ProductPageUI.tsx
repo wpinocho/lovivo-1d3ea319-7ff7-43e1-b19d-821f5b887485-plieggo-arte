@@ -11,12 +11,14 @@ import {
   Plus,
   Minus,
   ChevronRight,
+  ArrowLeft,
   Hand,
   Layers,
   Sparkles,
   Truck,
   Clock,
   RotateCcw,
+  CreditCard,
   MessageCircle,
 } from "lucide-react"
 import { Link } from "react-router-dom"
@@ -45,6 +47,8 @@ import { getLightShadowSet } from "@/data/light-shadow-sets"
 import { getProductReview } from "@/data/product-reviews"
 import { SizeGuide } from "@/components/SizeGuide"
 import { CustomSizeCTA } from "@/components/CustomSizeCTA"
+import { SocialProofAvatars } from "@/components/SocialProofAvatars"
+import { ProductPaymentMethods } from "@/components/ProductPaymentMethods"
 
 /**
  * EDITABLE UI COMPONENT - ProductPageUI (Premium — Plieggo Arte)
@@ -192,16 +196,21 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
   })
   const breadcrumbs = breadcrumbJsonLd([
     { name: "Inicio", path: "/" },
-    { name: "Productos", path: "/" },
-    { name: product.title, path: `/productos/${product.slug}` },
+    { name: "Productos", path: "/all-products" },
+    { name: product.title, path: `/products/${product.slug}` },
   ])
+
+  // CTA de dudas — mensaje pre-llenado con la pieza que está viendo
+  const whatsappDudasHref = `https://wa.me/525531215386?text=${encodeURIComponent(
+    `¡Hola! Estoy viendo el cuadro "${product.title}" y tengo una duda antes de comprarlo.`,
+  )}`
 
   return (
     <>
       <SEO
         title={seoTitle}
         description={seoDescription}
-        canonicalPath={`/productos/${product.slug}`}
+        canonicalPath={`/products/${product.slug}`}
         ogImage={seoImage}
         ogType="product"
         storeName={storeName}
@@ -218,7 +227,10 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
               Inicio
             </Link>
             <ChevronRight className="h-3 w-3" />
-            <Link to="/" className="hover:text-foreground transition-colors">
+            <Link
+              to="/all-products"
+              className="hover:text-foreground transition-colors"
+            >
               Productos
             </Link>
             <ChevronRight className="h-3 w-3" />
@@ -435,14 +447,22 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                 {paymentMethods?.installments &&
                   currencyCode.toLowerCase() === "mxn" &&
                   logic.currentPrice >= 4500 && (
-                    <p className="text-xs text-muted-foreground">
-                      o {paymentMethods.installments_max_plan ?? 6} meses sin intereses de{" "}
-                      <span className="font-medium text-foreground">
-                        {logic.formatMoney(
-                          logic.currentPrice / (paymentMethods.installments_max_plan ?? 6),
-                        )}
-                      </span>
-                    </p>
+                    <div className="inline-flex items-center gap-2 rounded-lg border border-[#C16648]/25 bg-[#C16648]/[0.07] px-3 py-2">
+                      <CreditCard className="h-4 w-4 shrink-0 text-[#C16648]" />
+                      <p className="text-sm leading-tight">
+                        <span className="font-semibold text-foreground">
+                          {logic.formatMoney(
+                            logic.currentPrice /
+                              (paymentMethods.installments_max_plan ?? 6),
+                          )}{" "}
+                          al mes
+                        </span>
+                        <span className="text-muted-foreground">
+                          {" "}· {paymentMethods.installments_max_plan ?? 6} meses
+                          sin intereses
+                        </span>
+                      </p>
+                    </div>
                   )}
 
                 {/* Promo badges */}
@@ -749,6 +769,12 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                 )}
               </div>
 
+              {/* Prueba social compacta — justo debajo del CTA, donde se decide */}
+              {logic.inStock && <SocialProofAvatars />}
+
+              {/* Métodos de pago — la objeción "¿cómo lo pago?" se resuelve aquí */}
+              <ProductPaymentMethods />
+
               {/* Trust strip — después de los CTAs */}
               <div className="flex flex-col sm:flex-row gap-3 py-2 border-y border-border/40 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2 flex-1">
@@ -768,11 +794,26 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                 <div className="flex items-center gap-2 flex-1">
                   <RotateCcw className="h-4 w-4 text-[#C16648] shrink-0" />
                   <div>
-                    <p className="font-semibold text-foreground/80">Garantía 30 días</p>
-                    <p>Si no te encanta, te devolvemos</p>
+                    <p className="font-semibold text-foreground/80">30 días para enamorarte</p>
+                    <p>Si no, lo recogemos y te devolvemos</p>
                   </div>
                 </div>
               </div>
+
+              {/* Salida para quien duda — en ticket alto, una conversación salva la venta */}
+              <a
+                href={whatsappDudasHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-xs transition-opacity hover:opacity-70"
+                style={{ color: "#C16648" }}
+              >
+                <MessageCircle className="h-3.5 w-3.5 shrink-0" />
+                <span>
+                  <span className="font-semibold">¿Dudas antes de comprar?</span>{" "}
+                  Escríbenos por WhatsApp · te respondemos en minutos
+                </span>
+              </a>
 
             </div>
           </div>

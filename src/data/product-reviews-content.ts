@@ -303,6 +303,8 @@ export const productReviews: Record<string, Review[]> = {
 // Mapa de slugs equivalentes (slug DB → slug canónico en data)
 const SLUG_ALIASES: Record<string, string> = {
   'acorden-rosa-morado': 'acorden-verde-salvia',
+  // Slug real en DB del best-seller #1 — sin este alias no se renderizaba la sección
+  'verde-salvia': 'acorden-verde-salvia',
 }
 
 export const getProductReviewsContent = (productSlug: string): Review[] => {

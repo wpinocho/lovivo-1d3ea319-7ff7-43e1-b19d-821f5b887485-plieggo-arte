@@ -17,6 +17,15 @@ export interface ProductReview {
   reviewCount: number   // 0-24
 }
 
+/**
+ * RATING GLOBAL DE MARCA — fuente única de verdad.
+ * Confirmado por el dueño (2026-08-19). Cualquier punto de la tienda que
+ * hable del rating de Plieggo EN GENERAL debe consumir estas constantes.
+ * El rating por producto es otra cosa y vive en `productReviews`.
+ */
+export const BRAND_RATING = 4.8
+export const BRAND_REVIEW_COUNT = 196
+
 export const productReviews: Record<string, ProductReview> = {
   // BESTSELLERS (20-24 reseñas, 4.8-4.9★)
   'acorden-beige-sutil': {
@@ -119,6 +128,8 @@ export const productReviews: Record<string, ProductReview> = {
 // Slugs de DB que apuntan al dato canónico correcto
 const REVIEW_SLUG_ALIASES: Record<string, string> = {
   'acorden-rosa-morado': 'acorden-verde-salvia',
+  // Slug real en DB del best-seller #1 — sin este alias la PDP salía sin estrellas
+  'verde-salvia': 'acorden-verde-salvia',
 }
 
 export const getProductReview = (slug: string): ProductReview => {
