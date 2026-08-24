@@ -23,18 +23,10 @@ export const getBadgeForProduct = (product: Product): BadgeType | null => {
     return 'best-seller'
   }
 
-  // 3. NUEVO - Productos creados hace menos de 30 días
-  if (product.created_at) {
-    const createdDate = new Date(product.created_at)
-    const thirtyDaysAgo = new Date()
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-    
-    if (createdDate > thirtyDaysAgo && product.featured) {
-      return 'new'
-    }
-  }
+  // NOTA: el badge "Nuevo" está desactivado a propósito (decisión de marca, 2026-08-24).
+  // No queremos etiquetar piezas por antigüedad; solo por bestseller o edición limitada.
 
-  // 4. POPULAR - Productos featured sin otro badge
+  // 3. POPULAR - Productos featured sin otro badge
   if (product.featured) {
     // Productos destacados específicos que queremos marcar como populares
     const popularSlugs = ['acordeon-terracota-vibrante', 'acordeon-crema-rayas']

@@ -11,6 +11,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Best-sellers reales: `verde-salvia` y `acorden-beige-sutil`.** **Rating: 4.8★ · 196 reseñas.**
 - **MSI ACTIVO.** SPEI (customer_balance) y OXXO ACTIVOS. **PayPal Express integrado (2026-08-18).** **PRECIO MÍNIMO PERSONALIZADOS: $3,500 MXN.**
 - **✅ ANCLA DE PRECIO B2B AUTORIZADA (2026-08-17):** "desde $3,500 MXN por pieza" en `/proyectos`. Constante `PRICE_FROM` en `Proyectos.tsx`.
+- **❌ BADGE "NUEVO" PROHIBIDO (2026-08-24, decisión del dueño).** No etiquetar piezas por antigüedad. Solo `best-seller` y `limited-edition`.
 
 ### GARANTÍA — CONFIRMADA POR EL DUEÑO (2026-08-19)
 - **30 días en piezas NO personalizadas.** Si no le gusta al cliente, la devuelve y se le reembolsa.
@@ -28,8 +29,8 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **B2B:** precio preferencial desde 5 piezas. Factura con IVA SÍ. Correo: julian.ruiz.loza@gmail.com.
 
 ### PENDIENTES DE RESPUESTA DEL DUEÑO
-- **[NUEVO 2026-08-24] ¿Los precios de Atlas están bien?** Yo puse 25×35 = **$2,800** y 40×55 = **$4,500**, SIN precio tachado (no invento descuentos en una colección nueva). Confirmar o corregir.
-- **[NUEVO 2026-08-24] ¿Atlas lleva compare_at_price (precio tachado)?**
+- **¿Los precios de Atlas están bien?** 25×35 = **$2,800** y 40×55 = **$4,500**, SIN precio tachado.
+- **¿Atlas lleva compare_at_price (precio tachado)?**
 - ¿Hay proyecto B2B entregado que se pueda mostrar como caso?
 - ¿Kit físico de muestras de color para despachos?
 - Detalle fino de la garantía: ¿quién paga el retorno?
@@ -48,10 +49,12 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **CTA WhatsApp estándar**: `wa.me/525531215386?text=...`.
 - **Base URL imágenes producto**: `https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/products/<file>.webp`.
 - **Base URL imágenes subidas por el dueño**: `.../message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/<file>.webp`.
-- **Galería PDP usa `aspect-[4/5]` + `object-contain`** → NO recorta. Se pueden subir imágenes 2:3 sin cortar el marco.
-- **Default variante PDP:** Prisma → 50x50; resto → 30x90; **si ninguna aplica → primera disponible** (fallback añadido 2026-08-24 para Atlas). **Deep-link talla:** `?talla=30x90`.
+- **Galería PDP usa `aspect-[4/5]` + `object-contain`** → NO recorta.
+- **Default variante PDP:** Prisma → 50x50; resto → 30x90; si ninguna aplica → primera disponible. **Deep-link talla:** `?talla=30x90`.
 - **RUTA PDP CANÓNICA: `/products/:slug`**. NO existe `/productos/`.
-- **NO existe ruta genérica `/collections/:handle`.** Cada colección con landing propia necesita su página en `src/pages/` + ruta en `App.tsx` + entrada en el nav de `EcommerceTemplate.tsx` (mobile Sheet Y array desktop).
+- **NO existe ruta genérica `/collections/:handle`.** Cada colección con landing propia necesita su página en `src/pages/` + ruta en `App.tsx` + entrada en `COLLECTION_LINKS` de `EcommerceTemplate.tsx`.
+- **🆕 NAV — `COLLECTION_LINKS` / `PRIMARY_LINKS` / `SECONDARY_LINKS`** son constantes al inicio de `EcommerceTemplate.tsx`. Las colecciones viven en un **submenú "Colecciones"** (DropdownMenu en desktop, acordeón con ChevronDown en móvil). Para agregar una colección nueva: **basta con meterla en `COLLECTION_LINKS`** y aparece en ambos menús.
+- **BADGES:** lógica en `src/lib/product-badges.ts`. Solo `limited-edition` (tag `Edición Limitada`) y `best-seller` (tag `bestseller`). El badge `'new'` está **desactivado a propósito** (el tipo sigue existiendo en `ProductBadge.tsx` pero nunca se asigna).
 - **RATING DE MARCA — fuente única:** `BRAND_RATING` y `BRAND_REVIEW_COUNT` en `src/data/product-reviews.ts` (4.8 / 196).
 - **Prueba social bajo el CTA:** `src/components/SocialProofAvatars.tsx`. **Regla dura: NUNCA fotos de stock de personas.**
 - **Métodos de pago en PDP:** `src/components/ProductPaymentMethods.tsx`.
@@ -61,19 +64,17 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 Cualquier otra llave (`title`, `compare_at_price`, `image_urls`, `inventory_quantity`, `options`)
 se mete DENTRO de `variant.options` y corrompe el `title` de la variante.
 → **Forma correcta:** `variants: [{ "Tamaño": "25 x 35 cm", "price": 2800 }]` y nada más.
-→ **Consecuencia:** el agente NO puede asignar imagen por variante ni compare_at por variante.
-Eso se hace a mano desde el Dashboard. Reportar a ingeniería de Lovivo.
+→ **Consecuencia:** el agente NO puede asignar imagen por variante ni compare_at por variante. Se hace a mano desde el Dashboard.
 
 ---
 
-## 3. Active Plan — LANZAMIENTO COLECCIÓN ATLAS (2026-08-24)
+## 3. Active Plan
 
-### ✅ HECHO ESTA SESIÓN
-- Colección `Atlas` (handle `atlas`, id `db7fedb4-1a17-43f4-ad15-fc03c0d0fe7e`) con 4 productos.
-- 4 productos activos + featured, tags `['Atlas','Arte en papel','Hecho a mano','Nuevo']`,
-  2 variantes cada uno (`25 x 35 cm` $2,800 / `40 x 55 cm` $4,500), sin compare_at.
-- Landing `/coleccion-atlas` (alias `/atlas`) + entrada en nav mobile y desktop.
-- Fallback de talla por defecto en `HeadlessProduct.tsx`.
+### ✅ HECHO 2026-08-24 (sesión 2)
+- **Badge "Nuevo" eliminado** de `product-badges.ts` (regla borrada + comentario explicando por qué).
+- **Menú reorganizado:** las 3 colecciones (Acordeón, Espacio, Atlas) ya NO van sueltas.
+  Ahora cuelgan de un submenú **"Colecciones"**: DropdownMenu en desktop, acordeón colapsable en móvil.
+  También se quitó la etiqueta "Nuevo" que Atlas tenía en el menú móvil.
 
 ### 🔴 PENDIENTE INMEDIATO — ATLAS
 1. **Asignar imagen por variante desde el Dashboard** (el tool no puede, ver bug arriba).
@@ -81,18 +82,12 @@ Eso se hace a mano desde el Dashboard. Reportar a ingeniería de Lovivo.
    - `atlas-caleta`: 25x35 → `...-qb9kaqtr7ti.webp` · 40x55 → `...-w7vehtt9jeq.webp`
    - `atlas-mediterraneo`: 25x35 → `...-vgmf7dq37vc.webp` · 40x55 → `...-bywbhrboiau.webp`
    - `atlas-secuoya`: 25x35 → `...-69bmg98aeun.webp` · 40x55 → `...-14f6kzx7tuif.webp`
-   - Mientras tanto la galería muestra las 2 fotos siempre y la descripción aclara cuál es cuál.
-2. **VERIFICAR EN PROD:** que `ProductFAQ`, `SizeGuide` y el badge "Edición Limitada" no hardcodeen
-   medidas 50x50 / 30x90 que contradigan a Atlas.
-3. **Reseñas:** los 4 slugs de Atlas NO tienen entrada en `product-reviews.ts` ni en
-   `product-reviews-content.ts` → sus PDP salen SIN estrellas y SIN sección de reseñas.
-   **Decisión consciente: no inventar reseñas de productos que nunca se han vendido.**
-   Cargar reseñas reales en cuanto haya ventas.
+2. **VERIFICAR EN PROD:** que `ProductFAQ`, `SizeGuide` y el badge "Edición Limitada" no hardcodeen medidas 50x50 / 30x90 que contradigan a Atlas.
+3. **Reseñas:** los 4 slugs de Atlas NO tienen entrada en `product-reviews.ts` → PDP sin estrellas. Decisión consciente: no inventar reseñas.
 4. Considerar bundle "Díptico Atlas" (2 piezas 25×35) para subir AOV.
 
 ### 🟡 P2 PDP — PENDIENTE
-- **P2.1 Referencia de escala visual** (SVG silueta sofá/persona). Objeción #1 sin resolver.
-  **Más urgente ahora con Atlas**, porque 25 × 35 cm es chico y es fácil que decepcione.
+- **P2.1 Referencia de escala visual** (SVG silueta sofá/persona). Objeción #1 sin resolver. Más urgente con Atlas (25 × 35 cm es chico).
 - **P2.2 Macro del pliegue** en posición 2-3 de la galería de cada PDP.
 - **P2.3 Foto real del empaque** (pendiente del dueño).
 
@@ -103,13 +98,14 @@ Eso se hace a mano desde el Dashboard. Reportar a ingeniería de Lovivo.
 ### MEDICIÓN
 Comparar en PostHog `viewcontent → addtocart` en `/products/*` móvil, 14 días antes vs después del 2026-08-19. Registrar en `.lovivo/cro-log.md`.
 Atlas: medir aparte el split 25×35 vs 40×55 para validar precios.
+**Nuevo (2026-08-24):** vigilar si el submenú "Colecciones" baja los clics a colecciones (un clic extra en desktop). Si cae mucho, evaluar hover-open.
 
-### SLUGS REALES EN DB (16 productos activos tras Atlas)
+### SLUGS REALES EN DB (16 productos activos)
 `acorden-prisma-onyx-opal` · `acordeon-prisma-beige-blanco` · `acordeon-prisma-azul-coral` ·
 `luna-beige` · `luna-azul` · `luna-llena` · `luna-negra` ·
 `verde-salvia` (alias → `acorden-verde-salvia`) · `acorden-morado-blanco` ·
 `acorden-burdeos-intenso` · `acorden-blanco-puro` · `acorden-beige-sutil` ·
-**`atlas-astromelia` · `atlas-caleta` · `atlas-mediterraneo` · `atlas-secuoya`** (sin reseñas aún)
+`atlas-astromelia` · `atlas-caleta` · `atlas-mediterraneo` · `atlas-secuoya` (sin reseñas aún)
 
 ### PayPal Express — referencia técnica
 Ruta post-pago canónica: **`/gracias/:orderId`**. Flujo obligatorio en cualquier método de pago nuevo:
@@ -117,7 +113,8 @@ Ruta post-pago canónica: **`/gracias/:orderId`**. Flujo obligatorio en cualquie
 Atribución: `captureAttribution()` / `getAttributionPayload()` en `src/lib/tracking-utils.ts`.
 
 ## 4. Recent Changes
-- **2026-08-24** — ✅ **LANZADA COLECCIÓN ATLAS.** Colección `atlas` + 4 productos (Astromelia, Caleta, Mediterráneo, Secuoya), cada uno con variantes 25×35 ($2,800) y 40×55 ($4,500) y las 8 fotos del dueño. Copy de PDP nuevo por pieza (paleta, relieve real vs impresión, luz que cambia, envío/garantía). Landing `/coleccion-atlas` (+ alias `/atlas`) con hero editorial, trust strip, prueba social real y CTA WhatsApp. Nav mobile+desktop actualizado. Fallback de talla por defecto en `HeadlessProduct.tsx` para que Atlas no arranque sin variante. Detectado y documentado el bug de `variants_config` (no acepta `image_urls` por variante).
+- **2026-08-24** — ✅ **Badge "Nuevo" eliminado + submenú "Colecciones".** Se borró la regla `'new'` de `product-badges.ts` (decisión de marca: no etiquetar por antigüedad). El nav se reorganizó: Acordeón, Espacio y Atlas ya no van sueltas, ahora cuelgan de un submenú "Colecciones" (DropdownMenu en desktop, acordeón con ChevronDown en móvil). Se extrajeron `COLLECTION_LINKS`, `PRIMARY_LINKS` y `SECONDARY_LINKS` como constantes → agregar una colección futura es una sola línea.
+- **2026-08-24** — ✅ **LANZADA COLECCIÓN ATLAS.** Colección `atlas` + 4 productos (Astromelia, Caleta, Mediterráneo, Secuoya), variantes 25×35 ($2,800) y 40×55 ($4,500), 8 fotos del dueño. Landing `/coleccion-atlas` (+ alias `/atlas`). Fallback de talla por defecto en `HeadlessProduct.tsx`. Detectado el bug de `variants_config`.
 - **2026-08-19** — ✅ Ejecutados P0 + P1 de la auditoría PDP (alias `verde-salvia`, fix `ArrowLeft`, canonical `/products/`, `BRAND_RATING`, `SocialProofAvatars`, `ProductPaymentMethods`, badge MSI, CTA WhatsApp, 2 FAQs nuevas).
 - **2026-08-19** — 📋 Auditoría completa de PDP.
 - **2026-08-18** — ✅ Atribución Meta + flujo `/gracias` en PayPal.
@@ -137,23 +134,24 @@ Atribución: `captureAttribution()` / `getAttributionPayload()` en `src/lib/trac
   - Caleta 25×35 `1787608310247-qb9kaqtr7ti.webp` · 40×55 `1787608310247-w7vehtt9jeq.webp`
   - Mediterráneo 25×35 `1787608310247-vgmf7dq37vc.webp` · 40×55 `1787608310247-bywbhrboiau.webp`
   - Secuoya 25×35 `1787608310247-69bmg98aeun.webp` · 40×55 `1787608310247-14f6kzx7tuif.webp`
-  - Hero de `/coleccion-atlas` = Astromelia 40×55 · Editorial = Mediterráneo 40×55 · Imagen de colección = Astromelia 40×55
+  - Hero de `/coleccion-atlas` = Astromelia 40×55 · Editorial = Mediterráneo 40×55
 - **Hero home slide 1**: ...1779301620051-88tz4z58bt7.webp · slide 2: ...1779296069343-2ifge8n87sv.webp · slide 3: hero-paper-folding.mp4
 - **Hero `/personalizados`** = slide 2 del home.
 - **Hero `/proyectos`**: `1786658786579-tv4ym4zokz.webp` — lobby de hotel boutique 16:9.
 - **DETAIL_IMAGE `/proyectos`**: `1787007863112-8rzvvao3e74.webp` — macro del pliegue. **Candidata a reutilizar en PDP (P2.2).**
 - **Galería B2B `/proyectos`** (4:5): `1786658786579-ckqrb8e8t9o` · `...-6h8j8g0ewdc` · `...-7h75oomjxf` · `...-hqtofonof9o` · `1786659699632-3gh24xwrus4` · `...-nw9w0w6g6b`
 - **GIFT_IMAGE**: `1786659699632-92ykhoixt85.webp`
-- **Fotos de clientes con `photoUrl`** (5) — fuente del avatar strip:
+- **Fotos de clientes con `photoUrl`** (5):
   `1783621985376-t2q2r43fz0h` Mónica A./Verde Salvia · `1779311693322-f14snp6bxfa` Valentina S./Prisma Onyx · `1779311693322-kcwn5zoehb` Sebastián M./Prisma Azul Coral · `1779311693322-4f7n3rqv0pj` Daniela R./Burdeos · `1779311693322-8vbqa3p7c55` Andrés V./Luna Negra
 - Logo: /public/logo.svg · logo footer: `1765330504462-dyr43cg78.png`
 - **Light-shadow sets**: `src/data/light-shadow-sets.ts`.
 - **Faltan reseñas (fotos)**: Beige Sutil, Luna Beige y las 4 de Atlas.
 
 ## 6. Known Issues
-- **[PENDIENTE VERIF · 2026-08-24 · ATLAS]** Revisar en prod: `/coleccion-atlas` carga los 4 productos; las 4 PDP abren con `25 x 35 cm` preseleccionado; el precio cambia a $4,500 al elegir 40×55; el CTA agrega al carrito; `Atlas` aparece en el nav mobile y desktop.
+- **[PENDIENTE VERIF · 2026-08-24 · NAV]** Confirmar en prod: el submenú "Colecciones" abre en desktop (click) y el acordeón despliega en móvil; ningún producto muestra ya el badge "Nuevo".
+- **[PENDIENTE VERIF · 2026-08-24 · ATLAS]** `/coleccion-atlas` carga los 4 productos; las PDP abren con `25 x 35 cm` preseleccionado; el precio cambia a $4,500 al elegir 40×55.
 - **[PENDIENTE · ATLAS]** Imagen por variante NO asignada (bug del tool). Hacerlo desde el Dashboard.
-- **[PENDIENTE · ATLAS]** Las 4 PDP salen sin estrellas (sin entrada en `product-reviews.ts`). Decisión consciente.
+- **[PENDIENTE · ATLAS]** Las 4 PDP salen sin estrellas. Decisión consciente.
 - **[PENDIENTE VERIF · 2026-08-19]** Confirmar en prod: estrellas en `/products/verde-salvia`, avatar strip, badge MSI, canonical `/products/`.
 - **[PENDIENTE DUEÑO · GARANTÍA]** Falta definir quién paga el envío de retorno.
 - **[PENDIENTE VERIF · PAYPAL]** Probar en prod con carrito real end-to-end.
@@ -162,6 +160,7 @@ Atribución: `captureAttribution()` / `getAttributionPayload()` en `src/lib/trac
 - **[PENDIENTE VERIF]** Validar en prod que `Lead` dispara en `/personalizados` y `/proyectos`.
 - **[PENDIENTE VERIF]** Probar deep-link `?talla=30x90` en prod (y `?talla=40x55` en Atlas).
 - **[VIGILAR]** El ancla de $3,500 en `/proyectos` puede bajar volumen de leads pero subir calidad.
+- **[VIGILAR]** El submenú añade un clic para llegar a una colección. Medir clics a `/coleccion-*`.
 - **[FRÁGIL]** Badge "Edición Limitada" depende de que el título contenga "luna"/"estrella".
 - **NOTA:** import `CheckoutSecurityBanner` en CheckoutUI.tsx sin uso.
 - **Failed to fetch / manifest pay.google.com**: ruido de extensiones. Ignorar.
@@ -170,7 +169,7 @@ Atribución: `captureAttribution()` / `getAttributionPayload()` en `src/lib/trac
 ## 7. Pending / Future Sessions
 - **[ALTA]** Asignar imagen por variante de Atlas desde el Dashboard.
 - **[ALTA]** Confirmar precios de Atlas con el dueño y decidir si lleva precio tachado.
-- **[ALTA]** P2.1 referencia de escala visual — ahora más urgente por el formato 25 × 35 cm de Atlas.
+- **[ALTA]** P2.1 referencia de escala visual — más urgente por el formato 25 × 35 cm de Atlas.
 - **[ALTA]** Medir en PostHog el efecto de los cambios del 2026-08-19 y registrar en `cro-log.md`.
 - **[ALTA]** Verificar PayPal end-to-end en prod incluyendo atribución.
 - **[MEDIA]** Bundle "Díptico Atlas" (2 × 25×35) para subir AOV.

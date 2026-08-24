@@ -7,7 +7,7 @@ import { FloatingWhatsApp } from '@/components/FloatingWhatsApp'
 import { AnnouncementBar } from '@/components/AnnouncementBar'
 import { Link, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { ShoppingCart, Menu, X } from 'lucide-react'
+import { ShoppingCart, Menu, X, ChevronDown } from 'lucide-react'
 import { useCartUI } from '@/components/CartProvider'
 import { useCart } from '@/contexts/CartContext'
 import { useCollections } from '@/hooks/useCollections'
@@ -20,6 +20,31 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+
+/** Colecciones disponibles — fuente única para el menú (desktop + móvil) */
+const COLLECTION_LINKS = [
+  { to: '/coleccion-acordeon', label: 'Acordeón' },
+  { to: '/coleccion-espacio', label: 'Espacio' },
+  { to: '/coleccion-atlas', label: 'Atlas' },
+]
+
+const PRIMARY_LINKS = [
+  { to: '/all-products', label: 'Todos los Cuadros' },
+  { to: '/top-sellers', label: 'Más Vendidos' },
+]
+
+const SECONDARY_LINKS = [
+  { to: '/galeria', label: 'Galería' },
+  { to: '/personalizados', label: 'Personalízalo' },
+  { to: '/about', label: 'Nosotros' },
+  { to: '/orders/track', label: 'Rastrear pedido' },
+]
 
 /**
  * EDITABLE TEMPLATE - EcommerceTemplate
@@ -52,6 +77,7 @@ export const EcommerceTemplate = ({
   const totalItems = getTotalItems()
   const { hasCollections, loading: loadingCollections } = useCollections()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileCollectionsOpen, setMobileCollectionsOpen] = useState(false)
   const location = useLocation()
   
   // Transparent navbar: solo en home page
@@ -76,6 +102,12 @@ export const EcommerceTemplate = ({
   // En página de producto o bundle (móvil), ocultar WhatsApp para no tapar el CTA de compra
   const isProductPage = location.pathname.startsWith('/products/')
   const isBundlePage = location.pathname.startsWith('/bundles/')
+
+  const navLinkClass = `font-body text-lg transition-all duration-300 px-2 py-1.5 rounded-sm whitespace-nowrap ${
+    scrolled
+      ? 'text-muted-foreground hover:text-secondary-foreground hover:bg-secondary'
+      : 'text-white/90 hover:text-white hover:bg-white/10'
+  }`
 
   const header = (
     <>
@@ -117,27 +149,34 @@ export const EcommerceTemplate = ({
                 >
                   Más Vendidos
                 </Link>
-                <Link 
-                  to="/coleccion-acordeon" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="font-body text-lg text-foreground hover:text-primary py-3 border-b border-border"
-                >
-                  Acordeón
-                </Link>
-                <Link 
-                  to="/coleccion-espacio" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="font-body text-lg text-foreground hover:text-primary py-3 border-b border-border"
-                >
-                  Espacio
-                </Link>
-                <Link 
-                  to="/coleccion-atlas" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="font-body text-lg text-foreground hover:text-primary py-3 border-b border-border"
-                >
-                  Atlas <span className="ml-2 text-[10px] uppercase tracking-widest text-primary">Nuevo</span>
-                </Link>
+                {/* Submenú Colecciones */}
+                <div className="border-b border-border">
+                  <button
+                    type="button"
+                    onClick={() => setMobileCollectionsOpen((v) => !v)}
+                    aria-expanded={mobileCollectionsOpen}
+                    className="w-full flex items-center justify-between font-body text-lg text-foreground hover:text-primary py-3"
+                  >
+                    Colecciones
+                    <ChevronDown
+                      className={`h-5 w-5 transition-transform duration-200 ${mobileCollectionsOpen ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+                  {mobileCollectionsOpen && (
+                    <div className="pb-2 pl-4 flex flex-col">
+                      {COLLECTION_LINKS.map(({ to, label }) => (
+                        <Link
+                          key={to}
+                          to={to}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="font-body text-base text-muted-foreground hover:text-primary py-2.5"
+                        >
+                          {label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <Link 
                   to="/galeria" 
                   onClick={() => setMobileMenuOpen(false)}
@@ -175,26 +214,31 @@ export const EcommerceTemplate = ({
 
           {/* Navigation - Desktop */}
           <nav className="hidden md:flex items-center gap-1">
-            {[
-              { to: '/all-products', label: 'Todos los Cuadros' },
-              { to: '/top-sellers', label: 'Más Vendidos' },
-              { to: '/coleccion-acordeon', label: 'Acordeón' },
-              { to: '/coleccion-espacio', label: 'Espacio' },
-              { to: '/coleccion-atlas', label: 'Atlas' },
-              { to: '/galeria', label: 'Galería' },
-              { to: '/personalizados', label: 'Personalízalo' },
-              { to: '/about', label: 'Nosotros' },
-              { to: '/orders/track', label: 'Rastrear pedido' },
-            ].map(({ to, label }) => (
-              <Link
-                key={to}
-                to={to}
-                className={`font-body text-lg transition-all duration-300 px-2 py-1.5 rounded-sm whitespace-nowrap ${
-                  scrolled
-                    ? 'text-muted-foreground hover:text-secondary-foreground hover:bg-secondary'
-                    : 'text-white/90 hover:text-white hover:bg-white/10'
-                }`}
-              >
+            {PRIMARY_LINKS.map(({ to, label }) => (
+              <Link key={to} to={to} className={navLinkClass}>
+                {label}
+              </Link>
+            ))}
+
+            {/* Submenú Colecciones */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className={`${navLinkClass} inline-flex items-center gap-1 outline-none`}>
+                Colecciones
+                <ChevronDown className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="min-w-[190px] bg-card border-border">
+                {COLLECTION_LINKS.map(({ to, label }) => (
+                  <DropdownMenuItem key={to} asChild className="cursor-pointer">
+                    <Link to={to} className="font-body text-base text-foreground w-full">
+                      {label}
+                    </Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {SECONDARY_LINKS.map(({ to, label }) => (
+              <Link key={to} to={to} className={navLinkClass}>
                 {label}
               </Link>
             ))}
