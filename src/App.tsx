@@ -25,6 +25,7 @@ const Cart = lazy(() => import('./pages/Cart'));
 const MyOrders = lazy(() => import('./pages/MyOrders'));
 const CollectionAcordeon = lazy(() => import('./pages/CollectionAcordeon'));
 const CollectionEspacio = lazy(() => import('./pages/CollectionEspacio'));
+const CollectionAtlas = lazy(() => import('./pages/CollectionAtlas'));
 const AllProducts = lazy(() => import('./pages/AllProducts'));
 const TopSellers = lazy(() => import('./pages/TopSellers'));
 const Bundle = lazy(() => import('./pages/Bundle'));
@@ -76,6 +77,8 @@ const App = () => (
                         <Route path="/blog/:slug" element={<BlogPost />} />
                         <Route path="/coleccion-acordeon" element={<CollectionAcordeon />} />
                         <Route path="/coleccion-espacio" element={<CollectionEspacio />} />
+              <Route path="/coleccion-atlas" element={<CollectionAtlas />} />
+              <Route path="/atlas" element={<CollectionAtlas />} />
                         <Route path="/all-products" element={<AllProducts />} />
                         <Route path="/top-sellers" element={<TopSellers />} />
                         <Route path="/bundles/:slug" element={<Bundle />} />

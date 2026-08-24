@@ -143,6 +143,14 @@ export const useProductLogic = (slugProp?: string) => {
           })
         }
 
+        // 3) Fallback: si el producto no maneja ninguna de las tallas default
+        //    (ej. Colección Atlas: 25x35 / 40x55), preseleccionar la primera
+        //    disponible. Sin esto la PDP arranca sin variante: galería mezclada,
+        //    precio base y CTA bloqueado.
+        if (!preferred) {
+          preferred = availableValues[0]
+        }
+
         if (preferred) {
           newSelected[opt.name] = preferred
           hasChanges = true
