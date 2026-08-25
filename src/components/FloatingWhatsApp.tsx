@@ -1,6 +1,7 @@
 import { X } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
+import { trackInternal, INTERNAL_EVENTS } from '@/lib/tracking-utils'
 
 /**
  * FloatingWhatsApp - Botón flotante de WhatsApp
@@ -22,6 +23,8 @@ interface FloatingWhatsAppProps {
   showTooltip?: boolean
   /** Oculta el botón en móvil (< lg). Útil en página de producto para no tapar el CTA de compra */
   hideOnMobile?: boolean
+  /** De dónde sale el clic. Se usa para medir el canal de WhatsApp en PostHog. */
+  source?: string
 }
 
 export const FloatingWhatsApp = ({
@@ -30,6 +33,7 @@ export const FloatingWhatsApp = ({
   tooltip = 'Chatea con nosotros',
   showTooltip = true,
   hideOnMobile = false,
+  source = 'floating',
 }: FloatingWhatsAppProps) => {
   const [isVisible, setIsVisible] = useState(false)
   const [isTooltipVisible, setIsTooltipVisible] = useState(false)
@@ -64,7 +68,14 @@ export const FloatingWhatsApp = ({
     const formattedPhone = formatPhoneNumber(phoneNumber)
     const encodedMessage = encodeURIComponent(message)
     const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodedMessage}`
-    
+
+    // WhatsApp es un canal de venta paralelo que hasta ahora era invisible
+    // en la analítica. Se registra el clic para poder medirlo.
+    trackInternal(INTERNAL_EVENTS.WHATSAPP_CLICKED, {
+      source,
+      page: typeof window !== 'undefined' ? window.location.pathname : undefined,
+    })
+
     // Abrir en nueva pestaña
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
   }

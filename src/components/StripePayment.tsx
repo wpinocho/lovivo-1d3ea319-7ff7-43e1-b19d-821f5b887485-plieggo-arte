@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom"
 import { useCart } from "@/contexts/CartContext"
 import { useCheckoutState } from "@/hooks/useCheckoutState"
 import { useSettings } from "@/contexts/SettingsContext"
-import { trackPurchase, tracking } from "@/lib/tracking-utils"
+import { trackPurchase, tracking, trackInternal, INTERNAL_EVENTS } from "@/lib/tracking-utils"
 import type { PaymentMethods } from "@/lib/supabase"
 import { formatMoney } from "@/lib/money"
 import { isValidPhone } from "@/lib/phone-utils"
@@ -258,6 +258,39 @@ function PaymentForm({
     })
   }, [showAddressElement, shippingAddress, phone])
 
+  /* ---------------------------------------------------------------------- */
+  /*  Instrumentación del embudo de checkout (solo PostHog)                  */
+  /* ---------------------------------------------------------------------- */
+
+  /** Último método elegido en el Payment Element (card / oxxo / customer_balance…) */
+  const selectedMethodRef = React.useRef<string>('unknown')
+  /** Número de intento de pago en esta sesión de checkout (para ver reintentos). */
+  const payAttemptRef = React.useRef(0)
+  /** Evita reportar dos veces el mismo fallo (rama explícita + catch general). */
+  const failureReportedRef = React.useRef(false)
+
+  /** Props comunes a todos los eventos de checkout. Sin datos personales. */
+  const checkoutEventBase = useCallback(() => ({
+    payment_method: selectedMethodRef.current,
+    value: (amountCents || 0) / 100,
+    currency: (currency || 'mxn').toUpperCase(),
+    num_items: items?.length ?? 0,
+    order_id: orderId,
+    attempt_number: payAttemptRef.current,
+    msi_max_plan: paymentMethods?.installments_max_plan ?? null,
+  }), [amountCents, currency, items, orderId, paymentMethods])
+
+  /** Reporta un fallo de pago una sola vez por intento. */
+  const reportPaymentFailure = useCallback((stage: string, extra: Record<string, any> = {}) => {
+    if (failureReportedRef.current) return
+    failureReportedRef.current = true
+    trackInternal(INTERNAL_EVENTS.PAYMENT_FAILED, {
+      ...checkoutEventBase(),
+      failure_stage: stage,
+      ...extra,
+    })
+  }, [checkoutEventBase])
+
   // Missing-phone fallback dialog (Shopify-style)
   const [phoneDialogOpen, setPhoneDialogOpen] = useState(false)
   const phoneResolverRef = React.useRef<{ resolve: (v: string) => void; reject: () => void } | null>(null)
@@ -333,6 +366,10 @@ function PaymentForm({
         description: `Los siguientes productos ya no están disponibles: ${unavailableNames}. Retíralos de tu carrito para completar tu compra.`,
         variant: "destructive"
       })
+      trackInternal(INTERNAL_EVENTS.ITEMS_UNAVAILABLE, {
+        ...checkoutEventBase(),
+        product_ids: data.unavailable_items.map((i: any) => i.product_id).filter(Boolean),
+      })
       updateOrderCache(normalizeOrderFromResponse(data))
       return true
     }
@@ -340,15 +377,32 @@ function PaymentForm({
   }
 
   const handlePayment = async () => {
+    // Se registra el clic ANTES de cualquier validación: queremos saber cuánta
+    // gente intenta pagar aunque se le caiga en el primer guard.
+    payAttemptRef.current += 1
+    failureReportedRef.current = false
+    trackInternal(INTERNAL_EVENTS.PAY_CLICKED, checkoutEventBase())
+
     if (!stripe || !elements) {
       toast({ title: "Error", description: "Stripe no está listo", variant: "destructive" })
+      reportPaymentFailure('stripe_not_ready', { error_message: 'stripe o elements no inicializados' })
       return
     }
 
-    if (onValidationRequired && !onValidationRequired()) return
+    if (onValidationRequired && !onValidationRequired()) {
+      trackInternal(INTERNAL_EVENTS.VALIDATION_ERROR, {
+        ...checkoutEventBase(),
+        step: 'shipping_form',
+      })
+      return
+    }
 
     if (deliveryExpectations?.[0]?.type === "pickup" && (!pickupLocations || pickupLocations.length === 0)) {
       toast({ title: "Punto de recogida requerido", description: "Por favor selecciona un punto de recogida antes de continuar.", variant: "destructive" })
+      trackInternal(INTERNAL_EVENTS.VALIDATION_ERROR, {
+        ...checkoutEventBase(),
+        step: 'pickup_location',
+      })
       return
     }
 
@@ -365,6 +419,11 @@ function PaymentForm({
       const { error: submitError } = await elements.submit()
       if (submitError) {
         toast({ title: "Error", description: submitError.message || "Verifica los datos de pago", variant: "destructive" })
+        reportPaymentFailure('elements_submit', {
+          error_code: submitError.code ?? null,
+          error_type: submitError.type ?? null,
+          error_message: submitError.message ?? null,
+        })
         return
       }
 
@@ -433,6 +492,14 @@ function PaymentForm({
 
       if (result.error) {
         toast({ title: "Error de pago", description: result.error.message || "No se pudo procesar el pago", variant: "destructive" })
+        // El evento más valioso del embudo: distingue tarjeta rechazada,
+        // fondos insuficientes, 3DS fallido y errores de configuración.
+        reportPaymentFailure('confirm_payment', {
+          error_code: result.error.code ?? null,
+          decline_code: (result.error as any).decline_code ?? null,
+          error_type: result.error.type ?? null,
+          error_message: result.error.message ?? null,
+        })
         return
       }
 
@@ -452,7 +519,10 @@ function PaymentForm({
             })),
             value: totalCents / 100, currency: tracking.getCurrencyFromSettings(currency),
             order_id: orderId,
-            custom_parameters: { payment_method: 'stripe', checkout_token: checkoutToken }
+            custom_parameters: {
+              payment_method: selectedMethodRef.current !== 'unknown' ? selectedMethodRef.current : 'stripe',
+              checkout_token: checkoutToken,
+            }
           })
         }
 
@@ -504,6 +574,12 @@ function PaymentForm({
             amount: (amountCents || 0) / 100,
             currency: (currency || 'mxn').toUpperCase(),
           }))
+          // NO es un purchase: el dinero todavía no entra. Se registra aparte
+          // para poder separarlo de un abandono real en PostHog.
+          trackInternal(INTERNAL_EVENTS.PAYMENT_PENDING, {
+            ...checkoutEventBase(),
+            payment_method: 'oxxo',
+          })
           clearCart()
           navigate(`/pago-pendiente/${orderId}`)
         } else if (nextAction?.display_bank_transfer_instructions) {
@@ -518,19 +594,41 @@ function PaymentForm({
             amount: (instructions.amount_remaining || amountCents || 0) / 100,
             currency: (currency || 'mxn').toUpperCase(),
           }))
+          // Igual que OXXO: transferencia generada, pago aún no confirmado.
+          trackInternal(INTERNAL_EVENTS.PAYMENT_PENDING, {
+            ...checkoutEventBase(),
+            payment_method: 'spei',
+          })
           clearCart()
           navigate(`/pago-pendiente/${orderId}`)
         } else {
           toast({ title: "Acción requerida", description: "Por favor completa la verificación del pago." })
+          // Normalmente 3D Secure. Si aquí se acumulan eventos, el banco está
+          // pidiendo verificación y la gente se cae ahí.
+          trackInternal(INTERNAL_EVENTS.PAYMENT_PENDING, {
+            ...checkoutEventBase(),
+            payment_method: 'requires_action',
+          })
         }
       } else if (pi?.status === 'processing') {
+        trackInternal(INTERNAL_EVENTS.PAYMENT_PENDING, {
+          ...checkoutEventBase(),
+          payment_method: 'processing',
+        })
         clearCart()
         navigate(`/pago-pendiente/${orderId}`)
       } else {
         toast({ title: "Estado del pago", description: `Estado: ${pi?.status ?? "desconocido"}` })
+        reportPaymentFailure('unexpected_status', {
+          error_code: pi?.status ?? 'unknown',
+          error_message: `PaymentIntent terminó en estado ${pi?.status ?? 'desconocido'}`,
+        })
       }
     } catch (err: any) {
       console.error("Error en el proceso de pago:", err)
+      reportPaymentFailure('unexpected', {
+        error_message: String(err?.message ?? err).slice(0, 300),
+      })
       handlePaymentError(err)
     } finally {
       setLoading(false)
@@ -1016,6 +1114,17 @@ function PaymentForm({
           business: {
             name: 'Plieggo Arte',
           },
+        }}
+        onChange={(e) => {
+          const next = e.value?.type
+          if (!next || next === selectedMethodRef.current) return
+          const previous = selectedMethodRef.current
+          selectedMethodRef.current = next
+          trackInternal(INTERNAL_EVENTS.PAYMENT_METHOD_SELECTED, {
+            payment_method: next,
+            previous_method: previous,
+            order_id: orderId,
+          })
         }}
       />
 

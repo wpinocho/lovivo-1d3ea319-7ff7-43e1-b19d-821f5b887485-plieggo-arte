@@ -9,6 +9,8 @@ import { Minus, Plus, Trash2, ExternalLink, Package } from "lucide-react"
 import { useNavigate, Link } from "react-router-dom"
 import { ProductRating } from "@/components/ProductRating"
 import { getProductReview } from "@/data/product-reviews"
+import { useEffect, useRef } from "react"
+import { trackInternal, INTERNAL_EVENTS } from "@/lib/tracking-utils"
 
 interface CartSidebarProps {
   isOpen: boolean
@@ -20,6 +22,33 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
   const navigate = useNavigate()
   const { checkout, isLoading: isCreatingOrder } = useCheckout()
   const { currencyCode } = useSettings()
+
+  // Un solo `cart_viewed` por apertura del drawer (no por cada re-render).
+  const viewTrackedRef = useRef(false)
+  useEffect(() => {
+    if (!isOpen) {
+      viewTrackedRef.current = false
+      return
+    }
+    if (viewTrackedRef.current) return
+    viewTrackedRef.current = true
+    trackInternal(INTERNAL_EVENTS.CART_VIEWED, {
+      source: 'drawer',
+      value: state.total,
+      num_items: state.items.length,
+    })
+  }, [isOpen, state.total, state.items.length])
+
+  const handleRemoveItem = (item: any) => {
+    trackInternal(INTERNAL_EVENTS.CART_ITEM_REMOVED, {
+      product_id: item.product_id ?? item.id ?? null,
+      variant_id: item.variant_id ?? null,
+      quantity: item.quantity ?? 1,
+      value: (item.price ?? 0) * (item.quantity ?? 1),
+      source: 'drawer',
+    })
+    removeItem(item.key)
+  }
 
   const handleCreateCheckout = async () => {
     try {
@@ -160,7 +189,7 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => removeItem(item.key)}
+                                    onClick={() => handleRemoveItem(item)}
                                     className="text-destructive hover:text-destructive p-0 h-auto mt-1"
                                   >
                                     <Trash2 className="h-3 w-3" />
@@ -243,7 +272,7 @@ export const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => removeItem(item.key)}
+                                  onClick={() => handleRemoveItem(item)}
                                   className="text-destructive hover:text-destructive p-0 h-auto mt-1"
                                 >
                                   <Trash2 className="h-3 w-3" />

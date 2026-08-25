@@ -6,7 +6,7 @@ import { STORE_ID } from '@/lib/config'
 import { useToast } from '@/hooks/use-toast'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '@/contexts/CartContext'
-import { trackPurchase, tracking, getAttributionPayload } from '@/lib/tracking-utils'
+import { trackPurchase, tracking, getAttributionPayload, trackInternal, INTERNAL_EVENTS } from '@/lib/tracking-utils'
 
 interface PaypalExpressButtonProps {
   orderId: string
@@ -49,6 +49,15 @@ export function PaypalExpressButton({
 
   const currencyUpper = currency.toUpperCase()
 
+  /** Props comunes de instrumentación. Sin datos personales. */
+  const eventBase = {
+    payment_method: 'paypal',
+    value: amount,
+    currency: currencyUpper,
+    num_items: items?.length ?? 0,
+    order_id: orderId,
+  }
+
   return (
     <div className={className}>
       {showDivider && (
@@ -70,6 +79,9 @@ export function PaypalExpressButton({
         <PayPalButtons
           style={{ layout: 'horizontal', height: 45, tagline: false, color: 'gold' }}
           fundingSource="paypal"
+          onClick={() => {
+            trackInternal(INTERNAL_EVENTS.PAY_CLICKED, eventBase)
+          }}
           createOrder={async () => {
             const result = await callEdge('paypal-create-order', {
               store_id: STORE_ID,
@@ -156,6 +168,11 @@ export function PaypalExpressButton({
                 description: 'Tu compra ha sido procesada correctamente.',
               })
             } catch (err: unknown) {
+              trackInternal(INTERNAL_EVENTS.PAYMENT_FAILED, {
+                ...eventBase,
+                failure_stage: 'paypal_capture',
+                error_message: err instanceof Error ? err.message.slice(0, 300) : 'error desconocido',
+              })
               toast({
                 title: 'No se pudo completar el pago con PayPal',
                 description: err instanceof Error
@@ -166,6 +183,11 @@ export function PaypalExpressButton({
             }
           }}
           onError={(err: unknown) => {
+            trackInternal(INTERNAL_EVENTS.PAYMENT_FAILED, {
+              ...eventBase,
+              failure_stage: 'paypal_sdk',
+              error_message: err instanceof Error ? err.message.slice(0, 300) : 'error desconocido',
+            })
             toast({
               title: 'Error con PayPal',
               description: err instanceof Error
@@ -174,7 +196,15 @@ export function PaypalExpressButton({
               variant: 'destructive',
             })
           }}
-          onCancel={() => { /* el usuario cerró el popup — no hay nada que hacer */ }}
+          onCancel={() => {
+            // El usuario cerró el popup de PayPal. No es un error técnico, pero
+            // sí una señal de abandono que hoy era invisible.
+            trackInternal(INTERNAL_EVENTS.PAYMENT_FAILED, {
+              ...eventBase,
+              failure_stage: 'paypal_cancelled',
+              error_code: 'cancelled',
+            })
+          }}
         />
       </PayPalScriptProvider>
     </div>

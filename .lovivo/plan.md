@@ -53,11 +53,36 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **Default variante PDP:** Prisma → 50x50; resto → 30x90; si ninguna aplica → primera disponible. **Deep-link talla:** `?talla=30x90`.
 - **RUTA PDP CANÓNICA: `/products/:slug`**. NO existe `/productos/`.
 - **NO existe ruta genérica `/collections/:handle`.** Cada colección con landing propia necesita su página en `src/pages/` + ruta en `App.tsx` + entrada en `COLLECTION_LINKS` de `EcommerceTemplate.tsx`.
-- **NAV — `COLLECTION_LINKS` / `PRIMARY_LINKS` / `SECONDARY_LINKS`** son constantes al inicio de `EcommerceTemplate.tsx`. Las colecciones viven en un **submenú "Colecciones"** (DropdownMenu en desktop, acordeón con ChevronDown en móvil). Para agregar una colección nueva: **basta con meterla en `COLLECTION_LINKS`**.
+- **NAV — `COLLECTION_LINKS` / `PRIMARY_LINKS` / `SECONDARY_LINKS`** son constantes al inicio de `EcommerceTemplate.tsx`. Las colecciones viven en un **submenú "Colecciones"**. Para agregar una colección nueva: **basta con meterla en `COLLECTION_LINKS`**.
 - **BADGES:** lógica en `src/lib/product-badges.ts`. Solo `limited-edition` y `best-seller`. El badge `'new'` está **desactivado a propósito**.
 - **RATING DE MARCA — fuente única:** `BRAND_RATING` y `BRAND_REVIEW_COUNT` en `src/data/product-reviews.ts` (4.8 / 196).
 - **Prueba social bajo el CTA:** `src/components/SocialProofAvatars.tsx`. **Regla dura: NUNCA fotos de stock de personas.**
 - **Métodos de pago en PDP:** `src/components/ProductPaymentMethods.tsx`.
+
+### 📊 ANALÍTICA — CONVENCIÓN DE EVENTOS (establecida 2026-08-25)
+Dos familias de eventos, NO mezclar:
+1. **Eventos de marketing** (`trackViewContent`, `trackAddToCart`, `trackInitiateCheckout`, `trackPurchase`) → van a **Pixel + CAPI + PostHog**. Son los que alimentan el algoritmo de Meta.
+2. **Eventos de diagnóstico** (`trackInternal`) → **SOLO PostHog**. Nunca a Meta: ensucian el pixel y consumen cuota de CAPI.
+
+- Helper: `trackInternal(nombre, props)` en `src/lib/tracking-utils.ts`.
+- **Catálogo de nombres: constante `INTERNAL_EVENTS`** en el mismo archivo. **Usar siempre la constante, nunca el string suelto.**
+- **⚠️ REGLA DURA: jamás mandar PII en props** (email, teléfono, dirección, datos de tarjeta). Solo IDs internos, códigos de error y montos.
+- **⚠️ REGLA DURA: OXXO y SPEI NO son `purchase`.** El dinero aún no entra. Emiten `checkout_payment_pending`. `trackPurchase` solo se dispara con `paymentIntent.status === 'succeeded'` (Stripe) o `COMPLETED` (PayPal), siempre con la guardia `sessionStorage['purchase_tracked_<orderId>']`.
+
+| Evento | Cuándo | Props clave |
+|---|---|---|
+| `checkout_pay_clicked` | clic en Pagar, antes de validar | `payment_method`, `value`, `num_items`, `order_id`, `attempt_number` |
+| `checkout_payment_failed` | cualquier fallo | `failure_stage`, `error_code`, `decline_code`, `error_message` |
+| `checkout_payment_pending` | OXXO / SPEI / processing / 3DS | `payment_method` |
+| `checkout_payment_method_selected` | cambia método en Payment Element | `payment_method`, `previous_method` |
+| `checkout_validation_error` | falla validación del form | `fields[]`, `step` |
+| `checkout_items_unavailable` | productos agotados al pagar | `product_ids[]` |
+| `cart_viewed` | abre drawer o entra a `/cart` | `source` (`drawer`\|`page`) |
+| `cart_item_removed` | quita un producto | `product_id`, `value` |
+| `whatsapp_clicked` | CTA de WhatsApp | `source`, `page` |
+
+`failure_stage` ∈ `stripe_not_ready` · `elements_submit` · `confirm_payment` · `unexpected_status` · `unexpected` · `paypal_capture` · `paypal_sdk` · `paypal_cancelled`.
+Dedup de fallos: `failureReportedRef` en `StripePayment.tsx` — un fallo por intento, pero `attempt_number` sí sube para ver reintentos.
 
 ### ⚠️ BUG CONOCIDO DEL TOOL `ecommerce--create-product` / `update-product` (2026-08-24)
 `variants_config.variants[]` SOLO respeta las llaves `price` + los nombres de opción declarados.
@@ -70,142 +95,38 @@ se mete DENTRO de `variant.options` y corrompe el `title` de la variante.
 
 ## 3. Active Plan
 
-# 🔴 PLAN ACTIVO — INSTRUMENTACIÓN DE EVENTOS DE CHECKOUT (2026-08-25)
+# 🟡 VERIFICACIÓN — INSTRUMENTACIÓN DE CHECKOUT RECIÉN DESPLEGADA (2026-08-25)
 
-## Lo que pidió el dueño
-"¿Puedes checar que estemos enviando a PostHog los eventos de clic en pagar, pago fallido, método de pago, pago exitoso, etc. — los importantes para optimizar y ver si hay fallos?"
+La instrumentación **ya está implementada** (ver Recent Changes). Falta validarla en producción y luego leer los datos.
 
-## AUDITORÍA — Estado real (verificado en PostHog, últimos 30 días)
+## Checklist de verificación en prod (hacer en la próxima sesión)
+1. Abrir el checkout y dar clic en Pagar con la tarjeta de prueba rechazada `4000000000000002`.
+   → En PostHog Live Events deben aparecer `checkout_pay_clicked` y `checkout_payment_failed` con `failure_stage: 'confirm_payment'` y `error_code: 'card_declined'`.
+2. Cambiar de tarjeta a OXXO en el Payment Element → debe llegar `checkout_payment_method_selected`.
+3. Completar un OXXO → debe llegar `checkout_payment_pending` con `payment_method: 'oxxo'` y **NO** debe llegar `purchase`.
+4. Intentar pagar con el formulario vacío → `checkout_validation_error` con el array `fields`.
+5. Abrir el drawer del carrito → `cart_viewed` **una sola vez**; quitar un producto → `cart_item_removed`.
+6. Clic en el botón flotante de WhatsApp → `whatsapp_clicked`.
+7. **Meta Events Manager: confirmar que NINGUNO de los eventos nuevos llegó al pixel.** Si alguno aparece, hay un bug en `trackInternal`.
+8. Confirmar que un pago exitoso real dispara `purchase` **una sola vez**.
 
-Eventos que SÍ llegan a PostHog:
-| Evento | Volumen 30d |
-|---|---|
-| `$pageview` | 6,371 |
-| `viewcontent` | 3,105 |
-| `addtocart` | 68 |
-| `initiatecheckout` | 67 (41 móvil / 26 desktop) |
-| `purchase` | 10 |
-| `search_performed` | 0 (existe en código, nadie busca) |
-
-**Embudo real:** viewcontent 3,105 → addtocart 68 (**2.2 %**) → initiatecheckout 67 (98.5 %) → purchase 10 (**14.9 %**).
-**⇒ 57 personas al mes llegan al checkout y NO compran, y hoy tenemos CERO visibilidad de por qué.** Ese es el hueco crítico.
-
-### ❌ Eventos que NO existen (confirmado leyendo el código)
-`src/lib/tracking-utils.ts` solo expone `trackPageView / trackViewContent / trackAddToCart / trackInitiateCheckout / trackPurchase / trackSearch / trackCustomEvent`. NO hay nada de:
-1. Clic en el botón "Pagar" (`handlePayment` en `StripePayment.tsx:342` no emite nada).
-2. Pago fallido — hay **4 rutas de error distintas** y ninguna se registra:
-   - `elements.submit()` error → línea 365-369
-   - `stripe.confirmPayment()` `result.error` → línea 434-437
-   - `catch` general / `handlePaymentError` → línea 532-559
-   - Productos agotados (`handleUnavailableItems`) → línea ~330
-3. Método de pago elegido (tarjeta / MSI / OXXO / SPEI / PayPal).
-4. Pagos pendientes: OXXO (línea 496) y SPEI (línea 509) hacen `clearCart()` + `navigate('/pago-pendiente')` **sin emitir nada** → se ven idénticos a un abandono. Muy probable que parte de los "57 perdidos" en realidad sean OXXO/SPEI en camino.
-5. Errores de validación del formulario de envío.
-6. PayPal: `PaypalExpressButton.tsx` solo trackea el éxito, no el clic ni el error/cancelación.
-7. Vista de carrito / apertura del drawer / eliminar del carrito.
-8. Clics a WhatsApp (canal de venta paralelo, hoy invisible).
-9. Faltan props de segmentación (`$device_type` está pero no `payment_method`, `is_msi`, `step`).
-
-## OBJETIVO
-Poder responder en PostHog: *¿cuánta gente da clic en Pagar? ¿cuántos fallan y con qué mensaje de error? ¿qué método eligen? ¿cuántos de los "perdidos" son en realidad OXXO/SPEI pendientes?*
-
----
-
-## IMPLEMENTACIÓN
-
-### PASO 1 — Ampliar `src/lib/tracking-utils.ts`
-Agregar un helper **solo-PostHog** (NO mandar estos a Meta CAPI: son eventos de diagnóstico, ensucian el pixel y consumen cuota):
-
-```ts
-/** Evento de diagnóstico interno: SOLO PostHog, no Meta. */
-trackInternal(eventName: string, props: Record<string, any> = {}): void {
-  try {
-    if (this.isPostHogLoaded()) {
-      posthog.capture(eventName, {
-        ...props,
-        store_id: STORE_ID,
-        path: typeof window !== 'undefined' ? window.location.pathname : undefined,
-      });
-    }
-    this.log(`Internal: ${eventName}`, props);
-  } catch (error) {
-    this.logError(`Internal: ${eventName}`, error);
-  }
-}
-```
-Exportar `export const trackInternal = (n, p) => tracking.trackInternal(n, p)`.
-
-**Convención de nombres** (snake_case, minúsculas, consistente con los existentes):
-| Evento | Cuándo | Props obligatorias |
-|---|---|---|
-| `checkout_pay_clicked` | clic en Pagar, ANTES de cualquier validación | `payment_method`, `value`, `currency`, `num_items`, `order_id`, `is_msi` |
-| `checkout_payment_failed` | cualquier fallo de pago | `failure_stage`, `error_code`, `error_message`, `payment_method`, `value`, `order_id` |
-| `checkout_payment_pending` | OXXO / SPEI generado | `payment_method` (`oxxo`\|`spei`), `value`, `order_id` |
-| `checkout_payment_method_selected` | cambia el método en el Payment Element | `payment_method`, `previous_method` |
-| `checkout_validation_error` | falla la validación del form | `fields` (array), `step` |
-| `checkout_items_unavailable` | productos agotados al pagar | `product_ids`, `order_id` |
-| `cart_viewed` | abre carrito/drawer o entra a `/cart` | `value`, `num_items`, `source` (`drawer`\|`page`) |
-| `cart_item_removed` | quita un producto | `product_id`, `value` |
-| `whatsapp_clicked` | cualquier CTA de WhatsApp | `source` (`pdp`\|`floating`\|`personalizados`\|`proyectos`), `product_id?` |
-
-`failure_stage` ∈ `elements_submit` \| `create_intent` \| `confirm_payment` \| `unexpected` \| `paypal`.
-⚠️ **Nunca** meter en props: email, teléfono, dirección, ni datos de tarjeta. Solo IDs y códigos.
-
-### PASO 2 — `src/components/StripePayment.tsx`
-1. Al inicio de `handlePayment()` (línea ~342), **antes** del guard de `!stripe || !elements`:
-   `trackInternal('checkout_pay_clicked', { payment_method: selectedPaymentMethod ?? 'unknown', value: (amountCents||0)/100, currency, num_items: paymentItems.length, order_id: orderId, is_msi: <si hay plan de meses> })`
-2. `elements.submit()` error (línea 365) → `checkout_payment_failed` con `failure_stage: 'elements_submit'`, `error_message: submitError.message`, `error_code: submitError.code`.
-3. `result.error` de `confirmPayment` (línea 434) → `checkout_payment_failed` con `failure_stage: 'confirm_payment'`, `error_code: result.error.code`, `decline_code: result.error.decline_code`, `error_type: result.error.type`. **Este es el evento más valioso de todo el plan** — nos dice si son tarjetas rechazadas, 3DS fallido o fondos insuficientes.
-4. `handleUnavailableItems` (línea ~330) → `checkout_items_unavailable` con los product_ids.
-5. Rama OXXO (línea ~496) → `checkout_payment_pending` con `payment_method:'oxxo'`.
-6. Rama SPEI (línea ~509) → `checkout_payment_pending` con `payment_method:'spei'`.
-7. Rama `processing` (línea ~526) → `checkout_payment_pending` con `payment_method:'processing'`.
-8. Rama `else` estado desconocido (línea ~529) → `checkout_payment_failed` con `failure_stage:'unexpected'`, `error_message: pi?.status`.
-9. `catch (err)` / `handlePaymentError` (línea 532) → `checkout_payment_failed` con `failure_stage:'unexpected'`. Cuidado: NO duplicar si ya se emitió arriba (usar un flag local `failureReported`).
-10. Suscribirse al Payment Element de Stripe para saber qué método eligen:
-    `paymentElement.on('change', (e) => { if (e.value?.type !== prev) trackInternal('checkout_payment_method_selected', { payment_method: e.value?.type, previous_method: prev }) })`.
-    Guardar el último método en un `useRef` para reusarlo en `checkout_pay_clicked` y en los fallos.
-
-### PASO 3 — `src/components/PaypalExpressButton.tsx`
-- `onClick` del botón → `checkout_pay_clicked` con `payment_method: 'paypal'`.
-- `onCancel` de PayPal → `checkout_payment_failed` con `failure_stage:'paypal'`, `error_code:'cancelled'`.
-- `onError` → `checkout_payment_failed` con `failure_stage:'paypal'` + mensaje.
-- Mantener intacto el `trackPurchase` existente y la guardia `purchase_tracked_${orderId}`.
-
-### PASO 4 — `src/components/ProductExpressCheckout.tsx`
-Mismo tratamiento: clic → `checkout_pay_clicked` con `payment_method:'express'`; errores → `checkout_payment_failed`.
-
-### PASO 5 — Validación del formulario
-En `src/adapters/CheckoutAdapter.tsx` / `useCheckoutState.ts`, donde se resuelve la validación que alimenta `onValidationRequired` (usado en `StripePayment.tsx:348`): cuando devuelva `false`, emitir `checkout_validation_error` con el array de campos que fallaron. Esto revela si la gente se atora en CP, teléfono o dirección.
-
-### PASO 6 — Carrito y WhatsApp
-- `src/components/CartSidebar.tsx` + `src/pages/Cart.tsx` → `cart_viewed` (una sola vez por apertura, con `useRef`) y `cart_item_removed`.
-- `src/components/FloatingWhatsApp.tsx` y todos los `wa.me/525531215386` (PDP, `/personalizados`, `/proyectos`) → `whatsapp_clicked` con su `source`. Hoy este canal es 100 % invisible.
-
-### PASO 7 — Anti-duplicados
-Todos los eventos de un solo disparo por intento (`checkout_pay_clicked`) usan un `useRef` booleano que se resetea al terminar `handlePayment` (en el `finally`). Los de fallo NO se deduplican (queremos ver reintentos), pero sí llevan `attempt_number`.
-
-## Archivos a modificar
-- `src/lib/tracking-utils.ts` — agregar `trackInternal` + export.
-- `src/components/StripePayment.tsx` — 10 puntos de instrumentación (ver Paso 2).
-- `src/components/PaypalExpressButton.tsx` — clic, cancel, error.
-- `src/components/ProductExpressCheckout.tsx` — clic + error.
-- `src/adapters/CheckoutAdapter.tsx` (y/o `src/hooks/useCheckoutState.ts`) — `checkout_validation_error`.
-- `src/components/CartSidebar.tsx`, `src/pages/Cart.tsx` — `cart_viewed`, `cart_item_removed`.
-- `src/components/FloatingWhatsApp.tsx` + CTAs de WhatsApp — `whatsapp_clicked`.
-
-## Verificación post-build
-1. Abrir el preview, ir al checkout, dar clic en Pagar con una tarjeta de prueba rechazada (`4000000000000002`) → confirmar en PostHog Live Events que llegan `checkout_pay_clicked` y `checkout_payment_failed` con `error_code: 'card_declined'`.
-2. Probar OXXO → confirmar `checkout_payment_pending`.
-3. Confirmar que `purchase` sigue disparando UNA sola vez.
-4. Confirmar que NINGUNO de los eventos nuevos llega a Meta (revisar Events Manager).
-
-## Qué mediremos después (a los 14 días)
-- Tasa `initiatecheckout → checkout_pay_clicked` = ¿se atoran ANTES de pagar (formulario) o AL pagar?
+## Qué medir a los 14 días (≈ 2026-09-08)
+- Tasa `initiatecheckout → checkout_pay_clicked`: ¿se atoran ANTES de pagar (formulario) o AL pagar (banco)?
 - Top 5 `error_code` de `checkout_payment_failed`.
-- Qué % de los 57 "perdidos" son en realidad `checkout_payment_pending` (OXXO/SPEI).
+- Qué % de los 57 "perdidos" mensuales son en realidad `checkout_payment_pending` (OXXO/SPEI en tránsito).
 - Split de `payment_method` y peso real de MSI.
+- Campos más frecuentes en `checkout_validation_error` → si domina uno (CP o teléfono), rediseñar ese campo.
+- Volumen de `whatsapp_clicked` → dimensionar por primera vez el canal paralelo.
 Registrar el resultado en `.lovivo/cro-log.md`.
+
+## Baseline ANTES del cambio (PostHog, 30 días al 2026-08-25)
+`$pageview` 6,371 · `viewcontent` 3,105 · `addtocart` 68 (2.2 %) · `initiatecheckout` 67 · `purchase` 10 (14.9 %).
+`search_performed` 0 (existe en código, nadie busca).
+
+## Cobertura pendiente de instrumentar (huecos conocidos)
+- `src/components/ProductExpressCheckout.tsx` — el "Comprar ahora" de la PDP **no** emite `checkout_pay_clicked` ni fallos.
+- `handleExpressCheckoutConfirm` dentro de `StripePayment.tsx` (Apple Pay / Google Pay) — sin instrumentar.
+- CTAs de WhatsApp que son `<a href="wa.me/...">` sueltos en PDP, `/personalizados` y `/proyectos` — solo el `FloatingWhatsApp` está instrumentado.
 
 ---
 
@@ -228,11 +149,6 @@ Registrar el resultado en `.lovivo/cro-log.md`.
 - Selector de cantidad ocupa una fila entera; >95% compra 1.
 - Badge "Edición Limitada" se dispara por `title.includes('luna')` — migrar a tag real.
 
-### MEDICIÓN
-Comparar en PostHog `viewcontent → addtocart` en `/products/*` móvil, 14 días antes vs después del 2026-08-19. Registrar en `.lovivo/cro-log.md`.
-Atlas: medir aparte el split 25×35 vs 40×55 para validar precios.
-**2026-08-24:** vigilar si el submenú "Colecciones" baja los clics a colecciones.
-
 ### SLUGS REALES EN DB (16 productos activos)
 `acorden-prisma-onyx-opal` · `acordeon-prisma-beige-blanco` · `acordeon-prisma-azul-coral` ·
 `luna-beige` · `luna-azul` · `luna-llena` · `luna-negra` ·
@@ -246,8 +162,9 @@ Ruta post-pago canónica: **`/gracias/:orderId`**. Flujo obligatorio en cualquie
 Atribución: `captureAttribution()` / `getAttributionPayload()` en `src/lib/tracking-utils.ts`.
 
 ## 4. Recent Changes
-- **2026-08-25** — 📋 **Auditoría de eventos de checkout en PostHog.** Verificado: solo llegan 5 eventos reales (`$pageview`, `viewcontent`, `addtocart`, `initiatecheckout`, `purchase`). NO existe ningún evento de clic en Pagar, pago fallido, método de pago, ni pagos pendientes OXXO/SPEI. Embudo: 3,105 vistas → 68 carrito (2.2%) → 67 checkout → 10 compras (14.9%). **57 abandonos/mes en checkout sin ninguna visibilidad.** Plan de instrumentación completo guardado arriba.
-- **2026-08-24** — ✅ **Badge "Nuevo" eliminado + submenú "Colecciones".** Se borró la regla `'new'` de `product-badges.ts`. El nav se reorganizó: Acordeón, Espacio y Atlas cuelgan de un submenú "Colecciones". Se extrajeron `COLLECTION_LINKS`, `PRIMARY_LINKS` y `SECONDARY_LINKS` como constantes.
+- **2026-08-25** — ✅ **INSTRUMENTACIÓN DE CHECKOUT IMPLEMENTADA.** Nuevo helper `trackInternal` + catálogo `INTERNAL_EVENTS` en `tracking-utils.ts` (solo PostHog, nunca Meta). `StripePayment.tsx`: clic en Pagar con `attempt_number`, 4 rutas de fallo con `error_code`/`decline_code`, OXXO/SPEI/processing/3DS como `checkout_payment_pending`, método elegido vía `onChange` del PaymentElement, productos agotados, y `purchase` ahora lleva el método real en vez de `'stripe'`. `PaypalExpressButton.tsx`: clic, cancelación y 2 tipos de error. `CheckoutAdapter.tsx`: `checkout_validation_error` con el array de campos exactos que faltan. `CartSidebar.tsx` + `Cart.tsx`: `cart_viewed` (dedup con `useRef`) y `cart_item_removed`. `FloatingWhatsApp.tsx`: `whatsapp_clicked` con prop `source`. **Confirmado con el dueño: OXXO/SPEI NO emiten `purchase`.**
+- **2026-08-25** — 📋 **Auditoría de eventos de checkout en PostHog.** Solo llegaban 5 eventos. Embudo: 3,105 vistas → 68 carrito (2.2%) → 67 checkout → 10 compras (14.9%). 57 abandonos/mes sin visibilidad.
+- **2026-08-24** — ✅ **Badge "Nuevo" eliminado + submenú "Colecciones".** Se borró la regla `'new'` de `product-badges.ts`. Se extrajeron `COLLECTION_LINKS`, `PRIMARY_LINKS` y `SECONDARY_LINKS` como constantes.
 - **2026-08-24** — ✅ **LANZADA COLECCIÓN ATLAS.** Colección `atlas` + 4 productos, variantes 25×35 ($2,800) y 40×55 ($4,500), 8 fotos del dueño. Landing `/coleccion-atlas` (+ alias `/atlas`). Detectado el bug de `variants_config`.
 - **2026-08-19** — ✅ Ejecutados P0 + P1 de la auditoría PDP (alias `verde-salvia`, fix `ArrowLeft`, canonical `/products/`, `BRAND_RATING`, `SocialProofAvatars`, `ProductPaymentMethods`, badge MSI, CTA WhatsApp, 2 FAQs nuevas).
 - **2026-08-19** — 📋 Auditoría completa de PDP.
@@ -260,7 +177,6 @@ Atribución: `captureAttribution()` / `getAttributionPayload()` en `src/lib/trac
 - **2026-08-05** — ✅ GIFT_IMAGE de `/personalizados` reemplazada por foto real.
 - **2026-07-17** — ✅ Deep-link de talla en `HeadlessProduct.tsx`.
 - **2026-07-10** — ✅ `/personalizados`: sticky CTA, ancla $3,500, FAQ, sección regalo.
-- **2026-07-09** — ✅ `lead()` en `FacebookPixelService`; fixes StripePayment y galería.
 
 ## 5. Image Inventory
 - **COLECCIÓN ATLAS** (base `message-images/4458f31d-.../`), subidas 2026-08-24, ~1004×1500:
@@ -282,8 +198,9 @@ Atribución: `captureAttribution()` / `getAttributionPayload()` en `src/lib/trac
 - **Faltan reseñas (fotos)**: Beige Sutil, Luna Beige y las 4 de Atlas.
 
 ## 6. Known Issues
-- **[CRÍTICO · 2026-08-25 · ANALÍTICA]** Cero visibilidad dentro del checkout. 57 abandonos/mes entre `initiatecheckout` y `purchase` sin poder distinguir fallo técnico, tarjeta rechazada, abandono voluntario o pago OXXO/SPEI en tránsito. Plan de instrumentación listo en la sección 3.
-- **[SOSPECHA · 2026-08-25]** Los pagos OXXO y SPEI hacen `clearCart()` + redirect a `/pago-pendiente` sin emitir evento → hoy se contabilizan como abandono. La conversión real podría ser mejor que el 14.9 % que muestra PostHog.
+- **[PENDIENTE VERIF · 2026-08-25 · ANALÍTICA]** La instrumentación de checkout está desplegada pero **sin validar en prod**. Correr el checklist de 8 puntos de la sección 3 antes de confiar en los datos.
+- **[HUECO · 2026-08-25]** `ProductExpressCheckout.tsx` (el "Comprar ahora" de la PDP) y el express checkout de Apple/Google Pay dentro de `StripePayment.tsx` **no están instrumentados**. Si mucha gente compra por ahí, ese tramo del embudo sigue ciego.
+- **[HUECO · 2026-08-25]** Los `<a href="wa.me/...">` sueltos de PDP, `/personalizados` y `/proyectos` no emiten `whatsapp_clicked`; solo el botón flotante.
 - **[PENDIENTE VERIF · 2026-08-24 · NAV]** Confirmar en prod: el submenú "Colecciones" abre en desktop y el acordeón despliega en móvil; ningún producto muestra el badge "Nuevo".
 - **[PENDIENTE VERIF · 2026-08-24 · ATLAS]** `/coleccion-atlas` carga los 4 productos; las PDP abren con `25 x 35 cm` preseleccionado.
 - **[PENDIENTE · ATLAS]** Imagen por variante NO asignada (bug del tool). Hacerlo desde el Dashboard.
@@ -304,13 +221,15 @@ Atribución: `captureAttribution()` / `getAttributionPayload()` en `src/lib/trac
 - **⚠️ Envío gratis en lotes B2B grandes:** revisar rentabilidad en pedidos de 20+ piezas.
 
 ## 7. Pending / Future Sessions
-- **[CRÍTICA]** Ejecutar el plan de instrumentación de eventos de checkout (sección 3).
+- **[CRÍTICA]** Correr el checklist de verificación de la instrumentación en prod (sección 3).
+- **[ALTA]** Instrumentar `ProductExpressCheckout.tsx` y el express checkout de Apple/Google Pay.
+- **[ALTA]** Instrumentar los CTAs de WhatsApp sueltos (PDP, `/personalizados`, `/proyectos`).
+- **[ALTA]** A los 14 días: leer los datos nuevos y registrar hallazgos en `cro-log.md`.
 - **[ALTA]** Asignar imagen por variante de Atlas desde el Dashboard.
 - **[ALTA]** Confirmar precios de Atlas con el dueño y decidir si lleva precio tachado.
 - **[ALTA]** P2.1 referencia de escala visual — más urgente por el formato 25 × 35 cm de Atlas.
-- **[ALTA]** Medir en PostHog el efecto de los cambios del 2026-08-19 y registrar en `cro-log.md`.
 - **[ALTA]** Verificar PayPal end-to-end en prod incluyendo atribución.
-- **[MEDIA]** Con los datos nuevos: encuesta exit-intent en el checkout para los que dan clic en Pagar y fallan.
+- **[MEDIA]** Con los datos nuevos: encuesta exit-intent para quienes dan clic en Pagar y fallan.
 - **[MEDIA]** Bundle "Díptico Atlas" (2 × 25×35) para subir AOV.
 - **[MEDIA]** Meter Atlas en el home (`IndexUI.tsx`) y en `/all-products` como filtro de colección.
 - **[MEDIA]** P2.2 macro del pliegue en la galería de cada producto.

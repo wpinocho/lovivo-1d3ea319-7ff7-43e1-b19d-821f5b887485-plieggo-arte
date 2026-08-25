@@ -349,6 +349,32 @@ class TrackingUtility {
   }
 
   /**
+   * Evento de diagnóstico interno: SOLO PostHog, NO Meta.
+   *
+   * Se usa para instrumentar el embudo de checkout (clic en pagar, fallos,
+   * pagos pendientes, método elegido). Deliberadamente NO pasa por el Pixel
+   * ni por CAPI: son eventos operativos, ensuciarían el pixel y consumen
+   * cuota de la API de conversiones sin aportar nada al algoritmo de Meta.
+   *
+   * ⚠️ NUNCA meter aquí datos personales (email, teléfono, dirección,
+   * datos de tarjeta). Solo IDs internos, códigos y montos.
+   */
+  trackInternal(eventName: string, props: Record<string, any> = {}): void {
+    try {
+      if (this.isPostHogLoaded()) {
+        posthog.capture(eventName, {
+          ...props,
+          store_id: STORE_ID,
+          path: typeof window !== 'undefined' ? window.location.pathname : undefined,
+        });
+      }
+      this.log(`Internal: ${eventName}`, props);
+    } catch (error) {
+      this.logError(`Internal: ${eventName}`, error);
+    }
+  }
+
+  /**
    * Track custom events
    */
   trackCustomEvent(eventName: string, parameters?: Record<string, any>): void {
@@ -426,6 +452,38 @@ export const trackSearch = (params: TrackingParams) => tracking.trackSearch(para
 
 export const trackCustomEvent = (eventName: string, parameters?: Record<string, any>) => 
   tracking.trackCustomEvent(eventName, parameters);
+
+/**
+ * Evento de diagnóstico interno (solo PostHog).
+ * Ver la lista de nombres válidos en INTERNAL_EVENTS.
+ */
+export const trackInternal = (eventName: string, props?: Record<string, any>) =>
+  tracking.trackInternal(eventName, props ?? {});
+
+/**
+ * Catálogo de eventos internos de diagnóstico.
+ * Mantener esta lista sincronizada con lo que se consulta en PostHog.
+ */
+export const INTERNAL_EVENTS = {
+  /** Clic en el botón de pagar, ANTES de cualquier validación. */
+  PAY_CLICKED: 'checkout_pay_clicked',
+  /** Cualquier fallo de pago. Lleva failure_stage + error_code. */
+  PAYMENT_FAILED: 'checkout_payment_failed',
+  /** OXXO / SPEI generado: la orden existe pero el dinero aún no llega. */
+  PAYMENT_PENDING: 'checkout_payment_pending',
+  /** El usuario cambió de método en el Payment Element de Stripe. */
+  PAYMENT_METHOD_SELECTED: 'checkout_payment_method_selected',
+  /** Falló la validación del formulario de envío/contacto. */
+  VALIDATION_ERROR: 'checkout_validation_error',
+  /** Productos agotados detectados al intentar pagar. */
+  ITEMS_UNAVAILABLE: 'checkout_items_unavailable',
+  /** Se abrió el carrito (drawer o página). */
+  CART_VIEWED: 'cart_viewed',
+  /** Se eliminó un producto del carrito. */
+  CART_ITEM_REMOVED: 'cart_item_removed',
+  /** Clic en cualquier CTA de WhatsApp. */
+  WHATSAPP_CLICKED: 'whatsapp_clicked',
+} as const;
 
 /* -------------------------------------------------------------------------- */
 /*  Atribución (Meta + UTMs)                                                  */

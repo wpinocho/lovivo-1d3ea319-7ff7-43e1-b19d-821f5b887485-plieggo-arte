@@ -8,7 +8,7 @@ import { useCheckout } from "@/hooks/useCheckout";
 import { useOrderItems } from "@/hooks/useOrderItems";
 import { calculateDiscountAmount, validateDiscount, type Discount } from "@/lib/discount-utils";
 import { logger } from "@/lib/logger";
-import { trackInitiateCheckout, tracking } from "@/lib/tracking-utils";
+import { trackInitiateCheckout, tracking, trackInternal, INTERNAL_EVENTS } from "@/lib/tracking-utils";
 import { isValidPhone, normalizePhoneNumber } from "@/lib/phone-utils";
 import { countryNameToCode } from "@/lib/country-codes";
 
@@ -495,6 +495,13 @@ export const useCheckoutLogic = () => {
     }
     
     if (missingFields.length > 0) {
+      // Nos dice en qué campo exacto se atora la gente antes de poder pagar.
+      // Solo se manda el NOMBRE del campo, nunca su contenido.
+      trackInternal(INTERNAL_EVENTS.VALIDATION_ERROR, {
+        fields: missingFields,
+        num_fields: missingFields.length,
+        step: usePickup ? 'pickup_billing' : 'shipping',
+      });
       toast({
         title: 'Campos requeridos',
         description: `Por favor completa: ${missingFields.join(', ')}`,
