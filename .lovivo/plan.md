@@ -12,6 +12,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **MSI ACTIVO.** SPEI (customer_balance) y OXXO ACTIVOS. **PayPal Express integrado (2026-08-18).** **PRECIO MÍNIMO PERSONALIZADOS: $3,500 MXN.**
 - **✅ ANCLA DE PRECIO B2B AUTORIZADA (2026-08-17):** "desde $3,500 MXN por pieza" en `/proyectos`. Constante `PRICE_FROM` en `Proyectos.tsx`.
 - **❌ BADGE "NUEVO" PROHIBIDO (2026-08-24, decisión del dueño).** No etiquetar piezas por antigüedad. Solo `best-seller` y `limited-edition`.
+- **❌ BADGES DE PAGO EN PDP PROHIBIDOS (2026-08-31, decisión del dueño).** Visa/Mastercard/OXXO + "Pago cifrado" bajo el CTA: el dueño los considera ruido sin valor. Los de checkout (`CheckoutTrustBadges`) SÍ se quedan.
 
 ### GARANTÍA — CONFIRMADA POR EL DUEÑO (2026-08-19)
 - **30 días en piezas NO personalizadas.** Si no le gusta al cliente, la devuelve y se le reembolsa.
@@ -57,7 +58,20 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - **BADGES:** lógica en `src/lib/product-badges.ts`. Solo `limited-edition` y `best-seller`. El badge `'new'` está **desactivado a propósito**.
 - **RATING DE MARCA — fuente única:** `BRAND_RATING` y `BRAND_REVIEW_COUNT` en `src/data/product-reviews.ts` (4.8 / 196).
 - **Prueba social bajo el CTA:** `src/components/SocialProofAvatars.tsx`. **Regla dura: NUNCA fotos de stock de personas.**
-- **Métodos de pago en PDP:** `src/components/ProductPaymentMethods.tsx`.
+
+### 🧭 ORDEN CANÓNICO DE LA COLUMNA DERECHA DE LA PDP (fijado 2026-08-31)
+El dueño quiere la PDP **corta y clara antes de decidir**. Orden obligatorio en `ProductPageUI.tsx`:
+1. Breadcrumb / título / rating / precio / MSI / promo badges
+2. **Resumen de 3 beneficios** (`<ul>` con iconos terracota): Relieve real · Hecho a mano · Envío gratis
+3. **Acordeón "Más información sobre esta pieza"** (colapsado): descripción larga HTML + ficha Hecho a mano / Papel de calidad / Arte vivo
+4. Selector de variante + `SizeGuide` + link "¿Otra medida?"
+5. Cantidad
+6. CTAs (Agregar al carrito → Comprar ahora → express)
+7. `SocialProofAvatars`
+8. Trust strip (Envío gratis · Entrega 5–7 días · 30 días para enamorarte)
+9. Link WhatsApp "¿Dudas antes de comprar?"
+
+**Regla dura: NADA de contenido editorial largo entre el precio y el selector de variante.** Si hay que añadir información, va dentro del acordeón o en las secciones de abajo (reviews / inspiración / FAQ / cross-sell).
 
 ### 📊 ANALÍTICA — CONVENCIÓN DE EVENTOS (establecida 2026-08-25)
 Dos familias de eventos, NO mezclar:
@@ -95,11 +109,19 @@ se mete DENTRO de `variant.options` y corrompe el `title` de la variante.
 
 ## 3. Active Plan
 
-# 🟡 VERIFICACIÓN — INSTRUMENTACIÓN DE CHECKOUT RECIÉN DESPLEGADA (2026-08-25)
+# 🟡 VERIFICACIÓN — INSTRUMENTACIÓN DE CHECKOUT + NUEVO LAYOUT DE PDP
 
-La instrumentación **ya está implementada** (ver Recent Changes). Falta validarla en producción y luego leer los datos.
+Dos cosas desplegadas sin validar en prod: la instrumentación de checkout (2026-08-25) y el rediseño de la PDP (2026-08-31).
 
-## Checklist de verificación en prod (hacer en la próxima sesión)
+## Checklist PDP simplificada (2026-08-31)
+1. En móvil (375px): del precio al selector de variante no debe haber más que las 3 bullets + una línea de acordeón.
+2. El acordeón "Más información sobre esta pieza" abre y muestra la descripción completa del producto.
+3. Verificar en productos con descripción larga (`verde-salvia`) y en Atlas (descripción más corta).
+4. Confirmar que ya NO aparecen los badges Visa/Mastercard/OXXO ni "Pago cifrado" bajo el CTA.
+5. `SocialProofAvatars` sigue justo debajo del CTA.
+6. **Vigilar en PostHog:** `addtocart` sobre `viewcontent` (baseline 2.2%). Si el acordeón esconde demasiado, podría bajar; si la página más corta ayuda, sube.
+
+## Checklist de verificación de instrumentación en prod
 1. Abrir el checkout y dar clic en Pagar con la tarjeta de prueba rechazada `4000000000000002`.
    → En PostHog Live Events deben aparecer `checkout_pay_clicked` y `checkout_payment_failed` con `failure_stage: 'confirm_payment'` y `error_code: 'card_declined'`.
 2. Cambiar de tarjeta a OXXO en el Payment Element → debe llegar `checkout_payment_method_selected`.
@@ -107,7 +129,7 @@ La instrumentación **ya está implementada** (ver Recent Changes). Falta valida
 4. Intentar pagar con el formulario vacío → `checkout_validation_error` con el array `fields`.
 5. Abrir el drawer del carrito → `cart_viewed` **una sola vez**; quitar un producto → `cart_item_removed`.
 6. Clic en el botón flotante de WhatsApp → `whatsapp_clicked`.
-7. **Meta Events Manager: confirmar que NINGUNO de los eventos nuevos llegó al pixel.** Si alguno aparece, hay un bug en `trackInternal`.
+7. **Meta Events Manager: confirmar que NINGUNO de los eventos nuevos llegó al pixel.**
 8. Confirmar que un pago exitoso real dispara `purchase` **una sola vez**.
 
 ## Qué medir a los 14 días (≈ 2026-09-08)
@@ -115,11 +137,11 @@ La instrumentación **ya está implementada** (ver Recent Changes). Falta valida
 - Top 5 `error_code` de `checkout_payment_failed`.
 - Qué % de los 57 "perdidos" mensuales son en realidad `checkout_payment_pending` (OXXO/SPEI en tránsito).
 - Split de `payment_method` y peso real de MSI.
-- Campos más frecuentes en `checkout_validation_error` → si domina uno (CP o teléfono), rediseñar ese campo.
-- Volumen de `whatsapp_clicked` → dimensionar por primera vez el canal paralelo.
+- Campos más frecuentes en `checkout_validation_error`.
+- Volumen de `whatsapp_clicked`.
 Registrar el resultado en `.lovivo/cro-log.md`.
 
-## Baseline ANTES del cambio (PostHog, 30 días al 2026-08-25)
+## Baseline ANTES de los cambios (PostHog, 30 días al 2026-08-25)
 `$pageview` 6,371 · `viewcontent` 3,105 · `addtocart` 68 (2.2 %) · `initiatecheckout` 67 · `purchase` 10 (14.9 %).
 `search_performed` 0 (existe en código, nadie busca).
 
@@ -162,6 +184,7 @@ Ruta post-pago canónica: **`/gracias/:orderId`**. Flujo obligatorio en cualquie
 Atribución: `captureAttribution()` / `getAttributionPayload()` en `src/lib/tracking-utils.ts`.
 
 ## 4. Recent Changes
+- **2026-08-31** — ✅ **PDP SIMPLIFICADA (petición directa del dueño: "muy larga y confusa").** En `ProductPageUI.tsx`: (1) la descripción larga y el bloque editorial "Hecho a mano / Papel de calidad / Arte vivo" salieron de la zona pre-selector; (2) en su lugar quedó un resumen de **3 beneficios** con iconos terracota (Relieve real — papel plegado a mano, no una impresión · Hecho a mano — cada pieza se fabrica una por una · Envío gratis — a todo México); (3) descripción + ficha de materiales ahora viven colapsadas en un acordeón **"Más información sobre esta pieza"**; (4) **eliminado `<ProductPaymentMethods />`** (badges Visa/Mastercard/OXXO + "Pago cifrado") por decisión del dueño. `SocialProofAvatars`, trust strip y todas las secciones de abajo intactas. El componente `ProductPaymentMethods.tsx` sigue existiendo pero **ya no se usa en ningún lado**.
 - **2026-08-25** — ✅ **INSTRUMENTACIÓN DE CHECKOUT IMPLEMENTADA.** Nuevo helper `trackInternal` + catálogo `INTERNAL_EVENTS` en `tracking-utils.ts` (solo PostHog, nunca Meta). `StripePayment.tsx`: clic en Pagar con `attempt_number`, 4 rutas de fallo con `error_code`/`decline_code`, OXXO/SPEI/processing/3DS como `checkout_payment_pending`, método elegido vía `onChange` del PaymentElement, productos agotados, y `purchase` ahora lleva el método real en vez de `'stripe'`. `PaypalExpressButton.tsx`: clic, cancelación y 2 tipos de error. `CheckoutAdapter.tsx`: `checkout_validation_error` con el array de campos exactos que faltan. `CartSidebar.tsx` + `Cart.tsx`: `cart_viewed` (dedup con `useRef`) y `cart_item_removed`. `FloatingWhatsApp.tsx`: `whatsapp_clicked` con prop `source`. **Confirmado con el dueño: OXXO/SPEI NO emiten `purchase`.**
 - **2026-08-25** — 📋 **Auditoría de eventos de checkout en PostHog.** Solo llegaban 5 eventos. Embudo: 3,105 vistas → 68 carrito (2.2%) → 67 checkout → 10 compras (14.9%). 57 abandonos/mes sin visibilidad.
 - **2026-08-24** — ✅ **Badge "Nuevo" eliminado + submenú "Colecciones".** Se borró la regla `'new'` de `product-badges.ts`. Se extrajeron `COLLECTION_LINKS`, `PRIMARY_LINKS` y `SECONDARY_LINKS` como constantes.
@@ -176,7 +199,6 @@ Atribución: `captureAttribution()` / `getAttributionPayload()` en `src/lib/trac
 - **2026-08-13** — ✅ Landing B2B `/proyectos` construida (alias `/b2b`).
 - **2026-08-05** — ✅ GIFT_IMAGE de `/personalizados` reemplazada por foto real.
 - **2026-07-17** — ✅ Deep-link de talla en `HeadlessProduct.tsx`.
-- **2026-07-10** — ✅ `/personalizados`: sticky CTA, ancla $3,500, FAQ, sección regalo.
 
 ## 5. Image Inventory
 - **COLECCIÓN ATLAS** (base `message-images/4458f31d-.../`), subidas 2026-08-24, ~1004×1500:
@@ -198,14 +220,16 @@ Atribución: `captureAttribution()` / `getAttributionPayload()` en `src/lib/trac
 - **Faltan reseñas (fotos)**: Beige Sutil, Luna Beige y las 4 de Atlas.
 
 ## 6. Known Issues
-- **[PENDIENTE VERIF · 2026-08-25 · ANALÍTICA]** La instrumentación de checkout está desplegada pero **sin validar en prod**. Correr el checklist de 8 puntos de la sección 3 antes de confiar en los datos.
-- **[HUECO · 2026-08-25]** `ProductExpressCheckout.tsx` (el "Comprar ahora" de la PDP) y el express checkout de Apple/Google Pay dentro de `StripePayment.tsx` **no están instrumentados**. Si mucha gente compra por ahí, ese tramo del embudo sigue ciego.
+- **[PENDIENTE VERIF · 2026-08-31 · PDP]** El nuevo layout (3 bullets + acordeón) está desplegado sin validar en móvil real. Correr el checklist de 6 puntos de la sección 3.
+- **[VIGILAR · 2026-08-31]** Al quitar `ProductPaymentMethods` de la PDP, **desaparece la única señal de que se puede pagar en OXXO/SPEI antes del checkout**. En México eso es una objeción real. Si `addtocart` o `initiatecheckout` bajan, considerar recuperar el dato como una línea de texto sobria o como FAQ (no como badges).
+- **[HUERFANO · 2026-08-31]** `src/components/ProductPaymentMethods.tsx` ya no se importa en ningún lado. Borrarlo si a los 30 días no se recupera.
+- **[PENDIENTE VERIF · 2026-08-25 · ANALÍTICA]** La instrumentación de checkout está desplegada pero **sin validar en prod**.
+- **[HUECO · 2026-08-25]** `ProductExpressCheckout.tsx` (el "Comprar ahora" de la PDP) y el express checkout de Apple/Google Pay dentro de `StripePayment.tsx` **no están instrumentados**.
 - **[HUECO · 2026-08-25]** Los `<a href="wa.me/...">` sueltos de PDP, `/personalizados` y `/proyectos` no emiten `whatsapp_clicked`; solo el botón flotante.
 - **[PENDIENTE VERIF · 2026-08-24 · NAV]** Confirmar en prod: el submenú "Colecciones" abre en desktop y el acordeón despliega en móvil; ningún producto muestra el badge "Nuevo".
 - **[PENDIENTE VERIF · 2026-08-24 · ATLAS]** `/coleccion-atlas` carga los 4 productos; las PDP abren con `25 x 35 cm` preseleccionado.
 - **[PENDIENTE · ATLAS]** Imagen por variante NO asignada (bug del tool). Hacerlo desde el Dashboard.
 - **[PENDIENTE · ATLAS]** Las 4 PDP salen sin estrellas. Decisión consciente.
-- **[PENDIENTE VERIF · 2026-08-19]** Confirmar en prod: estrellas en `/products/verde-salvia`, avatar strip, badge MSI, canonical `/products/`.
 - **[PENDIENTE DUEÑO · GARANTÍA]** Falta definir quién paga el envío de retorno.
 - **[PENDIENTE VERIF · PAYPAL]** Probar en prod con carrito real end-to-end.
 - **[PENDIENTE VERIF · ATRIBUCIÓN]** Confirmar en Events Manager que las órdenes PayPal lleguen con `fbp`/`fbc`/UTMs.
@@ -214,21 +238,21 @@ Atribución: `captureAttribution()` / `getAttributionPayload()` en `src/lib/trac
 - **[PENDIENTE VERIF]** Validar en prod que `Lead` dispara en `/personalizados` y `/proyectos`.
 - **[PENDIENTE VERIF]** Probar deep-link `?talla=30x90` en prod (y `?talla=40x55` en Atlas).
 - **[VIGILAR]** El ancla de $3,500 en `/proyectos` puede bajar volumen de leads pero subir calidad.
-- **[VIGILAR]** El submenú añade un clic para llegar a una colección.
 - **[FRÁGIL]** Badge "Edición Limitada" depende de que el título contenga "luna"/"estrella".
 - **NOTA:** import `CheckoutSecurityBanner` en CheckoutUI.tsx sin uso.
 - **Failed to fetch / manifest pay.google.com**: ruido de extensiones. Ignorar.
 - **⚠️ Envío gratis en lotes B2B grandes:** revisar rentabilidad en pedidos de 20+ piezas.
 
 ## 7. Pending / Future Sessions
-- **[CRÍTICA]** Correr el checklist de verificación de la instrumentación en prod (sección 3).
+- **[CRÍTICA]** Verificar la PDP nueva en móvil real + correr el checklist de instrumentación (sección 3).
 - **[ALTA]** Instrumentar `ProductExpressCheckout.tsx` y el express checkout de Apple/Google Pay.
 - **[ALTA]** Instrumentar los CTAs de WhatsApp sueltos (PDP, `/personalizados`, `/proyectos`).
-- **[ALTA]** A los 14 días: leer los datos nuevos y registrar hallazgos en `cro-log.md`.
+- **[ALTA]** A los 14 días: leer los datos nuevos y registrar hallazgos en `cro-log.md`. Incluir el efecto de la PDP simplificada sobre `addtocart`.
 - **[ALTA]** Asignar imagen por variante de Atlas desde el Dashboard.
 - **[ALTA]** Confirmar precios de Atlas con el dueño y decidir si lleva precio tachado.
 - **[ALTA]** P2.1 referencia de escala visual — más urgente por el formato 25 × 35 cm de Atlas.
 - **[ALTA]** Verificar PayPal end-to-end en prod incluyendo atribución.
+- **[MEDIA]** Decidir si se recupera la señal OXXO/SPEI en la PDP (ver Known Issues).
 - **[MEDIA]** Con los datos nuevos: encuesta exit-intent para quienes dan clic en Pagar y fallan.
 - **[MEDIA]** Bundle "Díptico Atlas" (2 × 25×35) para subir AOV.
 - **[MEDIA]** Meter Atlas en el home (`IndexUI.tsx`) y en `/all-products` como filtro de colección.

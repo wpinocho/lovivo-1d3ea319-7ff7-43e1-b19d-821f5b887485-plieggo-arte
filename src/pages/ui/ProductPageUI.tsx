@@ -48,7 +48,12 @@ import { getProductReview } from "@/data/product-reviews"
 import { SizeGuide } from "@/components/SizeGuide"
 import { CustomSizeCTA } from "@/components/CustomSizeCTA"
 import { SocialProofAvatars } from "@/components/SocialProofAvatars"
-import { ProductPaymentMethods } from "@/components/ProductPaymentMethods"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
 /**
  * EDITABLE UI COMPONENT - ProductPageUI (Premium — Plieggo Arte)
@@ -474,52 +479,82 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                 )}
               </div>
 
-              {/* Descripción visible — posición editorial: después del precio, antes del craftsmanship */}
-              {logic.product.description && (
-                <div
-                  className="text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none"
-                  dangerouslySetInnerHTML={{ __html: logic.product.description }}
-                />
-              )}
+              {/* Resumen breve — lo ÚNICO que se lee antes de elegir variante.
+                  Todo el detalle largo vive colapsado en "Más información". */}
+              <ul className="space-y-2.5 py-3 border-y border-border/60">
+                {[
+                  {
+                    icon: Layers,
+                    t: "Relieve real",
+                    d: "papel plegado a mano, no una impresión",
+                  },
+                  {
+                    icon: Hand,
+                    t: "Hecho a mano",
+                    d: "cada pieza se fabrica una por una",
+                  },
+                  { icon: Truck, t: "Envío gratis", d: "a todo México" },
+                ].map(({ icon: Icon, t, d }) => (
+                  <li key={t} className="flex items-start gap-2.5">
+                    <Icon className="h-4 w-4 text-[#C16648] shrink-0 mt-0.5" />
+                    <p className="text-sm leading-snug">
+                      <span className="font-semibold text-foreground">{t}</span>
+                      <span className="text-muted-foreground"> — {d}</span>
+                    </p>
+                  </li>
+                ))}
+              </ul>
 
-              {/* Craftsmanship story */}
-              <div className="py-2 border-y border-border/60">
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <div className="flex items-start gap-3 flex-1">
-                    <Hand className="h-5 w-5 text-[#C16648] shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/90">
-                        Hecho a mano
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                        Cada pieza tarda 3–5 días en crearse
-                      </p>
+              {/* Descripción larga + ficha de materiales — colapsadas para no
+                  estorbar la decisión de compra. */}
+              <Accordion type="single" collapsible className="-my-2">
+                <AccordionItem value="mas-info" className="border-none">
+                  <AccordionTrigger className="py-2 text-sm font-medium hover:no-underline">
+                    Más información sobre esta pieza
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-2">
+                    {logic.product.description && (
+                      <div
+                        className="text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none"
+                        dangerouslySetInnerHTML={{
+                          __html: logic.product.description,
+                        }}
+                      />
+                    )}
+                    <div className="mt-4 space-y-3">
+                      {[
+                        {
+                          icon: Hand,
+                          t: "Hecho a mano",
+                          d: "Cada pieza tarda 3–5 días en crearse",
+                        },
+                        {
+                          icon: Layers,
+                          t: "Papel de calidad",
+                          d: "Libre de ácidos, dura décadas sin desvanecer",
+                        },
+                        {
+                          icon: Sparkles,
+                          t: "Arte vivo",
+                          d: "Los pliegues crean sombras que cambian con la luz del día",
+                        },
+                      ].map(({ icon: Icon, t, d }) => (
+                        <div key={t} className="flex items-start gap-3">
+                          <Icon className="h-4 w-4 text-[#C16648] shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-wider text-foreground/90">
+                              {t}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                              {d}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                  <div className="flex items-start gap-3 flex-1">
-                    <Layers className="h-5 w-5 text-[#C16648] shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/90">
-                        Papel de calidad
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                        Libre de ácidos, dura décadas sin desvanecer
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 flex-1">
-                    <Sparkles className="h-5 w-5 text-[#C16648] shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground/90">
-                        Arte vivo
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                        Los pliegues crean sombras que cambian con la luz del día
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
 
               {/* Selling Plan Selector */}
               {logic.sellingPlans && logic.sellingPlans.length > 0 && (
@@ -771,9 +806,6 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
 
               {/* Prueba social compacta — justo debajo del CTA, donde se decide */}
               {logic.inStock && <SocialProofAvatars />}
-
-              {/* Métodos de pago — la objeción "¿cómo lo pago?" se resuelve aquí */}
-              <ProductPaymentMethods />
 
               {/* Trust strip — después de los CTAs */}
               <div className="flex flex-col sm:flex-row gap-3 py-2 border-y border-border/40 text-xs text-muted-foreground">
