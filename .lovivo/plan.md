@@ -115,6 +115,26 @@ Al final de `ProductPageUI.tsx`. Dos señales, no una:
 `failure_stage` ∈ `stripe_not_ready` · `elements_submit` · `confirm_payment` · `unexpected_status` · `unexpected` · `paypal_capture` · `paypal_sdk` · `paypal_cancelled`.
 Dedup: `failureReportedRef` en `StripePayment.tsx`.
 
+### 🔑 REGLA DURA DE `event_id` (fijada 2026-08-31) — NO ROMPER
+`generateEventId(eventName, dedupeKey?)` en `src/lib/tracking-utils.ts`.
+**El `event_id` identifica UNA INSTANCIA del evento, NO el objeto involucrado.**
+Meta lo usa para deduplicar la copia del Pixel contra la de CAPI. Si dos instancias reales
+comparten `event_id`, Meta tira una y se pierde medición y atribución.
+
+| Evento | `dedupeKey` | Razón |
+|---|---|---|
+| `ViewContent` | **ninguno → UUID** | cada vista es única |
+| `AddToCart` | **ninguno → UUID** | cada add es único |
+| `Search` | **ninguno → UUID** | dos personas buscando lo mismo son 2 instancias |
+| `InitiateCheckout` | `params.order_id` si existe, si no UUID | el checkout sí es una transacción |
+| `Purchase` | `order_id` (**obligatorio**) | la orden sí es única e irrepetible |
+| custom events | ninguno → UUID | |
+
+- **🚫 NUNCA pasar `product.id`, `slug`, `search_string` ni nada derivado del catálogo como `dedupeKey`.**
+- `randomId()` tiene fallback (`Date.now`+`Math.random`) para contextos sin `crypto.randomUUID`.
+- **Síntoma del bug si reaparece:** en PostHog, `count()` alto y `count(distinct event_id)` = 1 para un mismo producto.
+  Query de control: `SELECT properties.$current_url, count(), count(distinct properties.event_id) FROM events WHERE event='viewcontent' GROUP BY 1`.
+
 ### ⚠️ BUG CONOCIDO DEL TOOL `ecommerce--create-product` / `update-product` (2026-08-24)
 `variants_config.variants[]` SOLO respeta `price` + los nombres de opción. Cualquier otra llave se mete DENTRO de `variant.options` y corrompe el `title`.
 → **Correcto:** `variants: [{ "Tamaño": "25 x 35 cm", "price": 2800 }]` y nada más.
@@ -124,13 +144,21 @@ Dedup: `failureReportedRef` en `StripePayment.tsx`.
 
 ## 3. Active Plan
 
-# 🟡 VERIFICACIÓN — INSTRUMENTACIÓN DE CHECKOUT + NUEVO LAYOUT DE PDP
+# 🟡 VERIFICACIÓN — event_id + INSTRUMENTACIÓN DE CHECKOUT + NUEVO LAYOUT DE PDP
+
+## 🔴 Checklist `event_id` (2026-08-31) — verificar a las 24-48 h en prod
+1. En PostHog, para `viewcontent` de un mismo producto: `count(distinct event_id)` debe crecer casi 1:1 con `count()`. Antes era **1**.
+2. Igual para `addtocart` y `search_performed`.
+3. `purchase`: `count(distinct event_id)` = número de órdenes distintas (ahí SÍ debe haber colisión si se reintenta la misma orden).
+4. **Meta Events Manager → Overlapping/Deduplicated events:** debe caer el número de eventos descartados por duplicado.
+5. Vigilar que el volumen reportado de ViewContent/AddToCart en Meta **SUBA** (antes se estaban tirando).
+6. Confirmar que Pixel y CAPI siguen mandando el MISMO id por instancia (una vista = un id en ambas copias). En el log de consola: `CAPI: ViewContent {eventId}` debe coincidir con el del pixel.
 
 ## Checklist PDP (2026-08-31, tras la tanda 3)
 1. En móvil (375px): del precio al selector no debe haber más que la línea MSI + 3 bullets + una línea de acordeón.
-2. **Línea MSI visible en piezas de $3,900** (antes no salía por el piso de $4,500). Verificar en `acorden-beige-sutil` y en Atlas 25×35 ($2,800).
-3. Acordeón abre y muestra SOLO la descripción. Si el producto no tiene descripción, NO se renderiza.
-4. **Selector de tamaño:** ya no aparece el valor repetido a la derecha del label. Chips redondeados más grandes. En productos de una sola medida el chip se ve estático (gris), no como botón negro seleccionado.
+2. **Línea MSI visible en piezas de $3,900**. Verificar en `acorden-beige-sutil` y en Atlas 25×35 ($2,800).
+3. Acordeón abre y muestra SOLO la descripción. Si no hay descripción, NO se renderiza.
+4. **Selector de tamaño:** sin valor repetido a la derecha del label. Chips redondeados grandes. Producto de una sola medida = chip estático gris.
 5. Confirmar que NO aparecen badges Visa/Mastercard/OXXO ni "Pago cifrado".
 6. Trust strip de 2 items (sin "Envío gratis").
 7. **Barra sticky:** invisible al abrir; aparece solo tras pasar el CTA.
@@ -151,6 +179,7 @@ Dedup: `failureReportedRef` en `StripePayment.tsx`.
 - Top 5 `error_code`. % de los 57 "perdidos" que son `checkout_payment_pending`.
 - Split de `payment_method` y peso real de MSI. Campos frecuentes en `checkout_validation_error`. Volumen de `whatsapp_clicked`.
 - **Efecto sobre `addtocart`** de: sticky corregida, PDP simplificada y línea MSI recuperada.
+- **Efecto del fix de `event_id`** sobre el volumen y el ROAS reportado por Meta.
 Registrar en `.lovivo/cro-log.md`.
 
 ## Baseline ANTES de los cambios (PostHog, 30 días al 2026-08-25)
@@ -195,10 +224,11 @@ Ruta post-pago canónica: **`/gracias/:orderId`**. Flujo obligatorio en cualquie
 Atribución: `captureAttribution()` / `getAttributionPayload()` en `src/lib/tracking-utils.ts`.
 
 ## 4. Recent Changes
-- **2026-08-31 (tanda 3)** — ✅ **PDP: selector de tamaño limpio + MSI recuperado.** En `ProductPageUI.tsx`: (1) **eliminado el valor duplicado a la derecha del label de la opción** (aparecía "30cm x 90cm" arriba a la derecha y otra vez como chip); (2) **chips de variante rediseñados**: `rounded-full h-10 px-4 text-sm` en vez de `rounded-sm h-8 text-xs`; (3) **si la opción tiene un solo valor, se renderiza como chip estático gris**, no como botón seleccionado; (4) **línea MSI reintroducida bajo el precio** como texto sobrio ("o 6 pagos de $650 sin intereses") en vez de la caja de color anterior, y **piso bajado de $4,500 a `MSI_MIN_PRICE = 1500`** — por eso no se veía en piezas de $3,900.
-- **2026-08-31 (tanda 2)** — ✅ **PDP: densidad + fix de barra sticky.** Eliminado el bloque duplicado "Hecho a mano / Papel de calidad / Arte vivo" del acordeón; el acordeón ahora solo muestra la descripción y se oculta si no hay `description`. Padding reducido en el primer pantallazo (`gap-8→gap-5`, `space-y-3→space-y-1.5`, h1 `text-3xl→text-2xl`). Fix real de la sticky con el state `ctaSeen`. Quitado "Envío gratis / A todo México" del trust strip.
-- **2026-08-31** — ✅ **PDP SIMPLIFICADA (petición del dueño: "muy larga y confusa").** 3 beneficios antes del selector, descripción larga a acordeón, y eliminado `<ProductPaymentMethods />`.
-- **2026-08-25** — ✅ **INSTRUMENTACIÓN DE CHECKOUT IMPLEMENTADA.** `trackInternal` + `INTERNAL_EVENTS`. `StripePayment.tsx`, `PaypalExpressButton.tsx`, `CheckoutAdapter.tsx`, `CartSidebar.tsx`, `Cart.tsx`, `FloatingWhatsApp.tsx`.
+- **2026-08-31 (tanda 4)** — 🔴 **FIX CRÍTICO DE `event_id` EN META.** Diagnóstico externo confirmado en PostHog: `ViewContent` de Prisma Azul Coral tenía **1,209 eventos con UN SOLO `event_id`** (`viewcontent_<product_id>`); igual Beige Sutil (692), Verde Salvia (610), y los `AddToCart`. Meta estaba deduplicando y **tirando casi todas las instancias**. En `src/lib/tracking-utils.ts`: renombrado `stableId` → `dedupeKey`; **`ViewContent`, `AddToCart` y `Search` ya NO pasan clave** → UUID nuevo por instancia; `InitiateCheckout` solo usa `order_id` si existe (hoy no se le pasa → UUID por checkout); `Purchase` conserva `order_id`. Añadido `randomId()` con fallback para navegadores sin `crypto.randomUUID`. Documentada la regla dura en el docblock del método y en este plan.
+- **2026-08-31 (tanda 3)** — ✅ **PDP: selector de tamaño limpio + MSI recuperado.** Eliminado el valor duplicado a la derecha del label; chips `rounded-full h-10 px-4 text-sm`; opción de un solo valor = chip estático gris; línea MSI sobria bajo el precio y piso bajado de $4,500 a `MSI_MIN_PRICE = 1500`.
+- **2026-08-31 (tanda 2)** — ✅ **PDP: densidad + fix de barra sticky.** Acordeón solo con descripción, padding reducido, fix real de la sticky con `ctaSeen`, quitado "Envío gratis" del trust strip.
+- **2026-08-31** — ✅ **PDP SIMPLIFICADA (petición del dueño: "muy larga y confusa").** 3 beneficios antes del selector, descripción a acordeón, eliminado `<ProductPaymentMethods />`.
+- **2026-08-25** — ✅ **INSTRUMENTACIÓN DE CHECKOUT IMPLEMENTADA.** `trackInternal` + `INTERNAL_EVENTS`.
 - **2026-08-25** — 📋 **Auditoría de eventos de checkout en PostHog.** 3,105 vistas → 68 carrito → 67 checkout → 10 compras.
 - **2026-08-24** — ✅ **Badge "Nuevo" eliminado + submenú "Colecciones".**
 - **2026-08-24** — ✅ **LANZADA COLECCIÓN ATLAS.** 4 productos, variantes 25×35 ($2,800) y 40×55 ($4,500), landing `/coleccion-atlas`.
@@ -229,8 +259,9 @@ Atribución: `captureAttribution()` / `getAttributionPayload()` en `src/lib/trac
 - **Faltan reseñas (fotos)**: Beige Sutil, Luna Beige y las 4 de Atlas.
 
 ## 6. Known Issues
-- **[PENDIENTE VERIF · 2026-08-31 · PDP]** Layout nuevo (3 bullets + acordeón + trust strip de 2 + sticky corregida + selector limpio + línea MSI) desplegado sin validar en móvil real. Correr el checklist de 8 puntos de la sección 3.
-- **[VIGILAR · 2026-08-31]** Al quitar `ProductPaymentMethods`, desaparece la señal de OXXO/SPEI antes del checkout. Si `addtocart` o `initiatecheckout` bajan, recuperar el dato como texto sobrio o FAQ (no badges). La línea MSI ya cubre parte de esa objeción de precio.
+- **[PENDIENTE VERIF · 2026-08-31 · META]** Fix de `event_id` desplegado sin validar. Correr el checklist de 6 puntos de la sección 3 a las 24-48 h. **Ojo:** al dejar de tirar duplicados, el volumen de ViewContent/AddToCart en Meta va a SUBIR de golpe — no es un bug, es la corrección. El histórico previo al 2026-08-31 está subcontado y NO es comparable.
+- **[PENDIENTE VERIF · 2026-08-31 · PDP]** Layout nuevo (3 bullets + acordeón + trust strip de 2 + sticky corregida + selector limpio + línea MSI) desplegado sin validar en móvil real.
+- **[VIGILAR · 2026-08-31]** Al quitar `ProductPaymentMethods`, desaparece la señal de OXXO/SPEI antes del checkout. Si `addtocart` o `initiatecheckout` bajan, recuperar el dato como texto sobrio o FAQ (no badges).
 - **[VIGILAR · 2026-08-31]** La PDP ya no menciona el material salvo en el HTML de la descripción. Si preguntan por WhatsApp, meterlo en `ProductFAQ`.
 - **[HUERFANO · 2026-08-31]** `src/components/ProductPaymentMethods.tsx` sin importar en ningún lado. Borrar si a los 30 días no se recupera.
 - **[PENDIENTE VERIF · 2026-08-25 · ANALÍTICA]** Instrumentación de checkout desplegada sin validar en prod.
@@ -254,6 +285,7 @@ Atribución: `captureAttribution()` / `getAttributionPayload()` en `src/lib/trac
 - **⚠️ Envío gratis en lotes B2B grandes:** revisar rentabilidad en pedidos de 20+ piezas.
 
 ## 7. Pending / Future Sessions
+- **[CRÍTICA]** Verificar en PostHog + Meta Events Manager que el fix de `event_id` funcionó (checklist de 6 puntos).
 - **[CRÍTICA]** Verificar la PDP nueva en móvil real (sticky + selector + línea MSI) y correr el checklist de instrumentación.
 - **[ALTA]** Instrumentar `ProductExpressCheckout.tsx` y el express de Apple/Google Pay.
 - **[ALTA]** Instrumentar los CTAs de WhatsApp sueltos.

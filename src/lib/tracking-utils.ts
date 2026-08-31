@@ -91,13 +91,36 @@ class TrackingUtility {
     };
   }
 
-  // Generate event ID — determinístico cuando se provee stableId, aleatorio si no
-  private generateEventId(eventName: string = 'evt', stableId?: string): string {
+  /**
+   * Genera el event_id que se usa para deduplicar Pixel ↔ CAPI.
+   *
+   * ⚠️ REGLA CRÍTICA (fijada 2026-08-31):
+   * El event_id identifica UNA INSTANCIA del evento, no el objeto involucrado.
+   * Solo se pasa `dedupeKey` cuando la clave representa una transacción única
+   * e irrepetible (order_id en Purchase, checkout id en InitiateCheckout).
+   *
+   * NUNCA pasar product.id: todas las vistas del mismo producto compartirían
+   * un solo event_id y Meta descartaría el resto como duplicados, destruyendo
+   * la medición y la atribución.
+   */
+  private generateEventId(eventName: string = 'evt', dedupeKey?: string): string {
     const ev = eventName.toLowerCase();
-    if (stableId && String(stableId).length > 0) {
-      return `${ev}_${stableId}`;
+    if (dedupeKey && String(dedupeKey).length > 0) {
+      return `${ev}_${dedupeKey}`;
     }
-    return `${ev}_${crypto.randomUUID()}`;
+    return `${ev}_${this.randomId()}`;
+  }
+
+  // UUID con fallback para navegadores sin crypto.randomUUID (contextos no seguros)
+  private randomId(): string {
+    try {
+      if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
+      }
+    } catch {
+      // ignore — usamos el fallback
+    }
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
   }
 
   // Get user data for CAPI
@@ -136,9 +159,9 @@ class TrackingUtility {
     eventName: string,
     browserParams: Record<string, any>,
     customData: Record<string, any>,
-    stableId?: string
+    dedupeKey?: string
   ): void {
-    const eventId = this.generateEventId(eventName, stableId);
+    const eventId = this.generateEventId(eventName, dedupeKey);
 
     // 1. Browser Pixel (if available and initialized)
     if (this.pixelId) {
@@ -197,8 +220,8 @@ class TrackingUtility {
         content_category
       };
 
-      const vcStableId = products?.[0]?.id;
-      this.trackHybrid('ViewContent', browserParams, customData, vcStableId);
+      // Sin dedupeKey: cada vista es una instancia distinta → UUID nuevo.
+      this.trackHybrid('ViewContent', browserParams, customData);
     } catch (error) {
       this.logError('ViewContent', error);
     }
@@ -229,8 +252,8 @@ class TrackingUtility {
         num_items: params.num_items || products.length
       };
 
-      const atcStableId = products?.[0]?.id;
-      this.trackHybrid('AddToCart', browserParams, customData, atcStableId);
+      // Sin dedupeKey: cada add-to-cart es una instancia distinta → UUID nuevo.
+      this.trackHybrid('AddToCart', browserParams, customData);
     } catch (error) {
       this.logError('AddToCart', error);
     }
@@ -265,8 +288,8 @@ class TrackingUtility {
         num_items: browserParams.num_items
       };
 
-      const icStableId = params.order_id || products?.[0]?.id;
-      this.trackHybrid('InitiateCheckout', browserParams, customData, icStableId);
+      // Solo deduplicamos por order_id (checkout único). Si aún no existe → UUID.
+      this.trackHybrid('InitiateCheckout', browserParams, customData, params.order_id);
     } catch (error) {
       this.logError('InitiateCheckout', error);
     }
@@ -316,7 +339,8 @@ class TrackingUtility {
         return;
       }
 
-      const eventId = this.generateEventId('Search', search_string?.trim().toLowerCase());
+      // Sin dedupeKey: dos personas buscando lo mismo son dos instancias distintas.
+      const eventId = this.generateEventId('Search');
       const browserParams = {
         search_string: search_string.trim(),
         ...(products && products.length > 0 && {
