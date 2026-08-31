@@ -62,6 +62,11 @@ import {
  * Lógica intacta — solo presentación.
  */
 
+/** Monto mínimo (MXN) a partir del cual mostramos la línea de meses sin
+ *  intereses en la PDP. Los bancos mexicanos aceptan MSI desde montos muy
+ *  bajos; este piso solo evita anunciar mensualidades ridículas. */
+const MSI_MIN_PRICE = 1500
+
 interface ProductPageUIProps {
   logic: {
     product: any
@@ -455,26 +460,25 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                     )}
                 </div>
 
-                {/* MSI badge — solo tarjetas MX, MSI activo en Dashboard y precio elegible ($4,500+) */}
+                {/* MSI — línea compacta pegada al precio. Los bancos MX aceptan
+                    MSI desde montos bajos, por eso el piso es MSI_MIN_PRICE. */}
                 {paymentMethods?.installments &&
                   currencyCode.toLowerCase() === "mxn" &&
-                  logic.currentPrice >= 4500 && (
-                    <div className="inline-flex items-center gap-2 rounded-lg border border-[#C16648]/25 bg-[#C16648]/[0.07] px-3 py-2">
+                  logic.currentPrice >= MSI_MIN_PRICE && (
+                    <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
                       <CreditCard className="h-4 w-4 shrink-0 text-[#C16648]" />
-                      <p className="text-sm leading-tight">
+                      <span>
+                        o{" "}
                         <span className="font-semibold text-foreground">
+                          {paymentMethods.installments_max_plan ?? 6} pagos de{" "}
                           {logic.formatMoney(
                             logic.currentPrice /
                               (paymentMethods.installments_max_plan ?? 6),
-                          )}{" "}
-                          al mes
-                        </span>
-                        <span className="text-muted-foreground">
-                          {" "}· {paymentMethods.installments_max_plan ?? 6} meses
-                          sin intereses
-                        </span>
-                      </p>
-                    </div>
+                          )}
+                        </span>{" "}
+                        sin intereses
+                      </span>
+                    </p>
                   )}
 
                 {/* Promo badges */}
@@ -617,16 +621,9 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                 <div className="space-y-3">
                   {logic.product.options.map((option: any) => (
                     <div key={option.name} className="space-y-2">
-                      <div className="flex items-baseline justify-between">
-                        <Label className="text-sm font-medium uppercase tracking-wider">
-                          {option.name}
-                        </Label>
-                        {logic.selected[option.name] && (
-                          <span className="text-sm text-muted-foreground">
-                            {logic.selected[option.name]}
-                          </span>
-                        )}
-                      </div>
+                      <Label className="text-sm font-medium uppercase tracking-wider">
+                        {option.name}
+                      </Label>
                       <div className="flex flex-wrap gap-2">
                         {option.values.map((value: string) => {
                           const isSelected = logic.selected[option.name] === value
@@ -634,6 +631,18 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                             option.name,
                             value,
                           )
+                          // Con un solo valor no hay nada que elegir: se muestra
+                          // como dato de ficha, no como botón.
+                          if (option.values.length === 1) {
+                            return (
+                              <span
+                                key={value}
+                                className="inline-flex items-center h-10 px-4 rounded-full border border-border bg-muted/40 text-sm font-medium tracking-wide"
+                              >
+                                {value}
+                              </span>
+                            )
+                          }
                           return (
                             <button
                               key={value}
@@ -641,7 +650,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                               disabled={!isAvailable}
                               onClick={() => logic.handleOptionSelect(option.name, value)}
                               className={cn(
-                                "min-w-[2.5rem] px-3 h-8 rounded-sm border text-xs font-medium tracking-wide transition-all",
+                                "min-w-[3rem] px-4 h-10 rounded-full border text-sm font-medium tracking-wide transition-all",
                                 isSelected
                                   ? "border-foreground bg-foreground text-background"
                                   : "border-border bg-background hover:border-foreground/60",
