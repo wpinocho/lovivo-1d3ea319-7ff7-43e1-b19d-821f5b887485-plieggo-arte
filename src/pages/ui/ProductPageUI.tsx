@@ -14,7 +14,6 @@ import {
   ArrowLeft,
   Hand,
   Layers,
-  Sparkles,
   Truck,
   Clock,
   RotateCcw,
@@ -92,6 +91,14 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [slideCount, setSlideCount] = useState(0)
   const { ref: ctaRef, inView: ctaInView } = useInView({ threshold: 0 })
+  // La barra sticky NO debe existir al cargar la página: en móvil el CTA real
+  // nace fuera del viewport, así que `!ctaInView` es true desde el segundo cero.
+  // Solo aparece una vez que el usuario YA vio el CTA y siguió bajando.
+  const [ctaSeen, setCtaSeen] = useState(false)
+  useEffect(() => {
+    if (ctaInView) setCtaSeen(true)
+  }, [ctaInView])
+  const showStickyBar = ctaSeen && !ctaInView
 
   // ⚠️ Hooks must be called unconditionally — BEFORE any early returns
   const { storeName, currencyCode, paymentMethods } = useSettings()
@@ -244,7 +251,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
             </span>
           </nav>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-12">
             {/* ── GALLERY (lg:col-span-7) ── */}
             <div className="lg:col-span-7 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-7rem)]">
               {/* Desktop */}
@@ -338,7 +345,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                   </Carousel>
 
                   {/* Pagination dots — señal de "hay más, desliza" */}
-                  <div className="flex items-center justify-center gap-1.5 mt-3">
+                  <div className="flex items-center justify-center gap-1.5 mt-2.5">
                     {Array.from({ length: slideCount }).map((_, i) => (
                       <button
                         key={i}
@@ -372,8 +379,8 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
 
             {/* ── INFO COLUMN (lg:col-span-5) ── */}
             <div className="lg:col-span-5 space-y-3">
-              {/* Title block */}
-              <div className="space-y-3">
+              {/* Title block — compacto: el primer pantallazo debe llegar al precio */}
+              <div className="space-y-1.5">
                 {vendor && (
                   <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-medium">
                     {vendor}
@@ -392,7 +399,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                   </div>
                 )}
 
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight leading-[1.1]">
+                <h1 className="text-2xl md:text-4xl lg:text-5xl font-light tracking-tight leading-[1.15]">
                   {logic.product.title}
                 </h1>
 
@@ -429,7 +436,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                 )}
 
                 {/* Price block */}
-                <div className="flex items-baseline gap-3">
+                <div className="flex items-baseline gap-3 pt-0.5">
                   <span className="text-3xl font-semibold tracking-tight">
                     {logic.formatMoney(logic.currentPrice)}
                   </span>
@@ -481,7 +488,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
 
               {/* Resumen breve — lo ÚNICO que se lee antes de elegir variante.
                   Todo el detalle largo vive colapsado en "Más información". */}
-              <ul className="space-y-2.5 py-3 border-y border-border/60">
+              <ul className="space-y-2 py-2.5 border-y border-border/60">
                 {[
                   {
                     icon: Layers,
@@ -505,56 +512,24 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                 ))}
               </ul>
 
-              {/* Descripción larga + ficha de materiales — colapsadas para no
-                  estorbar la decisión de compra. */}
+              {/* Descripción larga — colapsada para no estorbar la decisión de compra. */}
+              {logic.product.description && (
               <Accordion type="single" collapsible className="-my-2">
                 <AccordionItem value="mas-info" className="border-none">
                   <AccordionTrigger className="py-2 text-sm font-medium hover:no-underline">
                     Más información sobre esta pieza
                   </AccordionTrigger>
                   <AccordionContent className="pb-2">
-                    {logic.product.description && (
-                      <div
-                        className="text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{
-                          __html: logic.product.description,
-                        }}
-                      />
-                    )}
-                    <div className="mt-4 space-y-3">
-                      {[
-                        {
-                          icon: Hand,
-                          t: "Hecho a mano",
-                          d: "Cada pieza tarda 3–5 días en crearse",
-                        },
-                        {
-                          icon: Layers,
-                          t: "Papel de calidad",
-                          d: "Libre de ácidos, dura décadas sin desvanecer",
-                        },
-                        {
-                          icon: Sparkles,
-                          t: "Arte vivo",
-                          d: "Los pliegues crean sombras que cambian con la luz del día",
-                        },
-                      ].map(({ icon: Icon, t, d }) => (
-                        <div key={t} className="flex items-start gap-3">
-                          <Icon className="h-4 w-4 text-[#C16648] shrink-0 mt-0.5" />
-                          <div>
-                            <p className="text-xs font-semibold uppercase tracking-wider text-foreground/90">
-                              {t}
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                              {d}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                    <div
+                      className="text-sm text-muted-foreground leading-relaxed prose prose-sm max-w-none"
+                      dangerouslySetInnerHTML={{
+                        __html: logic.product.description,
+                      }}
+                    />
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
+              )}
 
               {/* Selling Plan Selector */}
               {logic.sellingPlans && logic.sellingPlans.length > 0 && (
@@ -810,13 +785,6 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
               {/* Trust strip — después de los CTAs */}
               <div className="flex flex-col sm:flex-row gap-3 py-2 border-y border-border/40 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2 flex-1">
-                  <Truck className="h-4 w-4 text-[#C16648] shrink-0" />
-                  <div>
-                    <p className="font-semibold text-foreground/80">Envío gratis</p>
-                    <p>A todo México</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 flex-1">
                   <Clock className="h-4 w-4 text-[#C16648] shrink-0" />
                   <div>
                     <p className="font-semibold text-foreground/80">Entrega 5–7 días hábiles</p>
@@ -887,7 +855,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
           <div
             className={cn(
               "fixed bottom-0 left-0 right-0 z-50 bg-[#F2EFE4]/95 backdrop-blur-sm border-t border-border/40 shadow-md transition-transform duration-300 ease-out pb-[env(safe-area-inset-bottom)]",
-              ctaInView ? "translate-y-full" : "translate-y-0",
+              showStickyBar ? "translate-y-0" : "translate-y-full",
             )}
           >
             <div className="max-w-7xl mx-auto px-4 py-2.5">
