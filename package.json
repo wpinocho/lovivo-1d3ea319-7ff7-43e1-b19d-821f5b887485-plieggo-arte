@@ -67,7 +67,8 @@
     "framer-motion": "latest",
     "terser": "latest",
     "react-intersection-observer": "latest",
-    "@paypal/react-paypal-js": "latest"
+    "@paypal/react-paypal-js": "latest",
+    "vitest": "^2.1.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
