@@ -329,7 +329,7 @@ export const useProductLogic = (slugProp?: string) => {
     try {
       // Pasar los items directamente — checkout NO lee cart.items
       await checkout({ currencyCode }, itemsForCheckout)
-      navigate('/checkout')
+      navigate('/pagar')
     } catch (error) {
       console.error('Error in handleBuyNow:', error)
       // useCheckout ya maneja el toast de error

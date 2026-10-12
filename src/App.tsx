@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
 import { trackPageView } from "@/lib/tracking-utils";
 import { CartProvider } from "@/contexts/CartContext";
@@ -48,6 +48,13 @@ function PageViewTracker() {
   return null;
 }
 
+// Ruta legacy: /checkout → /pagar. Conserva ?token=, UTMs y demás params
+// (correos de carrito abandonado y links externos siguen apuntando a /checkout).
+function LegacyCheckoutRedirect() {
+  const { search, hash } = useLocation();
+  return <Navigate to={{ pathname: '/pagar', search, hash }} replace />;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <SettingsProvider>
@@ -66,7 +73,8 @@ const App = () => (
                         <Route path="/" element={<Index />} />
                         <Route path="/products/:slug" element={<Product />} />
                         <Route path="/cart" element={<Cart />} />
-                        <Route path="/checkout" element={<Checkout />} />
+                        <Route path="/pagar" element={<Checkout />} />
+                        <Route path="/checkout" element={<LegacyCheckoutRedirect />} />
                         <Route path="/thank-you" element={<ThankYou />} />
                         <Route path="/thank-you/:orderId" element={<ThankYou />} />
                         <Route path="/gracias" element={<ThankYou />} />

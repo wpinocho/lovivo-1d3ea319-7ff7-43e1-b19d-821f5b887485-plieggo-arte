@@ -47,8 +47,8 @@ export const useCartLogic = () => {
         console.error('Error saving to sessionStorage:', e)
       }
 
-      console.log('Navigating to /checkout...')
-      navigate('/checkout')
+      console.log('Navigating to /pagar...')
+      navigate('/pagar')
       console.log('Navigation call completed')
     } catch (error) {
       // El error ya es manejado por el hook useCheckout
