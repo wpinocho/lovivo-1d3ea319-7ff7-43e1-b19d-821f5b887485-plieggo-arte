@@ -15,7 +15,7 @@ const EDITORIAL_IMAGE =
   'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1787608310247-bywbhrboiau.webp'
 
 const WHATSAPP_URL =
-  'https://wa.me/525531215386?text=%C2%A1Hola!%20Me%20interes%C3%B3%20la%20Colecci%C3%B3n%20Atlas'
+  'https://wa.me/525554588525?text=%C2%A1Hola!%20Me%20interes%C3%B3%20la%20Colecci%C3%B3n%20Atlas'
 
 const FEATURED_REVIEWS = plieggoGeneralReviews.filter((r) => r.photoUrl).slice(0, 2)
 

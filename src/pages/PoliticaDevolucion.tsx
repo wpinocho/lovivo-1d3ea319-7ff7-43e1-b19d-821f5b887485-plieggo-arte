@@ -3,7 +3,7 @@ import { EcommerceTemplate } from '@/templates/EcommerceTemplate'
 import { RotateCcw, Package, Banknote, Ruler } from 'lucide-react'
 
 const WHATSAPP_URL =
-  'https://wa.me/525531215386?text=' +
+  'https://wa.me/525554588525?text=' +
   encodeURIComponent('¡Hola! Quiero devolver mi pieza de Plieggo. Mi número de pedido es: ')
 
 const STEPS = [

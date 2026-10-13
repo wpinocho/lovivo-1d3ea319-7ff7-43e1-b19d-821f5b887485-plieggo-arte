@@ -375,7 +375,7 @@ export const EcommerceTemplate = ({
             &copy; {new Date().getFullYear()} Plieggo. Todos los derechos reservados.
           </p>
           <a
-            href="https://wa.me/525531215386?text=%C2%A1Hola!%20Tengo%20una%20pregunta%20sobre%20los%20cuadros%20de%20Plieggo"
+            href="https://wa.me/525554588525?text=%C2%A1Hola!%20Tengo%20una%20pregunta%20sobre%20los%20cuadros%20de%20Plieggo"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-sm text-sm font-semibold transition-opacity hover:opacity-80"
@@ -406,7 +406,7 @@ export const EcommerceTemplate = ({
       {showCart && <FloatingCart />}
       {showWhatsApp && (
         <FloatingWhatsApp 
-          phoneNumber="+52 55 3121 5386"
+          phoneNumber="+52 55 5458 8525"
           message="¡Hola! Tengo una pregunta sobre los cuadros de Plieggo"
           tooltip="¿Necesitas ayuda?"
           showTooltip={true}

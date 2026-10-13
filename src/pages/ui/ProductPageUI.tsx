@@ -218,7 +218,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
   ])
 
   // CTA de dudas — mensaje pre-llenado con la pieza que está viendo
-  const whatsappDudasHref = `https://wa.me/525531215386?text=${encodeURIComponent(
+  const whatsappDudasHref = `https://wa.me/525554588525?text=${encodeURIComponent(
     `¡Hola! Estoy viendo el cuadro "${product.title}" y tengo una duda antes de comprarlo.`,
   )}`
 
@@ -669,7 +669,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                       />
                       {/* Nota "a tu medida" — pegada al selector, punto de mayor duda */}
                       <a
-                        href="https://wa.me/525531215386?text=%C2%A1Hola!%20Vi%20un%20cuadro%20de%20Plieggo%20y%20lo%20quiero%20en%20otra%20medida.%20%C2%BFMe%20ayudan%20a%20cotizarlo%3F"
+                        href="https://wa.me/525554588525?text=%C2%A1Hola!%20Vi%20un%20cuadro%20de%20Plieggo%20y%20lo%20quiero%20en%20otra%20medida.%20%C2%BFMe%20ayudan%20a%20cotizarlo%3F"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 text-xs transition-opacity hover:opacity-70"

@@ -25,7 +25,7 @@ import { EcommerceTemplate } from '@/templates/EcommerceTemplate'
    CTA único = WhatsApp (evento Lead). Mobile-first (96% móvil).
    ───────────────────────────────────────────────────────── */
 
-const PHONE = '525531215386'
+const PHONE = '525554588525'
 const IMG = 'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/products/'
 const HERO_IMAGE =
   'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/1779296069343-2ifge8n87sv.webp'

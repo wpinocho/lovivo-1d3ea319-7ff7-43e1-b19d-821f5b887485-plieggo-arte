@@ -4,7 +4,7 @@
 Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca premium, sutil y artesanal. Vende a coleccionistas y amantes del diseño en México. Precio acordeón: $4,500 MXN (tachado $6,000). Lunas $5,000 (tachado $7,500). Uso frecuente como regalo. Diferenciador: juego de luz y sombra que cambia según la hora.
 - **Tráfico (jun-jul 2026): 96% MÓVIL.** Fuente: Instagram (~5,300) + Facebook (~1,450). Tráfico social frío. Optimizar SIEMPRE mobile-first.
 - **OJO B2B:** el tráfico de `/proyectos` NO es el mismo perfil. Interioristas/compradores corporativos entran más desde desktop y en horario laboral.
-- Canal paralelo: WhatsApp (PDP + FloatingWhatsApp en home). **Número: 525531215386.**
+- Canal paralelo: WhatsApp (PDP + FloatingWhatsApp en home). **Número: 525554588525 (actualizado 2026-10-13, antes 525531215386).**
 - **PERSONALIZACIÓN SÍ SE OFRECE:** medidas del sitio son ESTÁNDAR pero se pueden cambiar tamaños y color. Flujo por WhatsApp. ALTA DEMANDA.
   - Solo estilos de colecciones existentes (Luna, Acordeón, Acordeón Prisma, **Atlas**). Color limitado a paleta del proveedor de opalina.
 - **ENVÍO: GRATIS EN TODO MÉXICO Y FIJO.** **ENTREGA: 5–7 días hábiles** (piezas estándar).
@@ -50,7 +50,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 - CTAs: NUNCA glow/sombra naranja. Usar tokens, nunca text-white/bg-white.
 - **Formato de dinero**: `formatMoney()` de `src/lib/money.ts`.
 - **Reseñas con foto**: `src/data/plieggo-general-reviews.ts`.
-- **CTA WhatsApp estándar**: `wa.me/525531215386?text=...`.
+- **CTA WhatsApp estándar**: `wa.me/525554588525?text=...`.
 - **Base URL imágenes producto**: `https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/products/<file>.webp`.
 - **Base URL imágenes subidas por el dueño**: `.../message-images/4458f31d-5a9f-4d50-99f1-6fc5a910bd6a/<file>.webp`.
 - **Galería PDP usa `aspect-[4/5]` + `object-contain`** → NO recorta.
@@ -137,6 +137,7 @@ Tienda de arte en papel (cuadros de acordeón/origami hechos a mano). Marca prem
 Post-pago: `/gracias/:orderId`. `localStorage 'completed_order'` → `trackPurchase()` con guardia → `clearCart()` → navigate → toast.
 
 ## 4. Recent Changes
+- **2026-10-13** — 📱 **Número de WhatsApp actualizado en toda la tienda**: `525531215386` → `525554588525` (13 archivos: PDP, CustomSizeCTA, ProductFAQ, AllProducts, CollectionAcordeon/Atlas/Espacio, Personalizados, PoliticaDevolucion, Proyectos, TopSellers, EcommerceTemplate incl. FloatingWhatsApp). Se omitió el "1" del formato local (+52 1 55...) porque wa.me no lo usa para móviles MX.
 - **2026-10-13** — 📄 **Nueva página `/politica-de-devolucion`** (`src/pages/PoliticaDevolucion.tsx`, ruta en `App.tsx`, link solo en footer). 30 días desde la entrega, no personalizados, cliente lleva la pieza al almacén, reembolso total. Copy del sitio sin "lo recogemos": PDP trust strip → "Si no te convence, lo devuelves"; `ProductFAQ` → "la devuelves y te regresamos tu dinero completo" + aclaración de que personalizados no tienen devolución.
 - **2026-10-12** — 🛒 Ruta de checkout `/checkout` → `/pagar` con redirect legacy.
 - **2026-09-26** — 🧪 Tests vitest de `event_id`.

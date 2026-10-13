@@ -43,7 +43,7 @@ import { EcommerceTemplate } from '@/templates/EcommerceTemplate'
    CTA secundario = catálogo. Mobile-first + desktop cuidado.
    ───────────────────────────────────────────────────────── */
 
-const PHONE = '525531215386'
+const PHONE = '525554588525'
 const EMAIL = 'julian.ruiz.loza@gmail.com'
 const IMG =
   'https://ptgmltivisbtvmoxwnhd.supabase.co/storage/v1/object/public/product-images/products/'

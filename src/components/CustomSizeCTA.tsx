@@ -10,7 +10,7 @@ import { Ruler, MessageCircle } from "lucide-react"
  */
 
 const WHATSAPP_URL =
-  "https://wa.me/525531215386?text=%C2%A1Hola!%20Vi%20un%20cuadro%20de%20Plieggo%20y%20lo%20quiero%20en%20otra%20medida.%20%C2%BFMe%20ayudan%20a%20cotizarlo%3F"
+  "https://wa.me/525554588525?text=%C2%A1Hola!%20Vi%20un%20cuadro%20de%20Plieggo%20y%20lo%20quiero%20en%20otra%20medida.%20%C2%BFMe%20ayudan%20a%20cotizarlo%3F"
 
 export const CustomSizeCTA = () => {
   return (

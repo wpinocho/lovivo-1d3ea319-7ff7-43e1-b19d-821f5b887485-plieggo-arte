@@ -303,7 +303,7 @@ const AllProducts = () => {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <a
-              href="https://wa.me/525531215386?text=%C2%A1Hola!%20Tengo%20una%20pregunta%20sobre%20los%20cuadros%20de%20Plieggo"
+              href="https://wa.me/525554588525?text=%C2%A1Hola!%20Tengo%20una%20pregunta%20sobre%20los%20cuadros%20de%20Plieggo"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 font-heading font-semibold text-sm px-6 py-3 rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors w-full sm:w-auto justify-center"
