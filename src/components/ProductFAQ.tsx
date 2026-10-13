@@ -64,13 +64,13 @@ export const ProductFAQ = () => {
       answer: (
         <div className="space-y-2 text-muted-foreground">
           <p>
-            <span className="font-medium text-foreground">Cuélgalo y vívelo 30 días.</span> Si no te enamora, escríbenos: pasamos por la pieza y te devolvemos tu dinero completo.
+            <span className="font-medium text-foreground">Cuélgalo y vívelo 30 días.</span> Si no te enamora, la devuelves y te regresamos tu dinero completo.
           </p>
           <p>
             Una pieza así hay que verla en <span className="font-medium text-foreground">tu pared, con tu luz, a tu hora del día</span>. Por eso el riesgo lo corremos nosotros, no tú.
           </p>
           <p>
-            Y si la pediste a tu medida, la aprobamos contigo <span className="font-medium text-foreground">antes</span> de empezar a plegarla — trabajamos juntos hasta que quede como la imaginaste.
+            Las piezas a tu medida no tienen devolución, por eso las aprobamos contigo <span className="font-medium text-foreground">antes</span> de empezar a plegarlas — trabajamos juntos hasta que queden como las imaginaste.
           </p>
         </div>
       )

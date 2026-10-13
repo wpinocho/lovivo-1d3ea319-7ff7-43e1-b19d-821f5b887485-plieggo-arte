@@ -335,6 +335,12 @@ export const EcommerceTemplate = ({
                 >
                   Proyectos y mayoreo
                 </Link>
+                <Link 
+                  to="/politica-de-devolucion" 
+                  className="block font-body text-secondary-foreground/70 hover:text-secondary-foreground transition-colors"
+                >
+                  Política de devolución
+                </Link>
               </div>
             </div>
 

@@ -804,7 +804,7 @@ export const ProductPageUI = ({ logic }: ProductPageUIProps) => {
                   <RotateCcw className="h-4 w-4 text-[#C16648] shrink-0" />
                   <div>
                     <p className="font-semibold text-foreground/80">30 días para enamorarte</p>
-                    <p>Si no, lo recogemos y te devolvemos</p>
+                    <p>Si no te convence, lo devuelves</p>
                   </div>
                 </div>
               </div>
